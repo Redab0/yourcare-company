@@ -1,0 +1,297 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'jobs_service.dart';
+
+// **************************************************************************
+// RetrofitGenerator
+// **************************************************************************
+
+// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations,unused_element_parameter
+
+class _JobsService implements JobsService {
+  _JobsService(this._dio, {this.baseUrl, this.errorLogger});
+
+  final Dio _dio;
+
+  String? baseUrl;
+
+  final ParseErrorLogger? errorLogger;
+
+  @override
+  Future<ApiResponse<ResponsePayload<PaginatedData<CleaningRequest>>>> getJobs({
+    required int page,
+    required int limit,
+    String? status,
+    String? type,
+    String? sortBy,
+    String? sortOrder,
+    bool? allowPagination,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'page': page,
+      r'limit': limit,
+      r'status': status,
+      r'type': type,
+      r'sortBy': sortBy,
+      r'sortOrder': sortOrder,
+      r'allowPagination': allowPagination,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<
+        ApiResponse<ResponsePayload<PaginatedData<CleaningRequest>>>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/company/requests',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(
+            baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+          ),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<ResponsePayload<PaginatedData<CleaningRequest>>> _value;
+    try {
+      _value =
+          ApiResponse<ResponsePayload<PaginatedData<CleaningRequest>>>.fromJson(
+        _result.data!,
+        (json) => ResponsePayload<PaginatedData<CleaningRequest>>.fromJson(
+          json as Map<String, dynamic>,
+          (json) => PaginatedData<CleaningRequest>.fromJson(
+            json as Map<String, dynamic>,
+            (json) => CleaningRequest.fromJson(json as Map<String, dynamic>),
+          ),
+        ),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ApiResponse<ResponsePayload<CleaningRequest>>> startJob(
+    String id,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options =
+        _setStreamType<ApiResponse<ResponsePayload<CleaningRequest>>>(
+      Options(method: 'PATCH', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/requests/${id}/in-progress',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(
+            baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+          ),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<ResponsePayload<CleaningRequest>> _value;
+    try {
+      _value = ApiResponse<ResponsePayload<CleaningRequest>>.fromJson(
+        _result.data!,
+        (json) => ResponsePayload<CleaningRequest>.fromJson(
+          json as Map<String, dynamic>,
+          (json) => CleaningRequest.fromJson(json as Map<String, dynamic>),
+        ),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ApiResponse<ResponsePayload<CleaningRequest>>> completeJob(
+    String id,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options =
+        _setStreamType<ApiResponse<ResponsePayload<CleaningRequest>>>(
+      Options(method: 'PATCH', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/requests/${id}/complete',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(
+            baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+          ),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<ResponsePayload<CleaningRequest>> _value;
+    try {
+      _value = ApiResponse<ResponsePayload<CleaningRequest>>.fromJson(
+        _result.data!,
+        (json) => ResponsePayload<CleaningRequest>.fromJson(
+          json as Map<String, dynamic>,
+          (json) => CleaningRequest.fromJson(json as Map<String, dynamic>),
+        ),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ApiResponse<ResponsePayload<CleaningRequest>>> cancelJob(
+    String id,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options =
+        _setStreamType<ApiResponse<ResponsePayload<CleaningRequest>>>(
+      Options(method: 'PATCH', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/requests/${id}/cancel',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(
+            baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+          ),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<ResponsePayload<CleaningRequest>> _value;
+    try {
+      _value = ApiResponse<ResponsePayload<CleaningRequest>>.fromJson(
+        _result.data!,
+        (json) => ResponsePayload<CleaningRequest>.fromJson(
+          json as Map<String, dynamic>,
+          (json) => CleaningRequest.fromJson(json as Map<String, dynamic>),
+        ),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ApiResponse<ResponsePayload<CleaningRequest>>> assignCleaners(
+    String id,
+    AcceptHouseKeepingModel model,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(model.toJson());
+    final _options =
+        _setStreamType<ApiResponse<ResponsePayload<CleaningRequest>>>(
+      Options(method: 'PATCH', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/company/requests/${id}/assign-cleaners',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(
+            baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+          ),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<ResponsePayload<CleaningRequest>> _value;
+    try {
+      _value = ApiResponse<ResponsePayload<CleaningRequest>>.fromJson(
+        _result.data!,
+        (json) => ResponsePayload<CleaningRequest>.fromJson(
+          json as Map<String, dynamic>,
+          (json) => CleaningRequest.fromJson(json as Map<String, dynamic>),
+        ),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ApiResponse<ResponsePayload<CleaningRequest>>> assignTeam(
+    String id,
+    AssignTeamModel model,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(model.toJson());
+    final _options =
+        _setStreamType<ApiResponse<ResponsePayload<CleaningRequest>>>(
+      Options(method: 'PATCH', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/company/requests/${id}/assign-team',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(
+            baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+          ),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<ResponsePayload<CleaningRequest>> _value;
+    try {
+      _value = ApiResponse<ResponsePayload<CleaningRequest>>.fromJson(
+        _result.data!,
+        (json) => ResponsePayload<CleaningRequest>.fromJson(
+          json as Map<String, dynamic>,
+          (json) => CleaningRequest.fromJson(json as Map<String, dynamic>),
+        ),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  RequestOptions _setStreamType<T>(RequestOptions requestOptions) {
+    if (T != dynamic &&
+        !(requestOptions.responseType == ResponseType.bytes ||
+            requestOptions.responseType == ResponseType.stream)) {
+      if (T == String) {
+        requestOptions.responseType = ResponseType.plain;
+      } else {
+        requestOptions.responseType = ResponseType.json;
+      }
+    }
+    return requestOptions;
+  }
+
+  String _combineBaseUrls(String dioBaseUrl, String? baseUrl) {
+    if (baseUrl == null || baseUrl.trim().isEmpty) {
+      return dioBaseUrl;
+    }
+
+    final url = Uri.parse(baseUrl);
+
+    if (url.isAbsolute) {
+      return url.toString();
+    }
+
+    return Uri.parse(dioBaseUrl).resolveUri(url).toString();
+  }
+}

@@ -1,0 +1,52 @@
+pluginManagement {
+    def flutterSdkPath = {
+        def properties = new Properties()
+        file("local.properties").withInputStream { properties.load(it) }
+        def flutterSdkPath = properties.getProperty("flutter.sdk")
+        assert flutterSdkPath != null, "flutter.sdk not set in local.properties"
+        return flutterSdkPath
+    }()
+
+    includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
+
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+plugins {
+    id "dev.flutter.flutter-plugin-loader" version "1.0.0"
+    id "com.android.application" version "8.6.1" apply false
+    id("com.android.library") version "8.6.1" apply false
+    id("org.jetbrains.kotlin.android") version "2.1.0" apply false
+    id("com.google.gms.google-services") version "4.4.3" apply false
+}
+
+include ":app"
+
+// Fix for plugins with missing namespace and other issues
+gradle.beforeProject { project ->
+    // Fix for flutter_security_checker if needed
+    if (project.name == "flutter_security_checker") {
+        project.pluginManager.withPlugin('com.android.library') {
+            project.android {
+                // Fix Java compatibility issue
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_1_8
+                    targetCompatibility JavaVersion.VERSION_1_8
+                }
+            }
+        }
+        
+        // Apply Kotlin plugin configuration when it's applied
+        project.pluginManager.withPlugin('org.jetbrains.kotlin.android') {
+            project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+                kotlinOptions {
+                    jvmTarget = '1.8'
+                }
+            }
+        }
+    }
+}

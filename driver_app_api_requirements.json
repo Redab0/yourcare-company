@@ -1,0 +1,491 @@
+{
+  "api_endpoints": {
+    "authentication": [
+      {
+        "name": "Login",
+        "description": "Authenticate driver with credentials",
+        "method": "POST",
+        "path": "/api/auth/login",
+        "request": {
+          "email": "string",
+          "password": "string"
+        },
+        "response": {
+          "id": "string",
+          "name": "string",
+          "email": "string",
+          "phone": "string",
+          "profileImage": "string?",
+          "token": "string"
+        },
+        "error_responses": [
+          {
+            "status": 401,
+            "message": "Invalid credentials"
+          },
+          {
+            "status": 403,
+            "message": "Account disabled"
+          }
+        ]
+      },
+      {
+        "name": "Logout",
+        "description": "End driver session",
+        "method": "POST",
+        "path": "/api/auth/logout",
+        "request": {},
+        "response": {
+          "success": "boolean"
+        },
+        "authorization": "Bearer token"
+      },
+      {
+        "name": "Get Current User",
+        "description": "Retrieve current authenticated driver profile",
+        "method": "GET",
+        "path": "/api/auth/profile",
+        "response": {
+          "id": "string",
+          "name": "string",
+          "email": "string",
+          "phone": "string",
+          "profileImage": "string?"
+        },
+        "authorization": "Bearer token"
+      }
+    ],
+    "jobs": [
+      {
+        "name": "Get Upcoming Jobs",
+        "description": "Retrieve pending jobs for the driver",
+        "method": "GET",
+        "path": "/api/jobs/upcoming",
+        "response": {
+          "jobs": [
+            {
+              "id": "string",
+              "clientName": "string",
+              "clientAddress": "string",
+              "clientPhone": "string",
+              "scheduledDateTime": "ISO8601 datetime",
+              "startTime": "ISO8601 datetime?",
+              "endTime": "ISO8601 datetime?",
+              "status": "string (pending, inProgress, completed, cancelled)",
+              "assignedWorkers": "array of worker IDs?",
+              "assignedCrew": "crew ID?",
+              "notes": "string?",
+              "latitude": "double?",
+              "longitude": "double?"
+            }
+          ]
+        },
+        "authorization": "Bearer token"
+      },
+      {
+        "name": "Get Completed Jobs",
+        "description": "Retrieve completed jobs for the driver",
+        "method": "GET",
+        "path": "/api/jobs/completed",
+        "response": {
+          "jobs": [
+            {
+              "id": "string",
+              "clientName": "string",
+              "clientAddress": "string",
+              "clientPhone": "string",
+              "scheduledDateTime": "ISO8601 datetime",
+              "startTime": "ISO8601 datetime?",
+              "endTime": "ISO8601 datetime?",
+              "status": "string (pending, inProgress, completed, cancelled)",
+              "assignedWorkers": "array of worker IDs?",
+              "assignedCrew": "crew ID?",
+              "notes": "string?",
+              "latitude": "double?",
+              "longitude": "double?"
+            }
+          ]
+        },
+        "authorization": "Bearer token"
+      },
+      {
+        "name": "Get Job Details",
+        "description": "Retrieve detailed information about a specific job",
+        "method": "GET",
+        "path": "/api/jobs/{jobId}",
+        "urlParams": {
+          "jobId": "string"
+        },
+        "response": {
+          "id": "string",
+          "clientName": "string",
+          "clientAddress": "string",
+          "clientPhone": "string",
+          "scheduledDateTime": "ISO8601 datetime",
+          "startTime": "ISO8601 datetime?",
+          "endTime": "ISO8601 datetime?",
+          "status": "string (pending, inProgress, completed, cancelled)",
+          "assignedWorkers": [
+            {
+              "id": "string",
+              "name": "string",
+              "phone": "string",
+              "profileImage": "string?",
+              "isAvailable": "boolean"
+            }
+          ],
+          "assignedCrew": {
+            "id": "string",
+            "name": "string",
+            "workers": [
+              {
+                "id": "string",
+                "name": "string",
+                "phone": "string",
+                "profileImage": "string?",
+                "isAvailable": "boolean"
+              }
+            ],
+            "isAvailable": "boolean"
+          },
+          "notes": "string?",
+          "latitude": "double?",
+          "longitude": "double?"
+        },
+        "authorization": "Bearer token"
+      },
+      {
+        "name": "Start Job",
+        "description": "Update job status to in-progress and record start time",
+        "method": "POST",
+        "path": "/api/jobs/{jobId}/start",
+        "urlParams": {
+          "jobId": "string"
+        },
+        "request": {
+          "latitude": "double?",
+          "longitude": "double?"
+        },
+        "response": {
+          "id": "string",
+          "status": "string (inProgress)",
+          "startTime": "ISO8601 datetime"
+        },
+        "authorization": "Bearer token"
+      },
+      {
+        "name": "Complete Job",
+        "description": "Mark job as completed and record end time",
+        "method": "POST",
+        "path": "/api/jobs/{jobId}/complete",
+        "urlParams": {
+          "jobId": "string"
+        },
+        "request": {
+          "latitude": "double?",
+          "longitude": "double?",
+          "notes": "string?"
+        },
+        "response": {
+          "id": "string",
+          "status": "string (completed)",
+          "endTime": "ISO8601 datetime"
+        },
+        "authorization": "Bearer token"
+      }
+    ],
+    "crew": [
+      {
+        "name": "Get Assigned Workers",
+        "description": "Retrieve workers assigned to the driver",
+        "method": "GET",
+        "path": "/api/crew/workers",
+        "response": {
+          "workers": [
+            {
+              "id": "string",
+              "name": "string",
+              "phone": "string",
+              "profileImage": "string?",
+              "isAvailable": "boolean"
+            }
+          ]
+        },
+        "authorization": "Bearer token"
+      },
+      {
+        "name": "Get Assigned Crews",
+        "description": "Retrieve crews assigned to the driver",
+        "method": "GET",
+        "path": "/api/crew/teams",
+        "response": {
+          "crews": [
+            {
+              "id": "string",
+              "name": "string",
+              "workers": [
+                {
+                  "id": "string",
+                  "name": "string",
+                  "phone": "string",
+                  "profileImage": "string?",
+                  "isAvailable": "boolean"
+                }
+              ],
+              "isAvailable": "boolean"
+            }
+          ]
+        },
+        "authorization": "Bearer token"
+      }
+    ]
+  },
+  "data_models": {
+    "user": {
+      "fields": {
+        "id": "string (UUID)",
+        "name": "string",
+        "email": "string",
+        "phone": "string",
+        "profileImage": "string?",
+        "password": "string (hashed, not returned to client)",
+        "role": "string (driver)",
+        "isActive": "boolean"
+      }
+    },
+    "worker": {
+      "fields": {
+        "id": "string (UUID)",
+        "name": "string",
+        "phone": "string",
+        "profileImage": "string?",
+        "isAvailable": "boolean",
+        "businessId": "string (reference to the cleaning business)"
+      }
+    },
+    "crew": {
+      "fields": {
+        "id": "string (UUID)",
+        "name": "string",
+        "workers": "array of worker IDs",
+        "isAvailable": "boolean",
+        "businessId": "string (reference to the cleaning business)"
+      },
+      "relationships": {
+        "workers": "many-to-many with Worker"
+      }
+    },
+    "job": {
+      "fields": {
+        "id": "string (UUID)",
+        "clientName": "string",
+        "clientAddress": "string",
+        "clientPhone": "string",
+        "scheduledDateTime": "datetime",
+        "startTime": "datetime?",
+        "endTime": "datetime?",
+        "status": "enum (pending, inProgress, completed, cancelled)",
+        "assignedWorkers": "array of worker IDs?",
+        "assignedCrew": "crew ID?",
+        "notes": "string?",
+        "latitude": "double?",
+        "longitude": "double?",
+        "businessId": "string (reference to the cleaning business)",
+        "driverId": "string (reference to the driver user)",
+        "createdAt": "datetime",
+        "updatedAt": "datetime"
+      },
+      "relationships": {
+        "workers": "many-to-many with Worker",
+        "crew": "many-to-one with Crew",
+        "driver": "many-to-one with User (role=driver)"
+      }
+    },
+    "business": {
+      "fields": {
+        "id": "string (UUID)",
+        "name": "string",
+        "address": "string",
+        "phone": "string",
+        "email": "string",
+        "logo": "string?"
+      },
+      "relationships": {
+        "workers": "one-to-many with Worker",
+        "crews": "one-to-many with Crew",
+        "jobs": "one-to-many with Job",
+        "drivers": "one-to-many with User (role=driver)"
+      }
+    }
+  },
+  "authentication": {
+    "mechanism": "JWT Token",
+    "token_lifetime": "24 hours",
+    "refresh_token": true,
+    "refresh_token_lifetime": "7 days",
+    "roles": ["driver", "admin", "business-owner"],
+    "permissions": {
+      "driver": [
+        "view assigned jobs",
+        "start job",
+        "complete job",
+        "view assigned workers",
+        "view assigned crews"
+      ]
+    }
+  },
+  "third_party_integrations": {
+    "payment_processing": {
+      "required": false
+    },
+    "maps": {
+      "required": true,
+      "provider": "Google Maps",
+      "features": [
+        "geocoding",
+        "route planning",
+        "location tracking"
+      ]
+    },
+    "notifications": {
+      "required": true,
+      "provider": "Firebase Cloud Messaging",
+      "notification_types": [
+        "new job assigned",
+        "job schedule reminders",
+        "job status updates"
+      ]
+    },
+    "file_storage": {
+      "required": true,
+      "provider": "AWS S3 or similar",
+      "usage": [
+        "profile images",
+        "business logos"
+      ]
+    }
+  },
+  "user_flows": [
+    {
+      "name": "Driver Authentication",
+      "steps": [
+        {
+          "description": "Driver opens app",
+          "api_calls": []
+        },
+        {
+          "description": "App checks if driver is logged in",
+          "api_calls": [
+            {
+              "endpoint": "/api/auth/profile",
+              "method": "GET"
+            }
+          ]
+        },
+        {
+          "description": "If not logged in, show login screen",
+          "api_calls": []
+        },
+        {
+          "description": "Driver enters credentials and submits",
+          "api_calls": [
+            {
+              "endpoint": "/api/auth/login",
+              "method": "POST"
+            }
+          ]
+        },
+        {
+          "description": "Upon successful login, navigate to home screen",
+          "api_calls": []
+        }
+      ]
+    },
+    {
+      "name": "View and Manage Jobs",
+      "steps": [
+        {
+          "description": "Driver navigates to upcoming jobs screen",
+          "api_calls": [
+            {
+              "endpoint": "/api/jobs/upcoming",
+              "method": "GET"
+            }
+          ]
+        },
+        {
+          "description": "Driver selects a job to view details",
+          "api_calls": [
+            {
+              "endpoint": "/api/jobs/{jobId}",
+              "method": "GET"
+            }
+          ]
+        },
+        {
+          "description": "Driver arrives at job location and starts the job",
+          "api_calls": [
+            {
+              "endpoint": "/api/jobs/{jobId}/start",
+              "method": "POST"
+            }
+          ]
+        },
+        {
+          "description": "Job is completed, driver marks it as complete",
+          "api_calls": [
+            {
+              "endpoint": "/api/jobs/{jobId}/complete",
+              "method": "POST"
+            }
+          ]
+        },
+        {
+          "description": "Driver checks completed job history",
+          "api_calls": [
+            {
+              "endpoint": "/api/jobs/completed",
+              "method": "GET"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Manage Workers and Crews",
+      "steps": [
+        {
+          "description": "Driver navigates to crews & workers screen",
+          "api_calls": []
+        },
+        {
+          "description": "Driver views individual workers tab",
+          "api_calls": [
+            {
+              "endpoint": "/api/crew/workers",
+              "method": "GET"
+            }
+          ]
+        },
+        {
+          "description": "Driver views crews tab",
+          "api_calls": [
+            {
+              "endpoint": "/api/crew/teams",
+              "method": "GET"
+            }
+          ]
+        },
+        {
+          "description": "Driver selects a worker/crew to start job",
+          "api_calls": [
+            {
+              "endpoint": "/api/jobs/{jobId}/start",
+              "method": "POST"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
