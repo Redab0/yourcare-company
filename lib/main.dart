@@ -27,6 +27,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppBlocProviders(
       child: BlocBuilder<LocaleCubit, Locale>(
+        bloc: sl<LocaleCubit>(),
         builder: (context, locale) {
           return MaterialApp.router(
             locale: locale,

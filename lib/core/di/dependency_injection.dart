@@ -1,5 +1,6 @@
 import 'package:cleaning_service_driver/components/loading_overlay.dart';
 import 'package:cleaning_service_driver/core/api/api_client.dart';
+import 'package:cleaning_service_driver/core/storage/local_storage.dart';
 import 'package:cleaning_service_driver/core/utils/loading_controller.dart';
 import 'package:cleaning_service_driver/core/utils/locale_cubit.dart';
 import 'package:cleaning_service_driver/data/repositories/auth/auth_repository.dart';
@@ -52,11 +53,22 @@ import 'package:cleaning_service_driver/features/bloc/staff/staff_action_bloc.da
 import 'package:cleaning_service_driver/features/bloc/staff/staff_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final sl = GetIt.instance;
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> setupServiceLocator() async {
+  final prefs = await SharedPreferences.getInstance();
+  sl.registerSingleton<SharedPreferences>(prefs);
+  sl.registerLazySingleton<LocaleStorage>(() => LocaleStorage(sl()));
+
+  final saved = sl<LocaleStorage>().read();
+  sl.registerSingleton<LocaleCubit>(LocaleCubit(
+    initial: saved != null ? Locale(saved) : const Locale('en'),
+    storage: sl<LocaleStorage>(),
+  ));
+
   // ApiClient
   sl.registerLazySingleton<ApiClient>(() => ApiClient());
 
@@ -153,5 +165,4 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory(() => StaffBloc());
   sl.registerFactory(() => StaffActionBloc());
   sl.registerFactory(() => ProfileBloc());
-  sl.registerFactory(() => LocaleCubit());
 }

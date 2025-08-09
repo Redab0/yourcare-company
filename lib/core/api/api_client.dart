@@ -1,4 +1,6 @@
+import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
+import 'package:cleaning_service_driver/core/utils/locale_cubit.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
@@ -39,6 +41,11 @@ class ApiClient {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
+          // Language (use the SAME LocaleCubit instance you provided to the app)
+          final langTag =
+              sl<LocaleCubit>().state.toLanguageTag(); // e.g. "ar" or "ar-AE"
+          options.headers['Accept-Language'] = langTag;
+          options.headers['locale'] = langTag;
           final token = await SecureStorageService().getAccessToken();
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
