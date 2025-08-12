@@ -21,6 +21,7 @@ import 'package:cleaning_service_driver/features/screens/staff/staff_details_scr
 import 'package:cleaning_service_driver/features/screens/staff/staff_list_screen.dart';
 import 'package:cleaning_service_driver/features/screens/staff/staff_main_screen.dart';
 import 'package:cleaning_service_driver/features/screens/staff/teams_list_screen.dart';
+import 'package:cleaning_service_driver/features/screens/statistics/statistics_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -140,6 +141,12 @@ class AppRouter {
                     request: s.extra! as DeepCleaningHistory),
               )
             ],
+          ),
+
+          GoRoute(
+            name: 'statisticsScreen',
+            path: '/StatisticsScreen',
+            builder: (_, __) => StatisticsScreen(),
           ),
 
           GoRoute(

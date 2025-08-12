@@ -658,4 +658,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get permissions => 'Permissions';
+
+  @override
+  String get total_requests_label => 'Total Requests';
+
+  @override
+  String get total_revenue_label => 'Total Revenue';
+
+  @override
+  String get average_requests_label => 'Avg / Request';
+
+  @override
+  String get statistics_title => 'Statistics';
 }

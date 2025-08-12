@@ -658,4 +658,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get permissions => 'الصلاحيات';
+
+  @override
+  String get total_requests_label => 'مجموع الطلبات';
+
+  @override
+  String get total_revenue_label => 'مجموع الإيرادات';
+
+  @override
+  String get average_requests_label => 'متوسط الطلبات';
+
+  @override
+  String get statistics_title => 'إحصاءيات';
 }

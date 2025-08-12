@@ -13,7 +13,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../components/home_menu_item.dart';
-import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/permissions_helper.dart';
 import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/auth/auth_event.dart';
@@ -171,8 +170,7 @@ class _HomePageState extends State<HomePage> {
                             HomeMenuItem(
                               imageAsset: 'assets/images/analytics.png',
                               title: context.l10n.reports,
-                              onTap: () =>
-                                  context.go(AppConstants.reportsScreen),
+                              onTap: () => context.goNamed('statisticsScreen'),
                             ),
                           if (perms!.hasPermission(Permission.usersRead))
                             HomeMenuItem(

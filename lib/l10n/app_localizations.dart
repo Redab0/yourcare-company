@@ -1396,6 +1396,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Permissions'**
   String get permissions;
+
+  /// No description provided for @total_requests_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Requests'**
+  String get total_requests_label;
+
+  /// No description provided for @total_revenue_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Revenue'**
+  String get total_revenue_label;
+
+  /// No description provided for @average_requests_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg / Request'**
+  String get average_requests_label;
+
+  /// No description provided for @statistics_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get statistics_title;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

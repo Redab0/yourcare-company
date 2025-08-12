@@ -216,5 +216,9 @@
   "no_teams_available": "No Teams Available",
   "user_info_permission": "User & Permission Management",
   "username": "Username",
-  "permissions": "Permissions"
+  "permissions": "Permissions",
+  "total_requests_label": "Total Requests",
+  "total_revenue_label": "Total Revenue",
+  "average_requests_label": "Avg / Request",
+  "statistics_title": "Statistics"
 }

@@ -215,5 +215,9 @@
   "no_teams_available": "لا يوجد أي فريق عمل",
   "user_info_permission": "ادارة معلومات و صلاحيات المستخدم ",
   "username": "اسم المستخدم",
-  "permissions": "الصلاحيات"
+  "permissions": "الصلاحيات",
+  "total_requests_label": "مجموع الطلبات",
+  "total_revenue_label": "مجموع الإيرادات",
+  "average_requests_label": "متوسط الطلبات",
+  "statistics_title": "إحصاءيات"
 }

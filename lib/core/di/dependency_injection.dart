@@ -10,11 +10,13 @@ import 'package:cleaning_service_driver/data/repositories/profile/profile_reposi
 import 'package:cleaning_service_driver/data/repositories/requests/requests_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/staff/permissions_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/staff/staff_repository.dart';
+import 'package:cleaning_service_driver/data/repositories/statistics/statistics_repository.dart';
 import 'package:cleaning_service_driver/data/services/auth/auth_service.dart';
 import 'package:cleaning_service_driver/data/services/jobs/jobs_service.dart';
 import 'package:cleaning_service_driver/data/services/profile/profile_service.dart';
 import 'package:cleaning_service_driver/data/services/requests/requests_service.dart';
 import 'package:cleaning_service_driver/data/services/staff/staff_service.dart';
+import 'package:cleaning_service_driver/data/services/statistics/statistics_service.dart';
 import 'package:cleaning_service_driver/domain/usecases/auth/login_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/auth/logout_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/home/fetch_home_data_usecase.dart';
@@ -42,6 +44,7 @@ import 'package:cleaning_service_driver/domain/usecases/staff/get_teams_usecase.
 import 'package:cleaning_service_driver/domain/usecases/staff/get_user_details.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/update_team_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/update_user_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/statistics/get_requests_statistics_usecase.dart';
 import 'package:cleaning_service_driver/features/bloc/auth/auth_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/home/home_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_actions_bloc.dart';
@@ -51,6 +54,7 @@ import 'package:cleaning_service_driver/features/bloc/requests/requests_action_b
 import 'package:cleaning_service_driver/features/bloc/requests/requests_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_action_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/statistics/statistics_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -96,6 +100,10 @@ Future<void> setupServiceLocator() async {
     () => ProfileService(sl<ApiClient>().dio),
   );
 
+  sl.registerLazySingleton<StatisticsService>(
+    () => StatisticsService(sl<ApiClient>().dio),
+  );
+
   // Repos
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepository(sl<AuthService>()),
@@ -118,6 +126,10 @@ Future<void> setupServiceLocator() async {
 
   sl.registerLazySingleton<PermissionsRepository>(
     () => PermissionsRepository(),
+  );
+
+  sl.registerLazySingleton<StatisticsRepository>(
+    () => StatisticsRepository(sl<StatisticsService>()),
   );
 
   //use cases
@@ -154,6 +166,7 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory(() => GetUserDetails(sl<StaffRepository>()));
   sl.registerFactory(() => AssignCleanersUseCase(sl<JobsRepository>()));
   sl.registerFactory(() => AssignTeamUseCase(sl<JobsRepository>()));
+  sl.registerFactory(() => GetRequestsStatistics(sl<StatisticsRepository>()));
 
   // Blocs
   sl.registerFactory(() => AuthBloc());
@@ -165,4 +178,5 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory(() => StaffBloc());
   sl.registerFactory(() => StaffActionBloc());
   sl.registerFactory(() => ProfileBloc());
+  sl.registerFactory(() => StatisticsBloc());
 }

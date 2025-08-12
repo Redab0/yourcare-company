@@ -9,6 +9,7 @@ import 'package:cleaning_service_driver/features/bloc/requests/requests_action_b
 import 'package:cleaning_service_driver/features/bloc/requests/requests_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_action_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/statistics/statistics_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -31,6 +32,7 @@ class AppBlocProviders extends StatelessWidget {
         BlocProvider(create: (_) => sl<StaffActionBloc>()),
         BlocProvider(create: (_) => sl<ProfileBloc>()),
         BlocProvider(create: (_) => sl<LocaleCubit>()),
+        BlocProvider(create: (_) => sl<StatisticsBloc>()),
       ],
       child: child,
     );
