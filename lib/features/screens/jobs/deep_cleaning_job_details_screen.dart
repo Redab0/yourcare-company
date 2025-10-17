@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:cleaning_service_driver/components/contact_actions.dart';
 import 'package:cleaning_service_driver/components/detail_row.dart';
+import 'package:cleaning_service_driver/components/media_carousel_viewer.dart';
 import 'package:cleaning_service_driver/components/open_map_action.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
+import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
+import 'package:cleaning_service_driver/data/models/requests/complete_job_media_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/deep_cleaning_history.dart';
 import 'package:cleaning_service_driver/data/models/staff/team_model.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_actions_bloc.dart';
@@ -12,6 +17,8 @@ import 'package:cleaning_service_driver/features/bloc/requests/requests_actions_
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 class DeepCleaningJobDetailsScreen extends StatefulWidget {
   final DeepCleaningHistory request;
@@ -27,6 +34,10 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
   List<TeamModel> _allTeams = [];
   String _selectedTeamId = "";
   late DeepCleaningHistory _currentRequest;
+  List<File> uploadedFiles = [];
+  List<String> uploadedFilesUrls = [];
+  static const int _maxMedia = 10;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -37,7 +48,6 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
 
   void _toggleEditTeam() {
     if (!_isEditingTeams) {
-      // first time: fetch the full workers list
       context.read<JobActionsBloc>().add(FetchTeamsEvent());
     }
     setState(() => _isEditingTeams = !_isEditingTeams);
@@ -47,6 +57,42 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
     context.read<JobActionsBloc>().add(
           AssignTeamEvent(_currentRequest.id ?? "", _selectedTeamId),
         );
+  }
+
+  Future<void> openMediaCarousel(BuildContext context, List<String> urls,
+      {int initialIndex = 0}) {
+    return showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.9),
+      builder: (_) =>
+          MediaCarouselViewer(urls: urls, initialIndex: initialIndex),
+    );
+  }
+
+  Widget _mediaThumb(String url) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Clipped image or placeholder
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: _isVideoUrl(url)
+                  ? const ColoredBox(color: Color(0x11000000))
+                  : Image.network(url, fit: BoxFit.cover),
+            ),
+            if (_isVideoUrl(url))
+              const Center(
+                child:
+                    Icon(Icons.play_circle_fill, size: 42, color: Colors.white),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -64,16 +110,25 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
           ScaffoldMessenger.of(ctx)
               .showSnackBar(SnackBar(content: Text(state.message)));
         } else if (state is TeamsFetchedState) {
-          // <-- Add this:
           setState(() {
             _allTeams = state.teams;
-            // if you want to auto-enter edit mode you could:
-            // _isEditingTeams = true;
           });
         } else if (state is TeamAssigned) {
           _isEditingTeams = false;
           // refresh the request’s assignedWorker list
           _currentRequest = (state.model as DeepCleaningHistory);
+        }
+        if (state is MediaUploaded) {
+          final urls = state.media.map((r) => r.url).toList();
+          setState(() {
+            uploadedFilesUrls.addAll(urls);
+            if (uploadedFilesUrls.length > 10) {
+              uploadedFilesUrls.removeRange(10, uploadedFilesUrls.length);
+            }
+          });
+          ScaffoldMessenger.of(ctx).showSnackBar(
+            SnackBar(content: Text('Added ${urls.length} item(s)')),
+          );
         }
       },
       builder: (ctx, state) {
@@ -84,22 +139,25 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  if (d.photosAndVideos?.isNotEmpty ?? false)
+                  if ((d.photosAndVideos?.isNotEmpty ?? false))
                     SizedBox(
                       height: 160,
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemCount: d.photosAndVideos!.length,
                         separatorBuilder: (_, __) => const SizedBox(width: 16),
-                        itemBuilder: (_, i) => ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Image.network(
-                            d.photosAndVideos![i],
-                            width: 260,
-                            height: 160,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+                        itemBuilder: (_, i) {
+                          final url = d.photosAndVideos![i];
+                          return GestureDetector(
+                            onTap: () => openMediaCarousel(
+                                context, d.photosAndVideos!,
+                                initialIndex: i),
+                            child: SizedBox(
+                                width: 260,
+                                height: 160,
+                                child: _mediaThumb(url)),
+                          );
+                        },
                       ),
                     ),
                   const SizedBox(height: 32),
@@ -344,24 +402,374 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
                       ],
                     ),
                   ),
+                  if (widget.request.requestStatus == RequestStatus.inProgress)
+                    _media(context),
                 ],
               ),
             ),
           ),
-          bottomNavigationBar: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-            child: FilledButton(
-              onPressed: () {
-                // Could pop up a dialog to enter an amount.
-                context.read<JobActionsBloc>().add(
-                      StartJobEvent(widget.request.id ?? ""),
+          bottomNavigationBar: (widget.request.requestStatus !=
+                      RequestStatus.completed &&
+                  widget.request.requestStatus != RequestStatus.cancelled)
+              ? Builder(
+                  builder: (context) {
+                    // Optional: also disable while uploading
+                    final isUploading = context.select<JobActionsBloc, bool>(
+                      (bloc) => bloc.state is MediaUploading,
                     );
-              },
-              child: const Text('Start Job'),
-            ),
-          ),
+
+                    final rs = widget.request.requestStatus;
+                    final isConfirmed = rs == RequestStatus.confirmed;
+                    final isInProgress = rs == RequestStatus.inProgress;
+
+                    // Disable "Complete Job" when in-progress and no media uploaded
+                    final canCompleteNow = isInProgress &&
+                        uploadedFilesUrls.isNotEmpty &&
+                        !isUploading;
+
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                      child: FilledButton(
+                        onPressed: isConfirmed
+                            ? () {
+                                // Confirmed -> prompt to attach media (start job flow)
+                                _showAttachFirstSheet(
+                                    context, widget.request.id ?? "");
+                              }
+                            : (canCompleteNow
+                                ? () {
+                                    // In progress + has media -> complete
+                                    final body = CompleteJobRequest(
+                                      files:
+                                          List<String>.from(uploadedFilesUrls),
+                                    );
+                                    context.read<JobActionsBloc>().add(
+                                          CompleteJobEvent(
+                                              widget.request.id ?? "", body),
+                                        );
+                                  }
+                                : null), // disabled if no media (or uploading)
+                        child: Text(
+                          isConfirmed
+                              ? context.l10n.start_job
+                              : isInProgress
+                                  ? context.l10n.complete_job
+                                  : 'OK',
+                        ),
+                      ),
+                    );
+                  },
+                )
+              : const SizedBox.shrink(),
         );
       },
+    );
+  }
+
+  void _showAttachFirstSheet(BuildContext context, String requestId) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Add photos/videos',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            const Text(
+              'Please attach pictures or videos before completing the job.',
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.add_photo_alternate),
+                    label: const Text('Add media'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _pickFromGallery(); // opens your picker
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.photo_camera),
+                    label: const Text('Use camera'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _cameraSheet(); // camera or video capture chooser
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  bool _isVideoUrl(String url) {
+    final u = url.toLowerCase();
+    return u.endsWith('.mp4') || u.endsWith('.mov') || u.contains('video');
+  }
+
+  void _showAddMediaChooser() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Wrap(
+            runSpacing: 12,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Pick from gallery'),
+                subtitle: const Text('Images and videos'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickFromGallery();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_camera),
+                title: const Text('Use camera'),
+                subtitle: const Text('Photo or video'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _cameraSheet();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickFromGallery() async {
+    final remaining = _maxMedia - uploadedFilesUrls.length;
+    if (remaining <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Max 10 items reached')),
+      );
+      return;
+    }
+
+    // Prefer pickMultipleMedia (supports images + videos)
+    List<XFile> picked = [];
+    try {
+      final media =
+          await _picker.pickMultipleMedia(); // requires image_picker >= 1.0
+      picked = media ?? [];
+    } catch (_) {
+      // Fallback if not supported
+      final images = await _picker.pickMultiImage();
+      if (images != null) picked.addAll(images);
+      // For videos, user would use the camera option or you can add a separate gallery video picker:
+      // final video = await _picker.pickVideo(source: ImageSource.gallery);
+      // if (video != null) picked.add(video);
+    }
+
+    if (picked.isEmpty) return;
+
+    // Enforce remaining cap
+    if (picked.length > remaining) {
+      picked = picked.take(remaining).toList();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Only $remaining more item(s) allowed')),
+      );
+    }
+
+    final files = picked.map((x) => File(x.path)).toList();
+
+    // Dispatch upload (your event takes only List<File>)
+    context.read<JobActionsBloc>().add(UploadMediaEvent(files));
+  }
+
+  Future<void> _cameraSheet() async {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Wrap(
+            runSpacing: 12,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera),
+                title: const Text('Take photo'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _capturePhoto();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.videocam),
+                title: const Text('Record video'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _captureVideo();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _capturePhoto() async {
+    final remaining = _maxMedia - uploadedFilesUrls.length;
+    if (remaining <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Max 10 items reached')),
+      );
+      return;
+    }
+    final x = await _picker.pickImage(source: ImageSource.camera);
+    if (x == null) return;
+    final file = File(x.path);
+    context.read<JobActionsBloc>().add(UploadMediaEvent([file]));
+  }
+
+  Future<void> _captureVideo() async {
+    final remaining = _maxMedia - uploadedFilesUrls.length;
+    if (remaining <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Max 10 items reached')),
+      );
+      return;
+    }
+    final x = await _picker.pickVideo(source: ImageSource.camera);
+    if (x == null) return;
+    final file = File(x.path);
+    context.read<JobActionsBloc>().add(UploadMediaEvent([file]));
+  }
+
+  Widget _media(BuildContext context) {
+    final canAdd = uploadedFilesUrls.length < _maxMedia;
+    final itemCount = uploadedFilesUrls.length + (canAdd ? 1 : 0);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Text('Work Media',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(width: 8),
+            Text(
+              '${uploadedFilesUrls.length}/$_maxMedia',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const Spacer(),
+            IconButton(
+              tooltip: 'Gallery',
+              onPressed: _pickFromGallery,
+              icon: const Icon(Icons.photo_library),
+            ),
+            IconButton(
+              tooltip: 'Camera',
+              onPressed: _cameraSheet,
+              icon: const Icon(Icons.photo_camera),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: 1,
+          ),
+          itemCount: itemCount,
+          itemBuilder: (context, i) {
+            // Add tile
+            if (canAdd && i == itemCount - 1) {
+              return InkWell(
+                onTap: _showAddMediaChooser,
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                        color: Theme.of(context).colorScheme.outlineVariant),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.add),
+                        SizedBox(height: 4),
+                        Text('Add media'),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            final url = uploadedFilesUrls[i];
+            final isVideo = _isVideoUrl(url);
+
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: isVideo
+                      ? Container(
+                          color: Colors.black12,
+                          child: const Center(
+                              child: Icon(Icons.videocam, size: 36)),
+                        )
+                      : Image.network(url, fit: BoxFit.cover),
+                ),
+                if (isVideo)
+                  const Positioned(
+                    left: 6,
+                    bottom: 6,
+                    child: _VideoBadge(),
+                  ),
+                Positioned(
+                  top: 4,
+                  right: 4,
+                  child: InkWell(
+                    onTap: () => setState(() => uploadedFilesUrls.removeAt(i)),
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.black54,
+                        shape: BoxShape.circle,
+                      ),
+                      padding: const EdgeInsets.all(4),
+                      child: const Icon(Icons.close,
+                          size: 16, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -446,4 +854,22 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
         child: Text(t,
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
       );
+}
+
+class _VideoBadge extends StatelessWidget {
+  const _VideoBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.black54,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        child: Icon(Icons.videocam, size: 14, color: Colors.white),
+      ),
+    );
+  }
 }

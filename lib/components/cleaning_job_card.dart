@@ -72,25 +72,18 @@ class CleaningJobCard extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             // ── products included ───────────────────────────────────
-            Column(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Icon(
-                    request.detail.cleaningProducts!.title!
-                            .contains('Eco-friendly')
-                        ? Icons.check_circle
-                        : Icons.remove_circle,
-                    color: request.detail.cleaningProducts!.title!
-                            .contains('Eco-friendly')
-                        ? tGreen
-                        : tRed,
-                    size: 28),
-                const SizedBox(height: 6),
-                Text(
-                    request.detail.cleaningProducts!.title!
-                            .contains('Eco-friendly')
-                        ? context.l10n.request_products_included
-                        : context.l10n.request_products_not_included,
-                    style: theme.textTheme.bodyMedium),
+                _iconLabel(
+                  Icons.cleaning_services_outlined,
+                  request.detail.cleaningProducts!.title!
+                          .contains('Eco-friendly')
+                      ? context.l10n.request_products_included
+                      : context.l10n.request_products_not_included,
+                ),
+                _iconLabel(Icons.repeat,
+                    'Frequency ${request.subRequests?.length ?? '1'}')
               ],
             ),
             const SizedBox(height: 24),

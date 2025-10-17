@@ -2,6 +2,7 @@ import 'package:cleaning_service_driver/core/models/page_wrapper.dart';
 import 'package:cleaning_service_driver/data/models/requests/accept_house_keeping_model.dart';
 import 'package:cleaning_service_driver/data/models/requests/assign_team_model.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
+import 'package:cleaning_service_driver/data/models/requests/complete_job_media_request.dart';
 import 'package:cleaning_service_driver/data/services/jobs/jobs_service.dart';
 
 class JobsRepository {
@@ -44,8 +45,10 @@ class JobsRepository {
     }
   }
 
-  Future<CleaningRequest> completeJob(String id) async {
-    final response = await _jobsService.completeJob(id);
+  Future<CleaningRequest> completeJob(String id,
+      {CompleteJobRequest? completeJobRequest}) async {
+    final response =
+        await _jobsService.completeJob(id, body: completeJobRequest);
     if (response.success && response.data != null) {
       return response.data!.data!;
     } else {

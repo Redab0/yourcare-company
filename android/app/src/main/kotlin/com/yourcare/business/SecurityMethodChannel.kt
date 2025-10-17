@@ -1,8 +1,7 @@
-package com.cleaning.driver.cleaning_service_driver
+package com.yourcare.business
 
 import android.content.Context
 import android.content.pm.PackageManager
-import android.content.pm.Signature
 import android.os.Build
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall

@@ -14,6 +14,8 @@ BusinessOfferResponse _$BusinessOfferResponseFromJson(
       requestStatus: $enumDecode(_$RequestStatusEnumMap, json['requestStatus']),
       createdAt: json['createdAt'] as String,
       updatedAt: json['updatedAt'] as String,
+      description: json['description'] as String?,
+      descriptionBusinessOffer: json['descriptionBusinessOffer'] as String?,
     );
 
 Map<String, dynamic> _$BusinessOfferResponseToJson(
@@ -24,6 +26,8 @@ Map<String, dynamic> _$BusinessOfferResponseToJson(
       'requestStatus': _$RequestStatusEnumMap[instance.requestStatus]!,
       'createdAt': instance.createdAt,
       'updatedAt': instance.updatedAt,
+      'description': instance.description,
+      'descriptionBusinessOffer': instance.descriptionBusinessOffer,
     };
 
 const _$RequestStatusEnumMap = {
@@ -32,5 +36,7 @@ const _$RequestStatusEnumMap = {
   RequestStatus.inProgress: 'inProgress',
   RequestStatus.completed: 'completed',
   RequestStatus.cancelled: 'cancelled',
+  RequestStatus.notPaid: 'notPaid',
+  RequestStatus.paid: 'paid',
   RequestStatus.unknown: 'unknown',
 };

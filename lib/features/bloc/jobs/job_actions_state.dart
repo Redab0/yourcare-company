@@ -1,4 +1,5 @@
 import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
+import 'package:cleaning_service_driver/data/models/profile/media_upload_response.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
 import 'package:cleaning_service_driver/data/models/staff/team_model.dart';
 import 'package:equatable/equatable.dart';
@@ -17,6 +18,8 @@ class JobStarted extends JobActionsState {}
 class JobCompleted extends JobActionsState {}
 
 class JobCanceled extends JobActionsState {}
+
+class MediaUploading extends JobActionsState {}
 
 class JobActionFailed extends JobActionsState {
   final String message;
@@ -57,4 +60,12 @@ class TeamsFetchedState extends JobActionsState {
 
   @override
   List<Object> get props => [teams];
+}
+
+class MediaUploaded extends JobActionsState {
+  final List<MediaUploadResponse> media;
+  const MediaUploaded(this.media);
+
+  @override
+  List<Object> get props => [media];
 }

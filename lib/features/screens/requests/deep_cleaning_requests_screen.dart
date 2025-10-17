@@ -1,4 +1,5 @@
 import 'package:cleaning_service_driver/components/detail_row.dart';
+import 'package:cleaning_service_driver/components/media_carousel_viewer.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/data/models/requests/deep_cleaning_history.dart';
@@ -20,12 +21,64 @@ class DeepCleaningRequestScreen extends StatefulWidget {
 
 class _DeepCleaningRequestState extends State<DeepCleaningRequestScreen> {
   final _amountController = TextEditingController();
+  final _timelineController = TextEditingController();
+  final _descriptionController = TextEditingController();
   double? _bidAmount;
+  String? _description;
+  String? _timeline;
+  int? _selectedTimelineDays;
 
   @override
   void initState() {
     super.initState();
     _amountController.addListener(() => setState(() {}));
+    _timelineController.addListener(() => setState(() {}));
+    _descriptionController.addListener(() => setState(() {}));
+  }
+
+  bool _isVideoUrl(String u) {
+    final s = u.toLowerCase();
+    return s.endsWith('.mp4') ||
+        s.endsWith('.mov') ||
+        s.endsWith('.mkv') ||
+        s.endsWith('.webm') ||
+        s.endsWith('.avi');
+  }
+
+  Future<void> openMediaCarousel(BuildContext context, List<String> urls,
+      {int initialIndex = 0}) {
+    return showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.9),
+      builder: (_) =>
+          MediaCarouselViewer(urls: urls, initialIndex: initialIndex),
+    );
+  }
+
+  Widget _mediaThumb(String url) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Clipped image or placeholder
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: _isVideoUrl(url)
+                  ? const ColoredBox(color: Color(0x11000000))
+                  : Image.network(url, fit: BoxFit.cover),
+            ),
+            if (_isVideoUrl(url))
+              const Center(
+                child:
+                    Icon(Icons.play_circle_fill, size: 42, color: Colors.white),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -47,22 +100,23 @@ class _DeepCleaningRequestState extends State<DeepCleaningRequestScreen> {
             minimum: const EdgeInsets.symmetric(horizontal: 24),
             child: ListView(
               children: [
-                if (d.photosAndVideos?.isNotEmpty ?? false)
+                if ((d.photosAndVideos?.isNotEmpty ?? false))
                   SizedBox(
                     height: 160,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       itemCount: d.photosAndVideos!.length,
                       separatorBuilder: (_, __) => const SizedBox(width: 16),
-                      itemBuilder: (_, i) => ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Image.network(
-                          d.photosAndVideos![i],
-                          width: 260,
-                          height: 160,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+                      itemBuilder: (_, i) {
+                        final url = d.photosAndVideos![i];
+                        return GestureDetector(
+                          onTap: () => openMediaCarousel(
+                              context, d.photosAndVideos!,
+                              initialIndex: i),
+                          child: SizedBox(
+                              width: 260, height: 160, child: _mediaThumb(url)),
+                        );
+                      },
                     ),
                   ),
                 const SizedBox(height: 32),
@@ -97,29 +151,58 @@ class _DeepCleaningRequestState extends State<DeepCleaningRequestScreen> {
                 ],
                 const SizedBox(height: 24),
                 TextField(
-                    controller: _amountController,
-                    keyboardType: TextInputType.number,
-                    onChanged: (v) =>
-                        setState(() => _bidAmount = double.tryParse(v)),
-                    decoration: InputDecoration(
-                      labelText: context.l10n.enter_bid,
-                      prefixIcon: Icon(Icons.gavel_rounded),
-                    ))
+                  controller: _descriptionController,
+                  keyboardType: TextInputType.text,
+                  onChanged: (v) => setState(() => _description = v),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.enter_bid,
+                    prefixIcon: Icon(Icons.description),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<int>(
+                  value: _selectedTimelineDays,
+                  onChanged: (v) => setState(() => _selectedTimelineDays = v),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.enter_bid,
+                    prefixIcon: const Icon(Icons.access_time_outlined),
+                  ),
+                  items: const [1, 2, 3, 4, 5, 7]
+                      .map(
+                        (d) => DropdownMenuItem<int>(
+                          value: d,
+                          child: Text(context.l10n.days(d)),
+                        ),
+                      )
+                      .toList(),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _amountController,
+                  keyboardType: TextInputType.number,
+                  onChanged: (v) =>
+                      setState(() => _bidAmount = double.tryParse(v)),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.enter_bid,
+                    prefixIcon: Icon(Icons.gavel_rounded),
+                  ),
+                )
               ],
             ),
           ),
           bottomNavigationBar: Padding(
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
             child: FilledButton(
-              onPressed: _bidAmount == null
+              onPressed: _bidAmount == null || _selectedTimelineDays == null
                   ? null
                   : () {
-                      // Could pop up a dialog to enter an amount.
                       context.read<RequestsActionBloc>().add(
                             SubmitOffer(
-                                'Bid submitted',
-                                double.parse(_amountController.text),
-                                widget.request.id ?? ""),
+                              _description ?? "",
+                              double.parse(_amountController.text),
+                              widget.request.id ?? "",
+                              "$_selectedTimelineDays" ?? "",
+                            ),
                           );
                     },
               child: Text(context.l10n.submit_bid),

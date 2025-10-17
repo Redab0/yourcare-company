@@ -1,6 +1,5 @@
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
-import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
-import 'package:cleaning_service_driver/core/utils/permissions_helper.dart';
+import 'package:cleaning_service_driver/core/themes/app_theme.dart';
 import 'package:cleaning_service_driver/data/models/staff/permission_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -48,17 +47,12 @@ class _SplashScreenState extends State<SplashScreen>
     final token = await storage.getAccessToken();
     final user = await storage.getUser();
     final perms = user?.permissions ?? <PermissionModel>[];
-    _navigateBasedOnAuthState(
-        token != null, perms.hasPermission(Permission.requestsRead));
+    _navigateBasedOnAuthState(token != null);
   }
 
-  void _navigateBasedOnAuthState(bool authenticated, bool requestsPermission) {
+  void _navigateBasedOnAuthState(bool authenticated) {
     if (!mounted) return;
-    authenticated
-        ? requestsPermission
-            ? context.go('/requests')
-            : context.go('/home')
-        : context.go('/login');
+    authenticated ? context.go('/home') : context.go('/login');
   }
 
   @override
@@ -70,47 +64,46 @@ class _SplashScreenState extends State<SplashScreen>
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).primaryColor,
-              Theme.of(context).primaryColor.withOpacity(0.6),
-            ],
+            colors: [Theme.of(context).primaryColor, AppTheme.olive],
           ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            SizedBox(
+              height: 50,
+            ),
             FadeTransition(
               opacity: _fadeAnimation,
-              child: const Icon(
-                Icons.cleaning_services,
-                size: 120,
-                color: Colors.white,
+              child: Image.asset(
+                width: 100,
+                height: 100,
+                'assets/images/ic_yourcare.png',
+                color: AppTheme.cream,
               ),
             ),
-            const SizedBox(height: 24),
             FadeTransition(
               opacity: _fadeAnimation,
-              child: Text(
-                context.l10n.appName,
-                style: TextStyle(
-                  fontSize: 48,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+              child: Transform.translate(
+                offset: const Offset(0, -50), // pull up ~8px
+                child: Image.asset(
+                  width: 300,
+                  height: 300,
+                  'assets/images/ic_text_logo.png',
+                  color: AppTheme.cream,
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(
+              height: 16,
+            ),
             FadeTransition(
               opacity: _fadeAnimation,
-              child: const Text(
-                'Professional Cleaning Services',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white,
-                ),
+              child: Transform.translate(
+                offset: const Offset(0, -50), // pull up ~8px
+                child: Text("Partner"),
               ),
-            ),
-            const SizedBox(height: 80),
+            )
           ],
         ),
       ),

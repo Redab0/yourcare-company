@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cleaning_service_driver/components/cleaning_job_card.dart';
 import 'package:cleaning_service_driver/components/deep_cleaning_request_card.dart';
+import 'package:cleaning_service_driver/core/themes/app_theme.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/deep_cleaning_history.dart';
@@ -29,8 +30,9 @@ class _RequestsScreenState extends State<RequestsScreen>
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 3, vsync: this);
+    _tabs = TabController(length: 2, vsync: this);
     context.read<RequestsBloc>().add(FetchFirstPageRequests());
+    context.read<RequestsBloc>().add(FetchExclusivesFirstPageRequests());
 
     _autoRefreshTimer = Timer.periodic(
       const Duration(seconds: 45),
@@ -40,6 +42,7 @@ class _RequestsScreenState extends State<RequestsScreen>
         final isVisible = ModalRoute.of(context)?.isCurrent ?? false;
         if (isVisible) {
           context.read<RequestsBloc>().add(FetchFirstPageRequests());
+          context.read<RequestsBloc>().add(FetchExclusivesFirstPageRequests());
         }
       },
     );
@@ -49,6 +52,7 @@ class _RequestsScreenState extends State<RequestsScreen>
       final cur = _scrollCtrl.position.pixels;
       if (cur >= max - 200) {
         context.read<RequestsBloc>().add(FetchNextPageRequests());
+        context.read<RequestsBloc>().add(FetchExclusivesNextPageRequests());
       }
     });
   }
@@ -67,17 +71,26 @@ class _RequestsScreenState extends State<RequestsScreen>
       appBar: AppBar(
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () =>
-                context.read<RequestsBloc>().add(FetchFirstPageRequests()),
-          ),
+              icon: const Icon(Icons.refresh),
+              onPressed: () {
+                context.read<RequestsBloc>().add(FetchFirstPageRequests());
+                context
+                    .read<RequestsBloc>()
+                    .add(FetchExclusivesFirstPageRequests());
+              }),
         ],
         bottom: TabBar(
           controller: _tabs,
           tabs: [
-            Tab(text: context.l10n.requests_all_requests),
-            Tab(text: context.l10n.requests_deep_cleaning),
-            Tab(text: context.l10n.requests_house_keeping),
+            Tab(
+              child: Text(
+                context.l10n.requests_all_requests,
+                style: TextStyle(color: AppTheme.cream),
+              ),
+            ),
+            Tab(
+                child: Text(context.l10n.requests_deep_cleaning,
+                    style: TextStyle(color: AppTheme.cream))),
           ],
         ),
       ),
@@ -89,6 +102,7 @@ class _RequestsScreenState extends State<RequestsScreen>
           }
 
           final all = state.all;
+          final exclusive = state.exclusive;
           final deep = all.whereType<DeepCleaningHistory>().toList();
           final house = all.whereType<HouseKeepingHistory>().toList();
 
@@ -100,8 +114,7 @@ class _RequestsScreenState extends State<RequestsScreen>
             controller: _tabs,
             children: [
               _buildPaginatedList(all, state),
-              _buildPaginatedList(deep, state),
-              _buildPaginatedList(house, state),
+              _buildPaginatedList(exclusive, state),
             ],
           );
           return const SizedBox();
@@ -161,10 +174,7 @@ class _RequestsScreenState extends State<RequestsScreen>
                   );
           } else {
             // loading indicator at bottom
-            return const Padding(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              child: Center(child: CircularProgressIndicator()),
-            );
+            return SizedBox.shrink();
           }
         },
       ),

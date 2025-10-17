@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/utils/loading_controller.dart';
 import 'package:cleaning_service_driver/data/models/requests/business_offer.dart';
+import 'package:cleaning_service_driver/domain/usecases/requests/accept_exclusive_request_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/requests/obtain_house_keeping_request_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/requests/submit_business_offer_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/get_all_users_usecase.dart';
@@ -14,6 +15,7 @@ class RequestsActionBloc
     extends Bloc<RequestsActionEvent, RequestsActionState> {
   final submitOfferUseCase = sl<SubmitBusinessOfferUseCase>();
   final obtainHouseKeepingUseCase = sl<ObtainHouseKeepingRequestUseCase>();
+  final acceptExclusiveRequestUseCase = sl<AcceptExclusiveRequestUseCase>();
   final getUsersUseCase = sl<GetAllUsersUseCase>();
 
   final _loader = sl<LoadingController>();
@@ -22,6 +24,7 @@ class RequestsActionBloc
     on<ObtainHouseKeepingRequest>(_onHouseKeepingRequestObtained);
     on<SubmitOffer>(_onSubmitOffer);
     on<FetchWorkersEvent>(_onFetchWorkers);
+    on<AcceptExclusiveRequestEvent>(_onAcceptExclusiveRequest);
   }
 
   FutureOr<void> _onHouseKeepingRequestObtained(ObtainHouseKeepingRequest event,
@@ -45,9 +48,12 @@ class RequestsActionBloc
     _loader.show();
     try {
       await submitOfferUseCase.call(BusinessOffer(
-          requestId: event.requestId,
-          totalPrice: event.totalPrice,
-          description: event.description));
+        requestId: event.requestId,
+        totalPrice: event.totalPrice,
+        description: event.description,
+        timelineBusinessOffer: event.timeline,
+        descriptionBusinessOffer: event.description,
+      ));
       _loader.hide();
       emit(OfferSubmitted());
     } catch (e) {
@@ -67,6 +73,21 @@ class RequestsActionBloc
           workers.docs,
         ),
       );
+    } catch (e) {
+      _loader.hide();
+      emit(RequestsActionFailed('$e'));
+    }
+  }
+
+  FutureOr<void> _onAcceptExclusiveRequest(AcceptExclusiveRequestEvent event,
+      Emitter<RequestsActionState> emit) async {
+    _loader.show();
+    try {
+      final response = await acceptExclusiveRequestUseCase.call(
+        event.requestId,
+      );
+      _loader.hide();
+      emit(ExclusiveRequestObtained(response));
     } catch (e) {
       _loader.hide();
       emit(RequestsActionFailed('$e'));

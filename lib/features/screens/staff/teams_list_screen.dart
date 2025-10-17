@@ -99,7 +99,7 @@ class _TeamsListScreenState extends State<TeamsListScreen> {
             );
           }
           // loading or initial
-          return const Center(child: CircularProgressIndicator());
+          return SizedBox.shrink();
         },
       ),
     );

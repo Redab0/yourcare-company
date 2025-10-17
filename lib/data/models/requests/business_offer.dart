@@ -7,11 +7,15 @@ class BusinessOffer {
   final String requestId;
   final double totalPrice;
   final String description;
+  final String timelineBusinessOffer;
+  final String descriptionBusinessOffer;
 
   BusinessOffer(
       {required this.requestId,
       required this.totalPrice,
-      required this.description});
+      required this.description,
+      required this.descriptionBusinessOffer,
+      required this.timelineBusinessOffer});
 
   factory BusinessOffer.fromJson(Map<String, dynamic> json) =>
       _$BusinessOfferFromJson(json);

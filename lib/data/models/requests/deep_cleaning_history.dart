@@ -55,6 +55,31 @@ class DeepCleaningHistory implements CleaningRequest {
     this.companyInformation,
   });
 
+  DeepCleaningHistory copyWith({
+    String? id,
+    RequestStatus? requestStatus,
+    double? totalPrice,
+    String? type,
+    DeepCleaningDetail? detail,
+    DateTime? scheduledTime,
+    TeamModel? assignedTeam,
+    Customer? customer,
+    CompanyInformation? companyInformation,
+  }) {
+    return DeepCleaningHistory(
+        id: id ?? this.id,
+        requestStatus: requestStatus ?? this.requestStatus,
+        totalPrice: totalPrice ?? this.totalPrice,
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+        assignedTeam: assignedTeam ?? this.assignedTeam,
+        detail: detail ?? this.detail,
+        scheduledTime: scheduledTime ?? this.scheduledTime,
+        customer: customer ?? this.customer,
+        companyInformation: companyInformation ?? this.companyInformation,
+        type: type ?? this.type);
+  }
+
   factory DeepCleaningHistory.fromJson(
     Map<String, dynamic> json,
   ) =>

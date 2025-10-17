@@ -11,6 +11,8 @@ BusinessOffer _$BusinessOfferFromJson(Map<String, dynamic> json) =>
       requestId: json['requestId'] as String,
       totalPrice: (json['totalPrice'] as num).toDouble(),
       description: json['description'] as String,
+      descriptionBusinessOffer: json['descriptionBusinessOffer'] as String,
+      timelineBusinessOffer: json['timelineBusinessOffer'] as String,
     );
 
 Map<String, dynamic> _$BusinessOfferToJson(BusinessOffer instance) =>
@@ -18,4 +20,6 @@ Map<String, dynamic> _$BusinessOfferToJson(BusinessOffer instance) =>
       'requestId': instance.requestId,
       'totalPrice': instance.totalPrice,
       'description': instance.description,
+      'timelineBusinessOffer': instance.timelineBusinessOffer,
+      'descriptionBusinessOffer': instance.descriptionBusinessOffer,
     };

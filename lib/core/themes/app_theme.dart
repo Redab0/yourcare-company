@@ -1,16 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AppTheme {
   AppTheme._();
 
-  static const Color primary = Color(0xFF81B9CF); // Sky blue
-  static const Color accent = Color(0xFFCE1126); // Red
-  static const Color backgroundLight = Colors.white;
-  static const Color backgroundDark = Color(0xFF121212);
-  static const Color surfaceLight = Color(0xFFF5F5F5);
-  static const Color surfaceDark = Color(0xFF1E1E1E);
-  static const Color textPrimary = Colors.black87;
-  static Color textSecondary = Colors.grey[600]!;
+  // ===== Palette (from screenshot) =====
+  // Primary set
+  static const Color cream = Color(0xFFE0DACE); // e0dace
+  static const Color forest = Color(0xFF4B5143); // 4b5143
+  static const Color navy = Color(0xFF0C2C48); // 0c2c48
+  static const Color ink = Color(0xFF010101); // 010101
+
+  // Secondary set
+  static const Color slate = Color(0xFF616A71); // 616a71
+  static const Color clay = Color(0xFFA47758); // a47758
+  static const Color olive = Color(0xFF777B65); // 777b65
+
+  // ===== Brand mappings =====
+  static const Color primary = navy; // brand primary (dark)
+  static const Color accent = clay; // accent color
+  static const Color backgroundLight = cream;
+  static const Color backgroundDark = ink;
+  static const Color surfaceLight = cream;
+  static const Color surfaceDark = forest;
+  static const Color textPrimary = ink;
+  static const Color textSecondary = slate;
 
   static ThemeData light() {
     final baseTextTheme = const TextTheme().apply(
@@ -19,36 +33,65 @@ class AppTheme {
       displayColor: textPrimary,
     );
 
+    // Build a scheme and override the "on*" contrast colors so text flips to cream on dark brand surfaces.
+    final scheme = ColorScheme.fromSeed(
+      seedColor: primary,
+      primary: primary,
+      secondary: accent,
+      tertiary: olive,
+      surface: surfaceLight,
+      background: backgroundLight,
+      brightness: Brightness.light,
+    ).copyWith(
+      onPrimary: cream, // <-- text/icon color on primary (navy) backgrounds
+      onSecondary: cream, // optional: cream on accent surfaces
+      onTertiary: cream,
+      onSurface: textPrimary,
+      onBackground: textPrimary,
+    );
+
     return ThemeData(
       useMaterial3: true,
       fontFamily: 'Zain',
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: primary,
-        primary: primary,
-        secondary: accent,
-        surface: surfaceLight,
-        brightness: Brightness.light,
-      ),
+      colorScheme: scheme,
+
       scaffoldBackgroundColor: backgroundLight,
-      appBarTheme: AppBarTheme(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        titleTextStyle: baseTextTheme.headlineLarge?.copyWith(
-          fontWeight: FontWeight.bold,
-          color: textPrimary,
-        ),
-        iconTheme: const IconThemeData(color: primary),
+
+      // When a widget uses the "primary" color (e.g., AppBar), use cream for text/icons.
+      primaryTextTheme: baseTextTheme.apply(
+        bodyColor: cream,
+        displayColor: cream,
       ),
+      primaryIconTheme: const IconThemeData(color: cream),
+
+      // APP BAR: dark background, cream foreground (title + icons) + light status bar icons.
+      appBarTheme: AppBarTheme(
+        backgroundColor: primary, // dark brand background
+        foregroundColor: cream, // title + icons
+        elevation: 0,
+        titleTextStyle: baseTextTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: cream,
+        ),
+        iconTheme: const IconThemeData(color: cream),
+        actionsIconTheme: const IconThemeData(color: cream),
+        systemOverlayStyle:
+            SystemUiOverlayStyle.light, // status bar icons on dark bg
+      ),
+
       textTheme: baseTextTheme,
+
       cardTheme: CardThemeData(
         color: surfaceLight,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         elevation: 1,
       ),
+
+      // Buttons that live on primary surfaces get cream text/icons.
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primary,
-          foregroundColor: Colors.white,
+          foregroundColor: cream, // was white
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -65,6 +108,7 @@ class AppTheme {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         ),
       ),
+
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         focusedBorder: OutlineInputBorder(
@@ -74,9 +118,16 @@ class AppTheme {
         labelStyle: baseTextTheme.bodyMedium,
         hintStyle: baseTextTheme.bodyMedium?.copyWith(color: textSecondary),
       ),
+
+      // Optional: FAB on dark brand background with cream icon.
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: primary,
+        foregroundColor: cream,
+      ),
     );
   }
 
+  // You said the app is light-only, but leaving dark() intact.
   static ThemeData dark() {
     final baseTextTheme = const TextTheme().apply(
       fontFamily: 'Zain',
@@ -84,25 +135,33 @@ class AppTheme {
       displayColor: Colors.white,
     );
 
+    final scheme = ColorScheme.fromSeed(
+      seedColor: primary,
+      primary: primary,
+      secondary: accent,
+      tertiary: olive,
+      surface: surfaceDark,
+      background: backgroundDark,
+      brightness: Brightness.dark,
+    ).copyWith(
+      onPrimary: cream,
+      onSecondary: cream,
+      onTertiary: cream,
+    );
+
     return ThemeData(
       useMaterial3: true,
       fontFamily: 'Zain',
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: primary,
-        primary: primary,
-        secondary: accent,
-        surface: surfaceDark,
-        brightness: Brightness.dark,
-      ),
+      colorScheme: scheme,
       scaffoldBackgroundColor: backgroundDark,
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        titleTextStyle: baseTextTheme.headlineSmall?.copyWith(
+        titleTextStyle: baseTextTheme.titleSmall?.copyWith(
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),
-        iconTheme: const IconThemeData(color: primary),
+        iconTheme: const IconThemeData(color: cream),
       ),
       textTheme: baseTextTheme,
       cardTheme: CardThemeData(
@@ -113,7 +172,7 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primary,
-          foregroundColor: Colors.white,
+          foregroundColor: cream,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -123,8 +182,8 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: primary,
-          side: const BorderSide(color: primary),
+          foregroundColor: cream,
+          side: const BorderSide(color: cream),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),

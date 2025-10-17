@@ -7,6 +7,7 @@ import 'package:cleaning_service_driver/domain/usecases/jobs/assign_team_usecase
 import 'package:cleaning_service_driver/domain/usecases/jobs/cancel_job_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/complete_job_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/start_job_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/profile/upload_media_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/get_all_users_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/get_teams_usecase.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_actions_event.dart';
@@ -21,6 +22,7 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
   final completeJobUseCase = sl<CompleteJobUseCase>();
   final assignWorkersUseCase = sl<AssignCleanersUseCase>();
   final assignTeamUseCase = sl<AssignTeamUseCase>();
+  final uploadMediaUseCase = sl<UploadMediaUseCase>();
   final _loader = sl<LoadingController>();
 
   JobActionsBloc() : super(JobActionsInitial()) {
@@ -31,6 +33,7 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
     on<AssignTeamEvent>(_onAssignTeam);
     on<FetchWorkersEvent>(_onFetchWorkers);
     on<FetchTeamsEvent>(_onFetchTeams);
+    on<UploadMediaEvent>(_upload);
   }
 
   FutureOr<void> _onStartJob(
@@ -63,11 +66,13 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
       CompleteJobEvent event, Emitter<JobActionsState> emit) async {
     _loader.show();
     try {
-      await completeJobUseCase.call(event.id);
+      await completeJobUseCase.call(event.id,
+          completeJobRequest: event.completeJobRequest);
       _loader.hide();
       emit(JobCompleted());
     } catch (e) {
       _loader.hide();
+      print("ERROR $e");
       emit(JobActionFailed("$e"));
     }
   }
@@ -129,6 +134,20 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
     } catch (e) {
       _loader.hide();
       emit(JobActionFailed('$e'));
+    }
+  }
+
+  FutureOr<void> _upload(
+      UploadMediaEvent event, Emitter<JobActionsState> emit) async {
+    _loader.show();
+    emit(MediaUploading());
+    try {
+      final response = await uploadMediaUseCase.call(event.files);
+      _loader.hide();
+      emit(MediaUploaded(response));
+    } catch (e) {
+      _loader.hide();
+      emit(JobActionFailed("Request Failed $e"));
     }
   }
 }

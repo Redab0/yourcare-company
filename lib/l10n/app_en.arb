@@ -220,5 +220,15 @@
   "total_requests_label": "Total Requests",
   "total_revenue_label": "Total Revenue",
   "average_requests_label": "Avg / Request",
-  "statistics_title": "Statistics"
+  "statistics_title": "Statistics",
+  "days": "{n, plural, one {{n} day} other {{n} days}}",
+  "@days": {
+    "description": "Label showing a number of days. Example: 1 day, 2 days, 5 days.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  }
 }

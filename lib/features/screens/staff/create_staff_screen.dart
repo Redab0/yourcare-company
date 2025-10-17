@@ -60,7 +60,7 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
       appBar: AppBar(
         title: Text(context.l10n.create_user_title),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black, size: 28),
+          icon: const Icon(Icons.arrow_back, size: 28),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -174,7 +174,7 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
                               ? FileImage(_pickedPhoto!) as ImageProvider
                               : null),
                       child: _uploading
-                          ? const CircularProgressIndicator()
+                          ? SizedBox.shrink()
                           : (_uploadedPhotoUrl == null && _pickedPhoto == null
                               ? const Icon(Icons.camera_alt, size: 32)
                               : null),

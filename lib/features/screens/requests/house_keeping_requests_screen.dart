@@ -1,6 +1,7 @@
 import 'package:cleaning_service_driver/components/detail_row.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
+import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
 import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
 import 'package:cleaning_service_driver/data/models/requests/accept_house_keeping_model.dart';
 import 'package:cleaning_service_driver/data/models/requests/house_keeping_history.dart';
@@ -10,6 +11,7 @@ import 'package:cleaning_service_driver/features/bloc/requests/requests_actions_
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 class HouseKeepingRequestScreen extends StatefulWidget {
   const HouseKeepingRequestScreen({super.key, required this.request});
@@ -86,6 +88,64 @@ class _HouseKeepingRequestScreenState extends State<HouseKeepingRequestScreen> {
                       style: Theme.of(context).textTheme.bodyLarge),
                   const SizedBox(height: 32),
                 ],
+
+                if ((widget.request.subRequests?.isNotEmpty ?? false))
+                  Card(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
+                    elevation: 1,
+                    child: ExpansionTile(
+                      initiallyExpanded: true,
+                      shape: const RoundedRectangleBorder(
+                          side: BorderSide(color: Colors.transparent)),
+                      title: Text(
+                        "Sessions", // or a hardcoded 'Package sessions'
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      children: List.generate(
+                          widget.request.subRequests!.length, (i) {
+                        final sr = widget.request.subRequests![i];
+                        final dateStr = (sr.date != null)
+                            ? DateFormat.yMMMd().add_jm().format(sr.date!)
+                            : "N/A";
+                        final statusText =
+                            sr.status?.displayText(context) ?? "N/A";
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          dateStr,
+                                          style: const TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                ],
+                              ),
+                              if (i < widget.request.subRequests!.length - 1)
+                                const Divider(height: 24), // <- add this line
+                            ],
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
 
                 // --- Workers Selection ---
                 _title(context.l10n.assigned_team),

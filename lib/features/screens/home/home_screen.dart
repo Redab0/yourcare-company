@@ -1,5 +1,3 @@
-// lib/features/screens/home/home_screen.dart
-
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/locale_cubit.dart';
@@ -47,7 +45,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            icon: const Icon(Icons.language, color: Colors.black),
+            icon: const Icon(Icons.language),
             onPressed: () {
               showModalBottomSheet(
                 context: context,
@@ -105,7 +103,7 @@ class _HomePageState extends State<HomePage> {
           title: Text(context.l10n.your_care_business),
           actions: [
             IconButton(
-              icon: const Icon(Icons.logout, color: Colors.black),
+              icon: const Icon(Icons.logout),
               onPressed: () => context.read<AuthBloc>().add(LogoutEvent()),
             ),
           ],
@@ -160,19 +158,19 @@ class _HomePageState extends State<HomePage> {
                               title: context.l10n.upcoming_jobs,
                               onTap: () => context.go('/jobs'),
                             ),
-                          if (perms!.hasPermission(Permission.requestsRead))
+                          if (perms.hasPermission(Permission.requestsRead))
                             HomeMenuItem(
                               imageAsset: 'assets/images/requests.png',
                               title: context.l10n.cleaning_requests,
                               onTap: () => context.go('/requests'),
                             ),
-                          if (perms!.hasPermission(Permission.transactionsRead))
+                          if (perms.hasPermission(Permission.transactionsRead))
                             HomeMenuItem(
                               imageAsset: 'assets/images/analytics.png',
                               title: context.l10n.reports,
                               onTap: () => context.goNamed('statisticsScreen'),
                             ),
-                          if (perms!.hasPermission(Permission.usersRead))
+                          if (perms.hasPermission(Permission.usersRead))
                             HomeMenuItem(
                               imageAsset: 'assets/images/staff.png',
                               title: context.l10n.staff_management,

@@ -18,6 +18,8 @@ HouseKeepingHistory _$HouseKeepingHistoryFromJson(Map<String, dynamic> json) =>
           totalPrice:
               $checkedConvert('totalPrice', (v) => (v as num).toDouble()),
           type: $checkedConvert('type', (v) => v as String?),
+          cleanersIds: $checkedConvert('cleanersIds',
+              (v) => (v as List<dynamic>?)?.map((e) => e as String).toList()),
           createdAt:
               $checkedConvert('createdAt', (v) => DateTime.parse(v as String)),
           updatedAt:
@@ -39,13 +41,20 @@ HouseKeepingHistory _$HouseKeepingHistoryFromJson(Map<String, dynamic> json) =>
               (v) => v == null
                   ? null
                   : CompanyInformation.fromJson(v as Map<String, dynamic>)),
+          subRequests: $checkedConvert(
+              'frequencyDates',
+              (v) => (v as List<dynamic>?)
+                  ?.map((e) =>
+                      FrequentRequestModel.fromJson(e as Map<String, dynamic>))
+                  .toList()),
         );
         return val;
       },
       fieldKeyMap: const {
         'detail': 'HouseCleaning',
         'assignedWorker': 'cleaners',
-        'companyInformation': 'businessId'
+        'companyInformation': 'businessId',
+        'subRequests': 'frequencyDates'
       },
     );
 
@@ -63,6 +72,8 @@ Map<String, dynamic> _$HouseKeepingHistoryToJson(
       'cleaners': instance.assignedWorker,
       'HouseCleaning': instance.detail,
       'businessId': instance.companyInformation,
+      'cleanersIds': instance.cleanersIds,
+      'frequencyDates': instance.subRequests,
     };
 
 const _$RequestStatusEnumMap = {
@@ -71,6 +82,8 @@ const _$RequestStatusEnumMap = {
   RequestStatus.inProgress: 'inProgress',
   RequestStatus.completed: 'completed',
   RequestStatus.cancelled: 'cancelled',
+  RequestStatus.notPaid: 'notPaid',
+  RequestStatus.paid: 'paid',
   RequestStatus.unknown: 'unknown',
 };
 
@@ -95,11 +108,6 @@ HouseKeepingDetail _$HouseKeepingDetailFromJson(Map<String, dynamic> json) =>
               (v) => v == null
                   ? null
                   : CleaningItem.fromJson(v as Map<String, dynamic>)),
-          pricePerCleaner: $checkedConvert(
-              'pricePerCleaner',
-              (v) => v == null
-                  ? null
-                  : CleaningItem.fromJson(v as Map<String, dynamic>)),
           address: $checkedConvert(
               'address',
               (v) => v == null
@@ -121,10 +129,26 @@ Map<String, dynamic> _$HouseKeepingDetailToJson(HouseKeepingDetail instance) =>
       'numberOfCleaners': instance.numberOfCleaners,
       'cleaningDuration': instance.cleaningDuration,
       'cleaningProducts': instance.cleaningProducts,
-      'pricePerCleaner': instance.pricePerCleaner,
       'address': instance.address,
       'scheduledTime': instance.scheduledTime?.toIso8601String(),
       'specialNotes': instance.specialNotes,
       'totalPrice': instance.totalPrice,
       'area': instance.area,
+    };
+
+FrequentRequestModel _$FrequentRequestModelFromJson(
+        Map<String, dynamic> json) =>
+    FrequentRequestModel(
+      status: $enumDecodeNullable(_$RequestStatusEnumMap, json['status']),
+      id: json['id'] as String?,
+      date:
+          json['date'] == null ? null : DateTime.parse(json['date'] as String),
+    );
+
+Map<String, dynamic> _$FrequentRequestModelToJson(
+        FrequentRequestModel instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'date': instance.date?.toIso8601String(),
+      'status': _$RequestStatusEnumMap[instance.status],
     };

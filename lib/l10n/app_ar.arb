@@ -219,5 +219,15 @@
   "total_requests_label": "مجموع الطلبات",
   "total_revenue_label": "مجموع الإيرادات",
   "average_requests_label": "متوسط الطلبات",
-  "statistics_title": "إحصاءيات"
+  "statistics_title": "إحصاءيات",
+  "days": "{n, plural, zero {{n} يوم} one {{n} يوم} two {{n} يومان} few {{n} أيام} many {{n} يومًا} other {{n} يوم}}",
+  "@days": {
+    "description": "مدة بالأيام",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  }
 }

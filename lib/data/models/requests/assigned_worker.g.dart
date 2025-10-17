@@ -10,7 +10,9 @@ AssignedWorker _$AssignedWorkerFromJson(Map<String, dynamic> json) =>
     AssignedWorker(
       json['image'] as String?,
       json['id'] as String,
-      json['username'] as String,
+      json['username'] as String?,
+      json['email'] as String?,
+      json['phone'] as String?,
     );
 
 Map<String, dynamic> _$AssignedWorkerToJson(AssignedWorker instance) =>
@@ -18,4 +20,6 @@ Map<String, dynamic> _$AssignedWorkerToJson(AssignedWorker instance) =>
       'id': instance.id,
       'username': instance.username,
       'image': instance.image,
+      'email': instance.email,
+      'phone': instance.phone,
     };

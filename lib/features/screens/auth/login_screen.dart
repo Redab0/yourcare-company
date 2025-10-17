@@ -70,10 +70,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         const SizedBox(height: 40),
                         // Logo placeholder
-                        Icon(
-                          Icons.cleaning_services,
-                          size: 80,
-                          color: Theme.of(context).primaryColor,
+                        Image.asset(
+                          'assets/images/ic_yourcare.png',
+                          width: 100,
+                          height: 100,
                         ),
                         const SizedBox(height: 24),
                         Text(

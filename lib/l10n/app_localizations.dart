@@ -1420,6 +1420,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Statistics'**
   String get statistics_title;
+
+  /// Label showing a number of days. Example: 1 day, 2 days, 5 days.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one {{n} day} other {{n} days}}'**
+  String days(int n);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

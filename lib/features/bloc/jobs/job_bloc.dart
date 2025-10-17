@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/utils/loading_controller.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/get_up_coming_jobs_usecase.dart';
@@ -15,6 +17,7 @@ class JobBloc extends Bloc<JobEvent, JobState> {
 
   JobBloc() : super(JobInitial()) {
     on<LoadJobsEvent>(_onLoadUpcomingJobs);
+    on<FetchNextPageRequests>(_onLoadNextUpcomingJobs);
   }
 
   Future<void> _onLoadUpcomingJobs(
@@ -36,6 +39,32 @@ class JobBloc extends Bloc<JobEvent, JobState> {
       emit(
         state.copyWith(
           all: page.docs,
+          hasMore: page.hasNextPage,
+          isLoading: false,
+        ),
+      );
+    } catch (e) {
+      _loader.hide();
+      print("ERROR $e");
+      emit(state.copyWith(isLoading: false, error: e.toString()));
+    }
+  }
+
+  FutureOr<void> _onLoadNextUpcomingJobs(
+      FetchNextPageRequests event, Emitter<JobState> emit) async {
+    _currentPage++;
+    emit(state.copyWith(isLoading: true, error: null));
+    _loader.show();
+    try {
+      final page = await getUpComingJobsUseCase.call(
+        page: _currentPage,
+        limit: _pageSize,
+        allowPagination: true,
+      );
+      _loader.hide();
+      emit(
+        state.copyWith(
+          all: [...state.all, ...page.docs],
           hasMore: page.hasNextPage,
           isLoading: false,
         ),

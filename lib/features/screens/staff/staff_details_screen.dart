@@ -85,7 +85,10 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit User Profile & Permissions'),
-        leading: const BackButton(),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, size: 28),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: BlocConsumer<StaffActionBloc, StaffActionState>(
         listener: (context, state) {
@@ -125,7 +128,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
             child: Stack(
               children: [
                 _buildForm(context),
-                if (loading) const Center(child: CircularProgressIndicator()),
+                if (loading) SizedBox.shrink(),
               ],
             ),
           );

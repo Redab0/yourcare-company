@@ -24,6 +24,20 @@ class RequestsRepository {
     }
   }
 
+  Future<PaginatedData<CleaningRequest>> getReorders(
+      int page, int limit) async {
+    final response = await _requestsService.getReorders(
+      page,
+      limit,
+    );
+
+    if (response.success && response.data != null) {
+      return response.data!.data!;
+    } else {
+      throw Exception(response.message);
+    }
+  }
+
   Future<BusinessOfferResponse> submitOffer(BusinessOffer offer) async {
     final response = await _requestsService.submitOffer(offer);
     if (response.success && response.data != null) {
@@ -37,6 +51,15 @@ class RequestsRepository {
       {required String id, AcceptHouseKeepingModel? model}) async {
     final response =
         await _requestsService.obtainHouseKeepingRequest(id, model);
+    if (response.success && response.data != null) {
+      return response.data!.data!;
+    } else {
+      throw Exception(response.message);
+    }
+  }
+
+  Future<CleaningRequest> acceptReorderRequest(String id) async {
+    final response = await _requestsService.acceptReorder(id);
     if (response.success && response.data != null) {
       return response.data!.data!;
     } else {

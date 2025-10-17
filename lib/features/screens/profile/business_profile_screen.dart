@@ -138,7 +138,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Scaffold(
         appBar: AppBar(title: Text(context.l10n.profile_title)),
         body: (_profile == null || _areas.isEmpty)
-            ? const Center(child: CircularProgressIndicator())
+            ? SizedBox.shrink()
             : SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
                 child: Form(
@@ -170,12 +170,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       Theme.of(context).colorScheme.primary,
                                   child: _uploading &&
                                           _uploadTarget == _UploadTarget.logo
-                                      ? const SizedBox(
-                                          width: 16,
-                                          height: 16,
-                                          child: CircularProgressIndicator(
-                                              strokeWidth: 2),
-                                        )
+                                      ? SizedBox.shrink()
                                       : const Icon(Icons.camera_alt,
                                           size: 16, color: Colors.white),
                                 ),
@@ -276,12 +271,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     Theme.of(context).colorScheme.primary,
                                 child: _uploading &&
                                         _uploadTarget == _UploadTarget.images
-                                    ? const SizedBox(
-                                        width: 24,
-                                        height: 24,
-                                        child: CircularProgressIndicator(
-                                            strokeWidth: 2),
-                                      )
+                                    ? SizedBox.shrink()
                                     : const Icon(Icons.add_a_photo,
                                         color: Colors.white, size: 28),
                               ),

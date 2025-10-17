@@ -21,6 +21,13 @@ abstract class RequestsService {
     @Query('limit') int limit,
   );
 
+  @GET("/company/requests/reorders")
+  Future<ApiResponse<ResponsePayload<PaginatedData<CleaningRequest>>>>
+      getReorders(
+    @Query('page') int page,
+    @Query('limit') int limit,
+  );
+
   @POST('/requests/deep-cleaning/business-offer')
   Future<ApiResponse<ResponsePayload<BusinessOfferResponse>>> submitOffer(
       @Body() BusinessOffer body);
@@ -30,5 +37,10 @@ abstract class RequestsService {
       obtainHouseKeepingRequest(
     @Path('id') String id,
     @Body() AcceptHouseKeepingModel? model,
+  );
+
+  @PATCH('/reorders/{id}/accept')
+  Future<ApiResponse<ResponsePayload<CleaningRequest>>> acceptReorder(
+    @Path('id') String id,
   );
 }

@@ -12,3 +12,9 @@ class FetchFirstPageRequests extends RequestsEvent {}
 
 /// Load the next page, if any
 class FetchNextPageRequests extends RequestsEvent {}
+
+/// Load page #1 (or refresh)
+class FetchExclusivesFirstPageRequests extends RequestsEvent {}
+
+/// Load the next page, if any
+class FetchExclusivesNextPageRequests extends RequestsEvent {}

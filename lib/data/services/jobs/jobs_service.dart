@@ -4,6 +4,7 @@ import 'package:cleaning_service_driver/core/models/response_payload.dart';
 import 'package:cleaning_service_driver/data/models/requests/accept_house_keeping_model.dart';
 import 'package:cleaning_service_driver/data/models/requests/assign_team_model.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
+import 'package:cleaning_service_driver/data/models/requests/complete_job_media_request.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -29,10 +30,10 @@ abstract class JobsService {
     @Path('id') String id,
   );
 
-  @PATCH('/requests/{id}/complete')
+  @PATCH('/requests/{id}/completed')
   Future<ApiResponse<ResponsePayload<CleaningRequest>>> completeJob(
-    @Path('id') String id,
-  );
+      @Path('id') String id,
+      {@Body() CompleteJobRequest? body});
 
   @PATCH('/requests/{id}/cancel')
   Future<ApiResponse<ResponsePayload<CleaningRequest>>> cancelJob(

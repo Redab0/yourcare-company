@@ -70,7 +70,10 @@ class _CreateEditTeamScreenState extends State<CreateEditTeamScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(isEdit ? context.l10n.edit_team : context.l10n.create_team),
-        leading: BackButton(color: Colors.black),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, size: 28),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         backgroundColor: Colors.white,
         elevation: 1,
       ),
@@ -134,7 +137,7 @@ class _CreateEditTeamScreenState extends State<CreateEditTeamScreen> {
                 child: BlocBuilder<StaffBloc, StaffState>(
                   builder: (context, state) {
                     if (state.isLoading && state.all.isEmpty) {
-                      return const Center(child: CircularProgressIndicator());
+                      return SizedBox.shrink();
                     }
                     // set businessId from first user if not editing
                     if (!isEdit && state.all.isNotEmpty) {

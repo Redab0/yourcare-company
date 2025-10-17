@@ -17,6 +17,8 @@ CompanyInformation _$CompanyInformationFromJson(Map<String, dynamic> json) =>
           $checkedConvert('images',
               (v) => (v as List<dynamic>?)?.map((e) => e as String).toList()),
           $checkedConvert('logo', (v) => v as String?),
+          $checkedConvert('phone', (v) => v as String?),
+          $checkedConvert('email', (v) => v as String?),
         );
         return val;
       },
@@ -28,4 +30,6 @@ Map<String, dynamic> _$CompanyInformationToJson(CompanyInformation instance) =>
       'name': instance.name,
       'logo': instance.logo,
       'images': instance.images,
+      'phone': instance.phone,
+      'email': instance.email,
     };

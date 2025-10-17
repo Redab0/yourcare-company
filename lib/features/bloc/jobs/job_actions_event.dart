@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:cleaning_service_driver/data/models/requests/accept_house_keeping_model.dart';
+import 'package:cleaning_service_driver/data/models/requests/complete_job_media_request.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class JobActionsEvent extends Equatable {
@@ -19,8 +22,9 @@ class StartJobEvent extends JobActionsEvent {
 
 class CompleteJobEvent extends JobActionsEvent {
   final String id;
+  final CompleteJobRequest? completeJobRequest;
 
-  const CompleteJobEvent(this.id);
+  const CompleteJobEvent(this.id, this.completeJobRequest);
 
   @override
   List<Object?> get props => [id];
@@ -58,3 +62,11 @@ class AssignTeamEvent extends JobActionsEvent {
 class FetchWorkersEvent extends JobActionsEvent {}
 
 class FetchTeamsEvent extends JobActionsEvent {}
+
+class UploadMediaEvent extends JobActionsEvent {
+  final List<File> files;
+  const UploadMediaEvent(this.files);
+
+  @override
+  List<Object> get props => [files];
+}

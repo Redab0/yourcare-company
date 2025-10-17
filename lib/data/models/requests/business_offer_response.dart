@@ -10,6 +10,8 @@ class BusinessOfferResponse {
   final RequestStatus requestStatus;
   final String createdAt;
   final String updatedAt;
+  final String? description;
+  final String? descriptionBusinessOffer;
 
   BusinessOfferResponse({
     required this.id,
@@ -17,6 +19,8 @@ class BusinessOfferResponse {
     required this.requestStatus,
     required this.createdAt,
     required this.updatedAt,
+    this.description,
+    this.descriptionBusinessOffer,
   });
 
   factory BusinessOfferResponse.fromJson(Map<String, dynamic> json) =>

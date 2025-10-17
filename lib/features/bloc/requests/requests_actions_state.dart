@@ -21,6 +21,14 @@ class HouseKeepingRequestObtained extends RequestsActionState {
   List<Object> get props => [request];
 }
 
+class ExclusiveRequestObtained extends RequestsActionState {
+  final CleaningRequest request;
+
+  const ExclusiveRequestObtained(this.request);
+  @override
+  List<Object> get props => [request];
+}
+
 class RequestsActionFailed extends RequestsActionState {
   final String message;
 

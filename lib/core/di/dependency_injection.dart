@@ -6,6 +6,7 @@ import 'package:cleaning_service_driver/core/utils/locale_cubit.dart';
 import 'package:cleaning_service_driver/data/repositories/auth/auth_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/home/home_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/jobs/jobs_repository.dart';
+import 'package:cleaning_service_driver/data/repositories/notifications/notifications_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/profile/profile_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/requests/requests_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/staff/permissions_repository.dart';
@@ -13,6 +14,7 @@ import 'package:cleaning_service_driver/data/repositories/staff/staff_repository
 import 'package:cleaning_service_driver/data/repositories/statistics/statistics_repository.dart';
 import 'package:cleaning_service_driver/data/services/auth/auth_service.dart';
 import 'package:cleaning_service_driver/data/services/jobs/jobs_service.dart';
+import 'package:cleaning_service_driver/data/services/notifications/notifications_service.dart';
 import 'package:cleaning_service_driver/data/services/profile/profile_service.dart';
 import 'package:cleaning_service_driver/data/services/requests/requests_service.dart';
 import 'package:cleaning_service_driver/data/services/staff/staff_service.dart';
@@ -30,7 +32,9 @@ import 'package:cleaning_service_driver/domain/usecases/profile/get_areas_usecas
 import 'package:cleaning_service_driver/domain/usecases/profile/get_business_profile_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/profile/update_business_profile_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/profile/upload_media_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/requests/accept_exclusive_request_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/requests/get_available_requests_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/requests/get_exclusives_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/requests/obtain_house_keeping_request_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/requests/submit_business_offer_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/assign_permissions_for_user.dart';
@@ -55,6 +59,7 @@ import 'package:cleaning_service_driver/features/bloc/requests/requests_bloc.dar
 import 'package:cleaning_service_driver/features/bloc/staff/staff_action_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/statistics/statistics_bloc.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -84,6 +89,10 @@ Future<void> setupServiceLocator() async {
     () => AuthService(sl<ApiClient>().dio),
   );
 
+  sl.registerLazySingleton<NotificationsService>(
+    () => NotificationsService(sl<ApiClient>().dio),
+  );
+
   sl.registerLazySingleton<RequestsService>(
     () => RequestsService(sl<ApiClient>().dio),
   );
@@ -108,6 +117,14 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepository(sl<AuthService>()),
   );
+
+  sl.registerLazySingleton<NotificationsRepository>(
+    () => NotificationsRepository(
+      sl<NotificationsService>(),
+      FirebaseMessaging.instance,
+    ),
+  );
+
   sl.registerLazySingleton<HomeRepository>(
     () => HomeRepository(),
   );
@@ -167,6 +184,9 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory(() => AssignCleanersUseCase(sl<JobsRepository>()));
   sl.registerFactory(() => AssignTeamUseCase(sl<JobsRepository>()));
   sl.registerFactory(() => GetRequestsStatistics(sl<StatisticsRepository>()));
+  sl.registerFactory(() => GetExclusivesUseCase(sl<RequestsRepository>()));
+  sl.registerFactory(
+      () => AcceptExclusiveRequestUseCase(sl<RequestsRepository>()));
 
   // Blocs
   sl.registerFactory(() => AuthBloc());

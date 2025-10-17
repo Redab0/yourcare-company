@@ -12,6 +12,7 @@ import 'package:cleaning_service_driver/features/bloc/jobs/job_actions_event.dar
 import 'package:cleaning_service_driver/features/bloc/jobs/job_actions_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 class HouseKeepingJobDetails extends StatefulWidget {
   const HouseKeepingJobDetails({super.key, required this.request});
@@ -62,17 +63,28 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
         if (state is WorkersFetchedState && _isEditingWorkers) {
           // store the list once it arrives
           setState(() => _allWorkers = state.workers);
-        }
-        if (state is JobActionFailed) {
+        } else if (state is JobActionFailed) {
           ScaffoldMessenger.of(ctx)
               .showSnackBar(SnackBar(content: Text(state.message)));
-        }
-        if (state is WorkersAssigned) {
+          print("ERROR ${state.message}");
+        } else if (state is WorkersAssigned) {
           // they just saved successfully
           setState(() {
             _isEditingWorkers = false;
             // refresh the request’s assignedWorker list
             _currentRequest = (state.model as HouseKeepingHistory);
+          });
+        } else if (state is JobStarted) {
+          setState(() {
+            _currentRequest = _currentRequest.copyWith(
+              requestStatus: RequestStatus.inProgress,
+            );
+          });
+        } else if (state is JobCompleted) {
+          setState(() {
+            _currentRequest = _currentRequest.copyWith(
+              requestStatus: RequestStatus.completed,
+            );
           });
         }
       },
@@ -84,6 +96,91 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  if ((widget.request.subRequests?.isNotEmpty ?? false))
+                    Card(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
+                      elevation: 1,
+                      child: ExpansionTile(
+                        initiallyExpanded: true,
+                        shape: const RoundedRectangleBorder(
+                            side: BorderSide(color: Colors.transparent)),
+                        title: Text(
+                          "Sessions", // or a hardcoded 'Package sessions'
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        childrenPadding:
+                            const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                        children: List.generate(
+                            widget.request.subRequests!.length, (i) {
+                          final sr = widget.request.subRequests![i];
+                          final dateStr = (sr.date != null)
+                              ? DateFormat.yMMMd().add_jm().format(sr.date!)
+                              : "N/A";
+                          final statusText =
+                              sr.status?.displayText(context) ?? "N/A";
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(dateStr,
+                                              style: const TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w600)),
+                                          const SizedBox(height: 6),
+                                          if (sr.status ==
+                                                  RequestStatus.confirmed ||
+                                              sr.status ==
+                                                  RequestStatus.inProgress)
+                                            Row(
+                                              children: [
+                                                FilledButton(
+                                                  onPressed: (sr.id == null ||
+                                                          sr.id!.isEmpty)
+                                                      ? null
+                                                      : () => {},
+                                                  child: Text(
+                                                    sr.status ==
+                                                            RequestStatus
+                                                                .confirmed
+                                                        ? "start job"
+                                                        : "complete job",
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Chip(
+                                      label: Text(statusText,
+                                          style: const TextStyle(
+                                              color: Colors.white)),
+                                      backgroundColor: statusColor(sr.status!),
+                                      materialTapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      visualDensity: VisualDensity.compact,
+                                    ),
+                                  ],
+                                ),
+                                if (i < widget.request.subRequests!.length - 1)
+                                  const Divider(height: 24), // <- add this line
+                              ],
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
                   _buildSection(
                     title: context.l10n.bids_bottom_sheet_customer_info,
                     child: Column(
@@ -140,8 +237,8 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                           DetailWidgetRow(
                               context.l10n.request_location,
                               OpenMapAction(
-                                  latitude: detail.address!.latitude!,
-                                  longitude: detail.address!.latitude!))
+                                  latitude: detail.address!.latitude ?? 0.0,
+                                  longitude: detail.address!.latitude ?? 0.0))
                         ],
                       ),
                     ),
@@ -280,27 +377,33 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
               ),
             ),
           ),
-          bottomNavigationBar: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-            child: FilledButton(
-              onPressed: () {
-                if (req.requestStatus == RequestStatus.confirmed) {
-                  ctx.read<JobActionsBloc>().add(StartJobEvent(req.id ?? ""));
-                } else if (req.requestStatus == RequestStatus.inProgress) {
-                  ctx
-                      .read<JobActionsBloc>()
-                      .add(CompleteJobEvent(req.id ?? ""));
-                }
-              },
-              child: Text(
-                req.requestStatus == RequestStatus.confirmed
-                    ? context.l10n.start_job
-                    : req.requestStatus == RequestStatus.inProgress
-                        ? context.l10n.complete_job
-                        : 'OK',
-              ),
-            ),
-          ),
+          bottomNavigationBar: req.requestStatus != RequestStatus.completed ||
+                  req.requestStatus != RequestStatus.cancelled
+              ? Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                  child: FilledButton(
+                    onPressed: () {
+                      if (req.requestStatus == RequestStatus.confirmed) {
+                        ctx
+                            .read<JobActionsBloc>()
+                            .add(StartJobEvent(req.id ?? ""));
+                      } else if (req.requestStatus ==
+                          RequestStatus.inProgress) {
+                        ctx
+                            .read<JobActionsBloc>()
+                            .add(CompleteJobEvent(req.id ?? "", null));
+                      }
+                    },
+                    child: Text(
+                      req.requestStatus == RequestStatus.confirmed
+                          ? context.l10n.start_job
+                          : req.requestStatus == RequestStatus.inProgress
+                              ? context.l10n.complete_job
+                              : 'OK',
+                    ),
+                  ),
+                )
+              : SizedBox.shrink(),
         );
       },
     );

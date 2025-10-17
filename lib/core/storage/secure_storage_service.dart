@@ -13,6 +13,8 @@ class SecureStorageService {
   static const String userIdKey = 'user_id';
   static const String deviceIdKey = 'device_id';
   static const String _userKey = 'auth_user';
+  static const _kTokenKey = 'fcm_token';
+  static const _kAskedPermKey = 'notif_perm_prompted';
 
   // Demo mode keys
   static const String isLoggedInKey = 'is_logged_in';
@@ -31,6 +33,40 @@ class SecureStorageService {
                 accessibility: KeychainAccessibility.first_unlock,
               ),
             );
+
+  Future<String?> getAskedForNotificationsPermission() async {
+    final String? asked = await _secureStorage.read(key: _kAskedPermKey);
+    if (asked == null) return null;
+    try {
+      return asked;
+    } catch (e) {
+      await _secureStorage.delete(key: _kAskedPermKey);
+      return null;
+    }
+  }
+
+  Future<void> askedForNotificationsPermission() async {
+    await _secureStorage.write(key: _kAskedPermKey, value: '1');
+  }
+
+  Future<String?> getFcmToken() async {
+    final String? fcmToken = await _secureStorage.read(key: _kTokenKey);
+    if (fcmToken == null) return null;
+    try {
+      return fcmToken;
+    } catch (e) {
+      await _secureStorage.delete(key: _kTokenKey);
+      return null;
+    }
+  }
+
+  Future<void> saveFcmToken(String token) async {
+    await _secureStorage.write(key: _kTokenKey, value: token);
+  }
+
+  Future<void> deleteFcmToken() async {
+    await _secureStorage.delete(key: _kTokenKey);
+  }
 
   // Save access token
   Future<void> saveAccessToken(String token) async {

@@ -12,10 +12,12 @@ class SubmitOffer extends RequestsActionEvent {
   final String requestId;
   final double totalPrice;
   final String description;
+  final String timeline;
 
-  const SubmitOffer(this.description, this.totalPrice, this.requestId);
+  const SubmitOffer(
+      this.description, this.totalPrice, this.requestId, this.timeline);
   @override
-  List<Object> get props => [requestId, totalPrice, description];
+  List<Object> get props => [requestId, totalPrice, description, timeline];
 }
 
 class ObtainHouseKeepingRequest extends RequestsActionEvent {
@@ -27,6 +29,15 @@ class ObtainHouseKeepingRequest extends RequestsActionEvent {
 
   @override
   List<Object?> get props => [requestId, acceptHouseKeepingModel];
+}
+
+class AcceptExclusiveRequestEvent extends RequestsActionEvent {
+  final String requestId;
+
+  const AcceptExclusiveRequestEvent({required this.requestId});
+
+  @override
+  List<Object?> get props => [requestId];
 }
 
 class FetchWorkersEvent extends RequestsActionEvent {}

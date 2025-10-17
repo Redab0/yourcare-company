@@ -670,4 +670,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get statistics_title => 'Statistics';
+
+  @override
+  String days(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n days',
+      one: '$n day',
+    );
+    return '$_temp0';
+  }
 }

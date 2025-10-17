@@ -670,4 +670,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get statistics_title => 'إحصاءيات';
+
+  @override
+  String days(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n يوم',
+      many: '$n يومًا',
+      few: '$n أيام',
+      two: '$n يومان',
+      one: '$n يوم',
+      zero: '$n يوم',
+    );
+    return '$_temp0';
+  }
 }

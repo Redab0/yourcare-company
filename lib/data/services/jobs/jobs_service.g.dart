@@ -114,18 +114,21 @@ class _JobsService implements JobsService {
 
   @override
   Future<ApiResponse<ResponsePayload<CleaningRequest>>> completeJob(
-    String id,
-  ) async {
+    String id, {
+    CompleteJobRequest? body,
+  }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
+    final _data = <String, dynamic>{};
+    _data.addAll(body?.toJson() ?? <String, dynamic>{});
     final _options =
         _setStreamType<ApiResponse<ResponsePayload<CleaningRequest>>>(
       Options(method: 'PATCH', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/requests/${id}/complete',
+            '/requests/${id}/completed',
             queryParameters: queryParameters,
             data: _data,
           )

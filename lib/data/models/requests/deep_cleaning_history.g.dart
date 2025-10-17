@@ -70,6 +70,8 @@ const _$RequestStatusEnumMap = {
   RequestStatus.inProgress: 'inProgress',
   RequestStatus.completed: 'completed',
   RequestStatus.cancelled: 'cancelled',
+  RequestStatus.notPaid: 'notPaid',
+  RequestStatus.paid: 'paid',
   RequestStatus.unknown: 'unknown',
 };
 

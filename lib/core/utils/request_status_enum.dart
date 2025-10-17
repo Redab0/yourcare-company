@@ -1,6 +1,6 @@
 // 1) Define your enum and (de)serializer
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 enum RequestStatus {
@@ -14,6 +14,10 @@ enum RequestStatus {
   completed,
   @JsonValue('cancelled')
   cancelled,
+  @JsonValue('notPaid')
+  notPaid,
+  @JsonValue('paid')
+  paid,
   @JsonValue('unknown')
   unknown,
 }
@@ -36,6 +40,10 @@ extension RequestStatusX on RequestStatus {
         return RequestStatus.completed;
       case 'cancelled':
         return RequestStatus.cancelled;
+      case 'notPaid':
+        return RequestStatus.notPaid;
+      case 'paid':
+        return RequestStatus.paid;
       default:
         return RequestStatus.unknown;
     }
@@ -52,6 +60,10 @@ extension RequestStatusX on RequestStatus {
       case RequestStatus.completed:
         return context.l10n.completed;
       case RequestStatus.cancelled:
+        return context.l10n.cancelled;
+      case RequestStatus.notPaid:
+        return context.l10n.cancelled;
+      case RequestStatus.paid:
         return context.l10n.cancelled;
       default:
         return 'Unknown';
@@ -71,9 +83,34 @@ extension RequestStatusX on RequestStatus {
         return 'completed';
       case RequestStatus.cancelled:
         return 'cancelled';
+      case RequestStatus.notPaid:
+        return 'notPaid';
+      case RequestStatus.paid:
+        return 'paid';
       case RequestStatus.unknown:
       default:
         return 'unknown';
     }
+  }
+}
+
+Color statusColor(RequestStatus status) {
+  switch (status) {
+    case RequestStatus.pending:
+      return Colors.orange;
+    case RequestStatus.inProgress:
+      return Colors.blue;
+    case RequestStatus.completed:
+      return Colors.green;
+    case RequestStatus.confirmed:
+      return Colors.teal;
+    case RequestStatus.cancelled:
+      return Colors.red;
+    case RequestStatus.notPaid:
+      return Colors.cyan;
+    case RequestStatus.paid:
+      return Colors.deepPurpleAccent;
+    default:
+      return Colors.grey;
   }
 }

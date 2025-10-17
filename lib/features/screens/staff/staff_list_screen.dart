@@ -50,12 +50,8 @@ class _StaffListScreenState extends State<StaffListScreen>
         ),
         title: Text(context.l10n.staff_title),
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            size: 30,
-            color: Colors.black,
-          ),
-          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back, size: 28),
+          onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: BlocConsumer<StaffBloc, StaffState>(
@@ -82,10 +78,7 @@ class _StaffListScreenState extends State<StaffListScreen>
                   );
                 } else {
                   // bottom loader
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Center(child: CircularProgressIndicator()),
-                  );
+                  return SizedBox.shrink();
                 }
               },
             ),

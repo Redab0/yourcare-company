@@ -1,4 +1,5 @@
 import 'package:cleaning_service_driver/components/job_tile.dart';
+import 'package:cleaning_service_driver/core/themes/app_theme.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
@@ -52,10 +53,18 @@ class _JobsScreenState extends State<JobsScreen>
         bottom: TabBar(
           controller: _tabs,
           tabs: [
-            Tab(text: context.l10n.confirmed),
-            Tab(text: context.l10n.inprogress),
-            Tab(text: context.l10n.completed),
-            Tab(text: context.l10n.cancelled),
+            Tab(
+                child: Text(context.l10n.confirmed,
+                    style: TextStyle(color: AppTheme.cream))),
+            Tab(
+                child: Text(context.l10n.inprogress,
+                    style: TextStyle(color: AppTheme.cream))),
+            Tab(
+                child: Text(context.l10n.completed,
+                    style: TextStyle(color: AppTheme.cream))),
+            Tab(
+                child: Text(context.l10n.cancelled,
+                    style: TextStyle(color: AppTheme.cream))),
           ],
         ),
       ),
@@ -67,11 +76,6 @@ class _JobsScreenState extends State<JobsScreen>
           }
 
           final all = state.all;
-          final deep = all.whereType<DeepCleaningHistory>().toList();
-          final house = all.whereType<HouseKeepingHistory>().toList();
-          final pending = all
-              .where((job) => job.requestStatus == RequestStatus.pending)
-              .toList();
           final inProgress = all
               .where((job) => job.requestStatus == RequestStatus.inProgress)
               .toList();
@@ -87,7 +91,6 @@ class _JobsScreenState extends State<JobsScreen>
 
           final items = all;
           final hasMore = state.hasMore;
-          final itemCount = hasMore ? items.length + 1 : items.length;
 
           return TabBarView(
             controller: _tabs,
@@ -145,10 +148,7 @@ class _JobsScreenState extends State<JobsScreen>
                   );
           } else {
             // loading indicator at bottom
-            return const Padding(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              child: Center(child: CircularProgressIndicator()),
-            );
+            return SizedBox.shrink();
           }
         },
       ),
