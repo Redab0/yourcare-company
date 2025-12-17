@@ -96,9 +96,9 @@ class HouseKeepingHistory implements CleaningRequest {
 
 @JsonSerializable(checked: true)
 class HouseKeepingDetail {
-  final CleaningItem? numberOfCleaners;
-  final CleaningItem? cleaningDuration;
-  final CleaningItem? cleaningProducts;
+  final HouseKeepingOption? numberOfCleaners;
+  final HouseKeepingOption? cleaningDurations;
+  final HouseKeepingOption? cleaningProducts;
   // final CleaningItem? pricePerCleaner;
   final Address? address;
   final DateTime? scheduledTime;
@@ -108,7 +108,7 @@ class HouseKeepingDetail {
 
   HouseKeepingDetail(
       {this.numberOfCleaners,
-      this.cleaningDuration,
+      this.cleaningDurations,
       this.cleaningProducts,
       this.address,
       this.scheduledTime,
@@ -148,4 +148,17 @@ class FrequentRequestModel {
   factory FrequentRequestModel.fromJson(Map<String, dynamic> json) =>
       _$FrequentRequestModelFromJson(json);
   Map<String, dynamic> toJson() => _$FrequentRequestModelToJson(this);
+}
+
+@JsonSerializable(checked: true)
+class HouseKeepingOption {
+  final CleaningItem? option;
+  final int? quantity;
+
+  const HouseKeepingOption({this.option, this.quantity});
+
+  factory HouseKeepingOption.fromJson(Map<String, dynamic> json) =>
+      _$HouseKeepingOptionFromJson(json);
+
+  Map<String, dynamic> toJson() => _$HouseKeepingOptionToJson(this);
 }

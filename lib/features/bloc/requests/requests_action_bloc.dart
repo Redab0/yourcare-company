@@ -6,6 +6,7 @@ import 'package:cleaning_service_driver/data/models/requests/business_offer.dart
 import 'package:cleaning_service_driver/domain/usecases/requests/accept_exclusive_request_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/requests/obtain_house_keeping_request_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/requests/submit_business_offer_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/requests/submit_upholstery_offer_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/get_all_users_usecase.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_action_event.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_actions_state.dart';
@@ -14,6 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class RequestsActionBloc
     extends Bloc<RequestsActionEvent, RequestsActionState> {
   final submitOfferUseCase = sl<SubmitBusinessOfferUseCase>();
+  final submitUpholsteryOfferUseCase = sl<SubmitUpholsteryOfferUseCase>();
   final obtainHouseKeepingUseCase = sl<ObtainHouseKeepingRequestUseCase>();
   final acceptExclusiveRequestUseCase = sl<AcceptExclusiveRequestUseCase>();
   final getUsersUseCase = sl<GetAllUsersUseCase>();
@@ -23,6 +25,7 @@ class RequestsActionBloc
   RequestsActionBloc() : super(RequestsInitial()) {
     on<ObtainHouseKeepingRequest>(_onHouseKeepingRequestObtained);
     on<SubmitOffer>(_onSubmitOffer);
+    on<SubmitUpholsteryOffer>(_onSubmitUpholsteryOffer);
     on<FetchWorkersEvent>(_onFetchWorkers);
     on<AcceptExclusiveRequestEvent>(_onAcceptExclusiveRequest);
   }
@@ -88,6 +91,25 @@ class RequestsActionBloc
       );
       _loader.hide();
       emit(ExclusiveRequestObtained(response));
+    } catch (e) {
+      _loader.hide();
+      emit(RequestsActionFailed('$e'));
+    }
+  }
+
+  FutureOr<void> _onSubmitUpholsteryOffer(
+      SubmitUpholsteryOffer event, Emitter<RequestsActionState> emit) async {
+    _loader.show();
+    try {
+      await submitUpholsteryOfferUseCase.call(BusinessOffer(
+        requestId: event.requestId,
+        totalPrice: event.totalPrice,
+        description: event.description,
+        timelineBusinessOffer: event.timeline,
+        descriptionBusinessOffer: event.description,
+      ));
+      _loader.hide();
+      emit(OfferSubmitted());
     } catch (e) {
       _loader.hide();
       emit(RequestsActionFailed('$e'));

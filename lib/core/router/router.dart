@@ -1,20 +1,26 @@
 import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
 import 'package:cleaning_service_driver/data/models/requests/deep_cleaning_history.dart';
 import 'package:cleaning_service_driver/data/models/requests/house_keeping_history.dart';
+import 'package:cleaning_service_driver/data/models/requests/upholstery_cleaning_history.dart';
 import 'package:cleaning_service_driver/data/models/staff/team_model.dart';
 import 'package:cleaning_service_driver/features/screens/auth/login_screen.dart';
 import 'package:cleaning_service_driver/features/screens/home/home_screen.dart';
 import 'package:cleaning_service_driver/features/screens/home/main_layout.dart';
 import 'package:cleaning_service_driver/features/screens/home/splash_screen.dart';
 import 'package:cleaning_service_driver/features/screens/jobs/deep_cleaning_job_details_screen.dart';
+import 'package:cleaning_service_driver/features/screens/jobs/deep_cleaning_success_screen.dart';
 import 'package:cleaning_service_driver/features/screens/jobs/house_keeping_job_details_screen.dart';
+import 'package:cleaning_service_driver/features/screens/jobs/house_keeping_success_screen.dart';
 import 'package:cleaning_service_driver/features/screens/jobs/jobs_screen.dart';
+import 'package:cleaning_service_driver/features/screens/jobs/upholstery_cleaning_job_details_screen.dart';
 import 'package:cleaning_service_driver/features/screens/profile/business_profile_screen.dart';
+import 'package:cleaning_service_driver/features/screens/profile/user_profile_screen.dart';
 import 'package:cleaning_service_driver/features/screens/requests/cleaning_requests_screen.dart';
 import 'package:cleaning_service_driver/features/screens/requests/deep_cleaning_requests_screen.dart';
 import 'package:cleaning_service_driver/features/screens/requests/deep_cleaning_success_screen.dart';
 import 'package:cleaning_service_driver/features/screens/requests/house_keeping_requests_screen.dart';
 import 'package:cleaning_service_driver/features/screens/requests/house_keeping_success_screen.dart';
+import 'package:cleaning_service_driver/features/screens/requests/upholstery_cleaning_requests_screen.dart';
 import 'package:cleaning_service_driver/features/screens/staff/create_staff_screen.dart';
 import 'package:cleaning_service_driver/features/screens/staff/create_team_screen.dart';
 import 'package:cleaning_service_driver/features/screens/staff/staff_details_screen.dart';
@@ -76,12 +82,18 @@ class AppRouter {
           ),
 
           GoRoute(
-            path: '/profile',
-            builder: (context, state) => const ProfileScreen(),
+            path: '/business-profile',
+            name: 'business-profile-screen',
+            builder: (context, state) => const BusinessProfileScreen(),
           ),
-
+          GoRoute(
+            path: '/user-profile',
+            name: 'user-profile-screen',
+            builder: (context, state) => const UserProfileScreen(),
+          ),
           GoRoute(
             path: '/staff',
+            name: 'staff-main-screen',
             builder: (_, __) => StaffMainScreen(),
             routes: [
               GoRoute(
@@ -123,6 +135,7 @@ class AppRouter {
 
           GoRoute(
             path: '/jobs',
+            name: 'jobs-main-screen',
             builder: (_, __) => JobsScreen(),
             routes: [
               GoRoute(
@@ -139,7 +152,24 @@ class AppRouter {
                 path: 'deep-cleaning-job',
                 builder: (_, s) => DeepCleaningJobDetailsScreen(
                     request: s.extra! as DeepCleaningHistory),
-              )
+              ),
+              GoRoute(
+                name: 'upholsteryCleaningJobDetails',
+                path: 'upholstery-cleaning-job',
+                builder: (_, s) => UpholsteryCleaningJobDetailsScreen(
+                    request: s.extra! as UpholsteryCleaningHistory),
+              ),
+              GoRoute(
+                name: 'houseKeepingJobSuccess',
+                path: 'house-keeping-job-success',
+                builder: (_, s) => HouseKeepingJobSuccessScreen(
+                    request: s.extra! as HouseKeepingHistory),
+              ),
+              GoRoute(
+                name: 'deepCleaningJobSuccess',
+                path: 'dep-cleaning-job-success',
+                builder: (_, s) => DeepCleaningJobSuccessScreen(),
+              ),
             ],
           ),
 
@@ -150,7 +180,8 @@ class AppRouter {
           ),
 
           GoRoute(
-            path: '/requests', // ← no leading “/”  (relative to shell root “/”)
+            path: '/requests',
+            name: 'requests-main-screen',
             builder: (_, __) => RequestsScreen(),
             routes: [
               GoRoute(
@@ -167,6 +198,12 @@ class AppRouter {
                 path: 'deep-cleaning',
                 builder: (_, s) => DeepCleaningRequestScreen(
                     request: s.extra! as DeepCleaningHistory),
+              ),
+              GoRoute(
+                name: 'upholsteryCleaning',
+                path: 'upholstery-cleaning',
+                builder: (_, s) => UpholsteryCleaningRequestScreen(
+                    request: s.extra! as UpholsteryCleaningHistory),
               ),
               GoRoute(
                 name: 'houseKeepingSuccess',

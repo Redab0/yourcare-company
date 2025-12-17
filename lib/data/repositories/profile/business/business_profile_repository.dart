@@ -5,15 +5,15 @@ import 'package:cleaning_service_driver/data/models/profile/area_model.dart';
 import 'package:cleaning_service_driver/data/models/profile/business_profile_model.dart';
 import 'package:cleaning_service_driver/data/models/profile/media_upload_response.dart';
 import 'package:cleaning_service_driver/data/models/profile/update_business_profile_model.dart';
-import 'package:cleaning_service_driver/data/services/profile/profile_service.dart';
+import 'package:cleaning_service_driver/data/services/profile/business/business_profile_service.dart';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:path/path.dart' as p;
 
-class ProfileRepository {
-  final ProfileService _profileService;
+class BusinessProfileRepository {
+  final BusinessProfileService _profileService;
 
-  ProfileRepository(this._profileService);
+  BusinessProfileRepository(this._profileService);
 
   Future<BusinessProfileModel> getBusinessProfile() async {
     final response = await _profileService.getCompanyProfile();

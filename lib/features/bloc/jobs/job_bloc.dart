@@ -14,6 +14,10 @@ class JobBloc extends Bloc<JobEvent, JobState> {
 
   static const _pageSize = 20;
   int _currentPage = 1;
+  String? _lastStatus;
+  String? _lastType;
+  String? _lastSortBy;
+  String? _lastSortOrder;
 
   JobBloc() : super(JobInitial()) {
     on<LoadJobsEvent>(_onLoadUpcomingJobs);
@@ -23,16 +27,20 @@ class JobBloc extends Bloc<JobEvent, JobState> {
   Future<void> _onLoadUpcomingJobs(
       LoadJobsEvent event, Emitter<JobState> emit) async {
     _currentPage = 1;
+    _lastStatus = event.status;
+    _lastType = event.type;
+    _lastSortBy = event.sortBy ?? 'createdAt';
+    _lastSortOrder = event.sortOrder ?? 'desc';
     emit(state.copyWith(isLoading: true, error: null));
     _loader.show();
     try {
       final page = await getUpComingJobsUseCase.call(
         page: _currentPage,
         limit: _pageSize,
-        status: event.status, // nullable
-        type: event.type, // nullable
-        sortBy: 'createdAt', // or null to accept backend default
-        sortOrder: 'desc',
+        status: _lastStatus, // nullable
+        type: _lastType, // nullable
+        sortBy: _lastSortBy, // or null to accept backend default
+        sortOrder: _lastSortOrder,
         allowPagination: true,
       );
       _loader.hide();
@@ -52,16 +60,21 @@ class JobBloc extends Bloc<JobEvent, JobState> {
 
   FutureOr<void> _onLoadNextUpcomingJobs(
       FetchNextPageRequests event, Emitter<JobState> emit) async {
-    _currentPage++;
+    final nextPage = _currentPage + 1;
     emit(state.copyWith(isLoading: true, error: null));
     _loader.show();
     try {
       final page = await getUpComingJobsUseCase.call(
-        page: _currentPage,
+        page: nextPage,
         limit: _pageSize,
+        status: _lastStatus,
+        type: _lastType,
+        sortBy: _lastSortBy,
+        sortOrder: _lastSortOrder,
         allowPagination: true,
       );
       _loader.hide();
+      _currentPage = nextPage;
       emit(
         state.copyWith(
           all: [...state.all, ...page.docs],

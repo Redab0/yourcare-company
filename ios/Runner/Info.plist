@@ -66,5 +66,10 @@
     <array>
         <string>UIInterfaceOrientationPortrait</string>
     </array>
+    <key>NSCameraUsageDescription</key><string>We use the camera to take job photos</string>
+    <key>NSPhotoLibraryUsageDescription</key><string>We need access to your photo library</string>
+    <key>NSPhotoLibraryAddUsageDescription</key><string>We save captured media</string>
+    <key>NSMicrophoneUsageDescription</key><string>We record audio for videos</string>
+
 </dict>
 </plist>

@@ -13,9 +13,19 @@ class JobActionsState extends Equatable {
 
 class JobActionsInitial extends JobActionsState {}
 
-class JobStarted extends JobActionsState {}
+class JobStarted extends JobActionsState {
+  final CleaningRequest model;
+  const JobStarted(this.model);
+  @override
+  List<Object> get props => [model];
+}
 
-class JobCompleted extends JobActionsState {}
+class JobCompleted extends JobActionsState {
+  final CleaningRequest model;
+  const JobCompleted(this.model);
+  @override
+  List<Object> get props => [model];
+}
 
 class JobCanceled extends JobActionsState {}
 
@@ -68,4 +78,11 @@ class MediaUploaded extends JobActionsState {
 
   @override
   List<Object> get props => [media];
+}
+
+class RequestFrequencyUpdated extends JobActionsState {
+  final CleaningRequest response;
+  const RequestFrequencyUpdated(this.response);
+  @override
+  List<Object> get props => [response];
 }

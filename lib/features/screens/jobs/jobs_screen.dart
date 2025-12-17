@@ -5,6 +5,7 @@ import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/deep_cleaning_history.dart';
 import 'package:cleaning_service_driver/data/models/requests/house_keeping_history.dart';
+import 'package:cleaning_service_driver/data/models/requests/upholstery_cleaning_history.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_event.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_state.dart';
@@ -89,9 +90,6 @@ class _JobsScreenState extends State<JobsScreen>
               .where((job) => job.requestStatus == RequestStatus.confirmed)
               .toList();
 
-          final items = all;
-          final hasMore = state.hasMore;
-
           return TabBarView(
             controller: _tabs,
             children: [
@@ -114,7 +112,6 @@ class _JobsScreenState extends State<JobsScreen>
       return const Center(child: Text('No requests found.'));
     }
 
-    // show an extra slot when more pages exist
     final count = state.hasMore ? items.length + 1 : items.length;
 
     return NotificationListener<ScrollNotification>(
@@ -131,21 +128,26 @@ class _JobsScreenState extends State<JobsScreen>
         itemBuilder: (ctx, idx) {
           if (idx < items.length) {
             final req = items[idx];
-            return req.type!.toLowerCase().contains("deep")
-                ? InkWell(
-                    onTap: () =>
-                        context.goNamed('deepCleaningJobDetails', extra: req),
-                    child: JobTile(
-                      request: req as DeepCleaningHistory,
-                    ),
-                  )
-                : InkWell(
-                    onTap: () =>
-                        context.goNamed('houseKeepingJobDetails', extra: req),
-                    child: JobTile(
-                      request: req as HouseKeepingHistory,
-                    ),
-                  );
+            final type = req.type?.toLowerCase() ?? '';
+            if (type.contains('deep')) {
+              return InkWell(
+                onTap: () =>
+                    context.goNamed('deepCleaningJobDetails', extra: req),
+                child: JobTile(request: req as DeepCleaningHistory),
+              );
+            } else if (type.contains('upholstery')) {
+              return InkWell(
+                onTap: () =>
+                    context.goNamed('upholsteryCleaningJobDetails', extra: req),
+                child: JobTile(request: req as UpholsteryCleaningHistory),
+              );
+            } else {
+              return InkWell(
+                onTap: () =>
+                    context.goNamed('houseKeepingJobDetails', extra: req),
+                child: JobTile(request: req as HouseKeepingHistory),
+              );
+            }
           } else {
             // loading indicator at bottom
             return SizedBox.shrink();

@@ -11,7 +11,7 @@ class NotificationsRepository {
     // 1) Ask permission (once)
     final asked =
         await SecureStorageService().getAskedForNotificationsPermission();
-    if (asked != null) {
+    if (asked == null) {
       final settings = await _messaging.requestPermission(
           alert: true, badge: true, sound: true);
       await SecureStorageService().askedForNotificationsPermission();

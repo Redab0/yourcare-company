@@ -2,22 +2,23 @@ import 'dart:async';
 
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/utils/loading_controller.dart';
-import 'package:cleaning_service_driver/domain/usecases/profile/get_areas_usecase.dart';
-import 'package:cleaning_service_driver/domain/usecases/profile/get_business_profile_usecase.dart';
-import 'package:cleaning_service_driver/domain/usecases/profile/update_business_profile_usecase.dart';
-import 'package:cleaning_service_driver/domain/usecases/profile/upload_media_usecase.dart';
-import 'package:cleaning_service_driver/features/bloc/profile/profile_event.dart';
-import 'package:cleaning_service_driver/features/bloc/profile/profile_state.dart';
+import 'package:cleaning_service_driver/domain/usecases/profile/business/get_areas_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/profile/business/get_business_profile_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/profile/business/update_business_profile_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/profile/business/upload_media_usecase.dart';
+import 'package:cleaning_service_driver/features/bloc/profile/business/business_profile_event.dart';
+import 'package:cleaning_service_driver/features/bloc/profile/business/business_profile_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
+class BusinessProfileBloc
+    extends Bloc<BusinessProfileEvent, BusinessProfileState> {
   final getProfileUseCase = sl<GetBusinessProfileUseCase>();
   final updateProfileUseCase = sl<UpdateBusinessProfileUseCase>();
   final getAreasUseCase = sl<GetAreasUseCase>();
   final uploadMediaUseCase = sl<UploadMediaUseCase>();
   final _loader = sl<LoadingController>();
 
-  ProfileBloc() : super(ProfileInitial()) {
+  BusinessProfileBloc() : super(ProfileInitial()) {
     on<LoadProfileEvent>(_onLoadProfileEvent);
     on<UpdateProfileEvent>(_onUpdateProfileEvent);
     on<GetAreasEvent>(_onGetAreas);
@@ -25,7 +26,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   }
 
   FutureOr<void> _onLoadProfileEvent(
-      LoadProfileEvent event, Emitter<ProfileState> emit) async {
+      LoadProfileEvent event, Emitter<BusinessProfileState> emit) async {
     _loader.show();
     try {
       final profile = await getProfileUseCase.call();
@@ -38,7 +39,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   }
 
   FutureOr<void> _onUpdateProfileEvent(
-      UpdateProfileEvent event, Emitter<ProfileState> emit) async {
+      UpdateProfileEvent event, Emitter<BusinessProfileState> emit) async {
     _loader.show();
     try {
       final profile = await updateProfileUseCase(event.model);
@@ -51,7 +52,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   }
 
   FutureOr<void> _onGetAreas(
-      GetAreasEvent event, Emitter<ProfileState> emit) async {
+      GetAreasEvent event, Emitter<BusinessProfileState> emit) async {
     try {
       var areas = await getAreasUseCase.execute();
       emit(AreasLoaded(areas));
@@ -61,7 +62,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   }
 
   FutureOr<void> _upload(
-      UploadMediaEvent event, Emitter<ProfileState> emit) async {
+      UploadMediaEvent event, Emitter<BusinessProfileState> emit) async {
     _loader.show();
     try {
       final response = await uploadMediaUseCase.call(event.files);

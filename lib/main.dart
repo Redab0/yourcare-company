@@ -1,5 +1,6 @@
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/providers/app_bloc_provider.dart';
+import 'package:cleaning_service_driver/data/repositories/notifications/notifications_repository.dart';
 import 'package:cleaning_service_driver/l10n/app_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,9 @@ void main() async {
   await Firebase.initializeApp();
   await setupServiceLocator();
 
-  // await sl<NotificationsRepository>().initializeAndRegister();
+  // Initialize push notifications (request permission + register token)
+  // Safe to ignore result; failures handled internally
+  await sl<NotificationsRepository>().initializeAndRegister();
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -51,6 +54,14 @@ class MyApp extends StatelessWidget {
             darkTheme: AppTheme.light(),
             themeMode: ThemeMode.system,
             routerConfig: router,
+            builder: (context, child) {
+              final width = MediaQuery.of(context).size.width;
+              final scaler = AppTheme.textScalerForWidth(width);
+              return MediaQuery(
+                data: MediaQuery.of(context).copyWith(textScaler: scaler),
+                child: child ?? const SizedBox.shrink(),
+              );
+            },
             debugShowCheckedModeBanner: false,
           );
         },

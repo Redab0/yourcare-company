@@ -7,7 +7,8 @@ import 'package:cleaning_service_driver/domain/usecases/jobs/assign_team_usecase
 import 'package:cleaning_service_driver/domain/usecases/jobs/cancel_job_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/complete_job_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/start_job_usecase.dart';
-import 'package:cleaning_service_driver/domain/usecases/profile/upload_media_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/jobs/update_frequency_request_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/profile/business/upload_media_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/get_all_users_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/get_teams_usecase.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_actions_event.dart';
@@ -23,6 +24,7 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
   final assignWorkersUseCase = sl<AssignCleanersUseCase>();
   final assignTeamUseCase = sl<AssignTeamUseCase>();
   final uploadMediaUseCase = sl<UploadMediaUseCase>();
+  final updateRequestFrequencyUseCase = sl<UpdateFrequencyRequestUseCase>();
   final _loader = sl<LoadingController>();
 
   JobActionsBloc() : super(JobActionsInitial()) {
@@ -34,15 +36,16 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
     on<FetchWorkersEvent>(_onFetchWorkers);
     on<FetchTeamsEvent>(_onFetchTeams);
     on<UploadMediaEvent>(_upload);
+    on<UpdateFrequencyRequestEvent>(_onUpdateRequestFrequency);
   }
 
   FutureOr<void> _onStartJob(
       StartJobEvent event, Emitter<JobActionsState> emit) async {
     _loader.show();
     try {
-      await startJobUseCase.call(event.id);
+      final response = await startJobUseCase.call(event.id);
       _loader.hide();
-      emit(JobStarted());
+      emit(JobStarted(response));
     } catch (e) {
       _loader.hide();
       emit(JobActionFailed("$e"));
@@ -66,10 +69,10 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
       CompleteJobEvent event, Emitter<JobActionsState> emit) async {
     _loader.show();
     try {
-      await completeJobUseCase.call(event.id,
+      final response = await completeJobUseCase.call(event.id,
           completeJobRequest: event.completeJobRequest);
       _loader.hide();
-      emit(JobCompleted());
+      emit(JobCompleted(response));
     } catch (e) {
       _loader.hide();
       print("ERROR $e");
@@ -148,6 +151,20 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
     } catch (e) {
       _loader.hide();
       emit(JobActionFailed("Request Failed $e"));
+    }
+  }
+
+  FutureOr<void> _onUpdateRequestFrequency(
+      UpdateFrequencyRequestEvent event, Emitter<JobActionsState> emit) async {
+    _loader.show();
+    try {
+      final response =
+          await updateRequestFrequencyUseCase.call(event.id, event.body);
+      _loader.hide();
+      emit(RequestFrequencyUpdated(response));
+    } catch (e) {
+      _loader.hide();
+      emit(JobActionFailed("$e"));
     }
   }
 }

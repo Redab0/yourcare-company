@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cleaning_service_driver/data/models/requests/accept_house_keeping_model.dart';
 import 'package:cleaning_service_driver/data/models/requests/complete_job_media_request.dart';
+import 'package:cleaning_service_driver/data/models/requests/update_request_frequency_request.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class JobActionsEvent extends Equatable {
@@ -69,4 +70,13 @@ class UploadMediaEvent extends JobActionsEvent {
 
   @override
   List<Object> get props => [files];
+}
+
+class UpdateFrequencyRequestEvent extends JobActionsEvent {
+  final String id;
+  final UpdateRequestFrequencyRequest body;
+
+  const UpdateFrequencyRequestEvent(this.body, this.id);
+  @override
+  List<Object> get props => [id, body];
 }

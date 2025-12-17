@@ -23,47 +23,6 @@ class MainLayout extends StatefulWidget {
 }
 
 class _MainLayoutState extends State<MainLayout> {
-  // final List<NavItem> _navItems = [
-  //   NavItem(
-  //     label: 'Dashboard',
-  //     icon: Icons.dashboard_outlined,
-  //     activeIcon: Icons.dashboard_rounded,
-  //     path: '/home',
-  //   ),
-  //   NavItem(
-  //     label: 'Profile',
-  //     icon: Icons.person_outline,
-  //     activeIcon: Icons.person,
-  //     path: '/profile',
-  //   ),
-  // ];
-  //
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _buildNavItems();
-  // }
-  //
-  // Future<void> _buildNavItems() async {
-  //   final storage = SecureStorageService();
-  //   final user = await storage.getUser();
-  //   final perms = user?.permissions ?? <PermissionModel>[];
-  //
-  //   setState(() {
-  //     if (perms.hasPermission(Permission.browsAvailableRequests)) {
-  //       _navItems.insert(
-  //         0,
-  //         NavItem(
-  //           label: 'Requests',
-  //           icon: Icons.request_page_outlined,
-  //           activeIcon: Icons.request_page_rounded,
-  //           path: '/requests',
-  //         ),
-  //       );
-  //     }
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
     final isRTL = AppLocalizations.of(context)?.localeName == 'ar';
@@ -83,6 +42,12 @@ class _MainLayoutState extends State<MainLayout> {
               activeIcon: Icons.dashboard_rounded,
               path: '/home',
             ),
+            NavItem(
+              label: context.l10n.profile,
+              icon: Icons.person_outline,
+              activeIcon: Icons.person,
+              path: '/user-profile',
+            ),
           ];
 
           // Conditionally add Requests
@@ -98,27 +63,12 @@ class _MainLayoutState extends State<MainLayout> {
             );
           }
 
-          // Conditionally add Profile
-          if (snap.data?.role == 'manager') {
-            items.insert(
-              2,
-              NavItem(
-                label: context.l10n.profile,
-                icon: Icons.person_outline,
-                activeIcon: Icons.person,
-                path: '/profile',
-              ),
-            );
-          }
-
-          // Determine active index
           var currentIndex =
               items.indexWhere((i) => widget.currentPath.startsWith(i.path));
           if (currentIndex < 0) currentIndex = 0;
 
           return Scaffold(
             body: widget.child,
-            // Only show bottom nav when there's more than one tab
             bottomNavigationBar: items.length > 1
                 ? CustomBottomNav(
                     items: items,

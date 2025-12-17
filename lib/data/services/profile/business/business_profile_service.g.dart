@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'profile_service.dart';
+part of 'business_profile_service.dart';
 
 // **************************************************************************
 // RetrofitGenerator
@@ -8,8 +8,8 @@ part of 'profile_service.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations,unused_element_parameter
 
-class _ProfileService implements ProfileService {
-  _ProfileService(this._dio, {this.baseUrl, this.errorLogger});
+class _BusinessProfileService implements BusinessProfileService {
+  _BusinessProfileService(this._dio, {this.baseUrl, this.errorLogger});
 
   final Dio _dio;
 

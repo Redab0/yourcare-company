@@ -62,27 +62,43 @@ class _StaffListScreenState extends State<StaffListScreen>
           }
 
           final itemCount = state.all.length + (state.hasMore ? 1 : 0);
-          return Padding(
-            padding:
-                const EdgeInsets.only(top: 16, left: 8, right: 8, bottom: 16),
-            child: ListView.builder(
-              controller: _scrollCtrl,
-              itemCount: itemCount,
-              itemBuilder: (ctx, idx) {
-                if (idx < state.all.length) {
-                  final user = state.all[idx];
-                  return InkWell(
-                    onTap: () =>
-                        context.goNamed('userDetailsScreen', extra: user),
-                    child: UserProfileCard(user: user),
-                  );
-                } else {
-                  // bottom loader
-                  return SizedBox.shrink();
-                }
-              },
-            ),
-          );
+          return LayoutBuilder(builder: (ctx, constraints) {
+            final isWide = constraints.maxWidth >= 900;
+            final crossAxisCount = isWide ? 3 : 1;
+            final maxWidth = isWide ? 1100.0 : double.infinity;
+
+            return Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxWidth),
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                      top: 16, left: 8, right: 8, bottom: 16),
+                  child: GridView.builder(
+                    controller: _scrollCtrl,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
+                      childAspectRatio: isWide ? 1.5 : 2.6,
+                    ),
+                    itemCount: itemCount,
+                    itemBuilder: (ctx, idx) {
+                      if (idx < state.all.length) {
+                        final user = state.all[idx];
+                        return InkWell(
+                          onTap: () =>
+                              context.goNamed('userDetailsScreen', extra: user),
+                          child: UserProfileCard(user: user),
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  ),
+                ),
+              ),
+            );
+          });
         },
       ),
     );

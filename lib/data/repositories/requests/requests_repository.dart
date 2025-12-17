@@ -47,6 +47,16 @@ class RequestsRepository {
     }
   }
 
+  Future<BusinessOfferResponse> submitUpholsteryOffer(
+      BusinessOffer offer) async {
+    final response = await _requestsService.submitUpholsteryOffer(offer);
+    if (response.success && response.data != null) {
+      return response.data!.data!;
+    } else {
+      throw Exception(response.message);
+    }
+  }
+
   Future<CleaningRequest> obtainHouseKeepingRequest(
       {required String id, AcceptHouseKeepingModel? model}) async {
     final response =

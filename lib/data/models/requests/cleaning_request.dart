@@ -2,6 +2,7 @@
 
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
 import 'package:cleaning_service_driver/data/models/customer/customer.dart';
+import 'package:cleaning_service_driver/data/models/requests/upholstery_cleaning_history.dart';
 
 import 'deep_cleaning_history.dart';
 import 'house_keeping_history.dart';
@@ -24,6 +25,8 @@ abstract class CleaningRequest {
         return DeepCleaningHistory.fromJson(json);
       case 'houseCleaning':
         return HouseKeepingHistory.fromJson(json);
+      case 'upholsteryCleaning':
+        return UpholsteryCleaningHistory.fromJson(json);
       default:
         throw UnsupportedError('Unknown cleaning type: ${json['type']}');
     }

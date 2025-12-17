@@ -3,16 +3,16 @@ import 'package:cleaning_service_driver/data/models/profile/business_profile_mod
 import 'package:cleaning_service_driver/data/models/profile/media_upload_response.dart';
 import 'package:equatable/equatable.dart';
 
-abstract class ProfileState extends Equatable {
-  const ProfileState();
+abstract class BusinessProfileState extends Equatable {
+  const BusinessProfileState();
 
   @override
   List<Object?> get props => [];
 }
 
-class ProfileInitial extends ProfileState {}
+class ProfileInitial extends BusinessProfileState {}
 
-class ProfileLoaded extends ProfileState {
+class ProfileLoaded extends BusinessProfileState {
   final BusinessProfileModel model;
   const ProfileLoaded(this.model);
 
@@ -20,7 +20,7 @@ class ProfileLoaded extends ProfileState {
   List<Object?> get props => [model];
 }
 
-class ProfileUpdated extends ProfileState {
+class ProfileUpdated extends BusinessProfileState {
   final BusinessProfileModel model;
   const ProfileUpdated(this.model);
 
@@ -28,7 +28,7 @@ class ProfileUpdated extends ProfileState {
   List<Object?> get props => [model];
 }
 
-class ProfileError extends ProfileState {
+class ProfileError extends BusinessProfileState {
   final String message;
 
   const ProfileError(this.message);
@@ -37,7 +37,7 @@ class ProfileError extends ProfileState {
   List<Object?> get props => [message];
 }
 
-class AreasLoaded extends ProfileState {
+class AreasLoaded extends BusinessProfileState {
   final List<AreaModel> areas;
 
   const AreasLoaded(this.areas);
@@ -45,7 +45,7 @@ class AreasLoaded extends ProfileState {
   List<Object> get props => [areas];
 }
 
-class MediaUploaded extends ProfileState {
+class MediaUploaded extends BusinessProfileState {
   final List<MediaUploadResponse> media;
   const MediaUploaded(this.media);
 

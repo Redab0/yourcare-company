@@ -1253,6 +1253,18 @@ abstract class AppLocalizations {
   /// **'Enter your bid'**
   String get enter_bid;
 
+  /// No description provided for @enter_timeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected timeline'**
+  String get enter_timeline;
+
+  /// No description provided for @enter_note.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get enter_note;
+
   /// No description provided for @submit_bid.
   ///
   /// In en, this message translates to:
@@ -1426,6 +1438,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{n, plural, one {{n} day} other {{n} days}}'**
   String days(int n);
+
+  /// No description provided for @upholstery_cleaning.
+  ///
+  /// In en, this message translates to:
+  /// **'Furniture Cleaning'**
+  String get upholstery_cleaning;
+
+  /// No description provided for @upholstery_details.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get upholstery_details;
+
+  /// No description provided for @condition.
+  ///
+  /// In en, this message translates to:
+  /// **'Condition'**
+  String get condition;
+
+  /// No description provided for @material.
+  ///
+  /// In en, this message translates to:
+  /// **'Material'**
+  String get material;
+
+  /// No description provided for @size.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get size;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

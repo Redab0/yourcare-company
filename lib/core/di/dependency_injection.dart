@@ -7,7 +7,8 @@ import 'package:cleaning_service_driver/data/repositories/auth/auth_repository.d
 import 'package:cleaning_service_driver/data/repositories/home/home_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/jobs/jobs_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/notifications/notifications_repository.dart';
-import 'package:cleaning_service_driver/data/repositories/profile/profile_repository.dart';
+import 'package:cleaning_service_driver/data/repositories/profile/business/business_profile_repository.dart';
+import 'package:cleaning_service_driver/data/repositories/profile/user/user_profile_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/requests/requests_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/staff/permissions_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/staff/staff_repository.dart';
@@ -15,7 +16,8 @@ import 'package:cleaning_service_driver/data/repositories/statistics/statistics_
 import 'package:cleaning_service_driver/data/services/auth/auth_service.dart';
 import 'package:cleaning_service_driver/data/services/jobs/jobs_service.dart';
 import 'package:cleaning_service_driver/data/services/notifications/notifications_service.dart';
-import 'package:cleaning_service_driver/data/services/profile/profile_service.dart';
+import 'package:cleaning_service_driver/data/services/profile/business/business_profile_service.dart';
+import 'package:cleaning_service_driver/data/services/profile/user/user_profile_service.dart';
 import 'package:cleaning_service_driver/data/services/requests/requests_service.dart';
 import 'package:cleaning_service_driver/data/services/staff/staff_service.dart';
 import 'package:cleaning_service_driver/data/services/statistics/statistics_service.dart';
@@ -28,15 +30,18 @@ import 'package:cleaning_service_driver/domain/usecases/jobs/cancel_job_usecase.
 import 'package:cleaning_service_driver/domain/usecases/jobs/complete_job_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/get_up_coming_jobs_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/start_job_usecase.dart';
-import 'package:cleaning_service_driver/domain/usecases/profile/get_areas_usecase.dart';
-import 'package:cleaning_service_driver/domain/usecases/profile/get_business_profile_usecase.dart';
-import 'package:cleaning_service_driver/domain/usecases/profile/update_business_profile_usecase.dart';
-import 'package:cleaning_service_driver/domain/usecases/profile/upload_media_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/jobs/update_frequency_request_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/profile/business/get_areas_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/profile/business/get_business_profile_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/profile/business/update_business_profile_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/profile/business/upload_media_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/profile/user/get_user_profile_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/requests/accept_exclusive_request_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/requests/get_available_requests_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/requests/get_exclusives_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/requests/obtain_house_keeping_request_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/requests/submit_business_offer_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/requests/submit_upholstery_offer_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/assign_permissions_for_user.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/check_permissions_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/create_team_usecase.dart';
@@ -53,7 +58,8 @@ import 'package:cleaning_service_driver/features/bloc/auth/auth_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/home/home_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_actions_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_bloc.dart';
-import 'package:cleaning_service_driver/features/bloc/profile/profile_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/profile/business/business_profile_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/profile/user/user_profile_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_action_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_action_bloc.dart';
@@ -105,8 +111,12 @@ Future<void> setupServiceLocator() async {
     () => StaffService(sl<ApiClient>().dio),
   );
 
-  sl.registerLazySingleton<ProfileService>(
-    () => ProfileService(sl<ApiClient>().dio),
+  sl.registerLazySingleton<BusinessProfileService>(
+    () => BusinessProfileService(sl<ApiClient>().dio),
+  );
+
+  sl.registerLazySingleton<UserProfileService>(
+    () => UserProfileService(sl<ApiClient>().dio),
   );
 
   sl.registerLazySingleton<StatisticsService>(
@@ -137,8 +147,8 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<StaffRepository>(
     () => StaffRepository(sl<StaffService>()),
   );
-  sl.registerLazySingleton<ProfileRepository>(
-    () => ProfileRepository(sl<ProfileService>()),
+  sl.registerLazySingleton<BusinessProfileRepository>(
+    () => BusinessProfileRepository(sl<BusinessProfileService>()),
   );
 
   sl.registerLazySingleton<PermissionsRepository>(
@@ -149,6 +159,10 @@ Future<void> setupServiceLocator() async {
     () => StatisticsRepository(sl<StatisticsService>()),
   );
 
+  sl.registerLazySingleton<UserProfileRepository>(
+    () => UserProfileRepository(sl<UserProfileService>()),
+  );
+
   //use cases
   sl.registerFactory(() => LoginUseCase(sl<AuthRepository>()));
   sl.registerFactory(() => LogoutUseCase(sl<AuthRepository>()));
@@ -157,6 +171,8 @@ Future<void> setupServiceLocator() async {
       () => GetAvailableRequestsUseCase(sl<RequestsRepository>()));
   sl.registerFactory(
       () => SubmitBusinessOfferUseCase(sl<RequestsRepository>()));
+  sl.registerFactory(
+      () => SubmitUpholsteryOfferUseCase(sl<RequestsRepository>()));
   sl.registerFactory(
       () => ObtainHouseKeepingRequestUseCase(sl<RequestsRepository>()));
   sl.registerFactory(() => GetUpComingJobsUseCase(sl<JobsRepository>()));
@@ -169,11 +185,12 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory(() => GetAllUsersUseCase(sl<StaffRepository>()));
   sl.registerFactory(() => GetPermissionsForUserUseCase(sl<StaffRepository>()));
   sl.registerFactory(() => CreateUserUseCase(sl<StaffRepository>()));
-  sl.registerFactory(() => GetBusinessProfileUseCase(sl<ProfileRepository>()));
   sl.registerFactory(
-      () => UpdateBusinessProfileUseCase(sl<ProfileRepository>()));
-  sl.registerFactory(() => GetAreasUseCase(sl<ProfileRepository>()));
-  sl.registerFactory(() => UploadMediaUseCase(sl<ProfileRepository>()));
+      () => GetBusinessProfileUseCase(sl<BusinessProfileRepository>()));
+  sl.registerFactory(
+      () => UpdateBusinessProfileUseCase(sl<BusinessProfileRepository>()));
+  sl.registerFactory(() => GetAreasUseCase(sl<BusinessProfileRepository>()));
+  sl.registerFactory(() => UploadMediaUseCase(sl<BusinessProfileRepository>()));
   sl.registerFactory(
       () => CheckPermissionsUseCase(sl<PermissionsRepository>()));
   sl.registerFactory(() => UpdateUserUseCase(sl<StaffRepository>()));
@@ -187,6 +204,8 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory(() => GetExclusivesUseCase(sl<RequestsRepository>()));
   sl.registerFactory(
       () => AcceptExclusiveRequestUseCase(sl<RequestsRepository>()));
+  sl.registerFactory(() => GetUserProfileUseCase(sl<UserProfileRepository>()));
+  sl.registerFactory(() => UpdateFrequencyRequestUseCase(sl<JobsRepository>()));
 
   // Blocs
   sl.registerFactory(() => AuthBloc());
@@ -197,6 +216,7 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory(() => RequestsActionBloc());
   sl.registerFactory(() => StaffBloc());
   sl.registerFactory(() => StaffActionBloc());
-  sl.registerFactory(() => ProfileBloc());
+  sl.registerFactory(() => BusinessProfileBloc());
   sl.registerFactory(() => StatisticsBloc());
+  sl.registerFactory(() => UserProfileBloc());
 }

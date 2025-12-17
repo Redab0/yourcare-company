@@ -15,7 +15,8 @@ class RequestsBloc extends Bloc<RequestsEvent, RequestsState> {
   final _loader = sl<LoadingController>();
 
   static const _pageSize = 20;
-  int _currentPage = 1;
+  int _allPage = 1;
+  int _exclusivePage = 1;
 
   RequestsBloc() : super(RequestsInitial()) {
     on<FetchFirstPageRequests>(_onFirstPage);
@@ -26,79 +27,79 @@ class RequestsBloc extends Bloc<RequestsEvent, RequestsState> {
 
   FutureOr<void> _onFirstPage(
       FetchFirstPageRequests event, Emitter<RequestsState> emit) async {
-    _currentPage = 1;
-    emit(state.copyWith(isLoading: true, error: null));
+    _allPage = 1;
+    emit(state.copyWith(isLoadingAll: true, error: null));
     _loader.show();
     try {
-      final page = await getRequestsUseCase.call(_currentPage, _pageSize);
+      final page = await getRequestsUseCase.call(_allPage, _pageSize);
       _loader.hide();
       emit(state.copyWith(
         all: page.docs,
-        hasMore: page.hasNextPage,
-        isLoading: false,
+        hasMoreAll: page.hasNextPage,
+        isLoadingAll: false,
       ));
     } catch (e) {
       _loader.hide();
-      emit(state.copyWith(isLoading: false, error: e.toString()));
+      emit(state.copyWith(isLoadingAll: false, error: e.toString()));
     }
   }
 
   FutureOr<void> _onNextPage(
       FetchNextPageRequests event, Emitter<RequestsState> emit) async {
-    if (!state.hasMore || state.isLoading) return;
-    emit(state.copyWith(isLoading: true));
+    if (!state.hasMoreAll || state.isLoadingAll) return;
+    emit(state.copyWith(isLoadingAll: true));
     _loader.show();
     try {
-      _currentPage++;
-      final page = await getRequestsUseCase.call(_currentPage, _pageSize);
+      _allPage++;
+      final page = await getRequestsUseCase.call(_allPage, _pageSize);
       _loader.hide();
       emit(state.copyWith(
         all: [...state.all, ...page.docs],
-        hasMore: page.hasNextPage,
-        isLoading: false,
+        hasMoreAll: page.hasNextPage,
+        isLoadingAll: false,
       ));
     } catch (e) {
       _loader.hide();
-      emit(state.copyWith(isLoading: false, error: e.toString()));
+      emit(state.copyWith(isLoadingAll: false, error: e.toString()));
     }
   }
 
   FutureOr<void> _onExclusiveFirstPage(FetchExclusivesFirstPageRequests event,
       Emitter<RequestsState> emit) async {
-    _currentPage = 1;
-    emit(state.copyWith(isLoading: true, error: null));
+    _exclusivePage = 1;
+    emit(state.copyWith(isLoadingExclusive: true, error: null));
     _loader.show();
     try {
-      final page = await getExclusivesUseCase.call(_currentPage, _pageSize);
+      final page = await getExclusivesUseCase.call(_exclusivePage, _pageSize);
       _loader.hide();
       emit(state.copyWith(
         exclusive: page.docs,
-        hasMore: page.hasNextPage,
-        isLoading: false,
+        hasMoreExclusive: page.hasNextPage,
+        isLoadingExclusive: false,
       ));
     } catch (e) {
       _loader.hide();
-      emit(state.copyWith(isLoading: false, error: e.toString()));
+      emit(state.copyWith(isLoadingExclusive: false, error: e.toString()));
     }
   }
 
   FutureOr<void> _onExclusivesNextPage(FetchExclusivesNextPageRequests event,
       Emitter<RequestsState> emit) async {
-    if (!state.hasMore || state.isLoading) return;
-    emit(state.copyWith(isLoading: true));
+    if (!state.hasMoreExclusive || state.isLoadingExclusive) return;
+    emit(state.copyWith(isLoadingExclusive: true));
     _loader.show();
     try {
-      _currentPage++;
-      final page = await getExclusivesUseCase.call(_currentPage, _pageSize);
+      _exclusivePage++;
+      final page = await getExclusivesUseCase.call(_exclusivePage, _pageSize);
       _loader.hide();
       emit(state.copyWith(
-        exclusive: [...state.all, ...page.docs],
-        hasMore: page.hasNextPage,
-        isLoading: false,
+        exclusive: [...state.exclusive, ...page.docs],
+        hasMoreExclusive: page.hasNextPage,
+        isLoadingExclusive: false,
       ));
     } catch (e) {
       _loader.hide();
-      emit(state.copyWith(isLoading: false, error: e.toString()));
+      emit(state.copyWith(isLoadingExclusive: false, error: e.toString()));
     }
   }
 }

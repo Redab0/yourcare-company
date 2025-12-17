@@ -1,0 +1,245 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'upholstery_cleaning_history.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+UpholsteryCleaningHistory _$UpholsteryCleaningHistoryFromJson(
+        Map<String, dynamic> json) =>
+    $checkedCreate(
+      'UpholsteryCleaningHistory',
+      json,
+      ($checkedConvert) {
+        final val = UpholsteryCleaningHistory(
+          id: $checkedConvert('id', (v) => v as String),
+          customer: $checkedConvert(
+              'customer', (v) => Customer.fromJson(v as Map<String, dynamic>)),
+          requestStatus: $checkedConvert(
+              'requestStatus', (v) => $enumDecode(_$RequestStatusEnumMap, v)),
+          totalPrice:
+              $checkedConvert('totalPrice', (v) => (v as num).toDouble()),
+          type: $checkedConvert('type', (v) => v as String),
+          createdAt:
+              $checkedConvert('createdAt', (v) => DateTime.parse(v as String)),
+          updatedAt:
+              $checkedConvert('updatedAt', (v) => DateTime.parse(v as String)),
+          upholsteryCleaning: $checkedConvert(
+              'UpholsteryCleaning',
+              (v) => UpholsteryCleaningDetails.fromJson(
+                  v as Map<String, dynamic>)),
+          scheduledTime: $checkedConvert(
+              'scheduledTime', (v) => DateTime.parse(v as String)),
+          companyInformation: $checkedConvert(
+              'businessId',
+              (v) => v == null
+                  ? null
+                  : CompanyInformation.fromJson(v as Map<String, dynamic>)),
+          assignedWorker: $checkedConvert(
+              'cleaners',
+              (v) => (v as List<dynamic>?)
+                  ?.map(
+                      (e) => AssignedWorker.fromJson(e as Map<String, dynamic>))
+                  .toList()),
+          subRequests: $checkedConvert(
+              'frequencyDates',
+              (v) => (v as List<dynamic>?)
+                  ?.map((e) =>
+                      FrequentRequestModel.fromJson(e as Map<String, dynamic>))
+                  .toList()),
+        );
+        return val;
+      },
+      fieldKeyMap: const {
+        'upholsteryCleaning': 'UpholsteryCleaning',
+        'companyInformation': 'businessId',
+        'assignedWorker': 'cleaners',
+        'subRequests': 'frequencyDates'
+      },
+    );
+
+Map<String, dynamic> _$UpholsteryCleaningHistoryToJson(
+        UpholsteryCleaningHistory instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'type': instance.type,
+      'requestStatus': _$RequestStatusEnumMap[instance.requestStatus]!,
+      'totalPrice': instance.totalPrice,
+      'createdAt': instance.createdAt.toIso8601String(),
+      'updatedAt': instance.updatedAt.toIso8601String(),
+      'customer': instance.customer,
+      'scheduledTime': instance.scheduledTime.toIso8601String(),
+      'businessId': instance.companyInformation,
+      'cleaners': instance.assignedWorker,
+      'frequencyDates': instance.subRequests,
+      'UpholsteryCleaning': instance.upholsteryCleaning,
+    };
+
+const _$RequestStatusEnumMap = {
+  RequestStatus.confirmed: 'confirmed',
+  RequestStatus.pending: 'pending',
+  RequestStatus.inProgress: 'inProgress',
+  RequestStatus.completed: 'completed',
+  RequestStatus.cancelled: 'cancelled',
+  RequestStatus.canceled: 'canceled',
+  RequestStatus.notPaid: 'notPaid',
+  RequestStatus.paid: 'paid',
+  RequestStatus.unknown: 'unknown',
+};
+
+UpholsteryCleaningDetails _$UpholsteryCleaningDetailsFromJson(
+        Map<String, dynamic> json) =>
+    $checkedCreate(
+      'UpholsteryCleaningDetails',
+      json,
+      ($checkedConvert) {
+        final val = UpholsteryCleaningDetails(
+          $checkedConvert(
+              'items',
+              (v) => (v as List<dynamic>?)
+                  ?.map((e) => UpholsteryCleaningItems.fromJson(
+                      e as Map<String, dynamic>))
+                  .toList()),
+        );
+        return val;
+      },
+    );
+
+Map<String, dynamic> _$UpholsteryCleaningDetailsToJson(
+        UpholsteryCleaningDetails instance) =>
+    <String, dynamic>{
+      'items': instance.items,
+    };
+
+UpholsteryCleaningItems _$UpholsteryCleaningItemsFromJson(
+        Map<String, dynamic> json) =>
+    $checkedCreate(
+      'UpholsteryCleaningItems',
+      json,
+      ($checkedConvert) {
+        final val = UpholsteryCleaningItems(
+          $checkedConvert('quantity', (v) => (v as num?)?.toInt()),
+          $checkedConvert('calculatedPrice', (v) => (v as num?)?.toDouble()),
+          $checkedConvert(
+              'type',
+              (v) => v == null
+                  ? null
+                  : CleaningItemType.fromJson(v as Map<String, dynamic>)),
+          $checkedConvert(
+              'size',
+              (v) => v == null
+                  ? null
+                  : CleaningItemSize.fromJson(v as Map<String, dynamic>)),
+          $checkedConvert(
+              'material',
+              (v) => v == null
+                  ? null
+                  : CleaningItemMaterial.fromJson(v as Map<String, dynamic>)),
+          $checkedConvert(
+              'condition',
+              (v) => v == null
+                  ? null
+                  : CleaningItemCondition.fromJson(v as Map<String, dynamic>)),
+          $checkedConvert('mediaUrls',
+              (v) => (v as List<dynamic>?)?.map((e) => e as String).toList()),
+        );
+        return val;
+      },
+    );
+
+Map<String, dynamic> _$UpholsteryCleaningItemsToJson(
+        UpholsteryCleaningItems instance) =>
+    <String, dynamic>{
+      'quantity': instance.quantity,
+      'calculatedPrice': instance.calculatedPrice,
+      'type': instance.type,
+      'size': instance.size,
+      'material': instance.material,
+      'condition': instance.condition,
+      'mediaUrls': instance.mediaUrls,
+    };
+
+FrequentRequestModel _$FrequentRequestModelFromJson(
+        Map<String, dynamic> json) =>
+    FrequentRequestModel(
+      $enumDecodeNullable(_$RequestStatusEnumMap, json['status']),
+      json['id'] as String?,
+      json['date'] == null ? null : DateTime.parse(json['date'] as String),
+    );
+
+Map<String, dynamic> _$FrequentRequestModelToJson(
+        FrequentRequestModel instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'date': instance.date?.toIso8601String(),
+      'status': _$RequestStatusEnumMap[instance.status],
+    };
+
+CleaningItemType _$CleaningItemTypeFromJson(Map<String, dynamic> json) =>
+    CleaningItemType(
+      json['id'] as String?,
+      json['titleEn'] as String?,
+      json['titleAr'] as String?,
+      json['title'] as String?,
+      json['descriptionEn'] as String?,
+      json['descriptionAr'] as String?,
+      json['description'] as String?,
+    );
+
+Map<String, dynamic> _$CleaningItemTypeToJson(CleaningItemType instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'titleEn': instance.titleEn,
+      'titleAr': instance.titleAr,
+      'title': instance.title,
+      'descriptionEn': instance.descriptionEn,
+      'descriptionAr': instance.descriptionAr,
+      'description': instance.description,
+    };
+
+CleaningItemSize _$CleaningItemSizeFromJson(Map<String, dynamic> json) =>
+    CleaningItemSize(
+      json['id'] as String?,
+      json['title'] as String?,
+      json['description'] as String?,
+    );
+
+Map<String, dynamic> _$CleaningItemSizeToJson(CleaningItemSize instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'title': instance.title,
+      'description': instance.description,
+    };
+
+CleaningItemMaterial _$CleaningItemMaterialFromJson(
+        Map<String, dynamic> json) =>
+    CleaningItemMaterial(
+      json['id'] as String?,
+      json['title'] as String?,
+      json['description'] as String?,
+    );
+
+Map<String, dynamic> _$CleaningItemMaterialToJson(
+        CleaningItemMaterial instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'title': instance.title,
+      'description': instance.description,
+    };
+
+CleaningItemCondition _$CleaningItemConditionFromJson(
+        Map<String, dynamic> json) =>
+    CleaningItemCondition(
+      json['id'] as String,
+      json['title'] as String,
+      json['description'] as String,
+    );
+
+Map<String, dynamic> _$CleaningItemConditionToJson(
+        CleaningItemCondition instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'title': instance.title,
+      'description': instance.description,
+    };

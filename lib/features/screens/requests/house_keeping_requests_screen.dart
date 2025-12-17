@@ -8,6 +8,9 @@ import 'package:cleaning_service_driver/data/models/requests/house_keeping_histo
 import 'package:cleaning_service_driver/features/bloc/requests/requests_action_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_action_event.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_actions_state.dart';
+import 'package:cleaning_service_driver/features/bloc/requests/requests_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/requests/requests_event.dart'
+    as requests_events;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -38,11 +41,18 @@ class _HouseKeepingRequestScreenState extends State<HouseKeepingRequestScreen> {
       listener: (ctx, state) {
         if (state is RequestsActionFailed) {
           ScaffoldMessenger.of(ctx)
-              .showSnackBar(SnackBar(content: Text(state.message)));
+              .showSnackBar(
+                  SnackBar(content: Text(ctx.genericErrorMessage)));
         } else if (state is HouseKeepingRequestObtained) {
           context.goNamed('houseKeepingSuccess', extra: state.request);
+          // refresh requests after returning
+          context.read<RequestsBloc>().add(
+                requests_events.FetchFirstPageRequests(),
+              );
         } else if (state is WorkersFetchedState) {
-          _workers = state.workers;
+          setState(() {
+            _workers = state.workers;
+          });
         }
       },
       builder: (ctx, state) {
@@ -224,7 +234,8 @@ class _HouseKeepingRequestScreenState extends State<HouseKeepingRequestScreen> {
           bottomNavigationBar: Padding(
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
             child: FilledButton(
-              onPressed: _selectedWorkerIds.isEmpty
+              onPressed: _selectedWorkerIds.length !=
+                      widget.request.detail.cleanersCount
                   ? null
                   : () {
                       context.read<RequestsActionBloc>().add(

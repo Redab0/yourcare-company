@@ -32,6 +32,10 @@ abstract class RequestsService {
   Future<ApiResponse<ResponsePayload<BusinessOfferResponse>>> submitOffer(
       @Body() BusinessOffer body);
 
+  @POST('/requests/upholstery-cleaning/business-offer')
+  Future<ApiResponse<ResponsePayload<BusinessOfferResponse>>>
+      submitUpholsteryOffer(@Body() BusinessOffer body);
+
   @PATCH('/requests/{id}/house-cleaning/accept')
   Future<ApiResponse<ResponsePayload<CleaningRequest>>>
       obtainHouseKeepingRequest(

@@ -7,11 +7,12 @@ import 'package:cleaning_service_driver/data/models/profile/update_business_prof
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
-part 'profile_service.g.dart';
+part 'business_profile_service.g.dart';
 
 @RestApi()
-abstract class ProfileService {
-  factory ProfileService(Dio dio, {String baseUrl}) = _ProfileService;
+abstract class BusinessProfileService {
+  factory BusinessProfileService(Dio dio, {String baseUrl}) =
+      _BusinessProfileService;
 
   @GET('/business/my-business')
   Future<ApiResponse<ResponsePayload<BusinessProfileModel>>>

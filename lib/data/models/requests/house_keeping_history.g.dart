@@ -82,6 +82,7 @@ const _$RequestStatusEnumMap = {
   RequestStatus.inProgress: 'inProgress',
   RequestStatus.completed: 'completed',
   RequestStatus.cancelled: 'cancelled',
+  RequestStatus.canceled: 'canceled',
   RequestStatus.notPaid: 'notPaid',
   RequestStatus.paid: 'paid',
   RequestStatus.unknown: 'unknown',
@@ -97,17 +98,17 @@ HouseKeepingDetail _$HouseKeepingDetailFromJson(Map<String, dynamic> json) =>
               'numberOfCleaners',
               (v) => v == null
                   ? null
-                  : CleaningItem.fromJson(v as Map<String, dynamic>)),
-          cleaningDuration: $checkedConvert(
-              'cleaningDuration',
+                  : HouseKeepingOption.fromJson(v as Map<String, dynamic>)),
+          cleaningDurations: $checkedConvert(
+              'cleaningDurations',
               (v) => v == null
                   ? null
-                  : CleaningItem.fromJson(v as Map<String, dynamic>)),
+                  : HouseKeepingOption.fromJson(v as Map<String, dynamic>)),
           cleaningProducts: $checkedConvert(
               'cleaningProducts',
               (v) => v == null
                   ? null
-                  : CleaningItem.fromJson(v as Map<String, dynamic>)),
+                  : HouseKeepingOption.fromJson(v as Map<String, dynamic>)),
           address: $checkedConvert(
               'address',
               (v) => v == null
@@ -127,7 +128,7 @@ HouseKeepingDetail _$HouseKeepingDetailFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$HouseKeepingDetailToJson(HouseKeepingDetail instance) =>
     <String, dynamic>{
       'numberOfCleaners': instance.numberOfCleaners,
-      'cleaningDuration': instance.cleaningDuration,
+      'cleaningDurations': instance.cleaningDurations,
       'cleaningProducts': instance.cleaningProducts,
       'address': instance.address,
       'scheduledTime': instance.scheduledTime?.toIso8601String(),
@@ -151,4 +152,27 @@ Map<String, dynamic> _$FrequentRequestModelToJson(
       'id': instance.id,
       'date': instance.date?.toIso8601String(),
       'status': _$RequestStatusEnumMap[instance.status],
+    };
+
+HouseKeepingOption _$HouseKeepingOptionFromJson(Map<String, dynamic> json) =>
+    $checkedCreate(
+      'HouseKeepingOption',
+      json,
+      ($checkedConvert) {
+        final val = HouseKeepingOption(
+          option: $checkedConvert(
+              'option',
+              (v) => v == null
+                  ? null
+                  : CleaningItem.fromJson(v as Map<String, dynamic>)),
+          quantity: $checkedConvert('quantity', (v) => (v as num?)?.toInt()),
+        );
+        return val;
+      },
+    );
+
+Map<String, dynamic> _$HouseKeepingOptionToJson(HouseKeepingOption instance) =>
+    <String, dynamic>{
+      'option': instance.option,
+      'quantity': instance.quantity,
     };

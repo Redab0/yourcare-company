@@ -7,11 +7,18 @@ import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
 import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
 import 'package:cleaning_service_driver/data/models/requests/accept_house_keeping_model.dart';
 import 'package:cleaning_service_driver/data/models/requests/house_keeping_history.dart';
+import 'package:cleaning_service_driver/data/models/requests/update_request_frequency_request.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_actions_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_actions_event.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_actions_state.dart';
+import 'package:cleaning_service_driver/features/bloc/jobs/job_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/jobs/job_event.dart';
+import 'package:cleaning_service_driver/features/bloc/requests/requests_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/requests/requests_event.dart'
+    as requests_events;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class HouseKeepingJobDetails extends StatefulWidget {
@@ -52,6 +59,12 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
         );
   }
 
+  void _maybeRefreshRequests() {
+    try {
+      context.read<RequestsBloc>().add(requests_events.FetchFirstPageRequests());
+    } catch (_) {}
+  }
+
   @override
   Widget build(BuildContext context) {
     final req = _currentRequest;
@@ -65,7 +78,8 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
           setState(() => _allWorkers = state.workers);
         } else if (state is JobActionFailed) {
           ScaffoldMessenger.of(ctx)
-              .showSnackBar(SnackBar(content: Text(state.message)));
+              .showSnackBar(
+                  SnackBar(content: Text(ctx.genericErrorMessage)));
           print("ERROR ${state.message}");
         } else if (state is WorkersAssigned) {
           // they just saved successfully
@@ -76,15 +90,20 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
           });
         } else if (state is JobStarted) {
           setState(() {
-            _currentRequest = _currentRequest.copyWith(
-              requestStatus: RequestStatus.inProgress,
-            );
+            _currentRequest = (state.model as HouseKeepingHistory);
           });
+          context.read<JobBloc>().add(LoadJobsEvent());
+          _maybeRefreshRequests();
         } else if (state is JobCompleted) {
           setState(() {
-            _currentRequest = _currentRequest.copyWith(
-              requestStatus: RequestStatus.completed,
-            );
+            _currentRequest = (state.model as HouseKeepingHistory);
+          });
+          context.read<JobBloc>().add(LoadJobsEvent());
+          _maybeRefreshRequests();
+          context.goNamed('houseKeepingJobSuccess', extra: state.model);
+        } else if (state is RequestFrequencyUpdated) {
+          setState(() {
+            _currentRequest = (state.response as HouseKeepingHistory);
           });
         }
       },
@@ -96,7 +115,7 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  if ((widget.request.subRequests?.isNotEmpty ?? false))
+                  if ((_currentRequest.subRequests?.isNotEmpty ?? false))
                     Card(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16)),
@@ -113,8 +132,8 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                         childrenPadding:
                             const EdgeInsets.fromLTRB(16, 0, 16, 16),
                         children: List.generate(
-                            widget.request.subRequests!.length, (i) {
-                          final sr = widget.request.subRequests![i];
+                            _currentRequest.subRequests!.length, (i) {
+                          final sr = _currentRequest.subRequests![i];
                           final dateStr = (sr.date != null)
                               ? DateFormat.yMMMd().add_jm().format(sr.date!)
                               : "N/A";
@@ -144,16 +163,56 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                                             Row(
                                               children: [
                                                 FilledButton(
-                                                  onPressed: (sr.id == null ||
-                                                          sr.id!.isEmpty)
-                                                      ? null
-                                                      : () => {},
+                                                  onPressed:
+                                                      (sr.id == null ||
+                                                              sr.id!.isEmpty)
+                                                          ? null
+                                                          : () => {
+                                                                if (sr.status ==
+                                                                    RequestStatus
+                                                                        .confirmed)
+                                                                  {
+                                                                    ctx
+                                                                        .read<
+                                                                            JobActionsBloc>()
+                                                                        .add(
+                                                                          UpdateFrequencyRequestEvent(
+                                                                            UpdateRequestFrequencyRequest(
+                                                                              frequencyDateId: sr.id,
+                                                                              status: RequestStatus.inProgress,
+                                                                            ),
+                                                                            widget.request.id ??
+                                                                                "",
+                                                                          ),
+                                                                        )
+                                                                  }
+                                                                else if (sr
+                                                                        .status ==
+                                                                    RequestStatus
+                                                                        .inProgress)
+                                                                  {
+                                                                    ctx
+                                                                        .read<
+                                                                            JobActionsBloc>()
+                                                                        .add(
+                                                                          UpdateFrequencyRequestEvent(
+                                                                            UpdateRequestFrequencyRequest(
+                                                                              frequencyDateId: sr.id,
+                                                                              status: RequestStatus.completed,
+                                                                            ),
+                                                                            widget.request.id ??
+                                                                                "",
+                                                                          ),
+                                                                        )
+                                                                  }
+                                                              },
                                                   child: Text(
                                                     sr.status ==
                                                             RequestStatus
                                                                 .confirmed
-                                                        ? "start job"
-                                                        : "complete job",
+                                                        ? context.l10n.start_job
+                                                        : context
+                                                            .l10n.complete_job,
                                                   ),
                                                 ),
                                               ],
@@ -173,7 +232,7 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                                     ),
                                   ],
                                 ),
-                                if (i < widget.request.subRequests!.length - 1)
+                                if (i < _currentRequest.subRequests!.length - 1)
                                   const Divider(height: 24), // <- add this line
                               ],
                             ),
@@ -186,12 +245,12 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                     child: Column(
                       children: [
                         DetailRow(context.l10n.signup_name,
-                            widget.request.customer.username ?? ""),
+                            _currentRequest.customer.username ?? ""),
                         const Divider(),
                         DetailRow(context.l10n.signup_phone,
-                            widget.request.customer.phone ?? ""),
+                            _currentRequest.customer.phone ?? ""),
                         ContactActions(
-                            phoneNumber: widget.request.customer.phone ?? "")
+                            phoneNumber: _currentRequest.customer.phone ?? "")
                       ],
                     ),
                     expanded: true,
@@ -212,19 +271,22 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                         const Divider(),
                         DetailRow(context.l10n.requests_cleaning_product_title,
                             RequestFmt.yesNo(detail.productsIncluded)),
+                        const Divider(),
+                        DetailRow("Sessions",
+                            "${widget.request.subRequests?.length ?? 1}"),
                       ],
                     ),
                   ),
-                  _buildSection(
-                    expanded: false,
-                    title: context.l10n.request_card_schedule,
-                    child: Column(
-                      children: [
-                        DetailRow(context.l10n.request_date_time,
-                            "${RequestFmt.date(req.scheduledTime)}  ${RequestFmt.time(req.scheduledTime)}"),
-                      ],
-                    ),
-                  ),
+                  // _buildSection(
+                  //   expanded: false,
+                  //   title: context.l10n.request_card_schedule,
+                  //   child: Column(
+                  //     children: [
+                  //       DetailRow(context.l10n.request_date_time,
+                  //           "${RequestFmt.date(req.scheduledTime)}  ${RequestFmt.time(req.scheduledTime)}"),
+                  //     ],
+                  //   ),
+                  // ),
                   if (detail.address != null)
                     _buildSection(
                       expanded: false,
@@ -238,7 +300,7 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                               context.l10n.request_location,
                               OpenMapAction(
                                   latitude: detail.address!.latitude ?? 0.0,
-                                  longitude: detail.address!.latitude ?? 0.0))
+                                  longitude: detail.address!.longitude ?? 0.0))
                         ],
                       ),
                     ),
@@ -359,11 +421,12 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: ElevatedButton(
-                                    onPressed: _selectedWorkerIds.isEmpty
+                                    onPressed: _selectedWorkerIds.length ==
+                                            detail.cleanersCount
                                         ? null
                                         : _saveWorkers,
                                     child: Text(
-                                        '${context.l10n.general_save} (${_selectedWorkerIds.length})'),
+                                        '${context.l10n.general_save} (${_selectedWorkerIds.length}/${detail.cleanersCount})'),
                                   ),
                                 ),
                               ],
@@ -377,33 +440,33 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
               ),
             ),
           ),
-          bottomNavigationBar: req.requestStatus != RequestStatus.completed ||
-                  req.requestStatus != RequestStatus.cancelled
-              ? Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-                  child: FilledButton(
-                    onPressed: () {
-                      if (req.requestStatus == RequestStatus.confirmed) {
-                        ctx
-                            .read<JobActionsBloc>()
-                            .add(StartJobEvent(req.id ?? ""));
-                      } else if (req.requestStatus ==
-                          RequestStatus.inProgress) {
-                        ctx
-                            .read<JobActionsBloc>()
-                            .add(CompleteJobEvent(req.id ?? "", null));
-                      }
-                    },
-                    child: Text(
-                      req.requestStatus == RequestStatus.confirmed
-                          ? context.l10n.start_job
-                          : req.requestStatus == RequestStatus.inProgress
-                              ? context.l10n.complete_job
-                              : 'OK',
-                    ),
-                  ),
-                )
-              : SizedBox.shrink(),
+          // bottomNavigationBar: req.requestStatus != RequestStatus.completed &&
+          //         req.requestStatus != RequestStatus.cancelled
+          //     ? Padding(
+          //         padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+          //         child: FilledButton(
+          //           onPressed: () {
+          //             if (req.requestStatus == RequestStatus.confirmed) {
+          //               ctx
+          //                   .read<JobActionsBloc>()
+          //                   .add(StartJobEvent(req.id ?? ""));
+          //             } else if (req.requestStatus ==
+          //                 RequestStatus.inProgress) {
+          //               ctx
+          //                   .read<JobActionsBloc>()
+          //                   .add(CompleteJobEvent(req.id ?? "", null));
+          //             }
+          //           },
+          //           child: Text(
+          //             req.requestStatus == RequestStatus.confirmed
+          //                 ? context.l10n.start_job
+          //                 : req.requestStatus == RequestStatus.inProgress
+          //                     ? context.l10n.complete_job
+          //                     : 'OK',
+          //           ),
+          //         ),
+          //       )
+          //     : SizedBox.shrink(),
         );
       },
     );

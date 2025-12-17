@@ -3,6 +3,7 @@ import 'package:cleaning_service_driver/data/models/requests/accept_house_keepin
 import 'package:cleaning_service_driver/data/models/requests/assign_team_model.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/complete_job_media_request.dart';
+import 'package:cleaning_service_driver/data/models/requests/update_request_frequency_request.dart';
 import 'package:cleaning_service_driver/data/services/jobs/jobs_service.dart';
 
 class JobsRepository {
@@ -77,6 +78,17 @@ class JobsRepository {
 
   Future<CleaningRequest> assignTeam(String id, AssignTeamModel model) async {
     final response = await _jobsService.assignTeam(id, model);
+    if (response.success && response.data != null) {
+      return response.data!.data!;
+    } else {
+      throw Exception(response.message);
+    }
+  }
+
+  Future<CleaningRequest> updateFrequencyStatus(
+      String id, UpdateRequestFrequencyRequest body) async {
+    final response = await _jobsService.updateFrequencyStatus(id, body);
+
     if (response.success && response.data != null) {
       return response.data!.data!;
     } else {

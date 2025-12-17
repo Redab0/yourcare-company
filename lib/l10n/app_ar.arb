@@ -191,6 +191,8 @@
   "business_website": "موقع الشركة",
   "business_email": "ايميل الشركة",
   "enter_bid": "ادخل عرض السعر",
+  "enter_timeline": "الوقت المتوقع",
+  "enter_note": "الملاحظات",
   "submit_bid": "ارسل عرض السعر",
   "bid_submitted": "تم ارسال عرض السعر",
   "navigate_back_to_requests": "الرجوع للطلبات",
@@ -229,5 +231,11 @@
         "example": "3"
       }
     }
-  }
+  },
+  "hour": "ساعة",
+  "upholstery_cleaning": "تنظيف الأثاث",
+  "upholstery_details": "التفاصيل",
+  "condition" : "الحالة",
+  "material" : "النوع",
+  "size": "الحجم"
 }

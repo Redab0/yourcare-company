@@ -4,7 +4,8 @@ import 'package:cleaning_service_driver/features/bloc/auth/auth_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/home/home_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_actions_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_bloc.dart';
-import 'package:cleaning_service_driver/features/bloc/profile/profile_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/profile/business/business_profile_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/profile/user/user_profile_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_action_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_action_bloc.dart';
@@ -30,9 +31,10 @@ class AppBlocProviders extends StatelessWidget {
         BlocProvider(create: (_) => sl<JobActionsBloc>()),
         BlocProvider(create: (_) => sl<StaffBloc>()),
         BlocProvider(create: (_) => sl<StaffActionBloc>()),
-        BlocProvider(create: (_) => sl<ProfileBloc>()),
+        BlocProvider(create: (_) => sl<BusinessProfileBloc>()),
         BlocProvider(create: (_) => sl<LocaleCubit>()),
         BlocProvider(create: (_) => sl<StatisticsBloc>()),
+        BlocProvider(create: (_) => sl<UserProfileBloc>()),
       ],
       child: child,
     );

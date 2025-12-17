@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../data/models/requests/cleaning_request.dart';
 import '../../data/models/requests/deep_cleaning_history.dart';
 import '../../data/models/requests/house_keeping_history.dart';
+import '../../data/models/requests/upholstery_cleaning_history.dart';
 
 /// Compact row that shows
 ///  ─ type (subtitle)
@@ -32,6 +33,8 @@ class JobTile extends StatelessWidget {
         return l10n.deepCleaning; // ← localized
       case 'housecleaning':
         return l10n.houseKeeping; // ← localized
+      case 'upholsterycleaning':
+        return l10n.upholstery_cleaning;
       default:
         return request.type ?? l10n.houseKeeping;
     }
@@ -45,45 +48,15 @@ class JobTile extends StatelessWidget {
     if (request is HouseKeepingHistory) {
       return (request as HouseKeepingHistory).detail.address?.area ?? '—';
     }
+    if (request is UpholsteryCleaningHistory) {
+      return request.customer.addresses?.first.area ?? '—';
+    }
     return '—';
   }
 
   String get _schedule {
-    if (request is DeepCleaningHistory) {
-      return DateFormat('MMM dd, yyyy, HH:MM')
-          .format((request as DeepCleaningHistory).scheduledTime);
-    }
-    if (request is HouseKeepingHistory) {
-      return DateFormat('MMM dd, yyyy, HH:MM')
-          .format((request as HouseKeepingHistory).scheduledTime);
-    }
-    return '—';
-  }
-
-  /// Date & time slot (“Tomorrow, 10:00 AM – 12:00 PM”)
-  String get _scheduleText {
-    DateTime? start;
-    DateTime? end;
-
-    if (request is HouseKeepingHistory) {
-      final hk = request as HouseKeepingHistory;
-      start = hk.detail.scheduledTime;
-      // You might have an end time in your model; here we fake +2 h.
-      end = start?.add(const Duration(hours: 2));
-    }
-    // DeepCleaningHistory might not have explicit schedule; adapt as needed
-
-    if (start == null) return 'No schedule';
-
-    final now = DateTime.now();
-    final relativeDay = start.difference(now).inDays == 0
-        ? 'Today'
-        : start.difference(now).inDays == 1
-            ? 'Tomorrow'
-            : DateFormat.yMMMd().format(start);
-
-    final fmt = DateFormat.jm();
-    return '$relativeDay, ${fmt.format(start)} – ${end != null ? fmt.format(end) : ''}';
+    final date = request.scheduledTime;
+    return DateFormat('MMM dd, yyyy, HH:mm').format(date);
   }
 
   @override

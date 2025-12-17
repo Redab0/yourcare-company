@@ -588,6 +588,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enter_bid => 'Enter your bid';
 
   @override
+  String get enter_timeline => 'Expected timeline';
+
+  @override
+  String get enter_note => 'Note';
+
+  @override
   String get submit_bid => 'Submit Bid';
 
   @override
@@ -681,4 +687,19 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get upholstery_cleaning => 'Furniture Cleaning';
+
+  @override
+  String get upholstery_details => 'Details';
+
+  @override
+  String get condition => 'Condition';
+
+  @override
+  String get material => 'Material';
+
+  @override
+  String get size => 'Size';
 }

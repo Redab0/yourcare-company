@@ -1,8 +1,8 @@
 import 'package:cleaning_service_driver/data/models/profile/area_model.dart';
-import 'package:cleaning_service_driver/data/repositories/profile/profile_repository.dart';
+import 'package:cleaning_service_driver/data/repositories/profile/business/business_profile_repository.dart';
 
 class GetAreasUseCase {
-  final ProfileRepository profileRepository;
+  final BusinessProfileRepository profileRepository;
 
   GetAreasUseCase(this.profileRepository);
 

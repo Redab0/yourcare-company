@@ -588,6 +588,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get enter_bid => 'ادخل عرض السعر';
 
   @override
+  String get enter_timeline => 'الوقت المتوقع';
+
+  @override
+  String get enter_note => 'الملاحظات';
+
+  @override
   String get submit_bid => 'ارسل عرض السعر';
 
   @override
@@ -685,4 +691,19 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get upholstery_cleaning => 'تنظيف الأثاث';
+
+  @override
+  String get upholstery_details => 'التفاصيل';
+
+  @override
+  String get condition => 'الحالة';
+
+  @override
+  String get material => 'النوع';
+
+  @override
+  String get size => 'الحجم';
 }

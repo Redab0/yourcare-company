@@ -74,7 +74,8 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
           }
           if (state is StaffActionFailure) {
             ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(state.message)));
+                .showSnackBar(
+                    SnackBar(content: Text(context.genericErrorMessage)));
             setState(() => _uploading = false);
           }
           if (state is UserCreatedState) {

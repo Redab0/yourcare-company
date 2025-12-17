@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/utils/loading_controller.dart';
+import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/get_all_users_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/get_teams_usecase.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_event.dart';
@@ -15,6 +16,7 @@ class StaffBloc extends Bloc<StaffEvent, StaffState> {
 
   static const _pageSize = 20;
   int _currentPage = 1;
+  List<User> _cachedUsers = const [];
 
   StaffBloc() : super(StaffInitial()) {
     on<FetchFirstPageStaff>(_onFirstPage);
@@ -30,6 +32,7 @@ class StaffBloc extends Bloc<StaffEvent, StaffState> {
     try {
       final page = await getUsersUseCase.call(_currentPage, _pageSize);
       _loader.hide();
+      _cachedUsers = page.docs;
       emit(state.copyWith(
         all: page.docs,
         hasMore: page.hasNextPage,
@@ -47,9 +50,11 @@ class StaffBloc extends Bloc<StaffEvent, StaffState> {
     emit(state.copyWith(isLoading: true));
     _loader.show();
     try {
-      _currentPage++;
-      final page = await getUsersUseCase.call(_currentPage, _pageSize);
+      final nextPage = _currentPage + 1;
+      final page = await getUsersUseCase.call(nextPage, _pageSize);
       _loader.hide();
+      _currentPage = nextPage;
+      _cachedUsers = [..._cachedUsers, ...page.docs];
       emit(state.copyWith(
         all: [...state.all, ...page.docs],
         hasMore: page.hasNextPage,
@@ -67,6 +72,14 @@ class StaffBloc extends Bloc<StaffEvent, StaffState> {
     try {
       final response = await getTeamsUseCase.call();
       _loader.hide();
+      emit(
+        state.copyWith(
+          // keep existing users list intact
+          all: _cachedUsers,
+          error: null,
+          isLoading: false,
+        ),
+      );
       emit(TeamsFetched(response));
     } catch (e) {
       _loader.hide();

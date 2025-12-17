@@ -14,6 +14,8 @@ enum RequestStatus {
   completed,
   @JsonValue('cancelled')
   cancelled,
+  @JsonValue('canceled')
+  canceled,
   @JsonValue('notPaid')
   notPaid,
   @JsonValue('paid')
@@ -39,6 +41,7 @@ extension RequestStatusX on RequestStatus {
       case 'completed':
         return RequestStatus.completed;
       case 'cancelled':
+      case 'canceled':
         return RequestStatus.cancelled;
       case 'notPaid':
         return RequestStatus.notPaid;
@@ -60,6 +63,7 @@ extension RequestStatusX on RequestStatus {
       case RequestStatus.completed:
         return context.l10n.completed;
       case RequestStatus.cancelled:
+      case RequestStatus.canceled:
         return context.l10n.cancelled;
       case RequestStatus.notPaid:
         return context.l10n.cancelled;
@@ -82,13 +86,13 @@ extension RequestStatusX on RequestStatus {
       case RequestStatus.completed:
         return 'completed';
       case RequestStatus.cancelled:
+      case RequestStatus.canceled:
         return 'cancelled';
       case RequestStatus.notPaid:
         return 'notPaid';
       case RequestStatus.paid:
         return 'paid';
       case RequestStatus.unknown:
-      default:
         return 'unknown';
     }
   }
@@ -105,6 +109,7 @@ Color statusColor(RequestStatus status) {
     case RequestStatus.confirmed:
       return Colors.teal;
     case RequestStatus.cancelled:
+    case RequestStatus.canceled:
       return Colors.red;
     case RequestStatus.notPaid:
       return Colors.cyan;

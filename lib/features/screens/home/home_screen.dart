@@ -142,46 +142,72 @@ class _HomePageState extends State<HomePage> {
 
               final perms = user.permissions;
 
-              return Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: GridView.count(
-                        crossAxisCount: 2,
-                        childAspectRatio: .8,
-                        children: [
-                          if (perms!.hasPermission(Permission.requestsRead))
-                            HomeMenuItem(
-                              imageAsset: 'assets/images/jobs.png',
-                              title: context.l10n.upcoming_jobs,
-                              onTap: () => context.go('/jobs'),
-                            ),
-                          if (perms.hasPermission(Permission.requestsRead))
-                            HomeMenuItem(
-                              imageAsset: 'assets/images/requests.png',
-                              title: context.l10n.cleaning_requests,
-                              onTap: () => context.go('/requests'),
-                            ),
-                          if (perms.hasPermission(Permission.transactionsRead))
-                            HomeMenuItem(
-                              imageAsset: 'assets/images/analytics.png',
-                              title: context.l10n.reports,
-                              onTap: () => context.goNamed('statisticsScreen'),
-                            ),
-                          if (perms.hasPermission(Permission.usersRead))
-                            HomeMenuItem(
-                              imageAsset: 'assets/images/staff.png',
-                              title: context.l10n.staff_management,
-                              onTap: () => context.go('/staff'),
-                            ),
-                        ],
+              return LayoutBuilder(builder: (ctx, constraints) {
+                final isTablet = constraints.maxWidth >= 900;
+                final crossAxisCount = isTablet ? 3 : 2;
+                final aspectRatio = isTablet ? 1.2 : .8;
+
+                final items = <Widget>[];
+                if (perms!.hasPermission(Permission.requestsRead)) {
+                  items.add(HomeMenuItem(
+                    imageAsset: 'assets/images/jobs.png',
+                    title: context.l10n.upcoming_jobs,
+                    onTap: () => context.pushNamed('jobs-main-screen'),
+                    large: isTablet,
+                  ));
+                  items.add(HomeMenuItem(
+                    imageAsset: 'assets/images/requests.png',
+                    title: context.l10n.cleaning_requests,
+                    onTap: () => context.pushNamed('requests-main-screen'),
+                    large: isTablet,
+                  ));
+                }
+                if (perms.hasPermission(Permission.transactionsRead)) {
+                  items.add(HomeMenuItem(
+                    imageAsset: 'assets/images/analytics.png',
+                    title: context.l10n.reports,
+                    onTap: () => context.pushNamed('statisticsScreen'),
+                    large: isTablet,
+                  ));
+                }
+                if (perms.hasPermission(Permission.usersRead)) {
+                  items.add(HomeMenuItem(
+                    imageAsset: 'assets/images/staff.png',
+                    title: context.l10n.staff_management,
+                    onTap: () => context.pushNamed('staff-main-screen'),
+                    large: isTablet,
+                  ));
+                }
+                if (perms.hasPermission(Permission.businessCreate)) {
+                  items.add(HomeMenuItem(
+                    imageAsset: 'assets/images/ic_business_profile.png',
+                    title: context.l10n.profile,
+                    onTap: () =>
+                        context.pushNamed('business-profile-screen'),
+                    large: isTablet,
+                  ));
+                }
+
+                return Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1100),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: GridView.builder(
+                        gridDelegate:
+                            SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
+                          childAspectRatio: aspectRatio,
+                        ),
+                        itemCount: items.length,
+                        itemBuilder: (_, i) => items[i],
                       ),
                     ),
-                  ],
-                ),
-              );
-            })));
+                  ),
+                );
+              });
+            }))); 
   }
 }

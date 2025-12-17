@@ -13,12 +13,18 @@ import 'package:cleaning_service_driver/data/models/staff/team_model.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_actions_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_actions_event.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_actions_state.dart';
+import 'package:cleaning_service_driver/features/bloc/jobs/job_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/jobs/job_event.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_actions_state.dart';
+import 'package:cleaning_service_driver/features/bloc/requests/requests_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/requests/requests_event.dart'
+    as requests_events;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
+
+enum _MediaChoice { gallery, cameraPhoto, cameraVideo }
 
 class DeepCleaningJobDetailsScreen extends StatefulWidget {
   final DeepCleaningHistory request;
@@ -57,6 +63,16 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
     context.read<JobActionsBloc>().add(
           AssignTeamEvent(_currentRequest.id ?? "", _selectedTeamId),
         );
+  }
+
+  void _maybeRefreshRequests() {
+    try {
+      context
+          .read<RequestsBloc>()
+          .add(requests_events.FetchFirstPageRequests());
+    } catch (_) {
+      // RequestsBloc not in scope; ignore.
+    }
   }
 
   Future<void> openMediaCarousel(BuildContext context, List<String> urls,
@@ -108,15 +124,27 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
           context.goNamed('deepCleaningSuccess');
         } else if (state is JobActionFailed) {
           ScaffoldMessenger.of(ctx)
-              .showSnackBar(SnackBar(content: Text(state.message)));
+              .showSnackBar(SnackBar(content: Text(ctx.genericErrorMessage)));
         } else if (state is TeamsFetchedState) {
           setState(() {
             _allTeams = state.teams;
           });
         } else if (state is TeamAssigned) {
-          _isEditingTeams = false;
-          // refresh the request’s assignedWorker list
-          _currentRequest = (state.model as DeepCleaningHistory);
+          final prevSelected = _selectedTeamId;
+          setState(() {
+            _isEditingTeams = false;
+            _currentRequest = (state.model as DeepCleaningHistory);
+            _selectedTeamId = _currentRequest.assignedTeam?.id ?? prevSelected;
+            if (_currentRequest.assignedTeam == null &&
+                _selectedTeamId.isNotEmpty) {
+              final match = _allTeams.firstWhere((t) => t.id == _selectedTeamId,
+                  orElse: () =>
+                      TeamModel('', null, const [], null, null, null));
+              if (match.id != null) {
+                _currentRequest = _currentRequest.copyWith(assignedTeam: match);
+              }
+            }
+          });
         }
         if (state is MediaUploaded) {
           final urls = state.media.map((r) => r.url).toList();
@@ -129,6 +157,19 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
           ScaffoldMessenger.of(ctx).showSnackBar(
             SnackBar(content: Text('Added ${urls.length} item(s)')),
           );
+        } else if (state is JobStarted) {
+          setState(() {
+            _currentRequest = (state.model as DeepCleaningHistory);
+          });
+          context.read<JobBloc>().add(LoadJobsEvent());
+          _maybeRefreshRequests();
+        } else if (state is JobCompleted) {
+          setState(() {
+            _currentRequest = (state.model as DeepCleaningHistory);
+          });
+          context.read<JobBloc>().add(LoadJobsEvent());
+          _maybeRefreshRequests();
+          context.goNamed('deepCleaningJobSuccess', extra: state.model);
         }
       },
       builder: (ctx, state) {
@@ -166,12 +207,12 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
                     child: Column(
                       children: [
                         DetailRow(context.l10n.signup_name,
-                            widget.request.customer.username ?? ""),
+                            _currentRequest.customer.username ?? ""),
                         const Divider(),
                         DetailRow(context.l10n.signup_phone,
-                            widget.request.customer.phone ?? ""),
+                            _currentRequest.customer.phone ?? ""),
                         ContactActions(
-                            phoneNumber: widget.request.customer.phone ?? "")
+                            phoneNumber: _currentRequest.customer.phone ?? "")
                       ],
                     ),
                     expanded: true,
@@ -217,7 +258,7 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
                               context.l10n.request_location,
                               OpenMapAction(
                                   latitude: d.address!.latitude!,
-                                  longitude: d.address!.latitude!))
+                                  longitude: d.address!.longitude!))
                         ],
                       ),
                     ),
@@ -313,7 +354,7 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
                         ] else ...[
                           // Edit mode: pick one team from the list
                           SizedBox(
-                            height: 100,
+                            height: 150,
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
                               padding:
@@ -402,15 +443,15 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
                       ],
                     ),
                   ),
-                  if (widget.request.requestStatus == RequestStatus.inProgress)
+                  if (_currentRequest.requestStatus == RequestStatus.inProgress)
                     _media(context),
                 ],
               ),
             ),
           ),
-          bottomNavigationBar: (widget.request.requestStatus !=
+          bottomNavigationBar: (_currentRequest.requestStatus !=
                       RequestStatus.completed &&
-                  widget.request.requestStatus != RequestStatus.cancelled)
+                  _currentRequest.requestStatus != RequestStatus.cancelled)
               ? Builder(
                   builder: (context) {
                     // Optional: also disable while uploading
@@ -418,7 +459,7 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
                       (bloc) => bloc.state is MediaUploading,
                     );
 
-                    final rs = widget.request.requestStatus;
+                    final rs = _currentRequest.requestStatus;
                     final isConfirmed = rs == RequestStatus.confirmed;
                     final isInProgress = rs == RequestStatus.inProgress;
 
@@ -432,11 +473,12 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
                       child: FilledButton(
                         onPressed: isConfirmed
                             ? () {
+                                context.read<JobActionsBloc>().add(
+                                      StartJobEvent(_currentRequest.id ?? ""),
+                                    );
                                 // Confirmed -> prompt to attach media (start job flow)
-                                _showAttachFirstSheet(
-                                    context, widget.request.id ?? "");
                               }
-                            : (canCompleteNow
+                            : (isInProgress && canCompleteNow
                                 ? () {
                                     // In progress + has media -> complete
                                     final body = CompleteJobRequest(
@@ -445,7 +487,7 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
                                     );
                                     context.read<JobActionsBloc>().add(
                                           CompleteJobEvent(
-                                              widget.request.id ?? "", body),
+                                              _currentRequest.id ?? "", body),
                                         );
                                   }
                                 : null), // disabled if no media (or uploading)
@@ -469,6 +511,7 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
   void _showAttachFirstSheet(BuildContext context, String requestId) {
     showModalBottomSheet(
       context: context,
+      useRootNavigator: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -504,7 +547,7 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
                     label: const Text('Use camera'),
                     onPressed: () {
                       Navigator.pop(context);
-                      _cameraSheet(); // camera or video capture chooser
+                      _showAddMediaChooser(); // camera or video capture chooser
                     },
                   ),
                 ),
@@ -521,13 +564,21 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
     return u.endsWith('.mp4') || u.endsWith('.mov') || u.contains('video');
   }
 
-  void _showAddMediaChooser() {
-    showModalBottomSheet(
+  bool _picking = false; // in your State
+
+  Future<void> _showAddMediaChooser() async {
+    if (_picking) return;
+    _picking = true;
+
+    // 1) Present on the ROOT navigator
+    final choice = await showModalBottomSheet<_MediaChoice>(
       context: context,
+      useRootNavigator: true, // <-- important when using nested navigators
+      isScrollControlled: false,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (_) => SafeArea(
+      builder: (sheetContext) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Wrap(
@@ -537,128 +588,89 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
                 leading: const Icon(Icons.photo_library),
                 title: const Text('Pick from gallery'),
                 subtitle: const Text('Images and videos'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pickFromGallery();
-                },
+                onTap: () => Navigator.pop(sheetContext,
+                    _MediaChoice.gallery), // 2) pop with sheetContext
               ),
               ListTile(
-                leading: const Icon(Icons.photo_camera),
-                title: const Text('Use camera'),
-                subtitle: const Text('Photo or video'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _cameraSheet();
-                },
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Take photo'),
+                onTap: () =>
+                    Navigator.pop(sheetContext, _MediaChoice.cameraPhoto),
+              ),
+              ListTile(
+                leading: const Icon(Icons.videocam),
+                title: const Text('Record video'),
+                onTap: () =>
+                    Navigator.pop(sheetContext, _MediaChoice.cameraVideo),
               ),
             ],
           ),
         ),
       ),
     );
+
+    if (!mounted || choice == null) {
+      _picking = false;
+      return;
+    }
+
+    // 3) Act AFTER sheet resolves (no post-frame, no delay)
+    try {
+      switch (choice) {
+        case _MediaChoice.gallery:
+          await _pickFromGallery();
+          break;
+        case _MediaChoice.cameraPhoto:
+          await _capturePhoto();
+          break;
+        case _MediaChoice.cameraVideo:
+          await _captureVideo();
+          break;
+      }
+    } finally {
+      _picking = false; // 4) throttle reset
+    }
   }
 
   Future<void> _pickFromGallery() async {
     final remaining = _maxMedia - uploadedFilesUrls.length;
     if (remaining <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Max 10 items reached')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Max 10 items reached')));
       return;
     }
-
-    // Prefer pickMultipleMedia (supports images + videos)
-    List<XFile> picked = [];
-    try {
-      final media =
-          await _picker.pickMultipleMedia(); // requires image_picker >= 1.0
-      picked = media ?? [];
-    } catch (_) {
-      // Fallback if not supported
-      final images = await _picker.pickMultiImage();
-      if (images != null) picked.addAll(images);
-      // For videos, user would use the camera option or you can add a separate gallery video picker:
-      // final video = await _picker.pickVideo(source: ImageSource.gallery);
-      // if (video != null) picked.add(video);
-    }
-
-    if (picked.isEmpty) return;
-
-    // Enforce remaining cap
-    if (picked.length > remaining) {
-      picked = picked.take(remaining).toList();
+    final media = await _picker.pickMultipleMedia(); // List<XFile>
+    if (media.isEmpty) return;
+    final files = media.take(remaining).map((x) => File(x.path)).toList();
+    if (media.length > remaining) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Only $remaining more item(s) allowed')),
-      );
+          SnackBar(content: Text('Only $remaining more item(s) allowed')));
     }
-
-    final files = picked.map((x) => File(x.path)).toList();
-
-    // Dispatch upload (your event takes only List<File>)
     context.read<JobActionsBloc>().add(UploadMediaEvent(files));
-  }
-
-  Future<void> _cameraSheet() async {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (_) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Wrap(
-            runSpacing: 12,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.camera),
-                title: const Text('Take photo'),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await _capturePhoto();
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.videocam),
-                title: const Text('Record video'),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await _captureVideo();
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   Future<void> _capturePhoto() async {
     final remaining = _maxMedia - uploadedFilesUrls.length;
     if (remaining <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Max 10 items reached')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Max 10 items reached')));
       return;
     }
     final x = await _picker.pickImage(source: ImageSource.camera);
     if (x == null) return;
-    final file = File(x.path);
-    context.read<JobActionsBloc>().add(UploadMediaEvent([file]));
+    context.read<JobActionsBloc>().add(UploadMediaEvent([File(x.path)]));
   }
 
   Future<void> _captureVideo() async {
     final remaining = _maxMedia - uploadedFilesUrls.length;
     if (remaining <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Max 10 items reached')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Max 10 items reached')));
       return;
     }
     final x = await _picker.pickVideo(source: ImageSource.camera);
     if (x == null) return;
-    final file = File(x.path);
-    context.read<JobActionsBloc>().add(UploadMediaEvent([file]));
+    context.read<JobActionsBloc>().add(UploadMediaEvent([File(x.path)]));
   }
 
   Widget _media(BuildContext context) {
@@ -685,7 +697,7 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
             ),
             IconButton(
               tooltip: 'Camera',
-              onPressed: _cameraSheet,
+              onPressed: _showAddMediaChooser,
               icon: const Icon(Icons.photo_camera),
             ),
           ],

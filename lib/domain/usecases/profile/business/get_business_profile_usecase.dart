@@ -1,8 +1,8 @@
 import 'package:cleaning_service_driver/data/models/profile/business_profile_model.dart';
-import 'package:cleaning_service_driver/data/repositories/profile/profile_repository.dart';
+import 'package:cleaning_service_driver/data/repositories/profile/business/business_profile_repository.dart';
 
 class GetBusinessProfileUseCase {
-  final ProfileRepository _profileRepository;
+  final BusinessProfileRepository _profileRepository;
 
   GetBusinessProfileUseCase(this._profileRepository);
 

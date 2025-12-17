@@ -4,36 +4,52 @@ import 'package:equatable/equatable.dart';
 class RequestsState extends Equatable {
   final List<CleaningRequest> all;
   final List<CleaningRequest> exclusive;
-  final bool hasMore;
-  final bool isLoading;
+  final bool hasMoreAll;
+  final bool hasMoreExclusive;
+  final bool isLoadingAll;
+  final bool isLoadingExclusive;
   final String? error;
 
   const RequestsState({
     this.all = const [],
     this.exclusive = const [],
-    this.hasMore = true,
-    this.isLoading = false,
+    this.hasMoreAll = true,
+    this.hasMoreExclusive = true,
+    this.isLoadingAll = false,
+    this.isLoadingExclusive = false,
     this.error,
   });
 
   RequestsState copyWith({
     List<CleaningRequest>? all,
     List<CleaningRequest>? exclusive,
-    bool? hasMore,
-    bool? isLoading,
+    bool? hasMoreAll,
+    bool? hasMoreExclusive,
+    bool? isLoadingAll,
+    bool? isLoadingExclusive,
     String? error,
   }) {
     return RequestsState(
       all: all ?? this.all,
       exclusive: exclusive ?? this.exclusive,
-      hasMore: hasMore ?? this.hasMore,
-      isLoading: isLoading ?? this.isLoading,
+      hasMoreAll: hasMoreAll ?? this.hasMoreAll,
+      hasMoreExclusive: hasMoreExclusive ?? this.hasMoreExclusive,
+      isLoadingAll: isLoadingAll ?? this.isLoadingAll,
+      isLoadingExclusive: isLoadingExclusive ?? this.isLoadingExclusive,
       error: error,
     );
   }
 
   @override
-  List<Object?> get props => [all, exclusive, hasMore, isLoading, error];
+  List<Object?> get props => [
+        all,
+        exclusive,
+        hasMoreAll,
+        hasMoreExclusive,
+        isLoadingAll,
+        isLoadingExclusive,
+        error
+      ];
 }
 
 class RequestsInitial extends RequestsState {}

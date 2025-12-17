@@ -193,6 +193,8 @@
   "business_website": "Company's Website",
   "business_email": "Company's Email",
   "enter_bid": "Enter your bid",
+  "enter_timeline": "Expected timeline",
+  "enter_note": "Note",
   "submit_bid": "Submit Bid",
   "bid_submitted": "Bid Submitted",
   "navigate_back_to_requests": "Back to Requests",
@@ -230,5 +232,11 @@
         "example": "3"
       }
     }
-  }
+  },
+  "hour": "Hour",
+  "upholstery_cleaning": "Furniture Cleaning",
+  "upholstery_details": "Details",
+  "condition" : "Condition",
+  "material" : "Material",
+  "size": "Size"
 }

@@ -26,6 +26,13 @@ class AppTheme {
   static const Color textPrimary = ink;
   static const Color textSecondary = slate;
 
+  /// Slightly bump text on large screens (tablets/desktop).
+  static TextScaler textScalerForWidth(double width) {
+    if (width >= 1200) return const TextScaler.linear(1.5);
+    if (width >= 900) return const TextScaler.linear(1.5);
+    return const TextScaler.linear(1.0);
+  }
+
   static ThemeData light() {
     final baseTextTheme = const TextTheme().apply(
       fontFamily: 'Zain',

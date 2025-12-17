@@ -38,6 +38,15 @@ class DeepCleaningHistory implements CleaningRequest {
   @JsonKey(name: 'businessId')
   final CompanyInformation? companyInformation;
 
+  @JsonKey(name: 'serviceFrequencyCount')
+  final int? serviceFrequencyCount;
+
+  @JsonKey(name: 'serviceIntervalDays')
+  final int? serviceIntervalDays;
+
+  @JsonKey(name: 'frequencyDates')
+  final List<FrequencyDate>? frequencyDates;
+
   @override
   final RequestStatus requestStatus;
 
@@ -53,6 +62,9 @@ class DeepCleaningHistory implements CleaningRequest {
     required this.customer,
     this.assignedTeam,
     this.companyInformation,
+    this.serviceFrequencyCount,
+    this.serviceIntervalDays,
+    this.frequencyDates,
   });
 
   DeepCleaningHistory copyWith({
@@ -65,6 +77,9 @@ class DeepCleaningHistory implements CleaningRequest {
     TeamModel? assignedTeam,
     Customer? customer,
     CompanyInformation? companyInformation,
+    int? serviceFrequencyCount,
+    int? serviceIntervalDays,
+    List<FrequencyDate>? frequencyDates,
   }) {
     return DeepCleaningHistory(
         id: id ?? this.id,
@@ -77,6 +92,10 @@ class DeepCleaningHistory implements CleaningRequest {
         scheduledTime: scheduledTime ?? this.scheduledTime,
         customer: customer ?? this.customer,
         companyInformation: companyInformation ?? this.companyInformation,
+        serviceFrequencyCount:
+            serviceFrequencyCount ?? this.serviceFrequencyCount,
+        serviceIntervalDays: serviceIntervalDays ?? this.serviceIntervalDays,
+        frequencyDates: frequencyDates ?? this.frequencyDates,
         type: type ?? this.type);
   }
 
@@ -90,6 +109,7 @@ class DeepCleaningHistory implements CleaningRequest {
 
 @JsonSerializable(checked: true)
 class DeepCleaningDetail {
+  final DeepCleaningDepartmentSelection? departmentSelection;
   final CleaningItem? departmentType;
   final CleaningItem? bedroom;
   final CleaningItem? bathroom;
@@ -100,9 +120,11 @@ class DeepCleaningDetail {
   final List<String>? photosAndVideos;
   final DateTime? scheduledTime;
   final String? area;
+  final String? areaId;
 
   DeepCleaningDetail(
-      {this.departmentType,
+      {this.departmentSelection,
+      this.departmentType,
       this.bedroom,
       this.bathroom,
       this.kitchen,
@@ -111,9 +133,59 @@ class DeepCleaningDetail {
       this.additionalInformation,
       this.photosAndVideos,
       this.scheduledTime,
-      this.area});
+      this.area,
+      this.areaId});
 
   factory DeepCleaningDetail.fromJson(Map<String, dynamic> json) =>
       _$DeepCleaningDetailFromJson(json);
   Map<String, dynamic> toJson() => _$DeepCleaningDetailToJson(this);
+}
+
+@JsonSerializable(checked: true)
+class DeepCleaningDepartmentSelection {
+  final CleaningItem? departmentType;
+  final CleaningItem? bedrooms;
+  final CleaningItem? bathrooms;
+  final CleaningItem? kitchens;
+  final CleaningItem? livingRooms;
+  final CleaningItem? sizeOptions;
+  final bool? furnitureCheckbox;
+  final bool? kitchenCheckbox;
+  final bool? bathroomCheckbox;
+  final String? additionalInformation;
+  final double? calculatedPrice;
+
+  DeepCleaningDepartmentSelection({
+    this.departmentType,
+    this.bedrooms,
+    this.bathrooms,
+    this.kitchens,
+    this.livingRooms,
+    this.sizeOptions,
+    this.furnitureCheckbox,
+    this.kitchenCheckbox,
+    this.bathroomCheckbox,
+    this.additionalInformation,
+    this.calculatedPrice,
+  });
+
+  factory DeepCleaningDepartmentSelection.fromJson(
+          Map<String, dynamic> json) =>
+      _$DeepCleaningDepartmentSelectionFromJson(json);
+
+  Map<String, dynamic> toJson() =>
+      _$DeepCleaningDepartmentSelectionToJson(this);
+}
+
+@JsonSerializable(checked: true)
+class FrequencyDate {
+  final String? id;
+  final DateTime? date;
+  final String? status;
+
+  FrequencyDate({this.id, this.date, this.status});
+
+  factory FrequencyDate.fromJson(Map<String, dynamic> json) =>
+      _$FrequencyDateFromJson(json);
+  Map<String, dynamic> toJson() => _$FrequencyDateToJson(this);
 }

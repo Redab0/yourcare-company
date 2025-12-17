@@ -43,9 +43,9 @@ class KpiRow extends StatelessWidget {
       children: [
         chip(context.l10n.total_requests_label, '$total'),
         const SizedBox(width: 12),
-        chip(context.l10n.total_revenue_label, '$revenue'),
+        chip(context.l10n.total_revenue_label, '$revenue '),
         const SizedBox(width: 12),
-        chip(context.l10n.average_requests_label, '$avg'),
+        // chip(context.l10n.average_requests_label, '$avg'),
       ],
     );
   }

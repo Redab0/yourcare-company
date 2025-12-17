@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/utils/loading_controller.dart';
-import 'package:cleaning_service_driver/domain/usecases/profile/upload_media_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/profile/business/upload_media_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/assign_permissions_for_user.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/create_team_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/create_user_usecase.dart';

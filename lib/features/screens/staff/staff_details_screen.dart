@@ -114,7 +114,8 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
           }
           if (state is StaffActionFailure) {
             ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(state.message)));
+                .showSnackBar(
+                    SnackBar(content: Text(context.genericErrorMessage)));
             setState(() => _uploading = false);
           }
         },
@@ -195,7 +196,14 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
                           decoration: InputDecoration(
                               labelText: context.l10n.role,
                               suffixIcon: Icon(Icons.edit)),
-                          items: ['manager', 'staff', 'admin', "business_owner"]
+                          items: [
+                            'manager',
+                            'staff',
+                            'admin',
+                            "business_owner",
+                            "Driver",
+                            "driver"
+                          ]
                               .map((r) => DropdownMenuItem(
                                     value: r,
                                     child: Text(

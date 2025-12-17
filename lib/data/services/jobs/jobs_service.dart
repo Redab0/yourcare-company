@@ -5,6 +5,7 @@ import 'package:cleaning_service_driver/data/models/requests/accept_house_keepin
 import 'package:cleaning_service_driver/data/models/requests/assign_team_model.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/complete_job_media_request.dart';
+import 'package:cleaning_service_driver/data/models/requests/update_request_frequency_request.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -51,4 +52,8 @@ abstract class JobsService {
     @Path('id') String id,
     @Body() AssignTeamModel model,
   );
+
+  @PATCH('/requests/{id}/frequency-status')
+  Future<ApiResponse<ResponsePayload<CleaningRequest>>> updateFrequencyStatus(
+      @Path('id') String id, @Body() UpdateRequestFrequencyRequest body);
 }

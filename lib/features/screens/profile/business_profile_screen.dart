@@ -4,23 +4,23 @@ import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/data/models/profile/area_model.dart';
 import 'package:cleaning_service_driver/data/models/profile/business_profile_model.dart';
 import 'package:cleaning_service_driver/data/models/profile/update_business_profile_model.dart';
-import 'package:cleaning_service_driver/features/bloc/profile/profile_bloc.dart';
-import 'package:cleaning_service_driver/features/bloc/profile/profile_event.dart';
-import 'package:cleaning_service_driver/features/bloc/profile/profile_state.dart';
+import 'package:cleaning_service_driver/features/bloc/profile/business/business_profile_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/profile/business/business_profile_event.dart';
+import 'package:cleaning_service_driver/features/bloc/profile/business/business_profile_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
 enum _UploadTarget { logo, images }
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class BusinessProfileScreen extends StatefulWidget {
+  const BusinessProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<BusinessProfileScreen> createState() => _BusinessProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   BusinessProfileModel? _profile;
   List<AreaModel> _areas = [];
@@ -41,7 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    final bloc = context.read<ProfileBloc>();
+    final bloc = context.read<BusinessProfileBloc>();
     bloc.add(LoadProfileEvent());
     bloc.add(GetAreasEvent());
   }
@@ -66,7 +66,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _uploadTarget = target;
         _uploading = true;
       });
-      context.read<ProfileBloc>().add(UploadMediaEvent([File(file.path)]));
+      context
+          .read<BusinessProfileBloc>()
+          .add(UploadMediaEvent([File(file.path)]));
     } else {
       final List<XFile> files = await picker.pickMultiImage(imageQuality: 80);
       if (files.isEmpty) return;
@@ -74,7 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _uploadTarget = target;
         _uploading = true;
       });
-      context.read<ProfileBloc>().add(
+      context.read<BusinessProfileBloc>().add(
             UploadMediaEvent(files.map((x) => File(x.path)).toList()),
           );
     }
@@ -93,12 +95,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _websiteCtrl.text,
       _selectedAreaIds,
     );
-    context.read<ProfileBloc>().add(UpdateProfileEvent(upd));
+    context.read<BusinessProfileBloc>().add(UpdateProfileEvent(upd));
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<ProfileBloc, ProfileState>(
+    return BlocListener<BusinessProfileBloc, BusinessProfileState>(
       listener: (ctx, state) {
         if (state is ProfileLoaded || state is ProfileUpdated) {
           final model = (state as dynamic).model as BusinessProfileModel;
@@ -132,11 +134,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
         if (state is ProfileError) {
           ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(state.message)));
+              .showSnackBar(
+                  SnackBar(content: Text(context.genericErrorMessage)));
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: Text(context.l10n.profile_title)),
+        appBar: AppBar(
+            title: Text(context.l10n.profile_title),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, size: 28),
+              onPressed: () => Navigator.of(context).pop(),
+            )),
         body: (_profile == null || _areas.isEmpty)
             ? SizedBox.shrink()
             : SingleChildScrollView(
