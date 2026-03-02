@@ -56,6 +56,8 @@ class _LoginScreenState extends State<LoginScreen> {
           listener: (context, state) {
             if (state is Authenticated) {
               context.go('/home');
+            } else if (state is AuthError) {
+              context.showErrorToast();
             }
           },
           child: BlocBuilder<AuthBloc, AuthState>(
@@ -109,29 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           validator: Validators.validatePassword,
                         ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: () {
-                              // TODO: Implement forgot password
-                            },
-                            child: Text(context.l10n.login_forgot_password),
-                          ),
-                        ),
                         const SizedBox(height: 24),
-                        // Error message
-                        if (state is AuthError)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 16.0),
-                            child: Text(
-                              state.message,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.error,
-                                fontSize: 14,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
                         // Login button
                         AppButton(
                           text: context.l10n.login_login_label,

@@ -8,6 +8,10 @@ class CleaningItem {
   final double? price;
   final String? title;
   final String? description;
+  final String? titleAr;
+  final String? titleEn;
+  final String? descriptionAr;
+  final String? descriptionEn;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -16,6 +20,10 @@ class CleaningItem {
     this.price,
     this.title,
     this.description,
+    this.titleAr,
+    this.titleEn,
+    this.descriptionAr,
+    this.descriptionEn,
     this.createdAt,
     this.updatedAt,
   });

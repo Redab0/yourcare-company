@@ -1,4 +1,5 @@
-package com.yourcare.business
+package com.yourcarehere.partner
+
 
 import android.content.Context
 import android.content.pm.PackageManager
@@ -10,13 +11,13 @@ import io.flutter.plugin.common.MethodChannel
 class SecurityMethodChannel(private val context: Context) : MethodChannel.MethodCallHandler {
     companion object {
         private const val CHANNEL = "com.kwclean.driver/app_security"
-        
+
         fun registerWith(flutterEngine: FlutterEngine, context: Context) {
             val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
             channel.setMethodCallHandler(SecurityMethodChannel(context))
         }
     }
-    
+
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "getSigningInfo" -> {
@@ -25,7 +26,7 @@ class SecurityMethodChannel(private val context: Context) : MethodChannel.Method
                     result.error("INVALID_ARGUMENT", "Package name is required", null)
                     return
                 }
-                
+
                 try {
                     val signatures = getAppSignatures(packageName)
                     result.success(signatures)
@@ -36,17 +37,17 @@ class SecurityMethodChannel(private val context: Context) : MethodChannel.Method
             else -> result.notImplemented()
         }
     }
-    
+
     private fun getAppSignatures(packageName: String): List<String> {
         val signatures = ArrayList<String>()
-        
+
         try {
             val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 val packageInfo = context.packageManager.getPackageInfo(
                     packageName,
                     PackageManager.GET_SIGNING_CERTIFICATES
                 )
-                
+
                 if (packageInfo.signingInfo!!.hasMultipleSigners()) {
                     packageInfo.signingInfo!!.apkContentsSigners
                 } else {
@@ -60,7 +61,7 @@ class SecurityMethodChannel(private val context: Context) : MethodChannel.Method
                 )
                 packageInfo.signatures
             }
-            
+
             for (signature in packageInfo!!) {
                 val hexSignature = bytesToHex(signature.toByteArray())
                 signatures.add(hexSignature)
@@ -68,10 +69,10 @@ class SecurityMethodChannel(private val context: Context) : MethodChannel.Method
         } catch (e: Exception) {
             // Log the error
         }
-        
+
         return signatures
     }
-    
+
     private fun bytesToHex(bytes: ByteArray): String {
         val hexChars = CharArray(bytes.size * 3 - 1)
         for (i in bytes.indices) {
@@ -84,6 +85,6 @@ class SecurityMethodChannel(private val context: Context) : MethodChannel.Method
         }
         return String(hexChars)
     }
-    
+
     private val HEX_ARRAY = "0123456789ABCDEF".toCharArray()
 }

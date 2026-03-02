@@ -1,4 +1,5 @@
 import 'package:cleaning_service_driver/core/models/page_wrapper.dart';
+import 'package:cleaning_service_driver/data/models/calendar/employee_calendar_response.dart';
 import 'package:cleaning_service_driver/data/models/requests/accept_house_keeping_model.dart';
 import 'package:cleaning_service_driver/data/models/requests/business_offer.dart';
 import 'package:cleaning_service_driver/data/models/requests/business_offer_response.dart';
@@ -50,6 +51,29 @@ class RequestsRepository {
   Future<BusinessOfferResponse> submitUpholsteryOffer(
       BusinessOffer offer) async {
     final response = await _requestsService.submitUpholsteryOffer(offer);
+    if (response.success && response.data != null) {
+      return response.data!.data!;
+    } else {
+      throw Exception(response.message);
+    }
+  }
+
+  Future<EmployeeCalendarResponse> getEmployeeCalendar({
+    required String startDate,
+    required String endDate,
+    String? employeeId,
+    String? teamId,
+    String? requestType,
+    String? requestStatus,
+  }) async {
+    final response = await _requestsService.getEmployeeCalendar(
+      startDate,
+      endDate,
+      employeeId,
+      teamId,
+      requestType,
+      requestStatus,
+    );
     if (response.success && response.data != null) {
       return response.data!.data!;
     } else {

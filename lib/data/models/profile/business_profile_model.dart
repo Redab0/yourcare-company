@@ -1,4 +1,4 @@
-import 'package:cleaning_service_driver/data/models/profile/area_model.dart';
+import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'business_profile_model.g.dart';

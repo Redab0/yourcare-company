@@ -12,5 +12,9 @@ abstract class StatisticsService {
 
   @GET('/company/requests/reports/statistics')
   Future<ApiResponse<ResponsePayload<StatisticsResponse>>>
-      getRequestsStatistics();
+      getRequestsStatistics(
+    @Query('periodType') String? periodType,
+    @Query('startDate') String? startDate,
+    @Query('endDate') String? endDate,
+  );
 }

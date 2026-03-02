@@ -53,3 +53,36 @@ class AcceptExclusiveRequestEvent extends RequestsActionEvent {
 }
 
 class FetchWorkersEvent extends RequestsActionEvent {}
+
+class CheckWorkerAvailability extends RequestsActionEvent {
+  final String employeeId;
+  final DateTime scheduledTime;
+  final int durationHours;
+
+  const CheckWorkerAvailability({
+    required this.employeeId,
+    required this.scheduledTime,
+    required this.durationHours,
+  });
+
+  @override
+  List<Object?> get props => [employeeId, scheduledTime, durationHours];
+}
+
+class FetchAvailableWorkersForSlot extends RequestsActionEvent {
+  final List<String> workerIds;
+  final DateTime scheduledTime;
+  final int durationHours;
+  final String? ignoreRequestId;
+
+  const FetchAvailableWorkersForSlot({
+    required this.workerIds,
+    required this.scheduledTime,
+    required this.durationHours,
+    this.ignoreRequestId,
+  });
+
+  @override
+  List<Object?> get props =>
+      [workerIds, scheduledTime, durationHours, ignoreRequestId];
+}

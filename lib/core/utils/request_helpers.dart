@@ -1,6 +1,7 @@
 import 'package:cleaning_service_driver/data/models/requests/cleaning_item.dart';
 import 'package:cleaning_service_driver/data/models/requests/deep_cleaning_history.dart';
 import 'package:cleaning_service_driver/data/models/requests/house_keeping_history.dart';
+import 'package:cleaning_service_driver/data/models/requests/upholstery_cleaning_history.dart';
 import 'package:intl/intl.dart';
 
 /// ----------  value formatters ------------------------------------------------
@@ -20,21 +21,66 @@ class RequestFmt {
       d == null ? '—' : DateFormat.jm().format(d);
 }
 
+String? _localizedValue({String? ar, String? en}) {
+  if (ar == null && en == null) return null;
+  final locale = Intl.getCurrentLocale().toLowerCase();
+  if (locale.startsWith('ar')) return ar ?? en;
+  return en ?? ar;
+}
+
+int _countFromItem(CleaningItem? item) {
+  final raw = item?.titleLocalized;
+  if (raw == null) return 0;
+  final normalized = raw.replaceAllMapped(RegExp('[٠-٩]'), (m) {
+    const digits = {
+      '٠': '0',
+      '١': '1',
+      '٢': '2',
+      '٣': '3',
+      '٤': '4',
+      '٥': '5',
+      '٦': '6',
+      '٧': '7',
+      '٨': '8',
+      '٩': '9'
+    };
+    return digits[m.group(0)] ?? '';
+  });
+  final match = RegExp(r'\d+').firstMatch(normalized);
+  return int.tryParse(match?.group(0) ?? '') ?? 0;
+}
+
+extension CleaningItemTextX on CleaningItem {
+  String? get titleLocalized =>
+      _localizedValue(ar: titleAr, en: titleEn) ?? title;
+  String? get descriptionLocalized =>
+      _localizedValue(ar: descriptionAr, en: descriptionEn) ?? description;
+}
+
+extension UpholsteryCleaningDetailX on UpholsteryCleaningDetails {
+  String get fullAddress {
+    final parts = <String>[
+      if ((address?.area ?? '').isNotEmpty) address!.area!,
+      if ((address?.block ?? '').isNotEmpty) 'B${address!.block}',
+      if ((address?.street ?? '').isNotEmpty) address!.street!,
+      if ((address?.building ?? '').isNotEmpty) 'H${address!.building}',
+    ];
+    return parts.isNotEmpty ? parts.join(' ') : '—';
+  }
+}
+
 /// ----------  model‑level convenience  ---------------------------------------
 extension HouseKeepingDetailX on HouseKeepingDetail {
-  int get cleanersCount =>
-      numberOfCleaners?.quantity ??
-      int.tryParse(numberOfCleaners?.option?.title ?? '') ??
-      0;
+  int get cleanersCount => _countFromItem(numberOfCleaners?.option);
 
   int get durationHours {
-    final m =
-        RegExp(r'\d+').firstMatch(cleaningDurations?.option?.title ?? '');
-    return int.tryParse(m?.group(0) ?? '') ?? 0;
+    return _countFromItem(cleaningDurations?.option);
   }
 
-  bool get productsIncluded =>
-      cleaningProducts?.option?.title?.toLowerCase().contains('eco') ?? false;
+  bool get productsIncluded {
+    final price = cleaningProducts?.option?.price;
+    return (price ?? 0) > 0;
+  }
 
   String get fullAddress {
     final parts = <String>[
@@ -48,18 +94,18 @@ extension HouseKeepingDetailX on HouseKeepingDetail {
 }
 
 extension DeepCleaningDetailX on DeepCleaningDetail {
-  int get bedrooms =>
-      _countFromItem(departmentSelection?.bedrooms ?? bedroom);
+  int get bedrooms => _countFromItem(departmentSelection?.bedrooms ?? bedroom);
+  int get floor =>
+      _countFromItem(departmentSelection?.numberOfFloors ?? floors);
   int get bathrooms =>
       _countFromItem(departmentSelection?.bathrooms ?? bathroom);
-  int get kitchens =>
-      _countFromItem(departmentSelection?.kitchens ?? kitchen);
+  int get kitchens => _countFromItem(departmentSelection?.kitchens ?? kitchen);
   int get livingRooms =>
       _countFromItem(departmentSelection?.livingRooms ?? livingRoom);
 
   String get propertyTypeTitle =>
-      departmentSelection?.departmentType?.title ??
-      departmentType?.title ??
+      departmentSelection?.departmentType?.titleLocalized ??
+      departmentType?.titleLocalized ??
       '—';
 
   CleaningItem? get sizeOption => departmentSelection?.sizeOptions;
@@ -108,15 +154,4 @@ extension DeepCleaningDetailX on DeepCleaningDetail {
   }
 
   bool get isApartmentOrHouse => !isCommercialOrOffice && !isOtherType;
-
-  int _countFromItem(CleaningItem? item) {
-    final raw = item?.title;
-    if (raw == null) return 0;
-    final normalized = raw.replaceAllMapped(RegExp('[٠-٩]'), (m) {
-      const digits = {'٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'};
-      return digits[m.group(0)] ?? '';
-    });
-    final match = RegExp(r'\d+').firstMatch(normalized);
-    return int.tryParse(match?.group(0) ?? '') ?? 0;
-  }
 }

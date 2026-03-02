@@ -1,0 +1,44 @@
+import 'package:equatable/equatable.dart';
+
+abstract class HousekeepingPricingEvent extends Equatable {
+  const HousekeepingPricingEvent();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class LoadHousekeepingConfig extends HousekeepingPricingEvent {
+  const LoadHousekeepingConfig();
+}
+
+class UpdateBasePrice extends HousekeepingPricingEvent {
+  final double basePrice;
+
+  const UpdateBasePrice(this.basePrice);
+
+  @override
+  List<Object?> get props => [basePrice];
+}
+
+class ToggleHousekeepingActive extends HousekeepingPricingEvent {
+  final bool isActive;
+
+  const ToggleHousekeepingActive(this.isActive);
+
+  @override
+  List<Object?> get props => [isActive];
+}
+
+class UpdateAreaFee extends HousekeepingPricingEvent {
+  final String areaId;
+  final double fee;
+
+  const UpdateAreaFee({required this.areaId, required this.fee});
+
+  @override
+  List<Object?> get props => [areaId, fee];
+}
+
+class SaveHousekeepingPricing extends HousekeepingPricingEvent {
+  const SaveHousekeepingPricing();
+}

@@ -32,9 +32,7 @@ class _TeamsListScreenState extends State<TeamsListScreen> {
       body: BlocConsumer<StaffBloc, StaffState>(
         listener: (context, state) {
           if (state is StaffFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(context.genericErrorMessage)),
-            );
+            context.showErrorToast();
           }
         },
         builder: (context, state) {

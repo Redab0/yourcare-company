@@ -1,8 +1,10 @@
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/providers/app_bloc_provider.dart';
+import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/data/repositories/notifications/notifications_repository.dart';
 import 'package:cleaning_service_driver/l10n/app_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,14 +15,23 @@ import 'core/router/router.dart';
 import 'core/themes/app_theme.dart';
 import 'core/utils/locale_cubit.dart';
 
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // Ensure Firebase is available in isolates handling background notifications.
+  await Firebase.initializeApp();
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await Firebase.initializeApp();
   await setupServiceLocator();
 
-  // Initialize push notifications (request permission + register token)
-  // Safe to ignore result; failures handled internally
-  await sl<NotificationsRepository>().initializeAndRegister();
+  // If already logged in, make sure notifications are initialized and token registered.
+  final existingToken = await SecureStorageService().getFcmToken();
+  if (existingToken != null) {
+    await sl<NotificationsRepository>().initializeAndRegister();
+  }
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,

@@ -1,16 +1,19 @@
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/data/models/requests/upholstery_cleaning_history.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class UpholsteryCleaningRequestCard extends StatelessWidget {
   const UpholsteryCleaningRequestCard({
     super.key,
     required this.request,
     required this.onSubmitBid,
+    this.padding,
   });
 
   final UpholsteryCleaningHistory request;
   final VoidCallback onSubmitBid;
+  final EdgeInsetsGeometry? padding;
 
   static const _blue = Color(0xFF2979FF);
 
@@ -22,7 +25,7 @@ class UpholsteryCleaningRequestCard extends StatelessWidget {
     final scheduled = request.scheduledTime;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+      padding: padding ?? const EdgeInsets.fromLTRB(24, 24, 24, 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -43,7 +46,9 @@ class UpholsteryCleaningRequestCard extends StatelessWidget {
                       style: theme.textTheme.labelSmall!
                           .copyWith(color: Colors.grey[600])),
                   Text(
-                      '${scheduled.day.toString().padLeft(2, '0')}-${scheduled.month.toString().padLeft(2, '0')}-${scheduled.year}',
+                      request.scheduledTime == null
+                          ? context.l10n.as_soon_as_possible
+                          : DateFormat.yMMMd().format(request.scheduledTime!),
                       style: theme.textTheme.bodyMedium),
                 ],
               ),

@@ -1,4 +1,4 @@
-import 'package:cleaning_service_driver/data/models/profile/area_model.dart';
+import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
 import 'package:cleaning_service_driver/data/repositories/profile/business/business_profile_repository.dart';
 
 class GetAreasUseCase {
@@ -6,7 +6,7 @@ class GetAreasUseCase {
 
   GetAreasUseCase(this.profileRepository);
 
-  Future<List<AreaModel>> execute() async {
+  Future<List<AreaResponse>> execute() async {
     try {
       return await profileRepository.getAreas();
     } catch (e) {

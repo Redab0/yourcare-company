@@ -179,6 +179,59 @@ class _RequestsService implements RequestsService {
   }
 
   @override
+  Future<ApiResponse<ResponsePayload<EmployeeCalendarResponse>>>
+      getEmployeeCalendar(
+    String startDate,
+    String endDate,
+    String? employeeId,
+    String? teamId,
+    String? requestType,
+    String? requestStatus,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'startDate': startDate,
+      r'endDate': endDate,
+      r'employeeId': employeeId,
+      r'teamId': teamId,
+      r'requestType': requestType,
+      r'requestStatus': requestStatus,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options =
+        _setStreamType<ApiResponse<ResponsePayload<EmployeeCalendarResponse>>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/company/requests/calendar',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(
+            baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+          ),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<ResponsePayload<EmployeeCalendarResponse>> _value;
+    try {
+      _value = ApiResponse<ResponsePayload<EmployeeCalendarResponse>>.fromJson(
+        _result.data!,
+        (json) => ResponsePayload<EmployeeCalendarResponse>.fromJson(
+          json as Map<String, dynamic>,
+          (json) =>
+              EmployeeCalendarResponse.fromJson(json as Map<String, dynamic>),
+        ),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<ApiResponse<ResponsePayload<CleaningRequest>>>
       obtainHouseKeepingRequest(
           String id, AcceptHouseKeepingModel? model) async {

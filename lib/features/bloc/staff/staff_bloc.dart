@@ -28,10 +28,10 @@ class StaffBloc extends Bloc<StaffEvent, StaffState> {
       FetchFirstPageStaff event, Emitter<StaffState> emit) async {
     _currentPage = 1;
     emit(state.copyWith(isLoading: true, error: null));
-    _loader.show();
+    // _loader.show();
     try {
       final page = await getUsersUseCase.call(_currentPage, _pageSize);
-      _loader.hide();
+      // _loader.hide();
       _cachedUsers = page.docs;
       emit(state.copyWith(
         all: page.docs,
@@ -39,7 +39,7 @@ class StaffBloc extends Bloc<StaffEvent, StaffState> {
         isLoading: false,
       ));
     } catch (e) {
-      _loader.hide();
+      // _loader.hide();
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
@@ -48,11 +48,11 @@ class StaffBloc extends Bloc<StaffEvent, StaffState> {
       FetchNextPageStaff event, Emitter<StaffState> emit) async {
     if (!state.hasMore || state.isLoading) return;
     emit(state.copyWith(isLoading: true));
-    _loader.show();
+    // _loader.show();
     try {
       final nextPage = _currentPage + 1;
       final page = await getUsersUseCase.call(nextPage, _pageSize);
-      _loader.hide();
+      // _loader.hide();
       _currentPage = nextPage;
       _cachedUsers = [..._cachedUsers, ...page.docs];
       emit(state.copyWith(
@@ -61,7 +61,7 @@ class StaffBloc extends Bloc<StaffEvent, StaffState> {
         isLoading: false,
       ));
     } catch (e) {
-      _loader.hide();
+      // _loader.hide();
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }

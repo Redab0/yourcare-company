@@ -1,5 +1,7 @@
+import 'package:cleaning_service_driver/components/date_time_picker_field.dart';
 import 'package:cleaning_service_driver/components/media_carousel_viewer.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
+import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/data/models/requests/upholstery_cleaning_history.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_action_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_action_event.dart';
@@ -26,8 +28,8 @@ class _UpholsteryCleaningRequestState
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
   double? _bidAmount;
-  String? _description;
   String? _selectedTimelineHours;
+  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -107,8 +109,7 @@ class _UpholsteryCleaningRequestState
         if (state is OfferSubmitted) {
           context.goNamed('deepCleaningSuccess');
         } else if (state is RequestsActionFailed) {
-          ScaffoldMessenger.of(ctx)
-              .showSnackBar(SnackBar(content: Text(ctx.genericErrorMessage)));
+          ctx.showErrorToast();
         }
       },
       builder: (ctx, state) {
@@ -128,25 +129,6 @@ class _UpholsteryCleaningRequestState
                 minimum: const EdgeInsets.symmetric(horizontal: 24),
                 child: ListView(
                   children: [
-                    // if ((d.photosAndVideos?.isNotEmpty ?? false))
-                    //   SizedBox(
-                    //     height: 160,
-                    //     child: ListView.separated(
-                    //       scrollDirection: Axis.horizontal,
-                    //       itemCount: d.photosAndVideos!.length,
-                    //       separatorBuilder: (_, __) => const SizedBox(width: 16),
-                    //       itemBuilder: (_, i) {
-                    //         final url = d.photosAndVideos![i];
-                    //         return GestureDetector(
-                    //           onTap: () => openMediaCarousel(
-                    //               context, d.photosAndVideos!,
-                    //               initialIndex: i),
-                    //           child: SizedBox(
-                    //               width: 260, height: 160, child: _mediaThumb(url)),
-                    //         );
-                    //       },
-                    //     ),
-                    //   ),
                     const SizedBox(height: 32),
                     _title(context.l10n.job_details),
                     if (items != null || items?.isNotEmpty == true)
@@ -194,23 +176,73 @@ class _UpholsteryCleaningRequestState
                         );
                       }),
                     const SizedBox(height: 32),
-                    _title(context.l10n.request_card_schedule),
-                    Text(
-                        DateFormat.yMMMd().add_jm().format(
-                              details.scheduledTime,
-                            ),
+                    _title(context.l10n.address),
+                    Text(details.upholsteryCleaning.fullAddress,
                         style: Theme.of(context).textTheme.bodyLarge),
-                    // const SizedBox(height: 32),
-                    // _title(context.l10n.address),
-                    // Text(d.fullAddress,
-                    //     style: Theme.of(context).textTheme.bodyLarge),
+                    const SizedBox(height: 32),
+                    _title(context.l10n.request_card_schedule),
+                    details.scheduledTime == null
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(context.l10n.as_soon_as_possible,
+                                  style: Theme.of(context).textTheme.bodyLarge),
+                              const SizedBox(height: 32),
+                              Text(
+                                context.l10n.expected_time,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 16),
+                              DateTimePickerField(
+                                label: context.l10n.date,
+                                value: _selectedDate == null
+                                    ? ''
+                                    : DateFormat(
+                                            'EEEE, MMM d, y',
+                                            Localizations.localeOf(context)
+                                                .toLanguageTag())
+                                        .format(_selectedDate!),
+                                icon: Icons.calendar_today,
+                                hintText: context.l10n.date,
+                                onTap: () async {
+                                  final now = DateTime.now();
+                                  final today =
+                                      DateTime(now.year, now.month, now.day);
+                                  final firstDate = now.hour >= 13
+                                      ? today.add(const Duration(days: 1))
+                                      : today;
+                                  final initial = (_selectedDate ?? firstDate)
+                                          .isBefore(firstDate)
+                                      ? firstDate
+                                      : (_selectedDate ?? firstDate);
+                                  final picked = await showDatePicker(
+                                    context: context,
+                                    initialDate: initial,
+                                    firstDate: firstDate,
+                                    lastDate:
+                                        firstDate.add(const Duration(days: 90)),
+                                  );
+                                  if (picked != null) {
+                                    setState(() => _selectedDate = picked);
+                                  }
+                                },
+                              ),
+                            ],
+                          )
+                        : Text(
+                            DateFormat.yMMMd().add_jm().format(
+                                  details.scheduledTime!,
+                                ),
+                            style: Theme.of(context).textTheme.bodyLarge),
                     const SizedBox(height: 24),
                     TextField(
-                      minLines: 4, // Minimum height
+                      minLines: 4,
                       maxLines: 8,
                       controller: _descriptionController,
                       keyboardType: TextInputType.text,
-                      onChanged: (v) => setState(() => _description = v),
                       decoration: InputDecoration(
                         labelText: context.l10n.enter_note,
                         prefixIcon: Icon(Icons.description),
@@ -264,9 +296,9 @@ class _UpholsteryCleaningRequestState
                           : () {
                               context.read<RequestsActionBloc>().add(
                                     SubmitUpholsteryOffer(
-                                      _description ?? "",
+                                      _composeNotes(context),
                                       double.parse(_amountController.text),
-                                      widget.request.id,
+                                      widget.request.id ?? '',
                                       _selectedTimelineHours!,
                                     ),
                                   );
@@ -286,7 +318,10 @@ class _UpholsteryCleaningRequestState
 
   IconData _iconForTitle(String title) {
     final t = title.toLowerCase();
-    if (t.contains('sofa') || t.contains('صوفا')) {
+    if (t.contains('sofa') ||
+        t.contains('صوفا') ||
+        t.contains('couch') ||
+        t.contains('كنب')) {
       return Icons.chair_outlined;
     }
     if (t.contains('armchair') || t.contains('كرسي')) {
@@ -295,10 +330,10 @@ class _UpholsteryCleaningRequestState
     if (t.contains('mattress') || t.contains('مرتبة')) {
       return Icons.bed_outlined;
     }
-    if (t.contains('rug') || t.contains('سجادة')) {
+    if (t.contains('rug') || t.contains('سجاد')) {
       return Icons.layers_outlined;
     }
-    if (t.contains('carpet') || t.contains('موكيت')) {
+    if (t.contains('carpet') || t.contains('سجاد')) {
       return Icons.stairs_outlined;
     }
     if (t.contains('curtain') || t.contains('ستارة')) {
@@ -312,4 +347,17 @@ class _UpholsteryCleaningRequestState
         child: Text(t,
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
       );
+
+  String _composeNotes(BuildContext context) {
+    final parts = <String>[];
+    if (_selectedDate != null) {
+      final formatted = DateFormat(
+              'EEEE, MMM d, y', Localizations.localeOf(context).toLanguageTag())
+          .format(_selectedDate!);
+      parts.add('Preferred date: $formatted');
+    }
+    final note = _descriptionController.text.trim();
+    if (note.isNotEmpty) parts.add(note);
+    return parts.join('\n');
+  }
 }

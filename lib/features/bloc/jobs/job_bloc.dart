@@ -32,7 +32,7 @@ class JobBloc extends Bloc<JobEvent, JobState> {
     _lastSortBy = event.sortBy ?? 'createdAt';
     _lastSortOrder = event.sortOrder ?? 'desc';
     emit(state.copyWith(isLoading: true, error: null));
-    _loader.show();
+    // _loader.show();
     try {
       final page = await getUpComingJobsUseCase.call(
         page: _currentPage,
@@ -43,7 +43,7 @@ class JobBloc extends Bloc<JobEvent, JobState> {
         sortOrder: _lastSortOrder,
         allowPagination: true,
       );
-      _loader.hide();
+      // _loader.hide();
       emit(
         state.copyWith(
           all: page.docs,
@@ -52,8 +52,7 @@ class JobBloc extends Bloc<JobEvent, JobState> {
         ),
       );
     } catch (e) {
-      _loader.hide();
-      print("ERROR $e");
+      // _loader.hide();
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
@@ -62,7 +61,7 @@ class JobBloc extends Bloc<JobEvent, JobState> {
       FetchNextPageRequests event, Emitter<JobState> emit) async {
     final nextPage = _currentPage + 1;
     emit(state.copyWith(isLoading: true, error: null));
-    _loader.show();
+    // _loader.show();
     try {
       final page = await getUpComingJobsUseCase.call(
         page: nextPage,
@@ -73,7 +72,7 @@ class JobBloc extends Bloc<JobEvent, JobState> {
         sortOrder: _lastSortOrder,
         allowPagination: true,
       );
-      _loader.hide();
+      // _loader.hide();
       _currentPage = nextPage;
       emit(
         state.copyWith(
@@ -83,8 +82,7 @@ class JobBloc extends Bloc<JobEvent, JobState> {
         ),
       );
     } catch (e) {
-      _loader.hide();
-      print("ERROR $e");
+      // _loader.hide();
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }

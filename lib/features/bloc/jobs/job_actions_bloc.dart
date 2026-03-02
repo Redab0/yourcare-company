@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/utils/loading_controller.dart';
+import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
+import 'package:cleaning_service_driver/data/models/calendar/employee_calendar_response.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/assign_cleaners_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/assign_team_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/cancel_job_usecase.dart';
@@ -9,6 +11,7 @@ import 'package:cleaning_service_driver/domain/usecases/jobs/complete_job_usecas
 import 'package:cleaning_service_driver/domain/usecases/jobs/start_job_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/update_frequency_request_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/profile/business/upload_media_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/requests/get_employee_calendar_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/get_all_users_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/get_teams_usecase.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_actions_event.dart';
@@ -25,6 +28,7 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
   final assignTeamUseCase = sl<AssignTeamUseCase>();
   final uploadMediaUseCase = sl<UploadMediaUseCase>();
   final updateRequestFrequencyUseCase = sl<UpdateFrequencyRequestUseCase>();
+  final getEmployeeCalendarUseCase = sl<GetEmployeeCalendarUseCase>();
   final _loader = sl<LoadingController>();
 
   JobActionsBloc() : super(JobActionsInitial()) {
@@ -34,6 +38,7 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
     on<AssignWorkersEvent>(_onAssignWorkers);
     on<AssignTeamEvent>(_onAssignTeam);
     on<FetchWorkersEvent>(_onFetchWorkers);
+    on<FetchAvailableWorkersEvent>(_onFetchAvailableWorkers);
     on<FetchTeamsEvent>(_onFetchTeams);
     on<UploadMediaEvent>(_upload);
     on<UpdateFrequencyRequestEvent>(_onUpdateRequestFrequency);
@@ -123,6 +128,43 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
     }
   }
 
+  FutureOr<void> _onFetchAvailableWorkers(
+      FetchAvailableWorkersEvent event, Emitter<JobActionsState> emit) async {
+    _loader.show();
+    try {
+      final workers = await getUsersUseCase.call(1, 100);
+      final calendar = await getEmployeeCalendarUseCase.call(
+        startDate: event.scheduledTime,
+        endDate: event.scheduledTime,
+      );
+      final busy = _busyWorkerIds(
+        calendar,
+        event.scheduledTime,
+        event.durationHours,
+        ignoreRequestId: event.ignoreRequestId,
+      );
+      final filtered = workers.docs
+          .where((w) => w.id != null && !busy.contains(w.id))
+          .toList();
+      if (event.selectedWorkerIds.isNotEmpty) {
+        final selectedSet = event.selectedWorkerIds.toSet();
+        for (final w in workers.docs) {
+          final id = w.id;
+          if (id != null && selectedSet.contains(id)) {
+            if (!filtered.any((it) => it.id == id)) {
+              filtered.add(w);
+            }
+          }
+        }
+      }
+      _loader.hide();
+      emit(WorkersFetchedState(filtered));
+    } catch (e) {
+      _loader.hide();
+      emit(JobActionFailed('$e'));
+    }
+  }
+
   FutureOr<void> _onFetchTeams(
       FetchTeamsEvent event, Emitter<JobActionsState> emit) async {
     _loader.show();
@@ -166,5 +208,79 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
       _loader.hide();
       emit(JobActionFailed("$e"));
     }
+  }
+
+  Set<String> _busyWorkerIds(
+    EmployeeCalendarResponse calendarResponse,
+    DateTime scheduledTime,
+    int durationHours, {
+    String? ignoreRequestId,
+  }) {
+    final busy = <String>{};
+    final calendarDays = calendarResponse.calendar ?? [];
+    final start = scheduledTime;
+    final safeDuration = durationHours > 0 ? durationHours : 1;
+    final end = start.add(Duration(hours: safeDuration));
+    for (final day in calendarDays) {
+      final dayDate = day.date;
+      if (dayDate == null || !_isSameDay(dayDate, start)) continue;
+      final works = day.works ?? [];
+      for (final work in works) {
+        if (ignoreRequestId != null && work.requestId == ignoreRequestId) {
+          continue;
+        }
+        final status = work.requestStatus;
+        if (status == RequestStatus.cancelled ||
+            status == RequestStatus.canceled) {
+          continue;
+        }
+        final workStart = work.startTime ?? work.scheduledTime;
+        if (workStart == null) {
+          _collectWorkAssignees(work, busy);
+          continue;
+        }
+        DateTime? workEnd = work.endTime;
+        if (workEnd == null &&
+            work.durationHours != null &&
+            work.durationHours! > 0) {
+          workEnd = workStart.add(Duration(hours: work.durationHours!));
+        }
+        workEnd ??= workStart.add(const Duration(hours: 1));
+        if (_overlaps(workStart, workEnd, start, end)) {
+          _collectWorkAssignees(work, busy);
+        }
+      }
+    }
+    return busy;
+  }
+
+  void _collectWorkAssignees(CalendarWork work, Set<String> busy) {
+    final cleaners = work.assignedCleaners ?? const [];
+    for (final cleaner in cleaners) {
+      final id = cleaner.id;
+      if (id != null && id.isNotEmpty) {
+        busy.add(id);
+      }
+    }
+    final teamMembers = work.assignedTeam?.members ?? const [];
+    for (final member in teamMembers) {
+      final id = member.id;
+      if (id != null && id.isNotEmpty) {
+        busy.add(id);
+      }
+    }
+  }
+
+  bool _overlaps(
+    DateTime aStart,
+    DateTime aEnd,
+    DateTime bStart,
+    DateTime bEnd,
+  ) {
+    return aStart.isBefore(bEnd) && bStart.isBefore(aEnd);
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 }

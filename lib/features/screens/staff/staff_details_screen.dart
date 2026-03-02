@@ -113,9 +113,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
                 const SnackBar(content: Text('Permissions saved!')));
           }
           if (state is StaffActionFailure) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(
-                    SnackBar(content: Text(context.genericErrorMessage)));
+            context.showErrorToast();
             setState(() => _uploading = false);
           }
         },
@@ -161,11 +159,18 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
                         CircleAvatar(
                           radius: 48,
                           backgroundColor: Colors.grey.shade200,
-                          backgroundImage: _uploadedPhotoUrl != null
-                              ? NetworkImage(_uploadedPhotoUrl!)
-                              : (_pickedPhoto != null
-                                  ? FileImage(_pickedPhoto!)
-                                  : null) as ImageProvider?,
+                          child: _uploadedPhotoUrl != null
+                              ? Image.network(_uploadedPhotoUrl!,
+                                  errorBuilder: (_, __, ___) => Icon(
+                                        Icons.person,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                      ))
+                              : Icon(
+                                  Icons.person,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
                         ),
                         Positioned(
                           right: 0,
@@ -320,7 +325,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
           children: perms.map((perm) {
             final checked = _selectedPermissionIds.contains(perm.id);
             return CheckboxListTile(
-              title: Text(perm.name ?? ''),
+              title: Text(perm.displayName ?? ""),
               subtitle: Text(perm.description ?? ''),
               value: checked,
               onChanged: (v) {

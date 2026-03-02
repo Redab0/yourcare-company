@@ -1,6 +1,5 @@
 import Flutter
 import UIKit
-import GoogleMaps
 import FirebaseCore
 
 @main
@@ -10,6 +9,8 @@ import FirebaseCore
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     FirebaseApp.configure()
+    UNUserNotificationCenter.current().delegate = self
+    application.registerForRemoteNotifications()
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }

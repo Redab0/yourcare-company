@@ -1,6 +1,7 @@
 import 'package:cleaning_service_driver/core/models/page_wrapper.dart';
 import 'package:cleaning_service_driver/core/models/response.dart';
 import 'package:cleaning_service_driver/core/models/response_payload.dart';
+import 'package:cleaning_service_driver/data/models/calendar/employee_calendar_response.dart';
 import 'package:cleaning_service_driver/data/models/requests/accept_house_keeping_model.dart';
 import 'package:cleaning_service_driver/data/models/requests/business_offer.dart';
 import 'package:cleaning_service_driver/data/models/requests/business_offer_response.dart';
@@ -35,6 +36,17 @@ abstract class RequestsService {
   @POST('/requests/upholstery-cleaning/business-offer')
   Future<ApiResponse<ResponsePayload<BusinessOfferResponse>>>
       submitUpholsteryOffer(@Body() BusinessOffer body);
+
+  @GET('/company/requests/calendar')
+  Future<ApiResponse<ResponsePayload<EmployeeCalendarResponse>>>
+      getEmployeeCalendar(
+    @Query('startDate') String startDate,
+    @Query('endDate') String endDate,
+    @Query('employeeId') String? employeeId,
+    @Query('teamId') String? teamId,
+    @Query('requestType') String? requestType,
+    @Query('requestStatus') String? requestStatus,
+  );
 
   @PATCH('/requests/{id}/house-cleaning/accept')
   Future<ApiResponse<ResponsePayload<CleaningRequest>>>

@@ -123,8 +123,7 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
         if (state is OfferSubmitted) {
           context.goNamed('deepCleaningSuccess');
         } else if (state is JobActionFailed) {
-          ScaffoldMessenger.of(ctx)
-              .showSnackBar(SnackBar(content: Text(ctx.genericErrorMessage)));
+          ctx.showErrorToast();
         } else if (state is TeamsFetchedState) {
           setState(() {
             _allTeams = state.teams;
@@ -169,7 +168,7 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
           });
           context.read<JobBloc>().add(LoadJobsEvent());
           _maybeRefreshRequests();
-          context.goNamed('deepCleaningJobSuccess', extra: state.model);
+          context.goNamed('jobCompletedSuccessScreen');
         }
       },
       builder: (ctx, state) {
@@ -222,6 +221,8 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
                       title: context.l10n.job_details,
                       child: Column(
                         children: [
+                          DetailRow(
+                              context.l10n.numberOfFloors, d.floors.toString()),
                           DetailRow(context.l10n.request_card_bedroom,
                               d.bedrooms.toString()),
                           const Divider(),
@@ -257,8 +258,8 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
                           DetailWidgetRow(
                               context.l10n.request_location,
                               OpenMapAction(
-                                  latitude: d.address!.latitude!,
-                                  longitude: d.address!.longitude!))
+                                  latitude: d.address!.latitude ?? 0.0,
+                                  longitude: d.address!.longitude ?? 0.0))
                         ],
                       ),
                     ),

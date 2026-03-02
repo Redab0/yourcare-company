@@ -1,6 +1,9 @@
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/utils/locale_cubit.dart';
 import 'package:cleaning_service_driver/features/bloc/auth/auth_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/auto_bid/auto_bid_config_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/calendar/employee_calendar_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/housekeeping/housekeeping_pricing_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/home/home_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_actions_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_bloc.dart';
@@ -8,6 +11,7 @@ import 'package:cleaning_service_driver/features/bloc/profile/business/business_
 import 'package:cleaning_service_driver/features/bloc/profile/user/user_profile_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_action_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/schedule/employee_availability_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_action_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/statistics/statistics_bloc.dart';
@@ -35,6 +39,10 @@ class AppBlocProviders extends StatelessWidget {
         BlocProvider(create: (_) => sl<LocaleCubit>()),
         BlocProvider(create: (_) => sl<StatisticsBloc>()),
         BlocProvider(create: (_) => sl<UserProfileBloc>()),
+        BlocProvider(create: (_) => sl<EmployeeCalendarBloc>()),
+        BlocProvider(create: (_) => sl<EmployeeAvailabilityBloc>()),
+        BlocProvider(create: (_) => sl<HousekeepingPricingBloc>()),
+        BlocProvider(create: (_) => sl<AutoBidConfigBloc>()),
       ],
       child: child,
     );

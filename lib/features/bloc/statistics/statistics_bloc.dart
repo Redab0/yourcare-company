@@ -19,7 +19,11 @@ class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
       FetchStatisticsEvent event, Emitter<StatisticsState> emit) async {
     _loader.show();
     try {
-      final response = await getStatisticsUseCase.call();
+      final response = await getStatisticsUseCase.call(
+        periodType: event.periodType,
+        startDate: event.startDate,
+        endDate: event.endDate,
+      );
       _loader.hide();
       emit(StatisticsFetched(response));
     } catch (e) {

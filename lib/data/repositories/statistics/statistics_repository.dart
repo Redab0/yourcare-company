@@ -6,8 +6,13 @@ class StatisticsRepository {
 
   StatisticsRepository(this._statisticsService);
 
-  Future<StatisticsResponse> getRequestsStatistics() async {
-    final response = await _statisticsService.getRequestsStatistics();
+  Future<StatisticsResponse> getRequestsStatistics(
+      {String? periodType, String? startDate, String? endDate}) async {
+    final response = await _statisticsService.getRequestsStatistics(
+      periodType,
+      startDate,
+      endDate,
+    );
     if (response.success && response.data != null) {
       return response.data!.data!;
     } else {

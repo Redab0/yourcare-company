@@ -1,5 +1,5 @@
 class AppConstants {
-  static const String appName = 'KW Clean Business';
+  static const String appName = 'YourCare Partner';
   static const String splashScreen = '/';
   static const String loginScreen = '/login';
   static const String registerScreen = '/register';

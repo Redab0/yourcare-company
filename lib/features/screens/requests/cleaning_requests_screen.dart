@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cleaning_service_driver/components/cleaning_job_card.dart';
 import 'package:cleaning_service_driver/components/deep_cleaning_request_card.dart';
+import 'package:cleaning_service_driver/components/shimmer_box.dart';
 import 'package:cleaning_service_driver/components/upholstery_cleaning_request_card.dart';
 import 'package:cleaning_service_driver/core/themes/app_theme.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
@@ -92,16 +93,46 @@ class _RequestsScreenState extends State<RequestsScreen>
               ),
             ),
             Tab(
-                child: Text(context.l10n.requests_deep_cleaning,
-                    style: TextStyle(color: AppTheme.cream))),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(context.l10n.exclusive,
+                      style: TextStyle(color: AppTheme.cream)),
+                  const SizedBox(width: 6),
+                  BlocBuilder<RequestsBloc, RequestsState>(
+                    builder: (ctx, state) {
+                      final hasExclusive = state.exclusive.isNotEmpty;
+                      return AnimatedOpacity(
+                        opacity: hasExclusive ? 1 : 0,
+                        duration: const Duration(milliseconds: 180),
+                        child: hasExclusive
+                            ? Container(
+                                width: 10,
+                                height: 10,
+                                decoration: const BoxDecoration(
+                                  color: Colors.redAccent,
+                                  shape: BoxShape.circle,
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
       body: BlocConsumer<RequestsBloc, RequestsState>(
-        listener: (ctx, state) {},
+        listener: (ctx, state) {
+          if (state is RequestsFailed || state.error != null) {
+            ctx.showErrorToast();
+          }
+        },
         builder: (ctx, state) {
-          if (state is RequestsFailed) {
-            return Center(child: Text('Error: ${state.message}'));
+          if (state is RequestsFailed || state.error != null) {
+            return Center(child: Text(ctx.genericErrorMessage));
           }
 
           return LayoutBuilder(builder: (ctx, constraints) {
@@ -149,6 +180,9 @@ class _RequestsScreenState extends State<RequestsScreen>
       required bool isLoading,
       required VoidCallback onLoadMore}) {
     if (items.isEmpty) {
+      if (isLoading) {
+        return _buildRequestsShimmer();
+      }
       return Center(child: Text(context.l10n.requests_no_requests));
     }
 
@@ -171,11 +205,19 @@ class _RequestsScreenState extends State<RequestsScreen>
             final req = items[idx];
             return _ExpandableRequestItem(
               request: req,
+              area: _areaForRequest(req),
               summaryLabel: _summaryLabel(req, context),
-              summaryDate: DateFormat.MMMd().add_jm().format(req.scheduledTime),
-              summaryPrice: req.type?.toLowerCase() == "housecleaning"
-                  ? '${req.totalPrice.toStringAsFixed(3)} KWD'
-                  : "",
+              summaryDate: req.scheduledTime == null
+                  ? context.l10n.as_soon_as_possible
+                  : req.type == 'houseCleaning'
+                      ? DateFormat.yMMMd(
+                              Localizations.localeOf(context).toLanguageTag())
+                          .add_jm()
+                          .format(req.scheduledTime!)
+                      : DateFormat.yMMMd(
+                              Localizations.localeOf(context).toLanguageTag())
+                          .format(req.scheduledTime!),
+              summaryPrice: "",
               pillColor: _pillColorFor(req),
               child: _buildRequestCard(context, req),
             );
@@ -187,6 +229,33 @@ class _RequestsScreenState extends State<RequestsScreen>
       ),
     );
   }
+
+  Widget _buildRequestsShimmer() {
+    return ListView.builder(
+      itemCount: 6,
+      itemBuilder: (ctx, idx) {
+        return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          elevation: 2,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                ShimmerBox(height: 16, width: 140),
+                SizedBox(height: 10),
+                ShimmerBox(height: 12, width: 220),
+                SizedBox(height: 6),
+                ShimmerBox(height: 12, width: 180),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
 Widget _buildRequestCard(BuildContext context, CleaningRequest req) {
@@ -196,6 +265,7 @@ Widget _buildRequestCard(BuildContext context, CleaningRequest req) {
       onTap: () => context.goNamed('deepCleaning', extra: req),
       child: DeepCleaningRequestCard(
         request: req as DeepCleaningHistory,
+        padding: EdgeInsets.zero,
         onSubmitBid: () {
           context.goNamed('deepCleaning', extra: req);
         },
@@ -207,6 +277,7 @@ Widget _buildRequestCard(BuildContext context, CleaningRequest req) {
       onTap: () => context.goNamed('upholsteryCleaning', extra: req),
       child: UpholsteryCleaningRequestCard(
         request: req as UpholsteryCleaningHistory,
+        padding: EdgeInsets.zero,
         onSubmitBid: () {
           context.goNamed('upholsteryCleaning', extra: req);
         },
@@ -219,6 +290,7 @@ Widget _buildRequestCard(BuildContext context, CleaningRequest req) {
     },
     child: CleaningJobCard(
       request: req as HouseKeepingHistory,
+      padding: EdgeInsets.zero,
       onAccept: () {
         context.goNamed('houseKeeping', extra: req);
       },
@@ -234,6 +306,19 @@ String _summaryLabel(CleaningRequest req, BuildContext context) {
   return req.type ?? '';
 }
 
+String _areaForRequest(CleaningRequest req) {
+  if (req is DeepCleaningHistory) {
+    return req.detail.address?.area ?? req.detail.area ?? '—';
+  }
+  if (req is UpholsteryCleaningHistory) {
+    return req.upholsteryCleaning.address?.area ?? '—';
+  }
+  if (req is HouseKeepingHistory) {
+    return req.detail.address?.area ?? req.detail.area ?? '—';
+  }
+  return '—';
+}
+
 Color _pillColorFor(CleaningRequest req) {
   final t = (req.type ?? '').toLowerCase();
   if (t == 'deepcleaning') return AppTheme.primary;
@@ -246,17 +331,19 @@ class _ExpandableRequestItem extends StatefulWidget {
   final CleaningRequest request;
   final Widget child;
   final String summaryLabel;
-  final String summaryDate;
+  final String? summaryDate;
   final String summaryPrice;
+  final String area;
   final Color pillColor;
 
   const _ExpandableRequestItem({
     required this.request,
     required this.child,
     required this.summaryLabel,
-    required this.summaryDate,
+    this.summaryDate,
     required this.summaryPrice,
     required this.pillColor,
+    required this.area,
   });
 
   @override
@@ -272,39 +359,58 @@ class _ExpandableRequestItemState extends State<_ExpandableRequestItem> {
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Column(
-        children: [
-          ListTile(
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            title: Align(
-              alignment: Alignment.centerLeft,
-              child: _pill(widget.summaryLabel, widget.pillColor),
-            ),
-            subtitle: Text(widget.summaryDate),
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(widget.summaryPrice,
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
-                Icon(_expanded ? Icons.expand_less : Icons.expand_more),
-              ],
-            ),
-            onTap: () => setState(() => _expanded = !_expanded),
+      child: InkWell(
+        onTap: () => setState(() => _expanded = !_expanded),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _pill(widget.summaryLabel, widget.pillColor),
+                    SizedBox(
+                      height: 4,
+                    ),
+                    Text(
+                      textAlign: TextAlign.start,
+                      widget.area,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextTheme.of(context).titleMedium,
+                    ),
+                    SizedBox(
+                      height: 4,
+                    ),
+                    Text(
+                      textAlign: TextAlign.end,
+                      widget.summaryDate ?? context.l10n.as_soon_as_possible,
+                      style: TextTheme.of(context).titleMedium,
+                    ),
+                    SizedBox(
+                      height: 4,
+                    ),
+                    AnimatedCrossFade(
+                      firstChild: const SizedBox.shrink(),
+                      secondChild: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 4, right: 4, bottom: 12),
+                        child: widget.child,
+                      ),
+                      crossFadeState: _expanded
+                          ? CrossFadeState.showSecond
+                          : CrossFadeState.showFirst,
+                      duration: const Duration(milliseconds: 180),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Icon(_expanded ? Icons.expand_less : Icons.expand_more),
+            ],
           ),
-          AnimatedCrossFade(
-            firstChild: const SizedBox.shrink(),
-            secondChild: Padding(
-              padding: const EdgeInsets.only(left: 4, right: 4, bottom: 12),
-              child: widget.child,
-            ),
-            crossFadeState: _expanded
-                ? CrossFadeState.showSecond
-                : CrossFadeState.showFirst,
-            duration: const Duration(milliseconds: 180),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -317,6 +423,6 @@ class _ExpandableRequestItemState extends State<_ExpandableRequestItem> {
         ),
         child: Text(text,
             style: TextStyle(
-                color: color, fontWeight: FontWeight.w700, fontSize: 13)),
+                color: color, fontWeight: FontWeight.w900, fontSize: 15)),
       );
 }

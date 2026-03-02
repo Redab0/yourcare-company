@@ -1,4 +1,5 @@
 import 'package:cleaning_service_driver/components/job_tile.dart';
+import 'package:cleaning_service_driver/components/shimmer_box.dart';
 import 'package:cleaning_service_driver/core/themes/app_theme.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
@@ -70,10 +71,14 @@ class _JobsScreenState extends State<JobsScreen>
         ),
       ),
       body: BlocConsumer<JobBloc, JobState>(
-        listener: (BuildContext context, JobState state) {},
+        listener: (BuildContext context, JobState state) {
+          if (state is JobError || state.error != null) {
+            context.showErrorToast();
+          }
+        },
         builder: (ctx, state) {
           if (state is JobError) {
-            return Center(child: Text('Error: ${state.message}'));
+            return Center(child: Text(ctx.genericErrorMessage));
           }
 
           final all = state.all;
@@ -109,6 +114,9 @@ class _JobsScreenState extends State<JobsScreen>
     JobState state,
   ) {
     if (items.isEmpty) {
+      if (state.isLoading) {
+        return _buildJobsShimmer();
+      }
       return const Center(child: Text('No requests found.'));
     }
 
@@ -154,6 +162,33 @@ class _JobsScreenState extends State<JobsScreen>
           }
         },
       ),
+    );
+  }
+
+  Widget _buildJobsShimmer() {
+    return ListView.builder(
+      itemCount: 6,
+      itemBuilder: (ctx, idx) {
+        return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          elevation: 2,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                ShimmerBox(height: 14, width: 120),
+                SizedBox(height: 8),
+                ShimmerBox(height: 12, width: 200),
+                SizedBox(height: 6),
+                ShimmerBox(height: 12, width: 160),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -78,10 +78,13 @@ class HomeMenuItem extends StatelessWidget {
             ),
           ],
         ),
-        Text(
-          title,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.titleLarge,
+        Expanded(
+          child: Text(
+            overflow: TextOverflow.visible,
+            title,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
         ),
       ],
     );

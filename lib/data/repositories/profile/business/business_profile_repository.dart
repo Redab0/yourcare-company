@@ -1,7 +1,6 @@
 import 'dart:io';
 
-import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
-import 'package:cleaning_service_driver/data/models/profile/area_model.dart';
+import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
 import 'package:cleaning_service_driver/data/models/profile/business_profile_model.dart';
 import 'package:cleaning_service_driver/data/models/profile/media_upload_response.dart';
 import 'package:cleaning_service_driver/data/models/profile/update_business_profile_model.dart';
@@ -36,21 +35,16 @@ class BusinessProfileRepository {
     }
   }
 
-  Future<List<AreaModel>> getAreas() async {
-    late List<AreaModel> areas;
-    final savedAreas = await SecureStorageService().getAreas();
-
-    if (savedAreas.isNotEmpty) {
-      areas = savedAreas;
+  Future<List<AreaResponse>> getAreas() async {
+    late List<AreaResponse> areas;
+    var response = await _profileService.getAreas();
+    if (response.success && response.data != null) {
+      areas = response.data!.data!;
+      // await SecureStorageService().saveAreas(areas);
     } else {
-      var response = await _profileService.getAreas();
-      if (response.success && response.data != null) {
-        areas = response.data!.data!;
-        await SecureStorageService().saveAreas(areas);
-      } else {
-        throw Exception(response.message);
-      }
+      throw Exception(response.message);
     }
+
     return areas;
   }
 

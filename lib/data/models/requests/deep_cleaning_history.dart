@@ -25,7 +25,7 @@ class DeepCleaningHistory implements CleaningRequest {
   @override
   final DateTime updatedAt;
   @override
-  final DateTime scheduledTime;
+  final DateTime? scheduledTime;
   @override
   final Customer customer;
 
@@ -115,6 +115,7 @@ class DeepCleaningDetail {
   final CleaningItem? bathroom;
   final CleaningItem? kitchen;
   final CleaningItem? livingRoom;
+  final CleaningItem? floors;
   final Address? address;
   final String? additionalInformation;
   final List<String>? photosAndVideos;
@@ -129,6 +130,7 @@ class DeepCleaningDetail {
       this.bathroom,
       this.kitchen,
       this.livingRoom,
+      this.floors,
       this.address,
       this.additionalInformation,
       this.photosAndVideos,
@@ -148,6 +150,7 @@ class DeepCleaningDepartmentSelection {
   final CleaningItem? bathrooms;
   final CleaningItem? kitchens;
   final CleaningItem? livingRooms;
+  final CleaningItem? numberOfFloors;
   final CleaningItem? sizeOptions;
   final bool? furnitureCheckbox;
   final bool? kitchenCheckbox;
@@ -161,6 +164,7 @@ class DeepCleaningDepartmentSelection {
     this.bathrooms,
     this.kitchens,
     this.livingRooms,
+    this.numberOfFloors,
     this.sizeOptions,
     this.furnitureCheckbox,
     this.kitchenCheckbox,
@@ -169,8 +173,7 @@ class DeepCleaningDepartmentSelection {
     this.calculatedPrice,
   });
 
-  factory DeepCleaningDepartmentSelection.fromJson(
-          Map<String, dynamic> json) =>
+  factory DeepCleaningDepartmentSelection.fromJson(Map<String, dynamic> json) =>
       _$DeepCleaningDepartmentSelectionFromJson(json);
 
   Map<String, dynamic> toJson() =>

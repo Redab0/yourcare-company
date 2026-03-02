@@ -2,8 +2,11 @@ import 'dart:async';
 
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/utils/loading_controller.dart';
+import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
+import 'package:cleaning_service_driver/data/models/calendar/employee_calendar_response.dart';
 import 'package:cleaning_service_driver/data/models/requests/business_offer.dart';
 import 'package:cleaning_service_driver/domain/usecases/requests/accept_exclusive_request_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/requests/get_employee_calendar_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/requests/obtain_house_keeping_request_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/requests/submit_business_offer_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/requests/submit_upholstery_offer_usecase.dart';
@@ -19,6 +22,7 @@ class RequestsActionBloc
   final obtainHouseKeepingUseCase = sl<ObtainHouseKeepingRequestUseCase>();
   final acceptExclusiveRequestUseCase = sl<AcceptExclusiveRequestUseCase>();
   final getUsersUseCase = sl<GetAllUsersUseCase>();
+  final getEmployeeCalendarUseCase = sl<GetEmployeeCalendarUseCase>();
 
   final _loader = sl<LoadingController>();
 
@@ -28,6 +32,8 @@ class RequestsActionBloc
     on<SubmitUpholsteryOffer>(_onSubmitUpholsteryOffer);
     on<FetchWorkersEvent>(_onFetchWorkers);
     on<AcceptExclusiveRequestEvent>(_onAcceptExclusiveRequest);
+    on<CheckWorkerAvailability>(_onCheckWorkerAvailability);
+    on<FetchAvailableWorkersForSlot>(_onFetchAvailableWorkersForSlot);
   }
 
   FutureOr<void> _onHouseKeepingRequestObtained(ObtainHouseKeepingRequest event,
@@ -82,6 +88,53 @@ class RequestsActionBloc
     }
   }
 
+  FutureOr<void> _onCheckWorkerAvailability(
+    CheckWorkerAvailability event,
+    Emitter<RequestsActionState> emit,
+  ) async {
+    emit(WorkerAvailabilityChecking(event.employeeId));
+    try {
+      final response = await getEmployeeCalendarUseCase.call(
+        startDate: event.scheduledTime,
+        endDate: event.scheduledTime,
+        employeeId: event.employeeId,
+      );
+      final hasConflict = _hasConflict(
+        response,
+        event.scheduledTime,
+        event.durationHours,
+      );
+      emit(WorkerAvailabilityChecked(event.employeeId, hasConflict));
+    } catch (e) {
+      emit(RequestsActionFailed('$e'));
+    }
+  }
+
+  FutureOr<void> _onFetchAvailableWorkersForSlot(
+    FetchAvailableWorkersForSlot event,
+    Emitter<RequestsActionState> emit,
+  ) async {
+    emit(const WorkersAvailabilityFiltering());
+    try {
+      final response = await getEmployeeCalendarUseCase.call(
+        startDate: event.scheduledTime,
+        endDate: event.scheduledTime,
+      );
+      final busy = _busyWorkerIds(
+        response,
+        event.scheduledTime,
+        event.durationHours,
+        ignoreRequestId: event.ignoreRequestId,
+      );
+      final available = event.workerIds
+          .where((id) => !busy.contains(id))
+          .toList(growable: false);
+      emit(WorkersAvailabilityFiltered(available));
+    } catch (e) {
+      emit(RequestsActionFailed('$e'));
+    }
+  }
+
   FutureOr<void> _onAcceptExclusiveRequest(AcceptExclusiveRequestEvent event,
       Emitter<RequestsActionState> emit) async {
     _loader.show();
@@ -115,4 +168,118 @@ class RequestsActionBloc
       emit(RequestsActionFailed('$e'));
     }
   }
+
+  bool _hasConflict(
+    EmployeeCalendarResponse calendarResponse,
+    DateTime scheduledTime,
+    int durationHours,
+  ) {
+    final calendarDays = calendarResponse.calendar ?? [];
+    final start = scheduledTime;
+    final safeDuration = durationHours > 0 ? durationHours : 1;
+    final end = start.add(Duration(hours: safeDuration));
+    for (final day in calendarDays) {
+      final dayDate = day.date;
+      if (dayDate == null || !_isSameDay(dayDate, start)) continue;
+      final works = day.works ?? [];
+      for (final work in works) {
+        final status = work.requestStatus;
+        if (status == RequestStatus.cancelled ||
+            status == RequestStatus.canceled) {
+          continue;
+        }
+        final workStart = work.startTime ?? work.scheduledTime;
+        if (workStart == null) {
+          return true;
+        }
+        DateTime? workEnd = work.endTime;
+        if (workEnd == null &&
+            work.durationHours != null &&
+            work.durationHours! > 0) {
+          workEnd = workStart.add(Duration(hours: work.durationHours!));
+        }
+        workEnd ??= workStart.add(const Duration(hours: 1));
+        if (_overlaps(workStart, workEnd, start, end)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  Set<String> _busyWorkerIds(
+    EmployeeCalendarResponse calendarResponse,
+    DateTime scheduledTime,
+    int durationHours, {
+    String? ignoreRequestId,
+  }) {
+    final busy = <String>{};
+    final calendarDays = calendarResponse.calendar ?? [];
+    final start = scheduledTime;
+    final safeDuration = durationHours > 0 ? durationHours : 1;
+    final end = start.add(Duration(hours: safeDuration));
+    for (final day in calendarDays) {
+      final dayDate = day.date;
+      if (dayDate == null || !_isSameDay(dayDate, start)) continue;
+      final works = day.works ?? [];
+      for (final work in works) {
+        if (ignoreRequestId != null &&
+            work.requestId == ignoreRequestId) {
+          continue;
+        }
+        final status = work.requestStatus;
+        if (status == RequestStatus.cancelled ||
+            status == RequestStatus.canceled) {
+          continue;
+        }
+        final workStart = work.startTime ?? work.scheduledTime;
+        if (workStart == null) {
+          _collectWorkAssignees(work, busy);
+          continue;
+        }
+        DateTime? workEnd = work.endTime;
+        if (workEnd == null &&
+            work.durationHours != null &&
+            work.durationHours! > 0) {
+          workEnd = workStart.add(Duration(hours: work.durationHours!));
+        }
+        workEnd ??= workStart.add(const Duration(hours: 1));
+        if (_overlaps(workStart, workEnd, start, end)) {
+          _collectWorkAssignees(work, busy);
+        }
+      }
+    }
+    return busy;
+  }
+
+  void _collectWorkAssignees(CalendarWork work, Set<String> busy) {
+    final cleaners = work.assignedCleaners ?? const [];
+    for (final cleaner in cleaners) {
+      final id = cleaner.id;
+      if (id != null && id.isNotEmpty) {
+        busy.add(id);
+      }
+    }
+    final teamMembers = work.assignedTeam?.members ?? const [];
+    for (final member in teamMembers) {
+      final id = member.id;
+      if (id != null && id.isNotEmpty) {
+        busy.add(id);
+      }
+    }
+  }
+
+  bool _overlaps(
+    DateTime aStart,
+    DateTime aEnd,
+    DateTime bStart,
+    DateTime bEnd,
+  ) {
+    return aStart.isBefore(bEnd) && bStart.isBefore(aEnd);
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
 }

@@ -62,6 +62,24 @@ class AssignTeamEvent extends JobActionsEvent {
 
 class FetchWorkersEvent extends JobActionsEvent {}
 
+class FetchAvailableWorkersEvent extends JobActionsEvent {
+  final DateTime scheduledTime;
+  final int durationHours;
+  final String? ignoreRequestId;
+  final List<String> selectedWorkerIds;
+
+  const FetchAvailableWorkersEvent({
+    required this.scheduledTime,
+    required this.durationHours,
+    this.ignoreRequestId,
+    this.selectedWorkerIds = const [],
+  });
+
+  @override
+  List<Object?> get props =>
+      [scheduledTime, durationHours, ignoreRequestId, selectedWorkerIds];
+}
+
 class FetchTeamsEvent extends JobActionsEvent {}
 
 class UploadMediaEvent extends JobActionsEvent {

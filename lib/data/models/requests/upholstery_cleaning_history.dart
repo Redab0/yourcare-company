@@ -1,6 +1,7 @@
 // house_cleaning_history.dart
 
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
+import 'package:cleaning_service_driver/data/models/auth/address.dart';
 import 'package:cleaning_service_driver/data/models/customer/customer.dart';
 import 'package:cleaning_service_driver/data/models/requests/assigned_worker.dart';
 import 'package:cleaning_service_driver/data/models/requests/company_information.dart';
@@ -13,7 +14,7 @@ part 'upholstery_cleaning_history.g.dart';
 @JsonSerializable(checked: true)
 class UpholsteryCleaningHistory implements CleaningRequest {
   @override
-  final String id;
+  final String? id;
   @override
   final String type;
   @override
@@ -27,7 +28,7 @@ class UpholsteryCleaningHistory implements CleaningRequest {
   @override
   final Customer customer;
   @override
-  final DateTime scheduledTime;
+  final DateTime? scheduledTime;
 
   @JsonKey(name: 'businessId')
   final CompanyInformation? companyInformation;
@@ -41,7 +42,7 @@ class UpholsteryCleaningHistory implements CleaningRequest {
   final UpholsteryCleaningDetails upholsteryCleaning;
 
   UpholsteryCleaningHistory({
-    required this.id,
+    this.id,
     required this.customer,
     required this.requestStatus,
     required this.totalPrice,
@@ -62,9 +63,18 @@ class UpholsteryCleaningHistory implements CleaningRequest {
 
 @JsonSerializable(checked: true)
 class UpholsteryCleaningDetails {
+  final Address? address;
+  final String? areaId;
+  final String? additionalInformation;
+  final DateTime? scheduledTime;
   final List<UpholsteryCleaningItems>? items;
 
-  const UpholsteryCleaningDetails(this.items);
+  const UpholsteryCleaningDetails(
+      {this.items,
+      this.address,
+      this.areaId,
+      this.additionalInformation,
+      this.scheduledTime});
 
   factory UpholsteryCleaningDetails.fromJson(Map<String, dynamic> json) =>
       _$UpholsteryCleaningDetailsFromJson(json);
@@ -80,9 +90,18 @@ class UpholsteryCleaningItems {
   final CleaningItemMaterial? material;
   final CleaningItemCondition? condition;
   final List<String>? mediaUrls;
+  final String? additionalInformation;
 
-  UpholsteryCleaningItems(this.quantity, this.calculatedPrice, this.type,
-      this.size, this.material, this.condition, this.mediaUrls);
+  const UpholsteryCleaningItems({
+    this.quantity,
+    this.calculatedPrice,
+    this.type,
+    this.size,
+    this.material,
+    this.condition,
+    this.mediaUrls,
+    this.additionalInformation,
+  });
 
   factory UpholsteryCleaningItems.fromJson(Map<String, dynamic> json) =>
       _$UpholsteryCleaningItemsFromJson(json);
@@ -92,7 +111,8 @@ class UpholsteryCleaningItems {
 CleaningItemType? _parseCleaningItemType(dynamic v) {
   if (v == null) return null;
   if (v is Map<String, dynamic>) return CleaningItemType.fromJson(v);
-  if (v is String) return CleaningItemType(v, null, null, null, null, null, null);
+  if (v is String)
+    return CleaningItemType(v, null, null, null, null, null, null);
   return null;
 }
 

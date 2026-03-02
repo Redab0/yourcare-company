@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/components/shimmer_box.dart';
 import 'package:cleaning_service_driver/components/user_profile_card.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_bloc.dart';
@@ -55,10 +56,17 @@ class _StaffListScreenState extends State<StaffListScreen>
         ),
       ),
       body: BlocConsumer<StaffBloc, StaffState>(
-        listener: (ctx, state) {},
+        listener: (ctx, state) {
+          if (state is StaffFailure || state.error != null) {
+            ctx.showErrorToast();
+          }
+        },
         builder: (ctx, state) {
           if (state is StaffFailure) {
-            return Center(child: Text('Error: ${state.message}'));
+            return Center(child: Text(ctx.genericErrorMessage));
+          }
+          if (state.isLoading && state.all.isEmpty) {
+            return _buildStaffShimmer(context);
           }
 
           final itemCount = state.all.length + (state.hasMore ? 1 : 0);
@@ -102,5 +110,52 @@ class _StaffListScreenState extends State<StaffListScreen>
         },
       ),
     );
+  }
+
+  Widget _buildStaffShimmer(BuildContext context) {
+    return LayoutBuilder(builder: (ctx, constraints) {
+      final isWide = constraints.maxWidth >= 900;
+      final crossAxisCount = isWide ? 3 : 1;
+      final maxWidth = isWide ? 1100.0 : double.infinity;
+      final itemCount = isWide ? 9 : 6;
+
+      return Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: maxWidth),
+          child: Padding(
+            padding:
+                const EdgeInsets.only(top: 16, left: 8, right: 8, bottom: 16),
+            child: GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: isWide ? 1.5 : 2.6,
+              ),
+              itemCount: itemCount,
+              itemBuilder: (ctx, idx) {
+                return Card(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        ShimmerBox(height: 14, width: 160),
+                        SizedBox(height: 10),
+                        ShimmerBox(height: 12, width: 120),
+                        SizedBox(height: 6),
+                        ShimmerBox(height: 12, width: 90),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+    });
   }
 }

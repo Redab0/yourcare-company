@@ -3,24 +3,26 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'business_offer_response.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(checked: true)
 class BusinessOfferResponse {
   final String id;
+  final String? readableId;
   final double totalPrice;
   final RequestStatus requestStatus;
   final String createdAt;
   final String updatedAt;
-  final String? description;
-  final String? descriptionBusinessOffer;
+  final int? serviceFrequencyCount;
+  final int? serviceIntervalDays;
 
   BusinessOfferResponse({
+    this.readableId,
     required this.id,
     required this.totalPrice,
     required this.requestStatus,
     required this.createdAt,
     required this.updatedAt,
-    this.description,
-    this.descriptionBusinessOffer,
+    this.serviceFrequencyCount,
+    this.serviceIntervalDays,
   });
 
   factory BusinessOfferResponse.fromJson(Map<String, dynamic> json) =>

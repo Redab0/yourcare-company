@@ -98,7 +98,7 @@ abstract class AppLocalizations {
   /// No description provided for @appName.
   ///
   /// In en, this message translates to:
-  /// **'Your Care'**
+  /// **'Your Care Business'**
   String get appName;
 
   /// No description provided for @welcome.
@@ -134,7 +134,7 @@ abstract class AppLocalizations {
   /// No description provided for @houseKeeping.
   ///
   /// In en, this message translates to:
-  /// **'House Keeping'**
+  /// **'Hourly Cleaning'**
   String get houseKeeping;
 
   /// No description provided for @houseKeepingDescription.
@@ -152,7 +152,7 @@ abstract class AppLocalizations {
   /// No description provided for @deepCleaningDescription.
   ///
   /// In en, this message translates to:
-  /// **'Thorough cleaning for those hard-to-reach places'**
+  /// **'Our professionals will provide quality cleaning using equipment'**
   String get deepCleaningDescription;
 
   /// No description provided for @searchServices.
@@ -184,6 +184,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No'**
   String get no;
+
+  /// No description provided for @as_soon_as_possible.
+  ///
+  /// In en, this message translates to:
+  /// **'As soon as possible'**
+  String get as_soon_as_possible;
+
+  /// No description provided for @expected_time.
+  ///
+  /// In en, this message translates to:
+  /// **'ِExpected Time'**
+  String get expected_time;
 
   /// No description provided for @deepCleaningRequest.
   ///
@@ -239,6 +251,12 @@ abstract class AppLocalizations {
   /// **'Number of Living Rooms'**
   String get numberOfLivingRooms;
 
+  /// No description provided for @numberOfFloors.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of floors'**
+  String get numberOfFloors;
+
   /// No description provided for @additionalInformation.
   ///
   /// In en, this message translates to:
@@ -274,6 +292,336 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Camera'**
   String get camera;
+
+  /// No description provided for @weekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get weekly;
+
+  /// No description provided for @hourly.
+  ///
+  /// In en, this message translates to:
+  /// **'Hourly'**
+  String get hourly;
+
+  /// No description provided for @monthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get monthly;
+
+  /// No description provided for @employee_availability.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee Availability'**
+  String get employee_availability;
+
+  /// No description provided for @company_availability.
+  ///
+  /// In en, this message translates to:
+  /// **'Company Availability'**
+  String get company_availability;
+
+  /// No description provided for @select_employee.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Employee'**
+  String get select_employee;
+
+  /// No description provided for @employee.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee'**
+  String get employee;
+
+  /// No description provided for @total_cleaners_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Cleaners'**
+  String get total_cleaners_label;
+
+  /// No description provided for @day_of_week_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Day of Week'**
+  String get day_of_week_label;
+
+  /// No description provided for @start_hour_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Hour'**
+  String get start_hour_label;
+
+  /// No description provided for @end_hour_label.
+  ///
+  /// In en, this message translates to:
+  /// **'End Hour'**
+  String get end_hour_label;
+
+  /// No description provided for @add_availability_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Availability'**
+  String get add_availability_title;
+
+  /// No description provided for @edit_availability_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Availability'**
+  String get edit_availability_title;
+
+  /// No description provided for @delete_availability_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Availability'**
+  String get delete_availability_title;
+
+  /// No description provided for @delete_availability_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this availability slot?'**
+  String get delete_availability_message;
+
+  /// No description provided for @no_availability.
+  ///
+  /// In en, this message translates to:
+  /// **'No availability'**
+  String get no_availability;
+
+  /// No description provided for @invalid_time_range.
+  ///
+  /// In en, this message translates to:
+  /// **'End hour must be after start hour'**
+  String get invalid_time_range;
+
+  /// No description provided for @invalid_total_cleaners.
+  ///
+  /// In en, this message translates to:
+  /// **'Total cleaners must be greater than 0'**
+  String get invalid_total_cleaners;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @sunday.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get sunday;
+
+  /// No description provided for @monday.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get monday;
+
+  /// No description provided for @tuesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuesday'**
+  String get tuesday;
+
+  /// No description provided for @wednesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Wednesday'**
+  String get wednesday;
+
+  /// No description provided for @thursday.
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday'**
+  String get thursday;
+
+  /// No description provided for @friday.
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get friday;
+
+  /// No description provided for @saturday.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday'**
+  String get saturday;
+
+  /// No description provided for @quarterly.
+  ///
+  /// In en, this message translates to:
+  /// **'Quarterly'**
+  String get quarterly;
+
+  /// No description provided for @annually.
+  ///
+  /// In en, this message translates to:
+  /// **'Annually'**
+  String get annually;
+
+  /// No description provided for @lifetime.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifetime'**
+  String get lifetime;
+
+  /// No description provided for @period.
+  ///
+  /// In en, this message translates to:
+  /// **'Period'**
+  String get period;
+
+  /// No description provided for @dates.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates'**
+  String get dates;
+
+  /// No description provided for @filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get filters;
+
+  /// No description provided for @apply_filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply Filters'**
+  String get apply_filters;
+
+  /// No description provided for @all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get all;
+
+  /// No description provided for @employee_calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee Calendar'**
+  String get employee_calendar;
+
+  /// No description provided for @employee_id.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee ID'**
+  String get employee_id;
+
+  /// No description provided for @team_id.
+  ///
+  /// In en, this message translates to:
+  /// **'Team ID'**
+  String get team_id;
+
+  /// No description provided for @request_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Type'**
+  String get request_type;
+
+  /// No description provided for @request_status.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Status'**
+  String get request_status;
+
+  /// No description provided for @request_types.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Types'**
+  String get request_types;
+
+  /// No description provided for @total_works_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Works'**
+  String get total_works_label;
+
+  /// No description provided for @calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get calendar;
+
+  /// No description provided for @employee_summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee Summary'**
+  String get employee_summary;
+
+  /// No description provided for @team_summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Team Summary'**
+  String get team_summary;
+
+  /// No description provided for @assigned_to.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned to'**
+  String get assigned_to;
+
+  /// No description provided for @no_calendar_data.
+  ///
+  /// In en, this message translates to:
+  /// **'No calendar data'**
+  String get no_calendar_data;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @schedule_conflict_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule conflict'**
+  String get schedule_conflict_title;
+
+  /// No description provided for @schedule_conflict_message.
+  ///
+  /// In en, this message translates to:
+  /// **'This worker already has a job at this time.'**
+  String get schedule_conflict_message;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @period_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Period Type'**
+  String get period_type;
+
+  /// No description provided for @start_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Date'**
+  String get start_date;
+
+  /// No description provided for @end_date.
+  ///
+  /// In en, this message translates to:
+  /// **'End Date'**
+  String get end_date;
 
   /// No description provided for @noMediaSelected.
   ///
@@ -1043,6 +1391,102 @@ abstract class AppLocalizations {
   /// **'Price'**
   String get request_price;
 
+  /// No description provided for @housekeeping_configuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Housekeeping Pricing'**
+  String get housekeeping_configuration;
+
+  /// No description provided for @housekeeping_pricing.
+  ///
+  /// In en, this message translates to:
+  /// **'Pricing'**
+  String get housekeeping_pricing;
+
+  /// No description provided for @housekeeping_area_fees.
+  ///
+  /// In en, this message translates to:
+  /// **'Area Fees'**
+  String get housekeeping_area_fees;
+
+  /// No description provided for @house_keeping_configuration.
+  ///
+  /// In en, this message translates to:
+  /// **'House Keeping Configuration'**
+  String get house_keeping_configuration;
+
+  /// No description provided for @auto_bidding.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto Bidding'**
+  String get auto_bidding;
+
+  /// No description provided for @auto_bidding_enabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Auto Bidding'**
+  String get auto_bidding_enabled;
+
+  /// No description provided for @save_auto_bidding.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Auto Bidding'**
+  String get save_auto_bidding;
+
+  /// No description provided for @expected_time_days.
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get expected_time_days;
+
+  /// No description provided for @department_types.
+  ///
+  /// In en, this message translates to:
+  /// **'Department Types'**
+  String get department_types;
+
+  /// No description provided for @number_of_floors.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of Floors'**
+  String get number_of_floors;
+
+  /// No description provided for @size_options.
+  ///
+  /// In en, this message translates to:
+  /// **'Size Options'**
+  String get size_options;
+
+  /// No description provided for @no_pricing_options.
+  ///
+  /// In en, this message translates to:
+  /// **'No pricing options available'**
+  String get no_pricing_options;
+
+  /// No description provided for @base_price_per_cleaner_per_hour.
+  ///
+  /// In en, this message translates to:
+  /// **'Base price per cleaner per hour'**
+  String get base_price_per_cleaner_per_hour;
+
+  /// No description provided for @housekeeping_active.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get housekeeping_active;
+
+  /// No description provided for @save_pricing.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Pricing'**
+  String get save_pricing;
+
+  /// No description provided for @no_areas_available.
+  ///
+  /// In en, this message translates to:
+  /// **'No areas available'**
+  String get no_areas_available;
+
   /// No description provided for @request_products_included.
   ///
   /// In en, this message translates to:
@@ -1433,7 +1877,7 @@ abstract class AppLocalizations {
   /// **'Statistics'**
   String get statistics_title;
 
-  /// Label showing a number of days. Example: 1 day, 2 days, 5 days.
+  /// No description provided for @days.
   ///
   /// In en, this message translates to:
   /// **'{n, plural, one {{n} day} other {{n} days}}'**
@@ -1468,6 +1912,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Size'**
   String get size;
+
+  /// No description provided for @exclusive.
+  ///
+  /// In en, this message translates to:
+  /// **'Exclusive'**
+  String get exclusive;
+
+  /// No description provided for @furniture_included.
+  ///
+  /// In en, this message translates to:
+  /// **'Property has furniture'**
+  String get furniture_included;
+
+  /// No description provided for @company_profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Company Profile'**
+  String get company_profile;
+
+  /// No description provided for @job_completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Job completed successfully'**
+  String get job_completed;
+
+  /// No description provided for @number_of_visits.
+  ///
+  /// In en, this message translates to:
+  /// **'Visits'**
+  String get number_of_visits;
+
+  /// No description provided for @weekly_availability_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Availability'**
+  String get weekly_availability_title;
+
+  /// No description provided for @fixed_schedule_management.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed Schedule Management'**
+  String get fixed_schedule_management;
+
+  /// No description provided for @settings_repeat_every.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings below will repeat every {day}'**
+  String settings_repeat_every(Object day);
+
+  /// No description provided for @closed_on_day.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed on {day}'**
+  String closed_on_day(Object day);
+
+  /// No description provided for @no_services_day.
+  ///
+  /// In en, this message translates to:
+  /// **'No services provided this day'**
+  String get no_services_day;
+
+  /// No description provided for @apply_day_to_week.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply {day} to entire week'**
+  String apply_day_to_week(Object day);
+
+  /// No description provided for @time_slots.
+  ///
+  /// In en, this message translates to:
+  /// **'Time Slots'**
+  String get time_slots;
+
+  /// No description provided for @add_slot.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Slot'**
+  String get add_slot;
+
+  /// No description provided for @assigned_employees.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned Employees'**
+  String get assigned_employees;
+
+  /// No description provided for @total_label.
+  ///
+  /// In en, this message translates to:
+  /// **'TOTAL'**
+  String get total_label;
+
+  /// No description provided for @save_weekly_schedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Weekly Schedule'**
+  String get save_weekly_schedule;
+
+  /// No description provided for @available.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get available;
+
+  /// No description provided for @morning_service.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning Service'**
+  String get morning_service;
+
+  /// No description provided for @midday_service.
+  ///
+  /// In en, this message translates to:
+  /// **'Midday Service'**
+  String get midday_service;
+
+  /// No description provided for @evening_service.
+  ///
+  /// In en, this message translates to:
+  /// **'Evening Service'**
+  String get evening_service;
+
+  /// No description provided for @number.
+  ///
+  /// In en, this message translates to:
+  /// **'Number'**
+  String get number;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

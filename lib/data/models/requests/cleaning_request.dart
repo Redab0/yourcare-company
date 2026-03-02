@@ -15,20 +15,33 @@ abstract class CleaningRequest {
   double get totalPrice;
   DateTime get createdAt;
   DateTime get updatedAt;
-  DateTime get scheduledTime;
+  DateTime? get scheduledTime;
   Customer get customer;
 
   /// Factory constructor does the “discriminator” logic
   factory CleaningRequest.fromJson(Map<String, dynamic> json) {
-    switch (json['type'] as String) {
+    final normalized = Map<String, dynamic>.from(json);
+    if (normalized['type'] == null) {
+      if (normalized.containsKey('DeepCleaning')) {
+        normalized['type'] = 'deepCleaning';
+      } else if (normalized.containsKey('houseCleaning')) {
+        normalized['type'] = 'houseCleaning';
+      } else if (normalized.containsKey('upholsteryCleaning')) {
+        normalized['type'] = 'upholsteryCleaning';
+      }
+    }
+    if (normalized['customer'] == null) {
+      normalized['customer'] = <String, dynamic>{};
+    }
+    switch (normalized['type'] as String) {
       case 'deepCleaning':
-        return DeepCleaningHistory.fromJson(json);
+        return DeepCleaningHistory.fromJson(normalized);
       case 'houseCleaning':
-        return HouseKeepingHistory.fromJson(json);
+        return HouseKeepingHistory.fromJson(normalized);
       case 'upholsteryCleaning':
-        return UpholsteryCleaningHistory.fromJson(json);
+        return UpholsteryCleaningHistory.fromJson(normalized);
       default:
-        throw UnsupportedError('Unknown cleaning type: ${json['type']}');
+        throw UnsupportedError('Unknown cleaning type: ${normalized['type']}');
     }
   }
 }

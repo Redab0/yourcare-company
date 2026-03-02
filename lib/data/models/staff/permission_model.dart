@@ -15,6 +15,12 @@ class PermissionModel {
   PermissionModel(this.id, this.description, this.name, this.updatedAt,
       this.createdAt, this.resource, this.action);
 
+  String get displayName {
+    if (name == null) return '';
+    final parts = name!.split(':');
+    return parts.length > 1 ? parts.sublist(1).join(':') : name!;
+  }
+
   factory PermissionModel.fromJson(Map<String, dynamic> json) =>
       _$PermissionModelFromJson(json);
 

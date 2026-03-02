@@ -67,12 +67,12 @@ class UserProfileCard extends StatelessWidget {
                 height: avatarHeight,
                 color: theme.colorScheme.primary.withOpacity(0.1),
                 child: user.image != null && user.image!.isNotEmpty
-                    ? Image.network(
-                        user.image!,
+                    ? Image.network(user.image!,
                         width: avatarWidth,
                         height: avatarHeight,
                         fit: BoxFit.cover,
-                      )
+                        errorBuilder: (_, __, ___) =>
+                            const ColoredBox(color: Color(0x11000000)))
                     : Icon(
                         Icons.person,
                         size: avatarWidth * 0.6,

@@ -45,3 +45,35 @@ class WorkersFetchedState extends RequestsActionState {
   @override
   List<Object> get props => [workers];
 }
+
+class WorkerAvailabilityChecking extends RequestsActionState {
+  final String employeeId;
+
+  const WorkerAvailabilityChecking(this.employeeId);
+
+  @override
+  List<Object> get props => [employeeId];
+}
+
+class WorkerAvailabilityChecked extends RequestsActionState {
+  final String employeeId;
+  final bool hasConflict;
+
+  const WorkerAvailabilityChecked(this.employeeId, this.hasConflict);
+
+  @override
+  List<Object> get props => [employeeId, hasConflict];
+}
+
+class WorkersAvailabilityFiltering extends RequestsActionState {
+  const WorkersAvailabilityFiltering();
+}
+
+class WorkersAvailabilityFiltered extends RequestsActionState {
+  final List<String> availableWorkerIds;
+
+  const WorkersAvailabilityFiltered(this.availableWorkerIds);
+
+  @override
+  List<Object> get props => [availableWorkerIds];
+}

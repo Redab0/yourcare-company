@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
-import 'package:cleaning_service_driver/data/models/profile/area_model.dart';
+import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
 import 'package:cleaning_service_driver/data/models/profile/business_profile_model.dart';
 import 'package:cleaning_service_driver/data/models/profile/update_business_profile_model.dart';
 import 'package:cleaning_service_driver/features/bloc/profile/business/business_profile_bloc.dart';
@@ -13,6 +13,8 @@ import 'package:image_picker/image_picker.dart';
 
 enum _UploadTarget { logo, images }
 
+enum _MediaPickOption { images, video }
+
 class BusinessProfileScreen extends StatefulWidget {
   const BusinessProfileScreen({super.key});
 
@@ -23,7 +25,7 @@ class BusinessProfileScreen extends StatefulWidget {
 class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   BusinessProfileModel? _profile;
-  List<AreaModel> _areas = [];
+  List<AreaResponse> _areas = [];
   String? _logoUrl;
   List<String> _imageUrls = [];
   List<String> _selectedAreaIds = [];
@@ -69,17 +71,258 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
       context
           .read<BusinessProfileBloc>()
           .add(UploadMediaEvent([File(file.path)]));
-    } else {
-      final List<XFile> files = await picker.pickMultiImage(imageQuality: 80);
-      if (files.isEmpty) return;
-      setState(() {
-        _uploadTarget = target;
-        _uploading = true;
-      });
-      context.read<BusinessProfileBloc>().add(
-            UploadMediaEvent(files.map((x) => File(x.path)).toList()),
-          );
     }
+  }
+
+  Future<void> _pickAndUploadMedia() async {
+    final picker = ImagePicker();
+    final option = await showModalBottomSheet<_MediaPickOption>(
+      context: context,
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: Text(context.l10n.gallery),
+                onTap: () => Navigator.of(ctx).pop(_MediaPickOption.images),
+              ),
+              ListTile(
+                leading: const Icon(Icons.videocam),
+                title: const Text('Video'),
+                onTap: () => Navigator.of(ctx).pop(_MediaPickOption.video),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    if (option == null) return;
+
+    List<XFile> files = [];
+    if (option == _MediaPickOption.images) {
+      files = await picker.pickMultiImage(imageQuality: 80);
+    } else {
+      final file = await picker.pickVideo(source: ImageSource.gallery);
+      if (file != null) files = [file];
+    }
+    if (files.isEmpty) return;
+
+    setState(() {
+      _uploadTarget = _UploadTarget.images;
+      _uploading = true;
+    });
+    context.read<BusinessProfileBloc>().add(
+          UploadMediaEvent(files.map((x) => File(x.path)).toList()),
+        );
+  }
+
+  bool _isVideoUrl(String url) {
+    final s = url.toLowerCase();
+    return s.endsWith('.mp4') ||
+        s.endsWith('.mov') ||
+        s.endsWith('.mkv') ||
+        s.endsWith('.webm') ||
+        s.endsWith('.avi');
+  }
+
+  Widget _mediaThumb(String url) {
+    final isVideo = _isVideoUrl(url);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: SizedBox(
+        width: 80,
+        height: 80,
+        child: isVideo
+            ? const ColoredBox(
+                color: Color(0x11000000),
+                child: Center(
+                  child: Icon(Icons.play_circle_fill, color: Colors.white),
+                ),
+              )
+            : Image.network(
+                url,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) =>
+                    const ColoredBox(color: Color(0x11000000)),
+              ),
+      ),
+    );
+  }
+
+  List<String> _extractAreaIds(List<AreaModel>? areas) {
+    final ids = <String>{};
+    for (final area in areas ?? const <AreaModel>[]) {
+      final id = area.id;
+      if (id != null) ids.add(id);
+    }
+    return ids.toList();
+  }
+
+  String _selectedAreaSummary(BuildContext context) {
+    final selected = _selectedAreaIds.toSet();
+    if (selected.isEmpty) return '0 selected';
+    final names = <String>[];
+    for (final group in _areas) {
+      for (final area in group.areas ?? const <AreaModel>[]) {
+        final id = area.id;
+        if (id != null && selected.contains(id)) {
+          if (names.length < 3) names.add(_areaTitle(context, area));
+        }
+      }
+    }
+    if (names.isEmpty) return '${selected.length} selected';
+    final remaining = selected.length - names.length;
+    return remaining > 0 ? '${names.join(', ')} +$remaining' : names.join(', ');
+  }
+
+  String _governorateTitle(BuildContext context, Governorate? title) {
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
+    return isAr
+        ? (title?.ar ?? title?.en ?? '-')
+        : (title?.en ?? title?.ar ?? '-');
+  }
+
+  String _areaTitle(BuildContext context, AreaModel area) {
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
+    return isAr
+        ? (area.ar ?? area.en ?? area.name ?? '-')
+        : (area.en ?? area.ar ?? area.name ?? '-');
+  }
+
+  Future<void> _showAreasSheet() async {
+    final selected = Set<String>.from(_selectedAreaIds);
+    final result = await showModalBottomSheet<Set<String>>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setSheetState) {
+            return SafeArea(
+              child: SizedBox(
+                height: MediaQuery.of(ctx).size.height * 0.85,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 8),
+                    Container(
+                      width: 36,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              context.l10n.business_service_area,
+                              style: Theme.of(ctx).textTheme.titleMedium,
+                            ),
+                          ),
+                          Text(
+                            '${selected.length} selected',
+                            style: Theme.of(ctx).textTheme.labelMedium,
+                          ),
+                          const SizedBox(width: 8),
+                          TextButton(
+                            onPressed: () => Navigator.of(ctx).pop(selected),
+                            child: Text(context.l10n.general_save),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    Expanded(
+                      child: ListView(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                        children:
+                            _buildAreaGroups(ctx, selected, setSheetState),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+    if (result != null) {
+      setState(() => _selectedAreaIds = result.toList());
+    }
+  }
+
+  List<Widget> _buildAreaGroups(BuildContext context, Set<String> selected,
+      void Function(void Function()) setSheetState) {
+    final groups = <Widget>[];
+    for (final group in _areas) {
+      final areas = group.areas ?? const <AreaModel>[];
+      if (areas.isEmpty) continue;
+
+      final allSelected =
+          areas.every((a) => a.id != null && selected.contains(a.id));
+      final anySelected =
+          areas.any((a) => a.id != null && selected.contains(a.id));
+
+      groups.add(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CheckboxListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(_governorateTitle(context, group.title)),
+              value: allSelected ? true : (anySelected ? null : false),
+              tristate: true,
+              onChanged: (_) {
+                setSheetState(() {
+                  if (allSelected) {
+                    for (final area in areas) {
+                      final id = area.id;
+                      if (id != null) selected.remove(id);
+                    }
+                  } else {
+                    for (final area in areas) {
+                      final id = area.id;
+                      if (id != null && !selected.contains(id)) {
+                        selected.add(id);
+                      }
+                    }
+                  }
+                });
+              },
+            ),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: areas.map((area) {
+                final id = area.id;
+                final isSelected = id != null && selected.contains(id);
+                return FilterChip(
+                  label: Text(_areaTitle(context, area)),
+                  selected: isSelected,
+                  onSelected: (yes) {
+                    if (id == null) return;
+                    setSheetState(() {
+                      if (yes) {
+                        selected.add(id);
+                      } else {
+                        selected.remove(id);
+                      }
+                    });
+                  },
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      );
+    }
+    return groups;
   }
 
   void _onSave() {
@@ -108,7 +351,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
             _profile = model;
             _logoUrl = model.logo;
             _imageUrls = List.from(model.images ?? []);
-            _selectedAreaIds = List.from(model.areas?.map((a) => a.id!) ?? []);
+            _selectedAreaIds = _extractAreaIds(model.areas);
             _nameCtrl.text = model.name ?? '';
             _descCtrl.text = model.description ?? '';
             _addressCtrl.text = model.address ?? '';
@@ -133,9 +376,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
           });
         }
         if (state is ProfileError) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(
-                  SnackBar(content: Text(context.genericErrorMessage)));
+          context.showErrorToast();
         }
       },
       child: Scaffold(
@@ -233,24 +474,28 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                       // Areas multi‐select
                       Text(context.l10n.business_service_area),
                       const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        children: _areas.map((a) {
-                          final sel = _selectedAreaIds.contains(a.id);
-                          return FilterChip(
-                            label: Text(a.areaEn ?? a.areaAr ?? ''),
-                            selected: sel,
-                            onSelected: (yes) {
-                              setState(() {
-                                if (yes) {
-                                  _selectedAreaIds.add(a.id!);
-                                } else {
-                                  _selectedAreaIds.remove(a.id);
-                                }
-                              });
-                            },
-                          );
-                        }).toList(),
+                      InkWell(
+                        onTap: _areas.isEmpty ? null : _showAreasSheet,
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                color: Theme.of(context).dividerColor),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  _selectedAreaSummary(context),
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ),
+                              const Icon(Icons.arrow_forward_ios, size: 16),
+                            ],
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 24),
 
@@ -265,14 +510,13 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                             for (final url in _imageUrls)
                               Padding(
                                 padding: const EdgeInsets.only(right: 8),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.network(url,
-                                      width: 80, height: 80, fit: BoxFit.cover),
-                                ),
+                                child: _mediaThumb(url),
                               ),
+                            SizedBox(
+                              width: 8,
+                            ),
                             InkWell(
-                              onTap: () => _pickAndUpload(_UploadTarget.images),
+                              onTap: _pickAndUploadMedia,
                               child: CircleAvatar(
                                 radius: 32,
                                 backgroundColor:

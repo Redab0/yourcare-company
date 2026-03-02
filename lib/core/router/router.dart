@@ -4,13 +4,18 @@ import 'package:cleaning_service_driver/data/models/requests/house_keeping_histo
 import 'package:cleaning_service_driver/data/models/requests/upholstery_cleaning_history.dart';
 import 'package:cleaning_service_driver/data/models/staff/team_model.dart';
 import 'package:cleaning_service_driver/features/screens/auth/login_screen.dart';
+import 'package:cleaning_service_driver/features/screens/auto_bid/auto_bid_configuration_screen.dart';
+import 'package:cleaning_service_driver/features/screens/calendar/employee_calendar_screen.dart';
 import 'package:cleaning_service_driver/features/screens/home/home_screen.dart';
 import 'package:cleaning_service_driver/features/screens/home/main_layout.dart';
 import 'package:cleaning_service_driver/features/screens/home/splash_screen.dart';
+import 'package:cleaning_service_driver/features/screens/housekeeping/housekeeping_configuration_screen.dart';
+import 'package:cleaning_service_driver/features/screens/housekeeping/housekeeping_main_screen.dart';
 import 'package:cleaning_service_driver/features/screens/jobs/deep_cleaning_job_details_screen.dart';
 import 'package:cleaning_service_driver/features/screens/jobs/deep_cleaning_success_screen.dart';
 import 'package:cleaning_service_driver/features/screens/jobs/house_keeping_job_details_screen.dart';
 import 'package:cleaning_service_driver/features/screens/jobs/house_keeping_success_screen.dart';
+import 'package:cleaning_service_driver/features/screens/jobs/job_completed_success_screen.dart';
 import 'package:cleaning_service_driver/features/screens/jobs/jobs_screen.dart';
 import 'package:cleaning_service_driver/features/screens/jobs/upholstery_cleaning_job_details_screen.dart';
 import 'package:cleaning_service_driver/features/screens/profile/business_profile_screen.dart';
@@ -21,6 +26,7 @@ import 'package:cleaning_service_driver/features/screens/requests/deep_cleaning_
 import 'package:cleaning_service_driver/features/screens/requests/house_keeping_requests_screen.dart';
 import 'package:cleaning_service_driver/features/screens/requests/house_keeping_success_screen.dart';
 import 'package:cleaning_service_driver/features/screens/requests/upholstery_cleaning_requests_screen.dart';
+import 'package:cleaning_service_driver/features/screens/schedule/employee_availability_screen.dart';
 import 'package:cleaning_service_driver/features/screens/staff/create_staff_screen.dart';
 import 'package:cleaning_service_driver/features/screens/staff/create_team_screen.dart';
 import 'package:cleaning_service_driver/features/screens/staff/staff_details_screen.dart';
@@ -85,6 +91,22 @@ class AppRouter {
             path: '/business-profile',
             name: 'business-profile-screen',
             builder: (context, state) => const BusinessProfileScreen(),
+          ),
+          GoRoute(
+            path: '/housekeeping',
+            name: 'housekeeping-main-screen',
+            builder: (context, state) => const HouseKeepingMainScreen(),
+          ),
+          GoRoute(
+            path: '/housekeeping-configuration',
+            name: 'housekeeping-configuration-screen',
+            builder: (context, state) =>
+                const HousekeepingConfigurationScreen(),
+          ),
+          GoRoute(
+            path: '/auto-bidding',
+            name: 'auto-bidding-screen',
+            builder: (context, state) => const AutoBidConfigurationScreen(),
           ),
           GoRoute(
             path: '/user-profile',
@@ -166,6 +188,11 @@ class AppRouter {
                     request: s.extra! as HouseKeepingHistory),
               ),
               GoRoute(
+                name: 'jobCompletedSuccessScreen',
+                path: 'job-completed-success',
+                builder: (_, s) => JobSuccessScreen(),
+              ),
+              GoRoute(
                 name: 'deepCleaningJobSuccess',
                 path: 'dep-cleaning-job-success',
                 builder: (_, s) => DeepCleaningJobSuccessScreen(),
@@ -177,6 +204,17 @@ class AppRouter {
             name: 'statisticsScreen',
             path: '/StatisticsScreen',
             builder: (_, __) => StatisticsScreen(),
+          ),
+
+          GoRoute(
+            name: 'employee-calendar-screen',
+            path: '/employee-calendar',
+            builder: (_, __) => EmployeeCalendarScreen(),
+          ),
+          GoRoute(
+            name: 'employee-availability-screen',
+            path: '/employee-availability',
+            builder: (_, __) => const EmployeeAvailabilityScreen(),
           ),
 
           GoRoute(

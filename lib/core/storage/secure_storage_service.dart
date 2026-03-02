@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
-import 'package:cleaning_service_driver/data/models/profile/area_model.dart';
+import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorageService {
@@ -118,19 +118,19 @@ class SecureStorageService {
     );
   }
 
-  Future<void> saveAreas(List<AreaModel> areas) async {
+  Future<void> saveAreas(List<AreaResponse> areas) async {
     final storage = FlutterSecureStorage();
     final areasJson = jsonEncode(areas.map((a) => a.toJson()).toList());
     await storage.write(key: 'areas', value: areasJson);
   }
 
-  Future<List<AreaModel>> getAreas() async {
+  Future<List<AreaResponse>> getAreas() async {
     final storage = FlutterSecureStorage();
     final areasJson = await storage.read(key: 'areas');
     if (areasJson == null) return [];
 
     final List<dynamic> decoded = jsonDecode(areasJson);
-    return decoded.map((json) => AreaModel.fromJson(json)).toList();
+    return decoded.map((json) => AreaResponse.fromJson(json)).toList();
   }
 
   // Get refresh token expiry time

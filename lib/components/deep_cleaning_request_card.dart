@@ -9,11 +9,13 @@ class DeepCleaningRequestCard extends StatelessWidget {
     super.key,
     required this.request,
     required this.onSubmitBid,
+    this.padding,
   });
 
   // ─── data ─────────────────────────────────────────────────────────
   final DeepCleaningHistory request;
   final VoidCallback onSubmitBid;
+  final EdgeInsetsGeometry? padding;
 
   static const _blue = Color(0xFF2979FF);
 
@@ -27,7 +29,7 @@ class DeepCleaningRequestCard extends StatelessWidget {
     final isOther = detail.isOtherType;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+      padding: padding ?? const EdgeInsets.fromLTRB(24, 24, 24, 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -49,7 +51,9 @@ class DeepCleaningRequestCard extends StatelessWidget {
                       style: theme.textTheme.labelSmall!
                           .copyWith(color: Colors.grey[600])),
                   Text(
-                      DateFormat.yMMMd().add_jm().format(request.scheduledTime),
+                      request.scheduledTime == null
+                          ? context.l10n.as_soon_as_possible
+                          : DateFormat.yMMMd().format(request.scheduledTime!),
                       style: theme.textTheme.bodyMedium),
                 ],
               ),
@@ -68,9 +72,11 @@ class DeepCleaningRequestCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-
           // ── detail grid ─────────────────────────────────────────
           if (isApartment) ...[
+            if (detail.floor > 0)
+              _iconLine(Icons.elevator_outlined,
+                  '${detail.floors} ${context.l10n.numberOfFloors}'),
             if (detail.bedrooms > 0)
               _iconLine(Icons.king_bed_outlined,
                   '${detail.bedrooms} ${context.l10n.request_card_bedroom}'),
@@ -88,7 +94,8 @@ class DeepCleaningRequestCard extends StatelessWidget {
           ],
           if (isCommercial) ...[
             if (detail.sizeOption != null)
-              _iconLine(Icons.straighten, detail.sizeOption!.title ?? ''),
+              _iconLine(
+                  Icons.straighten, detail.sizeOption!.titleLocalized ?? ''),
             _iconLine(
                 Icons.kitchen_outlined,
                 '${context.l10n.request_card_kitchen}: '
@@ -102,7 +109,8 @@ class DeepCleaningRequestCard extends StatelessWidget {
             _iconLine(Icons.notes_outlined, detail.notes ?? ''),
           if (!isApartment && !isCommercial && !isOther) ...[
             if (detail.sizeOption != null)
-              _iconLine(Icons.straighten, detail.sizeOption!.title ?? ''),
+              _iconLine(
+                  Icons.straighten, detail.sizeOption!.titleLocalized ?? ''),
           ],
 
           // ── notes & address ─────────────────────────────────────
@@ -113,10 +121,6 @@ class DeepCleaningRequestCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text('“${detail.notes}”', style: theme.textTheme.bodyMedium),
           ],
-          const SizedBox(height: 8),
-          Text(context.l10n.address, style: theme.textTheme.labelLarge),
-          const SizedBox(height: 4),
-          Text(detail.address?.area ?? "", style: theme.textTheme.bodyMedium),
 
           const SizedBox(height: 32),
           // ── submit button ───────────────────────────────────────

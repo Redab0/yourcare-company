@@ -28,6 +28,8 @@ class HouseKeepingRequestScreen extends StatefulWidget {
 class _HouseKeepingRequestScreenState extends State<HouseKeepingRequestScreen> {
   List<User> _workers = [];
   final Set<String> _selectedWorkerIds = {};
+  String? _checkingWorkerId;
+  String? _pendingWorkerId;
 
   @override
   void initState() {
@@ -40,9 +42,13 @@ class _HouseKeepingRequestScreenState extends State<HouseKeepingRequestScreen> {
     return BlocConsumer<RequestsActionBloc, RequestsActionState>(
       listener: (ctx, state) {
         if (state is RequestsActionFailed) {
-          ScaffoldMessenger.of(ctx)
-              .showSnackBar(
-                  SnackBar(content: Text(ctx.genericErrorMessage)));
+          ctx.showErrorToast();
+          if (mounted) {
+            setState(() {
+              _checkingWorkerId = null;
+              _pendingWorkerId = null;
+            });
+          }
         } else if (state is HouseKeepingRequestObtained) {
           context.goNamed('houseKeepingSuccess', extra: state.request);
           // refresh requests after returning
@@ -53,6 +59,29 @@ class _HouseKeepingRequestScreenState extends State<HouseKeepingRequestScreen> {
           setState(() {
             _workers = state.workers;
           });
+        } else if (state is WorkerAvailabilityChecking) {
+          if (mounted) {
+            setState(() {
+              _checkingWorkerId = state.employeeId;
+            });
+          }
+        } else if (state is WorkerAvailabilityChecked) {
+          if (mounted) {
+            setState(() {
+              _checkingWorkerId = null;
+            });
+          }
+          if (state.employeeId != _pendingWorkerId) return;
+          _pendingWorkerId = null;
+          if (state.hasConflict) {
+            _showConflictDialog();
+            return;
+          }
+          if (mounted) {
+            setState(() {
+              _selectedWorkerIds.add(state.employeeId);
+            });
+          }
         }
       },
       builder: (ctx, state) {
@@ -167,6 +196,7 @@ class _HouseKeepingRequestScreenState extends State<HouseKeepingRequestScreen> {
                     itemBuilder: (context, idx) {
                       final w = _workers[idx];
                       final isSelected = _selectedWorkerIds.contains(w.id);
+                      final isChecking = _checkingWorkerId == w.id;
                       final canSelect = isSelected ||
                           _selectedWorkerIds.length <
                               widget.request.detail.cleanersCount;
@@ -175,38 +205,76 @@ class _HouseKeepingRequestScreenState extends State<HouseKeepingRequestScreen> {
                         child: GestureDetector(
                           onTap: canSelect
                               ? () {
-                                  setState(() {
-                                    if (isSelected) {
+                                  if (w.id == null) return;
+                                  if (isSelected) {
+                                    setState(() {
                                       _selectedWorkerIds.remove(w.id);
-                                    } else {
-                                      _selectedWorkerIds.add(w.id!);
-                                    }
+                                    });
+                                    return;
+                                  }
+                                  if (_checkingWorkerId != null) return;
+                                  setState(() {
+                                    _checkingWorkerId = w.id;
+                                    _pendingWorkerId = w.id;
                                   });
+                                  final scheduledTime =
+                                      widget.request.detail.scheduledTime ??
+                                          widget.request.scheduledTime;
+                                  final durationHours =
+                                      widget.request.detail.durationHours;
+                                  context.read<RequestsActionBloc>().add(
+                                        CheckWorkerAvailability(
+                                          employeeId: w.id!,
+                                          scheduledTime: scheduledTime,
+                                          durationHours: durationHours,
+                                        ),
+                                      );
                                 }
                               : null,
                           child: Opacity(
                             opacity: canSelect ? 1.0 : 0.4,
                             child: Column(
                               children: [
-                                CircleAvatar(
-                                  radius: 30,
-                                  backgroundImage:
-                                      w.image != null && w.image!.isNotEmpty
-                                          ? NetworkImage(w.image!)
-                                          : null,
-                                  backgroundColor: isSelected
-                                      ? Theme.of(context).primaryColorLight
-                                      : Colors.grey.shade200,
-                                  child: (w.image == null || w.image!.isEmpty)
-                                      ? Text(
-                                          w.username!
-                                              .substring(0, 1)
-                                              .toUpperCase(),
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 30,
+                                      backgroundImage:
+                                          w.image != null && w.image!.isNotEmpty
+                                              ? NetworkImage(w.image!)
+                                              : null,
+                                      backgroundColor: isSelected
+                                          ? Theme.of(context).primaryColorLight
+                                          : Colors.grey.shade200,
+                                      child:
+                                          (w.image == null || w.image!.isEmpty)
+                                              ? Text(
+                                                  w.username!
+                                                      .substring(0, 1)
+                                                      .toUpperCase(),
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                )
+                                              : null,
+                                    ),
+                                    if (isChecking)
+                                      Container(
+                                        width: 56,
+                                        height: 56,
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(0.1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Padding(
+                                          padding: EdgeInsets.all(14),
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
                                           ),
-                                        )
-                                      : null,
+                                        ),
+                                      ),
+                                  ],
                                 ),
                                 const SizedBox(height: 6),
                                 SizedBox(
@@ -242,7 +310,10 @@ class _HouseKeepingRequestScreenState extends State<HouseKeepingRequestScreen> {
                             ObtainHouseKeepingRequest(
                               requestId: widget.request.id ?? "",
                               acceptHouseKeepingModel: AcceptHouseKeepingModel(
-                                  cleanerIds: _selectedWorkerIds.toList()),
+                                  cleanerIds: _selectedWorkerIds.toList(),
+                                  serviceIntervalDays: 7,
+                                  serviceFrequencyCount:
+                                      widget.request.subRequests?.length ?? 1),
                             ),
                           );
                     },
@@ -266,4 +337,20 @@ class _HouseKeepingRequestScreenState extends State<HouseKeepingRequestScreen> {
           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
         ),
       );
+
+  Future<void> _showConflictDialog() async {
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(context.l10n.schedule_conflict_title),
+        content: Text(context.l10n.schedule_conflict_message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(context.l10n.ok),
+          ),
+        ],
+      ),
+    );
+  }
 }

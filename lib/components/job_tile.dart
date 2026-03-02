@@ -54,9 +54,9 @@ class JobTile extends StatelessWidget {
     return '—';
   }
 
-  String get _schedule {
+  String? get _schedule {
     final date = request.scheduledTime;
-    return DateFormat('MMM dd, yyyy, HH:mm').format(date);
+    return date == null ? null : DateFormat('MMM dd, yyyy, HH:mm').format(date);
   }
 
   @override
@@ -111,7 +111,7 @@ class JobTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _schedule,
+                  _schedule ?? context.l10n.as_soon_as_possible,
                   style: theme.textTheme.bodySmall!
                       .copyWith(color: Colors.blueGrey),
                 ),

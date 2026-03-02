@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> {
               showModalBottomSheet(
                 context: context,
                 shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
                 ),
                 builder: (sheetContext) {
                   return SafeArea(
@@ -97,9 +97,6 @@ class _HomePageState extends State<HomePage> {
             },
           ),
           backgroundColor: Theme.of(context).primaryColor,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
-          ),
           title: Text(context.l10n.your_care_business),
           actions: [
             IconButton(
@@ -115,10 +112,7 @@ class _HomePageState extends State<HomePage> {
                   _user = state.user;
                   SecureStorageService().saveUser(state.user);
                 } else if (state is HomeFailure) {
-                  ScaffoldMessenger.of(ctx).showSnackBar(
-                    const SnackBar(
-                        content: Text('Failed to load user details')),
-                  );
+                  ctx.showErrorToast();
                 }
               }),
               BlocListener<AuthBloc, AuthState>(listener: (ctx, state) {
@@ -162,14 +156,19 @@ class _HomePageState extends State<HomePage> {
                     large: isTablet,
                   ));
                 }
-                if (perms.hasPermission(Permission.transactionsRead)) {
-                  items.add(HomeMenuItem(
-                    imageAsset: 'assets/images/analytics.png',
-                    title: context.l10n.reports,
-                    onTap: () => context.pushNamed('statisticsScreen'),
-                    large: isTablet,
-                  ));
-                }
+                items.add(HomeMenuItem(
+                  imageAsset: 'assets/images/ic_house_keeping_management.png',
+                  title: context.l10n.house_keeping_configuration,
+                  onTap: () => context.pushNamed('housekeeping-main-screen'),
+                  large: isTablet,
+                ));
+                items.add(HomeMenuItem(
+                  imageAsset: 'assets/images/ic_requests.png',
+                  title: context.l10n.auto_bidding,
+                  onTap: () => context.pushNamed('auto-bidding-screen'),
+                  large: isTablet,
+                ));
+
                 if (perms.hasPermission(Permission.usersRead)) {
                   items.add(HomeMenuItem(
                     imageAsset: 'assets/images/staff.png',
@@ -181,9 +180,16 @@ class _HomePageState extends State<HomePage> {
                 if (perms.hasPermission(Permission.businessCreate)) {
                   items.add(HomeMenuItem(
                     imageAsset: 'assets/images/ic_business_profile.png',
-                    title: context.l10n.profile,
-                    onTap: () =>
-                        context.pushNamed('business-profile-screen'),
+                    title: context.l10n.company_profile,
+                    onTap: () => context.pushNamed('business-profile-screen'),
+                    large: isTablet,
+                  ));
+                }
+                if (perms.hasPermission(Permission.transactionsRead)) {
+                  items.add(HomeMenuItem(
+                    imageAsset: 'assets/images/analytics.png',
+                    title: context.l10n.reports,
+                    onTap: () => context.pushNamed('statisticsScreen'),
                     large: isTablet,
                   ));
                 }
@@ -194,8 +200,7 @@ class _HomePageState extends State<HomePage> {
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: GridView.builder(
-                        gridDelegate:
-                            SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: crossAxisCount,
                           mainAxisSpacing: 16,
                           crossAxisSpacing: 16,
@@ -208,6 +213,6 @@ class _HomePageState extends State<HomePage> {
                   ),
                 );
               });
-            }))); 
+            })));
   }
 }

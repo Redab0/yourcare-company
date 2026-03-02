@@ -1,6 +1,6 @@
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
-import 'package:cleaning_service_driver/data/models/requests/house_keeping_history.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
+import 'package:cleaning_service_driver/data/models/requests/house_keeping_history.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -9,11 +9,13 @@ class CleaningJobCard extends StatelessWidget {
     super.key,
     required this.request,
     required this.onAccept,
+    this.padding,
   });
 
   // ─── data ─────────────────────────────────────────────────────────
   final HouseKeepingHistory request;
   final VoidCallback onAccept;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +24,7 @@ class CleaningJobCard extends StatelessWidget {
     final cardR = BorderRadius.circular(24);
 
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: padding ?? const EdgeInsets.all(24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -68,32 +70,26 @@ class CleaningJobCard extends StatelessWidget {
           const Divider(),
           const SizedBox(height: 12),
           // ── cleaners & duration row ──────────────────────────────
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _iconLabel(Icons.groups,
-                    '${request.detail.cleanersCount} Cleaner${request.detail.cleanersCount > 1 ? 's' : ''}'),
-                _iconLabel(Icons.timer,
-                    '${request.detail.durationHours} Hours'),
-              ],
-            ),
-          const SizedBox(height: 20),
-          // ── products included ───────────────────────────────────
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _iconLabel(
-                Icons.cleaning_services_outlined,
-                (request.detail.cleaningProducts?.option?.title ?? '')
-                        .contains('Eco-friendly')
-                    ? context.l10n.request_products_included
-                    : context.l10n.request_products_not_included,
-              ),
-              _iconLabel(Icons.repeat,
-                  'Frequency ${request.subRequests?.length ?? '1'}')
+              _iconLabel(Icons.groups,
+                  '${request.detail.cleanersCount} ${context.l10n.cleaner}${request.detail.cleanersCount > 1 ? 's' : ''}'),
+              _iconLabel(Icons.timer,
+                  '${request.detail.durationHours} ${context.l10n.hour}'),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
+          // ── products included ───────────────────────────────────
+          Flexible(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _iconLabel(Icons.repeat,
+                    '${context.l10n.number_of_visits} ${request.subRequests?.length ?? '1'}')
+              ],
+            ),
+          ),
           const SizedBox(height: 28),
           // ── accept button ───────────────────────────────────────
           SizedBox(
@@ -128,9 +124,13 @@ class CleaningJobCard extends StatelessWidget {
 
   Widget _iconLabel(IconData icon, String label) => Column(
         children: [
-          Icon(icon, color: Colors.teal, size: 28),
+          Icon(icon, color: Colors.teal, size: 30),
           const SizedBox(height: 4),
-          Text(label),
+          Text(
+            overflow: TextOverflow.fade,
+            label,
+            style: TextStyle(fontSize: 20),
+          ),
         ],
       );
 }

@@ -24,8 +24,8 @@ DeepCleaningHistory _$DeepCleaningHistoryFromJson(Map<String, dynamic> json) =>
               $checkedConvert('updatedAt', (v) => DateTime.parse(v as String)),
           detail: $checkedConvert('DeepCleaning',
               (v) => DeepCleaningDetail.fromJson(v as Map<String, dynamic>)),
-          scheduledTime: $checkedConvert(
-              'scheduledTime', (v) => DateTime.parse(v as String)),
+          scheduledTime: $checkedConvert('scheduledTime',
+              (v) => v == null ? null : DateTime.parse(v as String)),
           customer: $checkedConvert(
               'customer', (v) => Customer.fromJson(v as Map<String, dynamic>)),
           assignedTeam: $checkedConvert(
@@ -66,7 +66,7 @@ Map<String, dynamic> _$DeepCleaningHistoryToJson(
       'totalPrice': instance.totalPrice,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
-      'scheduledTime': instance.scheduledTime.toIso8601String(),
+      'scheduledTime': instance.scheduledTime?.toIso8601String(),
       'customer': instance.customer,
       'DeepCleaning': instance.detail,
       'team': instance.assignedTeam,

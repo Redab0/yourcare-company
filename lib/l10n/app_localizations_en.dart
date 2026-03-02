@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appName => 'Your Care';
+  String get appName => 'Your Care Business';
 
   @override
   String get welcome => 'Welcome Back!';
@@ -27,7 +27,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get whatAreYouLookingFor => 'What are you looking for?';
 
   @override
-  String get houseKeeping => 'House Keeping';
+  String get houseKeeping => 'Hourly Cleaning';
 
   @override
   String get houseKeepingDescription => 'Regular cleaning for your home with customizable options';
@@ -36,7 +36,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deepCleaning => 'Deep Cleaning';
 
   @override
-  String get deepCleaningDescription => 'Thorough cleaning for those hard-to-reach places';
+  String get deepCleaningDescription => 'Our professionals will provide quality cleaning using equipment';
 
   @override
   String get searchServices => 'Search services...';
@@ -52,6 +52,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get no => 'No';
+
+  @override
+  String get as_soon_as_possible => 'As soon as possible';
+
+  @override
+  String get expected_time => 'ِExpected Time';
 
   @override
   String get deepCleaningRequest => 'Deep Cleaning Request';
@@ -81,6 +87,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get numberOfLivingRooms => 'Number of Living Rooms';
 
   @override
+  String get numberOfFloors => 'Number of floors';
+
+  @override
   String get additionalInformation => 'Additional Information';
 
   @override
@@ -97,6 +106,171 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get camera => 'Camera';
+
+  @override
+  String get weekly => 'Weekly';
+
+  @override
+  String get hourly => 'Hourly';
+
+  @override
+  String get monthly => 'Monthly';
+
+  @override
+  String get employee_availability => 'Employee Availability';
+
+  @override
+  String get company_availability => 'Company Availability';
+
+  @override
+  String get select_employee => 'Select Employee';
+
+  @override
+  String get employee => 'Employee';
+
+  @override
+  String get total_cleaners_label => 'Total Cleaners';
+
+  @override
+  String get day_of_week_label => 'Day of Week';
+
+  @override
+  String get start_hour_label => 'Start Hour';
+
+  @override
+  String get end_hour_label => 'End Hour';
+
+  @override
+  String get add_availability_title => 'Add Availability';
+
+  @override
+  String get edit_availability_title => 'Edit Availability';
+
+  @override
+  String get delete_availability_title => 'Delete Availability';
+
+  @override
+  String get delete_availability_message => 'Are you sure you want to delete this availability slot?';
+
+  @override
+  String get no_availability => 'No availability';
+
+  @override
+  String get invalid_time_range => 'End hour must be after start hour';
+
+  @override
+  String get invalid_total_cleaners => 'Total cleaners must be greater than 0';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get sunday => 'Sunday';
+
+  @override
+  String get monday => 'Monday';
+
+  @override
+  String get tuesday => 'Tuesday';
+
+  @override
+  String get wednesday => 'Wednesday';
+
+  @override
+  String get thursday => 'Thursday';
+
+  @override
+  String get friday => 'Friday';
+
+  @override
+  String get saturday => 'Saturday';
+
+  @override
+  String get quarterly => 'Quarterly';
+
+  @override
+  String get annually => 'Annually';
+
+  @override
+  String get lifetime => 'Lifetime';
+
+  @override
+  String get period => 'Period';
+
+  @override
+  String get dates => 'Dates';
+
+  @override
+  String get filters => 'Filter';
+
+  @override
+  String get apply_filters => 'Apply Filters';
+
+  @override
+  String get all => 'All';
+
+  @override
+  String get employee_calendar => 'Employee Calendar';
+
+  @override
+  String get employee_id => 'Employee ID';
+
+  @override
+  String get team_id => 'Team ID';
+
+  @override
+  String get request_type => 'Request Type';
+
+  @override
+  String get request_status => 'Request Status';
+
+  @override
+  String get request_types => 'Request Types';
+
+  @override
+  String get total_works_label => 'Total Works';
+
+  @override
+  String get calendar => 'Calendar';
+
+  @override
+  String get employee_summary => 'Employee Summary';
+
+  @override
+  String get team_summary => 'Team Summary';
+
+  @override
+  String get assigned_to => 'Assigned to';
+
+  @override
+  String get no_calendar_data => 'No calendar data';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get schedule_conflict_title => 'Schedule conflict';
+
+  @override
+  String get schedule_conflict_message => 'This worker already has a job at this time.';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get period_type => 'Period Type';
+
+  @override
+  String get start_date => 'Start Date';
+
+  @override
+  String get end_date => 'End Date';
 
   @override
   String get noMediaSelected => 'No media selected yet';
@@ -483,6 +657,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String get request_price => 'Price';
 
   @override
+  String get housekeeping_configuration => 'Housekeeping Pricing';
+
+  @override
+  String get housekeeping_pricing => 'Pricing';
+
+  @override
+  String get housekeeping_area_fees => 'Area Fees';
+
+  @override
+  String get house_keeping_configuration => 'House Keeping Configuration';
+
+  @override
+  String get auto_bidding => 'Auto Bidding';
+
+  @override
+  String get auto_bidding_enabled => 'Enable Auto Bidding';
+
+  @override
+  String get save_auto_bidding => 'Save Auto Bidding';
+
+  @override
+  String get expected_time_days => 'Days';
+
+  @override
+  String get department_types => 'Department Types';
+
+  @override
+  String get number_of_floors => 'Number of Floors';
+
+  @override
+  String get size_options => 'Size Options';
+
+  @override
+  String get no_pricing_options => 'No pricing options available';
+
+  @override
+  String get base_price_per_cleaner_per_hour => 'Base price per cleaner per hour';
+
+  @override
+  String get housekeeping_active => 'Active';
+
+  @override
+  String get save_pricing => 'Save Pricing';
+
+  @override
+  String get no_areas_available => 'No areas available';
+
+  @override
   String get request_products_included => 'Cleaning Products Included';
 
   @override
@@ -702,4 +924,73 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get size => 'Size';
+
+  @override
+  String get exclusive => 'Exclusive';
+
+  @override
+  String get furniture_included => 'Property has furniture';
+
+  @override
+  String get company_profile => 'Company Profile';
+
+  @override
+  String get job_completed => 'Job completed successfully';
+
+  @override
+  String get number_of_visits => 'Visits';
+
+  @override
+  String get weekly_availability_title => 'Weekly Availability';
+
+  @override
+  String get fixed_schedule_management => 'Fixed Schedule Management';
+
+  @override
+  String settings_repeat_every(Object day) {
+    return 'Settings below will repeat every $day';
+  }
+
+  @override
+  String closed_on_day(Object day) {
+    return 'Closed on $day';
+  }
+
+  @override
+  String get no_services_day => 'No services provided this day';
+
+  @override
+  String apply_day_to_week(Object day) {
+    return 'Apply $day to entire week';
+  }
+
+  @override
+  String get time_slots => 'Time Slots';
+
+  @override
+  String get add_slot => 'Add Slot';
+
+  @override
+  String get assigned_employees => 'Assigned Employees';
+
+  @override
+  String get total_label => 'TOTAL';
+
+  @override
+  String get save_weekly_schedule => 'Save Weekly Schedule';
+
+  @override
+  String get available => 'Available';
+
+  @override
+  String get morning_service => 'Morning Service';
+
+  @override
+  String get midday_service => 'Midday Service';
+
+  @override
+  String get evening_service => 'Evening Service';
+
+  @override
+  String get number => 'Number';
 }

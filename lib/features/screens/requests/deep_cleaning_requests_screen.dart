@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/components/date_time_picker_field.dart';
 import 'package:cleaning_service_driver/components/detail_row.dart';
 import 'package:cleaning_service_driver/components/media_carousel_viewer.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
@@ -27,6 +28,7 @@ class _DeepCleaningRequestState extends State<DeepCleaningRequestScreen> {
   double? _bidAmount;
   String? _description;
   int? _selectedTimelineDays;
+  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -97,8 +99,7 @@ class _DeepCleaningRequestState extends State<DeepCleaningRequestScreen> {
         if (state is OfferSubmitted) {
           context.goNamed('deepCleaningSuccess');
         } else if (state is RequestsActionFailed) {
-          ScaffoldMessenger.of(ctx)
-              .showSnackBar(SnackBar(content: Text(ctx.genericErrorMessage)));
+          ctx.showErrorToast();
         }
       },
       builder: (ctx, state) {
@@ -118,114 +119,177 @@ class _DeepCleaningRequestState extends State<DeepCleaningRequestScreen> {
                 minimum: const EdgeInsets.symmetric(horizontal: 24),
                 child: ListView(
                   children: [
-                if ((d.photosAndVideos?.isNotEmpty ?? false))
-                  SizedBox(
-                    height: 160,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: d.photosAndVideos!.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 16),
-                      itemBuilder: (_, i) {
-                        final url = d.photosAndVideos![i];
-                        return GestureDetector(
-                          onTap: () => openMediaCarousel(
-                              context, d.photosAndVideos!,
-                              initialIndex: i),
-                          child: SizedBox(
-                              width: 260, height: 160, child: _mediaThumb(url)),
-                        );
-                      },
+                    if ((d.photosAndVideos?.isNotEmpty ?? false))
+                      SizedBox(
+                        height: 160,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: d.photosAndVideos!.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(width: 16),
+                          itemBuilder: (_, i) {
+                            final url = d.photosAndVideos![i];
+                            return GestureDetector(
+                              onTap: () => openMediaCarousel(
+                                  context, d.photosAndVideos!,
+                                  initialIndex: i),
+                              child: SizedBox(
+                                  width: 260,
+                                  height: 160,
+                                  child: _mediaThumb(url)),
+                            );
+                          },
+                        ),
+                      ),
+                    const SizedBox(height: 32),
+                    _title(context.l10n.job_details),
+                    DetailRow(context.l10n.request_card_property_type,
+                        d.propertyTypeTitle),
+                    if (d.isApartmentOrHouse) ...[
+                      const Divider(),
+                      if (d.floors != null && d.floor > 0) ...[
+                        DetailRow(
+                            context.l10n.numberOfFloors, d.floors.toString()),
+                        const Divider(),
+                      ],
+                      DetailRow(context.l10n.request_card_bedroom,
+                          d.bedrooms.toString()),
+                      const Divider(),
+                      DetailRow(context.l10n.request_card_bathroom,
+                          d.bathrooms.toString()),
+                      const Divider(),
+                      DetailRow(context.l10n.request_card_kitchen,
+                          d.kitchens.toString()),
+                      const Divider(),
+                      DetailRow(context.l10n.request_card_livingroom,
+                          d.livingRooms.toString()),
+                      const Divider(),
+                      DetailRow(context.l10n.furniture_included,
+                          d.includeFurniture ? ctx.l10n.yes : ctx.l10n.no),
+                    ] else if (d.isCommercialOrOffice) ...[
+                      const Divider(),
+                      DetailRow(context.l10n.size,
+                          d.sizeOption?.titleLocalized ?? '—'),
+                      const Divider(),
+                      DetailRow(context.l10n.request_card_kitchen,
+                          d.includeKitchen ? ctx.l10n.yes : ctx.l10n.no),
+                      const Divider(),
+                      DetailRow(context.l10n.request_card_bathroom,
+                          d.includeBathroom ? ctx.l10n.yes : ctx.l10n.no),
+                    ] else if (d.isOtherType) ...[
+                      const Divider(),
+                      DetailRow(
+                          context.l10n.request_card_notes, d.notes ?? '—'),
+                    ],
+                    const SizedBox(height: 32),
+                    _title(context.l10n.address),
+                    Text(d.fullAddress,
+                        style: Theme.of(context).textTheme.bodyLarge),
+                    const SizedBox(height: 32),
+                    if (d.additionalInformation?.trim().isNotEmpty ??
+                        false) ...[
+                      _title(context.l10n.request_card_notes),
+                      Text(d.additionalInformation!,
+                          style: Theme.of(context).textTheme.bodyLarge),
+                    ],
+                    const SizedBox(height: 32),
+                    _title(context.l10n.request_card_schedule),
+                    d.scheduledTime == null
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(context.l10n.as_soon_as_possible,
+                                  style: Theme.of(context).textTheme.bodyLarge),
+                              const SizedBox(height: 32),
+                              Text(
+                                context.l10n.expected_time,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 16),
+                              DateTimePickerField(
+                                label: context.l10n.date,
+                                value: _selectedDate == null
+                                    ? ''
+                                    : DateFormat(
+                                            'EEEE, MMM d, y',
+                                            Localizations.localeOf(context)
+                                                .toLanguageTag())
+                                        .format(_selectedDate!),
+                                icon: Icons.calendar_today,
+                                hintText: context.l10n.date,
+                                onTap: () async {
+                                  final now = DateTime.now();
+                                  final today =
+                                      DateTime(now.year, now.month, now.day);
+                                  final firstDate = now.hour >= 13
+                                      ? today.add(const Duration(days: 1))
+                                      : today;
+                                  final initial = (_selectedDate ?? firstDate)
+                                          .isBefore(firstDate)
+                                      ? firstDate
+                                      : (_selectedDate ?? firstDate);
+                                  final picked = await showDatePicker(
+                                    context: context,
+                                    initialDate: initial,
+                                    firstDate: firstDate,
+                                    lastDate:
+                                        firstDate.add(const Duration(days: 90)),
+                                  );
+                                  if (picked != null) {
+                                    setState(() => _selectedDate = picked);
+                                  }
+                                },
+                              ),
+                            ],
+                          )
+                        : Text(
+                            DateFormat.yMMMd().add_jm().format(
+                                  d.scheduledTime!,
+                                ),
+                            style: Theme.of(context).textTheme.bodyLarge),
+                    const SizedBox(height: 24),
+                    TextField(
+                      minLines: 4, // Minimum height
+                      maxLines: 8,
+                      controller: _descriptionController,
+                      keyboardType: TextInputType.text,
+                      onChanged: (v) => setState(() => _description = v),
+                      decoration: InputDecoration(
+                        labelText: context.l10n.enter_note,
+                        prefixIcon: Icon(Icons.description),
+                      ),
                     ),
-                  ),
-                const SizedBox(height: 32),
-                _title(context.l10n.job_details),
-                DetailRow(context.l10n.request_card_property_type,
-                    d.propertyTypeTitle),
-                if (d.isApartmentOrHouse) ...[
-                  const Divider(),
-                  DetailRow(
-                      context.l10n.request_card_bedroom, d.bedrooms.toString()),
-                  const Divider(),
-                  DetailRow(context.l10n.request_card_bathroom,
-                      d.bathrooms.toString()),
-                  const Divider(),
-                  DetailRow(
-                      context.l10n.request_card_kitchen, d.kitchens.toString()),
-                  const Divider(),
-                  DetailRow(context.l10n.request_card_livingroom,
-                      d.livingRooms.toString()),
-                  const Divider(),
-                  DetailRow('Furniture',
-                      d.includeFurniture ? ctx.l10n.yes : ctx.l10n.no),
-                ] else if (d.isCommercialOrOffice) ...[
-                  const Divider(),
-                  DetailRow('Size', d.sizeOption?.title ?? '—'),
-                  const Divider(),
-                  DetailRow(context.l10n.request_card_kitchen,
-                      d.includeKitchen ? ctx.l10n.yes : ctx.l10n.no),
-                  const Divider(),
-                  DetailRow(context.l10n.request_card_bathroom,
-                      d.includeBathroom ? ctx.l10n.yes : ctx.l10n.no),
-                ] else if (d.isOtherType) ...[
-                  const Divider(),
-                  DetailRow(context.l10n.request_card_notes, d.notes ?? '—'),
-                ],
-                const SizedBox(height: 32),
-                _title(context.l10n.request_card_schedule),
-                Text(
-                    DateFormat.yMMMd().add_jm().format(
-                          widget.request.scheduledTime,
-                        ),
-                    style: Theme.of(context).textTheme.bodyLarge),
-                const SizedBox(height: 32),
-                _title(context.l10n.address),
-                Text(d.fullAddress,
-                    style: Theme.of(context).textTheme.bodyLarge),
-                const SizedBox(height: 32),
-                if (d.additionalInformation?.trim().isNotEmpty ?? false) ...[
-                  _title(context.l10n.request_card_notes),
-                  Text(d.additionalInformation!,
-                      style: Theme.of(context).textTheme.bodyLarge),
-                ],
-                const SizedBox(height: 24),
-                TextField(
-                  minLines: 4, // Minimum height
-                  maxLines: 8,
-                  controller: _descriptionController,
-                  keyboardType: TextInputType.text,
-                  onChanged: (v) => setState(() => _description = v),
-                  decoration: InputDecoration(
-                    labelText: context.l10n.enter_note,
-                    prefixIcon: Icon(Icons.description),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<int>(
-                  value: _selectedTimelineDays,
-                  onChanged: (v) => setState(() => _selectedTimelineDays = v),
-                  decoration: InputDecoration(
-                    labelText: context.l10n.enter_timeline,
-                    prefixIcon: const Icon(Icons.access_time_outlined),
-                  ),
-                  items: const [1, 2, 3, 4, 5, 7]
-                      .map(
-                        (d) => DropdownMenuItem<int>(
-                          value: d,
-                          child: Text(context.l10n.days(d)),
-                        ),
-                      )
-                      .toList(),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _amountController,
-                  keyboardType: TextInputType.number,
-                  onChanged: (v) =>
-                      setState(() => _bidAmount = double.tryParse(v)),
-                  decoration: InputDecoration(
-                    labelText: context.l10n.enter_bid,
-                    prefixIcon: Icon(Icons.gavel_rounded),
-                  ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<int>(
+                      value: _selectedTimelineDays,
+                      onChanged: (v) =>
+                          setState(() => _selectedTimelineDays = v),
+                      decoration: InputDecoration(
+                        labelText: context.l10n.enter_timeline,
+                        prefixIcon: const Icon(Icons.access_time_outlined),
+                      ),
+                      items: const [1, 2, 3, 4, 5, 7]
+                          .map(
+                            (d) => DropdownMenuItem<int>(
+                              value: d,
+                              child: Text(context.l10n.days(d)),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _amountController,
+                      keyboardType: TextInputType.number,
+                      onChanged: (v) =>
+                          setState(() => _bidAmount = double.tryParse(v)),
+                      decoration: InputDecoration(
+                        labelText: context.l10n.enter_bid,
+                        prefixIcon: Icon(Icons.gavel_rounded),
+                      ),
                     )
                   ],
                 ),
@@ -238,7 +302,7 @@ class _DeepCleaningRequestState extends State<DeepCleaningRequestScreen> {
                       : () {
                           context.read<RequestsActionBloc>().add(
                                 SubmitOffer(
-                                  _description ?? "",
+                                  _composeNotes(context),
                                   double.parse(_amountController.text),
                                   widget.request.id ?? "",
                                   _selectedTimelineDays?.toString() ?? "",
@@ -260,4 +324,17 @@ class _DeepCleaningRequestState extends State<DeepCleaningRequestScreen> {
         child: Text(t,
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
       );
+
+  String _composeNotes(BuildContext context) {
+    final parts = <String>[];
+    if (_selectedDate != null) {
+      final formatted = DateFormat(
+              'EEEE, MMM d, y', Localizations.localeOf(context).toLanguageTag())
+          .format(_selectedDate!);
+      parts.add(formatted);
+    }
+    final note = _descriptionController.text.trim();
+    if (note.isNotEmpty) parts.add(note);
+    return parts.join('\n');
+  }
 }

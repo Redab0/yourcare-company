@@ -51,6 +51,12 @@ class StaffMainScreen extends StatelessWidget {
               onTap: () => context.goNamed('teamsListScreen'),
               large: isTablet,
             ),
+            HomeMenuItem(
+              imageAsset: 'assets/images/employee_calendar.png',
+              title: context.l10n.employee_calendar,
+              onTap: () => context.goNamed('employee-calendar-screen'),
+              large: isTablet,
+            ),
           ];
 
           return Center(

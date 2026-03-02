@@ -19,9 +19,18 @@ class _StatisticsService implements StatisticsService {
 
   @override
   Future<ApiResponse<ResponsePayload<StatisticsResponse>>>
-      getRequestsStatistics() async {
+      getRequestsStatistics(
+    String? periodType,
+    String? startDate,
+    String? endDate,
+  ) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'periodType': periodType,
+      r'startDate': startDate,
+      r'endDate': endDate,
+    };
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options =

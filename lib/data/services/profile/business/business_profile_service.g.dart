@@ -93,17 +93,17 @@ class _BusinessProfileService implements BusinessProfileService {
   }
 
   @override
-  Future<ApiResponse<ResponsePayload<List<AreaModel>>>> getAreas() async {
+  Future<ApiResponse<ResponsePayload<List<AreaResponse>>>> getAreas() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options =
-        _setStreamType<ApiResponse<ResponsePayload<List<AreaModel>>>>(
+        _setStreamType<ApiResponse<ResponsePayload<List<AreaResponse>>>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/areas/localized',
+            '/areas/grouped',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -112,16 +112,16 @@ class _BusinessProfileService implements BusinessProfileService {
           ),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ApiResponse<ResponsePayload<List<AreaModel>>> _value;
+    late ApiResponse<ResponsePayload<List<AreaResponse>>> _value;
     try {
-      _value = ApiResponse<ResponsePayload<List<AreaModel>>>.fromJson(
+      _value = ApiResponse<ResponsePayload<List<AreaResponse>>>.fromJson(
         _result.data!,
-        (json) => ResponsePayload<List<AreaModel>>.fromJson(
+        (json) => ResponsePayload<List<AreaResponse>>.fromJson(
           json as Map<String, dynamic>,
           (json) => json is List<dynamic>
               ? json
-                  .map<AreaModel>(
-                    (i) => AreaModel.fromJson(i as Map<String, dynamic>),
+                  .map<AreaResponse>(
+                    (i) => AreaResponse.fromJson(i as Map<String, dynamic>),
                   )
                   .toList()
               : List.empty(),

@@ -8,26 +8,39 @@ part of 'business_offer_response.dart';
 
 BusinessOfferResponse _$BusinessOfferResponseFromJson(
         Map<String, dynamic> json) =>
-    BusinessOfferResponse(
-      id: json['id'] as String,
-      totalPrice: (json['totalPrice'] as num).toDouble(),
-      requestStatus: $enumDecode(_$RequestStatusEnumMap, json['requestStatus']),
-      createdAt: json['createdAt'] as String,
-      updatedAt: json['updatedAt'] as String,
-      description: json['description'] as String?,
-      descriptionBusinessOffer: json['descriptionBusinessOffer'] as String?,
+    $checkedCreate(
+      'BusinessOfferResponse',
+      json,
+      ($checkedConvert) {
+        final val = BusinessOfferResponse(
+          readableId: $checkedConvert('readableId', (v) => v as String?),
+          id: $checkedConvert('id', (v) => v as String),
+          totalPrice:
+              $checkedConvert('totalPrice', (v) => (v as num).toDouble()),
+          requestStatus: $checkedConvert(
+              'requestStatus', (v) => $enumDecode(_$RequestStatusEnumMap, v)),
+          createdAt: $checkedConvert('createdAt', (v) => v as String),
+          updatedAt: $checkedConvert('updatedAt', (v) => v as String),
+          serviceFrequencyCount: $checkedConvert(
+              'serviceFrequencyCount', (v) => (v as num?)?.toInt()),
+          serviceIntervalDays: $checkedConvert(
+              'serviceIntervalDays', (v) => (v as num?)?.toInt()),
+        );
+        return val;
+      },
     );
 
 Map<String, dynamic> _$BusinessOfferResponseToJson(
         BusinessOfferResponse instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'readableId': instance.readableId,
       'totalPrice': instance.totalPrice,
       'requestStatus': _$RequestStatusEnumMap[instance.requestStatus]!,
       'createdAt': instance.createdAt,
       'updatedAt': instance.updatedAt,
-      'description': instance.description,
-      'descriptionBusinessOffer': instance.descriptionBusinessOffer,
+      'serviceFrequencyCount': instance.serviceFrequencyCount,
+      'serviceIntervalDays': instance.serviceIntervalDays,
     };
 
 const _$RequestStatusEnumMap = {

@@ -9,7 +9,7 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get appName => 'رعايتك';
+  String get appName => 'Your Care Business';
 
   @override
   String get welcome => 'مرحبا بعودتك!';
@@ -18,7 +18,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get home => 'الرئيسية';
 
   @override
-  String get orders => 'الطلبات';
+  String get orders => 'طلبات جديدة';
 
   @override
   String get profile => 'الملف الشخصي';
@@ -27,7 +27,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get whatAreYouLookingFor => 'ما الذي تبحث عنه؟';
 
   @override
-  String get houseKeeping => 'تنظيف المنزل';
+  String get houseKeeping => 'عمالة بالساعة';
 
   @override
   String get houseKeepingDescription => 'تنظيف منتظم لمنزلك مع خيارات قابلة للتخصيص';
@@ -52,6 +52,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get no => 'لا';
+
+  @override
+  String get as_soon_as_possible => 'أسرع وقت ممكن';
+
+  @override
+  String get expected_time => 'الوقت المتوقع';
 
   @override
   String get deepCleaningRequest => 'طلب تنظيف عميق';
@@ -81,6 +87,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get numberOfLivingRooms => 'عدد غرف المعيشة';
 
   @override
+  String get numberOfFloors => 'عدد الطوابق';
+
+  @override
   String get additionalInformation => 'معلومات إضافية';
 
   @override
@@ -97,6 +106,171 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get camera => 'الكاميرا';
+
+  @override
+  String get weekly => 'أسبوعيا';
+
+  @override
+  String get hourly => 'بالساعة';
+
+  @override
+  String get monthly => 'شهريا';
+
+  @override
+  String get employee_availability => 'توافر الموظفين';
+
+  @override
+  String get company_availability => 'توافر الشركة';
+
+  @override
+  String get select_employee => 'اختر الموظف';
+
+  @override
+  String get employee => 'الموظف';
+
+  @override
+  String get total_cleaners_label => 'إجمالي العمالة';
+
+  @override
+  String get day_of_week_label => 'يوم الأسبوع';
+
+  @override
+  String get start_hour_label => 'ساعة البداية';
+
+  @override
+  String get end_hour_label => 'ساعة النهاية';
+
+  @override
+  String get add_availability_title => 'إضافة توافر';
+
+  @override
+  String get edit_availability_title => 'تعديل التوافر';
+
+  @override
+  String get delete_availability_title => 'حذف التوافر';
+
+  @override
+  String get delete_availability_message => 'هل أنت متأكد من حذف فترة التوافر؟';
+
+  @override
+  String get no_availability => 'لا يوجد توافر';
+
+  @override
+  String get invalid_time_range => 'يجب أن تكون ساعة النهاية بعد ساعة البداية';
+
+  @override
+  String get invalid_total_cleaners => 'يجب أن يكون إجمالي العمالة أكبر من 0';
+
+  @override
+  String get save => 'حفظ';
+
+  @override
+  String get delete => 'حذف';
+
+  @override
+  String get cancel => 'إلغاء';
+
+  @override
+  String get sunday => 'الأحد';
+
+  @override
+  String get monday => 'الاثنين';
+
+  @override
+  String get tuesday => 'الثلاثاء';
+
+  @override
+  String get wednesday => 'الأربعاء';
+
+  @override
+  String get thursday => 'الخميس';
+
+  @override
+  String get friday => 'الجمعة';
+
+  @override
+  String get saturday => 'السبت';
+
+  @override
+  String get quarterly => 'ربع سنوي';
+
+  @override
+  String get annually => 'سنوي';
+
+  @override
+  String get lifetime => 'الإجمالي';
+
+  @override
+  String get period => 'الفترة';
+
+  @override
+  String get dates => 'التواريخ';
+
+  @override
+  String get filters => 'تصفية';
+
+  @override
+  String get apply_filters => 'تطبيق الفلاتر';
+
+  @override
+  String get all => 'الكل';
+
+  @override
+  String get employee_calendar => 'تقويم الموظفين';
+
+  @override
+  String get employee_id => 'معرف الموظف';
+
+  @override
+  String get team_id => 'معرف الفريق';
+
+  @override
+  String get request_type => 'نوع الطلب';
+
+  @override
+  String get request_status => 'حالة الطلب';
+
+  @override
+  String get request_types => 'أنواع الطلبات';
+
+  @override
+  String get total_works_label => 'إجمالي الأعمال';
+
+  @override
+  String get calendar => 'التقويم';
+
+  @override
+  String get employee_summary => 'ملخص الموظفين';
+
+  @override
+  String get team_summary => 'ملخص الفرق';
+
+  @override
+  String get assigned_to => 'مُسند إلى';
+
+  @override
+  String get no_calendar_data => 'لا توجد بيانات للتقويم';
+
+  @override
+  String get retry => 'إعادة المحاولة';
+
+  @override
+  String get schedule_conflict_title => 'تعارض في الجدول';
+
+  @override
+  String get schedule_conflict_message => 'هذا الموظف لديه طلب في هذا الوقت.';
+
+  @override
+  String get ok => 'حسنًا';
+
+  @override
+  String get period_type => 'الفترة';
+
+  @override
+  String get start_date => 'تاريخ البداية';
+
+  @override
+  String get end_date => 'تاريخ النهاية';
 
   @override
   String get noMediaSelected => 'لم يتم اختيار وسائط بعد';
@@ -483,6 +657,54 @@ class AppLocalizationsAr extends AppLocalizations {
   String get request_price => 'السعر';
 
   @override
+  String get housekeeping_configuration => 'تسعير التدبير المنزلي';
+
+  @override
+  String get housekeeping_pricing => 'التسعير';
+
+  @override
+  String get housekeeping_area_fees => 'رسوم المناطق';
+
+  @override
+  String get house_keeping_configuration => 'إعدادات التنظيف المنزلي';
+
+  @override
+  String get auto_bidding => 'المزايدة التلقائية';
+
+  @override
+  String get auto_bidding_enabled => 'تفعيل المزايدة التلقائية';
+
+  @override
+  String get save_auto_bidding => 'حفظ المزايدة التلقائية';
+
+  @override
+  String get expected_time_days => 'أيام';
+
+  @override
+  String get department_types => 'أنواع الوحدات';
+
+  @override
+  String get number_of_floors => 'عدد الطوابق';
+
+  @override
+  String get size_options => 'خيارات المساحة';
+
+  @override
+  String get no_pricing_options => 'لا توجد خيارات تسعير';
+
+  @override
+  String get base_price_per_cleaner_per_hour => 'السعر الأساسي لكل عامل بالساعة';
+
+  @override
+  String get housekeeping_active => 'مفعل';
+
+  @override
+  String get save_pricing => 'حفظ التسعير';
+
+  @override
+  String get no_areas_available => 'لا توجد مناطق متاحة';
+
+  @override
   String get request_products_included => 'شامل منتجات تنظيف';
 
   @override
@@ -504,7 +726,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get upcoming_jobs => 'عقود العمل';
 
   @override
-  String get cleaning_requests => 'الطلبات';
+  String get cleaning_requests => 'طلبات جديدة';
 
   @override
   String get reports => 'التقارير';
@@ -522,7 +744,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get dashboard => 'لوحة التحكم';
 
   @override
-  String get requests => 'الطلبات';
+  String get requests => 'طلبات جديدة';
 
   @override
   String get job_details => 'تفاصيل العقد';
@@ -567,7 +789,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get business_service_area => 'المناطق المخدومة';
 
   @override
-  String get business_gallery => 'صور الشزكة';
+  String get business_gallery => 'صور الشركة';
 
   @override
   String get business_name => 'اسم الشركة';
@@ -588,7 +810,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get enter_bid => 'ادخل عرض السعر';
 
   @override
-  String get enter_timeline => 'الوقت المتوقع';
+  String get enter_timeline => 'زمن التنفيذ';
 
   @override
   String get enter_note => 'الملاحظات';
@@ -615,7 +837,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get job_accepted => 'تم قبول عقد العمل';
 
   @override
-  String get create_user_title => 'مستخدم جديد';
+  String get create_user_title => 'انشئ مستخدم';
 
   @override
   String get user_created => 'تم انشاء المستخدم';
@@ -706,4 +928,73 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get size => 'الحجم';
+
+  @override
+  String get exclusive => 'حصري';
+
+  @override
+  String get furniture_included => 'يوجد أثاث';
+
+  @override
+  String get company_profile => 'ملف الشركة';
+
+  @override
+  String get job_completed => 'تم اكمال العمل بنجاح';
+
+  @override
+  String get number_of_visits => 'الزيارات';
+
+  @override
+  String get weekly_availability_title => 'التوفر الأسبوعي';
+
+  @override
+  String get fixed_schedule_management => 'إدارة الجدول الثابت';
+
+  @override
+  String settings_repeat_every(Object day) {
+    return 'سيتم تكرار الإعدادات أدناه كل $day';
+  }
+
+  @override
+  String closed_on_day(Object day) {
+    return 'مغلق يوم $day';
+  }
+
+  @override
+  String get no_services_day => 'لا توجد خدمات في هذا اليوم';
+
+  @override
+  String apply_day_to_week(Object day) {
+    return 'تطبيق $day على كامل الأسبوع';
+  }
+
+  @override
+  String get time_slots => 'فترات الوقت';
+
+  @override
+  String get add_slot => 'إضافة فترة';
+
+  @override
+  String get assigned_employees => 'الموظفون المعينون';
+
+  @override
+  String get total_label => 'الإجمالي';
+
+  @override
+  String get save_weekly_schedule => 'حفظ الجدول الأسبوعي';
+
+  @override
+  String get available => 'متاح';
+
+  @override
+  String get morning_service => 'خدمة صباحية';
+
+  @override
+  String get midday_service => 'خدمة منتصف اليوم';
+
+  @override
+  String get evening_service => 'خدمة مسائية';
+
+  @override
+  String get number => 'العدد';
 }

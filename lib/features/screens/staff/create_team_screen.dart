@@ -83,9 +83,7 @@ class _CreateEditTeamScreenState extends State<CreateEditTeamScreen> {
           BlocListener<StaffBloc, StaffState>(
             listener: (context, state) {
               if (state.error != null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(context.genericErrorMessage)),
-                );
+                context.showErrorToast();
               }
             },
           ),
@@ -105,9 +103,7 @@ class _CreateEditTeamScreenState extends State<CreateEditTeamScreen> {
                 context.goNamed("teamsListScreen");
               }
               if (state is StaffActionFailure) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(context.genericErrorMessage)),
-                );
+                context.showErrorToast();
               }
             },
           ),

@@ -60,6 +60,7 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       body: Container(
         width: double.infinity,
+        height: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -70,38 +71,45 @@ class _SplashScreenState extends State<SplashScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(
-              height: 50,
-            ),
-            FadeTransition(
-              opacity: _fadeAnimation,
-              child: Image.asset(
-                width: 100,
-                height: 100,
-                'assets/images/ic_yourcare.png',
-                color: AppTheme.cream,
-              ),
-            ),
-            FadeTransition(
-              opacity: _fadeAnimation,
-              child: Transform.translate(
-                offset: const Offset(0, -50), // pull up ~8px
-                child: Image.asset(
-                  width: 300,
-                  height: 300,
-                  'assets/images/ic_text_logo.png',
-                  color: AppTheme.cream,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Image.asset(
+                    width: 100,
+                    height: 100,
+                    'assets/images/ic_yourcare.png',
+                    color: AppTheme.cream,
+                  ),
                 ),
-              ),
+                FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Image.asset(
+                    width: 200,
+                    height: 200,
+                    'assets/images/ic_text_logo.png',
+                    color: AppTheme.cream,
+                  ),
+                ),
+              ],
             ),
             SizedBox(
-              height: 16,
+              height: 45,
             ),
             FadeTransition(
               opacity: _fadeAnimation,
               child: Transform.translate(
                 offset: const Offset(0, -50), // pull up ~8px
-                child: Text("Partner"),
+                child: Text(
+                  "Partner",
+                  style: Theme.of(context)
+                      .textTheme
+                      .displayMedium
+                      ?.copyWith(color: AppTheme.cream),
+                ),
               ),
             )
           ],
