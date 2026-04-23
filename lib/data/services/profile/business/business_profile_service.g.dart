@@ -93,6 +93,207 @@ class _BusinessProfileService implements BusinessProfileService {
   }
 
   @override
+  Future<ApiResponse<ResponsePayload<List<CoveredServiceGroup>>>>
+      getCoveredServiceItems() async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options =
+        _setStreamType<ApiResponse<ResponsePayload<List<CoveredServiceGroup>>>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/business/my-business/covered-service-items',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(
+            baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+          ),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<ResponsePayload<List<CoveredServiceGroup>>> _value;
+    try {
+      _value = ApiResponse<ResponsePayload<List<CoveredServiceGroup>>>.fromJson(
+        _result.data!,
+        (json) => ResponsePayload<List<CoveredServiceGroup>>.fromJson(
+          json as Map<String, dynamic>,
+          (json) => json is List<dynamic>
+              ? json
+                  .map<CoveredServiceGroup>(
+                    (i) => CoveredServiceGroup.fromJson(
+                      i as Map<String, dynamic>,
+                    ),
+                  )
+                  .toList()
+              : List.empty(),
+        ),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ApiResponse<ResponsePayload<BusinessProfileModel>>>
+      updateCoveredServiceItems(UpdateCoveredServiceItemsRequest model) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(model.toJson());
+    final _options =
+        _setStreamType<ApiResponse<ResponsePayload<BusinessProfileModel>>>(
+      Options(method: 'PATCH', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/business/my-business/covered-service-items',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(
+            baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+          ),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<ResponsePayload<BusinessProfileModel>> _value;
+    try {
+      _value = ApiResponse<ResponsePayload<BusinessProfileModel>>.fromJson(
+        _result.data!,
+        (json) => ResponsePayload<BusinessProfileModel>.fromJson(
+          json as Map<String, dynamic>,
+          (json) => BusinessProfileModel.fromJson(json as Map<String, dynamic>),
+        ),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ApiResponse<ResponsePayload<BusinessProfileModel>>>
+      createCustomServiceItem(CustomServiceItemRequest model) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(model.toJson());
+    final _options =
+        _setStreamType<ApiResponse<ResponsePayload<BusinessProfileModel>>>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/business/my-business/custom-service-items',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(
+            baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+          ),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<ResponsePayload<BusinessProfileModel>> _value;
+    try {
+      _value = ApiResponse<ResponsePayload<BusinessProfileModel>>.fromJson(
+        _result.data!,
+        (json) => ResponsePayload<BusinessProfileModel>.fromJson(
+          json as Map<String, dynamic>,
+          (json) => BusinessProfileModel.fromJson(json as Map<String, dynamic>),
+        ),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ApiResponse<ResponsePayload<BusinessProfileModel>>>
+      updateCustomServiceItem(
+    String serviceItemId,
+    UpdateCustomServiceItemRequest model,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(model.toJson());
+    final _options =
+        _setStreamType<ApiResponse<ResponsePayload<BusinessProfileModel>>>(
+      Options(method: 'PATCH', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/business/my-business/custom-service-items/${serviceItemId}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(
+            baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+          ),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<ResponsePayload<BusinessProfileModel>> _value;
+    try {
+      _value = ApiResponse<ResponsePayload<BusinessProfileModel>>.fromJson(
+        _result.data!,
+        (json) => ResponsePayload<BusinessProfileModel>.fromJson(
+          json as Map<String, dynamic>,
+          (json) => BusinessProfileModel.fromJson(json as Map<String, dynamic>),
+        ),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ApiResponse<ResponsePayload<BusinessProfileModel>>>
+      deleteCustomServiceItem(
+    String serviceItemId,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options =
+        _setStreamType<ApiResponse<ResponsePayload<BusinessProfileModel>>>(
+      Options(method: 'DELETE', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/business/my-business/custom-service-items/${serviceItemId}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(
+            baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+          ),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<ResponsePayload<BusinessProfileModel>> _value;
+    try {
+      _value = ApiResponse<ResponsePayload<BusinessProfileModel>>.fromJson(
+        _result.data!,
+        (json) => ResponsePayload<BusinessProfileModel>.fromJson(
+          json as Map<String, dynamic>,
+          (json) => BusinessProfileModel.fromJson(json as Map<String, dynamic>),
+        ),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<ApiResponse<ResponsePayload<List<AreaResponse>>>> getAreas() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};

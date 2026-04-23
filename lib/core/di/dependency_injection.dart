@@ -47,7 +47,12 @@ import 'package:cleaning_service_driver/domain/usecases/jobs/start_job_usecase.d
 import 'package:cleaning_service_driver/domain/usecases/jobs/update_frequency_request_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/profile/business/get_areas_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/profile/business/get_business_profile_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/profile/business/create_custom_service_item_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/profile/business/delete_custom_service_item_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/profile/business/get_covered_service_items_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/profile/business/update_business_profile_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/profile/business/update_covered_service_items_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/profile/business/update_custom_service_item_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/profile/business/upload_media_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/profile/user/get_user_profile_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/requests/accept_exclusive_request_usecase.dart';
@@ -252,6 +257,16 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory(() => GetAreasUseCase(sl<BusinessProfileRepository>()));
   sl.registerFactory(() => UploadMediaUseCase(sl<BusinessProfileRepository>()));
   sl.registerFactory(
+      () => GetCoveredServiceItemsUseCase(sl<BusinessProfileRepository>()));
+  sl.registerFactory(
+      () => UpdateCoveredServiceItemsUseCase(sl<BusinessProfileRepository>()));
+  sl.registerFactory(
+      () => CreateCustomServiceItemUseCase(sl<BusinessProfileRepository>()));
+  sl.registerFactory(
+      () => UpdateCustomServiceItemUseCase(sl<BusinessProfileRepository>()));
+  sl.registerFactory(
+      () => DeleteCustomServiceItemUseCase(sl<BusinessProfileRepository>()));
+  sl.registerFactory(
       () => GetHousekeepingPricingUseCase(sl<HousekeepingPricingRepository>()));
   sl.registerFactory(() =>
       UpsertHousekeepingPricingUseCase(sl<HousekeepingPricingRepository>()));
@@ -270,7 +285,8 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory(() => GetExclusivesUseCase(sl<RequestsRepository>()));
   sl.registerFactory(
       () => AcceptExclusiveRequestUseCase(sl<RequestsRepository>()));
-  sl.registerFactory(() => GetEmployeeCalendarUseCase(sl<RequestsRepository>()));
+  sl.registerFactory(
+      () => GetEmployeeCalendarUseCase(sl<RequestsRepository>()));
   sl.registerFactory(() => GetUserProfileUseCase(sl<UserProfileRepository>()));
   sl.registerFactory(() => UpdateFrequencyRequestUseCase(sl<JobsRepository>()));
   sl.registerFactory(

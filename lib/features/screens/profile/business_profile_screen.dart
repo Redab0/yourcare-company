@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
 import 'package:cleaning_service_driver/data/models/profile/business_profile_model.dart';
+import 'package:cleaning_service_driver/data/models/profile/covered_service_item_model.dart';
 import 'package:cleaning_service_driver/data/models/profile/update_business_profile_model.dart';
 import 'package:cleaning_service_driver/features/bloc/profile/business/business_profile_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/profile/business/business_profile_event.dart';
@@ -26,6 +27,8 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   BusinessProfileModel? _profile;
   List<AreaResponse> _areas = [];
+  List<CoveredServiceGroup> _coveredServiceGroups = [];
+  Set<String> _enabledServiceTypes = <String>{};
   String? _logoUrl;
   List<String> _imageUrls = [];
   List<String> _selectedAreaIds = [];
@@ -46,6 +49,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
     final bloc = context.read<BusinessProfileBloc>();
     bloc.add(LoadProfileEvent());
     bloc.add(GetAreasEvent());
+    bloc.add(LoadCoveredServiceItemsEvent());
   }
 
   @override
@@ -338,7 +342,50 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
       _websiteCtrl.text,
       _selectedAreaIds,
     );
-    context.read<BusinessProfileBloc>().add(UpdateProfileEvent(upd));
+    final bloc = context.read<BusinessProfileBloc>();
+    bloc.add(UpdateProfileEvent(upd));
+  }
+
+  String _serviceTypeTitle(String serviceType) {
+    switch (serviceType) {
+      case 'deepCleaning':
+        return '${context.l10n.deepCleaning} / التنظيف العميق';
+      case 'houseCleaning':
+        return '${context.l10n.houseKeeping} / تنظيف المنازل';
+      case 'upholsteryCleaning':
+        return '${context.l10n.upholstery_cleaning} / تنظيف المفروشات';
+      default:
+        return serviceType;
+    }
+  }
+
+  String _serviceItemSummary(CoveredServiceGroup group) {
+    final selectedCount = group.services.where((item) => item.selected).length;
+    return '$selectedCount/${group.services.length} selected';
+  }
+
+  List<MapEntry<int, CoveredServiceGroup>> _visibleCoveredServiceEntries() {
+    if (_enabledServiceTypes.isEmpty) return const [];
+    return _coveredServiceGroups.asMap().entries.where((entry) {
+      return _enabledServiceTypes.contains(entry.value.serviceType);
+    }).toList();
+  }
+
+  Future<void> _openCoveredServiceItemsPage(int groupIndex) async {
+    final group = _coveredServiceGroups[groupIndex];
+    final updatedGroup = await Navigator.of(context).push<CoveredServiceGroup>(
+      MaterialPageRoute(
+        builder: (_) => _CoveredServiceItemsPage(
+          group: group,
+          allGroups: _coveredServiceGroups,
+          title: _serviceTypeTitle(group.serviceType),
+        ),
+      ),
+    );
+    if (updatedGroup == null) return;
+    setState(() {
+      _coveredServiceGroups[groupIndex] = updatedGroup;
+    });
   }
 
   @override
@@ -347,11 +394,17 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
       listener: (ctx, state) {
         if (state is ProfileLoaded || state is ProfileUpdated) {
           final model = (state as dynamic).model as BusinessProfileModel;
+          final rawServices = model.services ?? const <String>[];
+          final enabledServiceTypes = rawServices
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty)
+              .toSet();
           setState(() {
             _profile = model;
             _logoUrl = model.logo;
             _imageUrls = List.from(model.images ?? []);
             _selectedAreaIds = _extractAreaIds(model.areas);
+            _enabledServiceTypes = enabledServiceTypes;
             _nameCtrl.text = model.name ?? '';
             _descCtrl.text = model.description ?? '';
             _addressCtrl.text = model.address ?? '';
@@ -362,6 +415,9 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
         }
         if (state is AreasLoaded) {
           setState(() => _areas = state.areas);
+        }
+        if (state is CoveredServiceItemsLoaded) {
+          setState(() => _coveredServiceGroups = state.groups);
         }
         if (state is MediaUploaded && _uploadTarget != null) {
           final urls = state.media.map((r) => r.url).toList();
@@ -470,6 +526,36 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                             labelText: context.l10n.business_website),
                       ),
                       const SizedBox(height: 24),
+                      if (_enabledServiceTypes.isNotEmpty) ...[
+                        Text(
+                          context.l10n.covered_services_section_title,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        if (_visibleCoveredServiceEntries().isEmpty)
+                          Text(
+                            '-',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          )
+                        else
+                          ..._visibleCoveredServiceEntries().map((groupEntry) {
+                            final groupIndex = groupEntry.key;
+                            final group = groupEntry.value;
+                            return Card(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              child: ListTile(
+                                title:
+                                    Text(_serviceTypeTitle(group.serviceType)),
+                                subtitle: Text(_serviceItemSummary(group)),
+                                trailing: const Icon(Icons.arrow_forward_ios,
+                                    size: 16),
+                                onTap: () =>
+                                    _openCoveredServiceItemsPage(groupIndex),
+                              ),
+                            );
+                          }),
+                        const SizedBox(height: 24),
+                      ],
 
                       // Areas multi‐select
                       Text(context.l10n.business_service_area),
@@ -541,6 +627,336 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                   ),
                 ),
               ),
+      ),
+    );
+  }
+}
+
+class _CoveredServiceItemsPage extends StatefulWidget {
+  final CoveredServiceGroup group;
+  final List<CoveredServiceGroup> allGroups;
+  final String title;
+
+  const _CoveredServiceItemsPage({
+    required this.group,
+    required this.allGroups,
+    required this.title,
+  });
+
+  @override
+  State<_CoveredServiceItemsPage> createState() =>
+      _CoveredServiceItemsPageState();
+}
+
+class _CoveredServiceItemsPageState extends State<_CoveredServiceItemsPage> {
+  late List<CoveredServiceItem> _items;
+  bool _saving = false;
+  bool _popOnSuccess = false;
+  final Set<String> _deletedItemIds = <String>{};
+
+  @override
+  void initState() {
+    super.initState();
+    _items = [...widget.group.services];
+  }
+
+  String _serviceItemTitle(CoveredServiceItem item) {
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
+    return isAr
+        ? (item.titleAr ?? item.titleEn ?? '-')
+        : (item.titleEn ?? item.titleAr ?? '-');
+  }
+
+  void _toggleItem(int index, bool selected) {
+    setState(() {
+      _items[index] = _items[index].copyWith(selected: selected);
+    });
+  }
+
+  CoveredServiceGroup _currentGroupSelection() {
+    return CoveredServiceGroup(
+      serviceType: widget.group.serviceType,
+      services: _items,
+    );
+  }
+
+  void _onSave() {
+    final updatedGroup = _currentGroupSelection();
+    final updatedGroups = widget.allGroups.map((g) {
+      if (g.serviceType == widget.group.serviceType) {
+        return updatedGroup;
+      }
+      return g;
+    }).toList();
+
+    setState(() {
+      _saving = true;
+      _popOnSuccess = true;
+    });
+    context
+        .read<BusinessProfileBloc>()
+        .add(UpdateCoveredServiceItemsEvent(updatedGroups));
+  }
+
+  Future<Map<String, String>?> _showCustomServiceDialog({
+    String? initialTitleEn,
+    String? initialTitleAr,
+    required String dialogTitle,
+  }) async {
+    var titleEn = initialTitleEn ?? '';
+    var titleAr = initialTitleAr ?? '';
+    final formKey = GlobalKey<FormState>();
+
+    final result = await showDialog<Map<String, String>>(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: Text(dialogTitle),
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  initialValue: titleEn,
+                  decoration: InputDecoration(
+                    labelText: context.l10n.covered_services_title_en,
+                  ),
+                  onChanged: (value) => titleEn = value,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? context.l10n.form_required
+                      : null,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  initialValue: titleAr,
+                  decoration: InputDecoration(
+                    labelText: context.l10n.covered_services_title_ar,
+                  ),
+                  onChanged: (value) => titleAr = value,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? context.l10n.form_required
+                      : null,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(context.l10n.general_cancel),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (!(formKey.currentState?.validate() ?? false)) return;
+                Navigator.of(ctx).pop({
+                  'titleEn': titleEn.trim(),
+                  'titleAr': titleAr.trim(),
+                });
+              },
+              child: Text(context.l10n.general_save),
+            )
+          ],
+        );
+      },
+    );
+    return result;
+  }
+
+  Future<void> _onAddCustom() async {
+    final values = await _showCustomServiceDialog(
+      dialogTitle: context.l10n.covered_services_add_custom,
+    );
+    if (values == null) return;
+    setState(() {
+      _saving = true;
+      _popOnSuccess = false;
+    });
+    context.read<BusinessProfileBloc>().add(
+          CreateCustomServiceItemEvent(
+            serviceType: widget.group.serviceType,
+            titleEn: values['titleEn']!,
+            titleAr: values['titleAr']!,
+          ),
+        );
+  }
+
+  Future<void> _onEditItem(CoveredServiceItem item) async {
+    final values = await _showCustomServiceDialog(
+      dialogTitle: context.l10n.covered_services_edit_custom,
+      initialTitleEn: item.titleEn,
+      initialTitleAr: item.titleAr,
+    );
+    if (values == null) return;
+    setState(() {
+      _saving = true;
+      _popOnSuccess = false;
+    });
+    context.read<BusinessProfileBloc>().add(
+          UpdateCustomServiceItemEvent(
+            serviceItemId: item.id,
+            titleEn: values['titleEn']!,
+            titleAr: values['titleAr']!,
+          ),
+        );
+  }
+
+  Future<void> _onDeleteItem(CoveredServiceItem item) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(context.l10n.general_delete),
+        content: Text(context.l10n.covered_services_delete_confirmation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(context.l10n.general_cancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(context.l10n.general_delete),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    setState(() {
+      _items = _items.where((e) => e.id != item.id).toList();
+      _deletedItemIds.add(item.id);
+      _saving = true;
+      _popOnSuccess = false;
+    });
+    context
+        .read<BusinessProfileBloc>()
+        .add(DeleteCustomServiceItemEvent(item.id));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<BusinessProfileBloc, BusinessProfileState>(
+      listener: (context, state) {
+        if (state is CoveredServiceItemsLoaded && _saving) {
+          final updated = state.groups.firstWhere(
+            (g) => g.serviceType == widget.group.serviceType,
+            orElse: () => CoveredServiceGroup(
+              serviceType: widget.group.serviceType,
+              services: _items,
+            ),
+          );
+          if (!mounted) return;
+          final syncedGroup = CoveredServiceGroup(
+            serviceType: updated.serviceType,
+            services: updated.services
+                .where((service) => !_deletedItemIds.contains(service.id))
+                .map((service) => service.copyWith(
+                      selected: service.canManage ? true : service.selected,
+                    ))
+                .toList(),
+          );
+
+          if (_popOnSuccess) {
+            Navigator.of(context).pop(syncedGroup);
+            return;
+          }
+
+          if (_saving && ModalRoute.of(context)?.isCurrent == true) {
+            setState(() {
+              _items = syncedGroup.services;
+              _saving = false;
+              _popOnSuccess = false;
+            });
+          }
+        } else if (state is ProfileError && _saving) {
+          setState(() {
+            _saving = false;
+            _popOnSuccess = false;
+          });
+          context.showErrorToast();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () =>
+                Navigator.of(context).pop(_currentGroupSelection()),
+          ),
+          actions: [
+            IconButton(
+              onPressed: _saving ? null : _onAddCustom,
+              icon: const Icon(Icons.add),
+              tooltip: context.l10n.covered_services_add_custom,
+            ),
+            TextButton(
+              onPressed: _saving ? null : _onSave,
+              child: Text(context.l10n.general_save),
+            ),
+          ],
+        ),
+        body: PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) return;
+            Navigator.of(context).pop(_currentGroupSelection());
+          },
+          child: ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemBuilder: (context, index) {
+              final item = _items[index];
+              if (item.canManage) {
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(_serviceItemTitle(item)),
+                  subtitle: Text('true (${context.l10n.yes})'),
+                  trailing: PopupMenuButton<String>(
+                    enabled: !_saving,
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        _onEditItem(item);
+                      } else if (value == 'delete') {
+                        _onDeleteItem(item);
+                      }
+                    },
+                    itemBuilder: (_) => [
+                      PopupMenuItem(
+                        value: 'edit',
+                        child: Text(context.l10n.covered_services_edit_custom),
+                      ),
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Text(context.l10n.general_delete),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              return SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(_serviceItemTitle(item)),
+                subtitle: Text(
+                  item.selected
+                      ? 'true (${context.l10n.yes})'
+                      : 'false (${context.l10n.no})',
+                ),
+                value: item.selected,
+                secondary: const Icon(Icons.lock_outline, size: 18),
+                onChanged:
+                    _saving ? null : (value) => _toggleItem(index, value),
+              );
+            },
+            separatorBuilder: (_, __) => const Divider(height: 1),
+            itemCount: _items.length,
+          ),
+        ),
+        bottomNavigationBar: SafeArea(
+          minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          child: ElevatedButton(
+            onPressed: _saving ? null : _onSave,
+            child: Text(context.l10n.general_save),
+          ),
+        ),
       ),
     );
   }

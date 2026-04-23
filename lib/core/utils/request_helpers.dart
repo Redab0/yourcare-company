@@ -69,7 +69,6 @@ extension UpholsteryCleaningDetailX on UpholsteryCleaningDetails {
   }
 }
 
-/// ----------  model‑level convenience  ---------------------------------------
 extension HouseKeepingDetailX on HouseKeepingDetail {
   int get cleanersCount => _countFromItem(numberOfCleaners?.option);
 
@@ -78,8 +77,8 @@ extension HouseKeepingDetailX on HouseKeepingDetail {
   }
 
   bool get productsIncluded {
-    final price = cleaningProducts?.option?.price;
-    return (price ?? 0) > 0;
+    return cleaningProducts?.option?.titleEn?.toLowerCase().contains('yes') ??
+        false;
   }
 
   String get fullAddress {
@@ -96,7 +95,7 @@ extension HouseKeepingDetailX on HouseKeepingDetail {
 extension DeepCleaningDetailX on DeepCleaningDetail {
   int get bedrooms => _countFromItem(departmentSelection?.bedrooms ?? bedroom);
   int get floor =>
-      _countFromItem(departmentSelection?.numberOfFloors ?? floors);
+      _countFromItem(departmentSelection?.numberOfFloors ?? numberOfFloors);
   int get bathrooms =>
       _countFromItem(departmentSelection?.bathrooms ?? bathroom);
   int get kitchens => _countFromItem(departmentSelection?.kitchens ?? kitchen);

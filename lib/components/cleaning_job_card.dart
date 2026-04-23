@@ -9,12 +9,14 @@ class CleaningJobCard extends StatelessWidget {
     super.key,
     required this.request,
     required this.onAccept,
+    this.hidePrice = false,
     this.padding,
   });
 
   // ─── data ─────────────────────────────────────────────────────────
   final HouseKeepingHistory request;
   final VoidCallback onAccept;
+  final bool hidePrice;
   final EdgeInsetsGeometry? padding;
 
   @override
@@ -33,12 +35,14 @@ class CleaningJobCard extends StatelessWidget {
             children: [
               Column(
                 children: [
-                  Text(context.l10n.request_price,
-                      style: theme.textTheme.labelLarge!
-                          .copyWith(color: Colors.grey[600])),
-                  Text('${request.totalPrice.toStringAsFixed(3)} KWD',
-                      style: theme.textTheme.headlineMedium!.copyWith(
-                          color: tGreen, fontWeight: FontWeight.w700)),
+                  if (!hidePrice) ...[
+                    Text(context.l10n.request_price,
+                        style: theme.textTheme.labelLarge!
+                            .copyWith(color: Colors.grey[600])),
+                    Text('${request.totalPrice.toStringAsFixed(3)} KWD',
+                        style: theme.textTheme.headlineMedium!.copyWith(
+                            color: tGreen, fontWeight: FontWeight.w700)),
+                  ],
                 ],
               ),
               const Spacer(),

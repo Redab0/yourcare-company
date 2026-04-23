@@ -4,6 +4,7 @@ import 'package:cleaning_service_driver/components/cleaning_job_card.dart';
 import 'package:cleaning_service_driver/components/deep_cleaning_request_card.dart';
 import 'package:cleaning_service_driver/components/shimmer_box.dart';
 import 'package:cleaning_service_driver/components/upholstery_cleaning_request_card.dart';
+import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/themes/app_theme.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
@@ -25,18 +26,16 @@ class RequestsScreen extends StatefulWidget {
   State<RequestsScreen> createState() => _RequestsScreenState();
 }
 
-class _RequestsScreenState extends State<RequestsScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabs;
+class _RequestsScreenState extends State<RequestsScreen> {
   final _scrollCtrl = ScrollController();
   late Timer _autoRefreshTimer;
+  bool _hidePriceForWorker = false;
 
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 2, vsync: this);
+    _loadRole();
     context.read<RequestsBloc>().add(FetchFirstPageRequests());
-    context.read<RequestsBloc>().add(FetchExclusivesFirstPageRequests());
 
     _autoRefreshTimer = Timer.periodic(
       const Duration(seconds: 45),
@@ -46,7 +45,6 @@ class _RequestsScreenState extends State<RequestsScreen>
         final isVisible = ModalRoute.of(context)?.isCurrent ?? false;
         if (isVisible) {
           context.read<RequestsBloc>().add(FetchFirstPageRequests());
-          context.read<RequestsBloc>().add(FetchExclusivesFirstPageRequests());
         }
       },
     );
@@ -56,15 +54,21 @@ class _RequestsScreenState extends State<RequestsScreen>
       final cur = _scrollCtrl.position.pixels;
       if (cur >= max - 200) {
         context.read<RequestsBloc>().add(FetchNextPageRequests());
-        context.read<RequestsBloc>().add(FetchExclusivesNextPageRequests());
       }
+    });
+  }
+
+  Future<void> _loadRole() async {
+    final user = await SecureStorageService().getUser();
+    if (!mounted) return;
+    setState(() {
+      _hidePriceForWorker = user?.role?.toLowerCase() == 'worker';
     });
   }
 
   @override
   void dispose() {
     _autoRefreshTimer.cancel();
-    _tabs.dispose();
     _scrollCtrl.dispose();
     super.dispose();
   }
@@ -73,56 +77,14 @@ class _RequestsScreenState extends State<RequestsScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text(context.l10n.requests_all_requests),
         actions: [
           IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: () {
                 context.read<RequestsBloc>().add(FetchFirstPageRequests());
-                context
-                    .read<RequestsBloc>()
-                    .add(FetchExclusivesFirstPageRequests());
               }),
         ],
-        bottom: TabBar(
-          controller: _tabs,
-          tabs: [
-            Tab(
-              child: Text(
-                context.l10n.requests_all_requests,
-                style: TextStyle(color: AppTheme.cream),
-              ),
-            ),
-            Tab(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(context.l10n.exclusive,
-                      style: TextStyle(color: AppTheme.cream)),
-                  const SizedBox(width: 6),
-                  BlocBuilder<RequestsBloc, RequestsState>(
-                    builder: (ctx, state) {
-                      final hasExclusive = state.exclusive.isNotEmpty;
-                      return AnimatedOpacity(
-                        opacity: hasExclusive ? 1 : 0,
-                        duration: const Duration(milliseconds: 180),
-                        child: hasExclusive
-                            ? Container(
-                                width: 10,
-                                height: 10,
-                                decoration: const BoxDecoration(
-                                  color: Colors.redAccent,
-                                  shape: BoxShape.circle,
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
       body: BlocConsumer<RequestsBloc, RequestsState>(
         listener: (ctx, state) {
@@ -145,26 +107,14 @@ class _RequestsScreenState extends State<RequestsScreen>
                 constraints: BoxConstraints(maxWidth: maxWidth),
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: horizontal),
-                  child: TabBarView(
-                    controller: _tabs,
-                    children: [
-                      _buildPaginatedList(
-                        state.all,
-                        hasMore: state.hasMoreAll,
-                        isLoading: state.isLoadingAll,
-                        onLoadMore: () => context
-                            .read<RequestsBloc>()
-                            .add(FetchNextPageRequests()),
-                      ),
-                      _buildPaginatedList(
-                        state.exclusive,
-                        hasMore: state.hasMoreExclusive,
-                        isLoading: state.isLoadingExclusive,
-                        onLoadMore: () => context
-                            .read<RequestsBloc>()
-                            .add(FetchExclusivesNextPageRequests()),
-                      ),
-                    ],
+                  child: _buildPaginatedList(
+                    state.all,
+                    hasMore: state.hasMoreAll,
+                    isLoading: state.isLoadingAll,
+                    onLoadMore: () => context
+                        .read<RequestsBloc>()
+                        .add(FetchNextPageRequests()),
+                    hidePriceForWorker: _hidePriceForWorker,
                   ),
                 ),
               ),
@@ -178,6 +128,7 @@ class _RequestsScreenState extends State<RequestsScreen>
   Widget _buildPaginatedList(List<CleaningRequest> items,
       {required bool hasMore,
       required bool isLoading,
+      required bool hidePriceForWorker,
       required VoidCallback onLoadMore}) {
     if (items.isEmpty) {
       if (isLoading) {
@@ -219,7 +170,11 @@ class _RequestsScreenState extends State<RequestsScreen>
                           .format(req.scheduledTime!),
               summaryPrice: "",
               pillColor: _pillColorFor(req),
-              child: _buildRequestCard(context, req),
+              child: _buildRequestCard(
+                context,
+                req,
+                hidePriceForWorker: hidePriceForWorker,
+              ),
             );
           } else {
             // loading indicator at bottom
@@ -258,7 +213,11 @@ class _RequestsScreenState extends State<RequestsScreen>
   }
 }
 
-Widget _buildRequestCard(BuildContext context, CleaningRequest req) {
+Widget _buildRequestCard(
+  BuildContext context,
+  CleaningRequest req, {
+  required bool hidePriceForWorker,
+}) {
   final type = req.type?.toLowerCase() ?? '';
   if (type == 'deepcleaning') {
     return InkWell(
@@ -291,6 +250,7 @@ Widget _buildRequestCard(BuildContext context, CleaningRequest req) {
     child: CleaningJobCard(
       request: req as HouseKeepingHistory,
       padding: EdgeInsets.zero,
+      hidePrice: hidePriceForWorker,
       onAccept: () {
         context.goNamed('houseKeeping', extra: req);
       },
@@ -367,43 +327,46 @@ class _ExpandableRequestItemState extends State<_ExpandableRequestItem> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _pill(widget.summaryLabel, widget.pillColor),
-                    SizedBox(
-                      height: 4,
-                    ),
-                    Text(
-                      textAlign: TextAlign.start,
-                      widget.area,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextTheme.of(context).titleMedium,
-                    ),
-                    SizedBox(
-                      height: 4,
-                    ),
-                    Text(
-                      textAlign: TextAlign.end,
-                      widget.summaryDate ?? context.l10n.as_soon_as_possible,
-                      style: TextTheme.of(context).titleMedium,
-                    ),
-                    SizedBox(
-                      height: 4,
-                    ),
-                    AnimatedCrossFade(
-                      firstChild: const SizedBox.shrink(),
-                      secondChild: Padding(
-                        padding: const EdgeInsets.only(
-                            left: 4, right: 4, bottom: 12),
-                        child: widget.child,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _pill(widget.summaryLabel, widget.pillColor),
+                      SizedBox(
+                        height: 4,
                       ),
-                      crossFadeState: _expanded
-                          ? CrossFadeState.showSecond
-                          : CrossFadeState.showFirst,
-                      duration: const Duration(milliseconds: 180),
-                    ),
-                  ],
+                      Text(
+                        textAlign: TextAlign.start,
+                        widget.area,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextTheme.of(context).titleMedium,
+                      ),
+                      SizedBox(
+                        height: 4,
+                      ),
+                      Text(
+                        textAlign: TextAlign.end,
+                        widget.summaryDate ?? context.l10n.as_soon_as_possible,
+                        style: TextTheme.of(context).titleMedium,
+                      ),
+                      SizedBox(
+                        height: 4,
+                      ),
+                      AnimatedCrossFade(
+                        firstChild: const SizedBox.shrink(),
+                        secondChild: Padding(
+                          padding: const EdgeInsets.only(
+                              left: 4, right: 4, bottom: 12),
+                          child: widget.child,
+                        ),
+                        crossFadeState: _expanded
+                            ? CrossFadeState.showSecond
+                            : CrossFadeState.showFirst,
+                        duration: const Duration(milliseconds: 180),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(width: 8),

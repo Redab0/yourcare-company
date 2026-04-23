@@ -126,6 +126,11 @@ DeepCleaningDetail _$DeepCleaningDetailFromJson(Map<String, dynamic> json) =>
               (v) => v == null
                   ? null
                   : CleaningItem.fromJson(v as Map<String, dynamic>)),
+          numberOfFloors: $checkedConvert(
+              'numberOfFloors',
+              (v) => v == null
+                  ? null
+                  : CleaningItem.fromJson(v as Map<String, dynamic>)),
           address: $checkedConvert(
               'address',
               (v) => v == null
@@ -152,6 +157,7 @@ Map<String, dynamic> _$DeepCleaningDetailToJson(DeepCleaningDetail instance) =>
       'bathroom': instance.bathroom,
       'kitchen': instance.kitchen,
       'livingRoom': instance.livingRoom,
+      'numberOfFloors': instance.numberOfFloors,
       'address': instance.address,
       'additionalInformation': instance.additionalInformation,
       'photosAndVideos': instance.photosAndVideos,
@@ -192,6 +198,11 @@ DeepCleaningDepartmentSelection _$DeepCleaningDepartmentSelectionFromJson(
               (v) => v == null
                   ? null
                   : CleaningItem.fromJson(v as Map<String, dynamic>)),
+          numberOfFloors: $checkedConvert(
+              'numberOfFloors',
+              (v) => v == null
+                  ? null
+                  : CleaningItem.fromJson(v as Map<String, dynamic>)),
           sizeOptions: $checkedConvert(
               'sizeOptions',
               (v) => v == null
@@ -220,6 +231,7 @@ Map<String, dynamic> _$DeepCleaningDepartmentSelectionToJson(
       'bathrooms': instance.bathrooms,
       'kitchens': instance.kitchens,
       'livingRooms': instance.livingRooms,
+      'numberOfFloors': instance.numberOfFloors,
       'sizeOptions': instance.sizeOptions,
       'furnitureCheckbox': instance.furnitureCheckbox,
       'kitchenCheckbox': instance.kitchenCheckbox,

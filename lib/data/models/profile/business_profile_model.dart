@@ -1,4 +1,5 @@
 import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
+import 'package:cleaning_service_driver/data/models/profile/covered_service_item_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'business_profile_model.g.dart';
@@ -14,6 +15,9 @@ class BusinessProfileModel {
   final String? phone;
   final String? email;
   final String? website;
+  final List<String>? services;
+  final Map<String, String>? serviceDescriptions;
+  final List<CoveredServiceGroup>? coveredServices;
   final List<AreaModel>? areas;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -28,6 +32,9 @@ class BusinessProfileModel {
       this.phone,
       this.email,
       this.website,
+      this.services,
+      this.serviceDescriptions,
+      this.coveredServices,
       this.areas,
       this.createdAt,
       this.updatedAt);

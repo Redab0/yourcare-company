@@ -5,6 +5,7 @@ import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
 import 'package:cleaning_service_driver/data/models/staff/assign_permission_model.dart';
 import 'package:cleaning_service_driver/data/models/staff/permission_model.dart';
 import 'package:cleaning_service_driver/data/models/staff/update_user_model.dart';
+import 'package:cleaning_service_driver/data/models/staff/user_role.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_action_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_actions_event.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_actions_state.dart';
@@ -26,7 +27,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
   late TextEditingController _passwordCtl;
   late TextEditingController _emailCtl;
   late TextEditingController _phoneCtl;
-  String _role = 'manager';
+  String? _role;
 
   File? _pickedPhoto;
   String? _uploadedPhotoUrl;
@@ -44,7 +45,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
     _passwordCtl = TextEditingController(); // leave empty for no-change
     _emailCtl = TextEditingController(text: widget.user.email);
     _phoneCtl = TextEditingController(text: widget.user.phone);
-    _role = widget.user.role ?? "";
+    _role = UserRoleX.fromValue(widget.user.role)?.value;
 
     // init permissions selection
     _selectedPermissionIds = widget.user.permissions!
@@ -197,25 +198,25 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
                       children: [
                         // Role
                         DropdownButtonFormField<String>(
-                          value: _role,
+                          initialValue: _role,
                           decoration: InputDecoration(
                               labelText: context.l10n.role,
                               suffixIcon: Icon(Icons.edit)),
-                          items: [
-                            'manager',
-                            'staff',
-                            'admin',
-                            "business_owner",
-                            "Driver",
-                            "driver"
-                          ]
+                          items: UserRole.values
                               .map((r) => DropdownMenuItem(
-                                    value: r,
+                                    value: r.value,
                                     child: Text(
-                                        r[0].toUpperCase() + r.substring(1)),
+                                      r.value
+                                          .split('_')
+                                          .map((p) =>
+                                              p[0].toUpperCase() + p.substring(1))
+                                          .join(' '),
+                                    ),
                                   ))
                               .toList(),
-                          onChanged: (v) => setState(() => _role = v!),
+                          onChanged: (v) => setState(() => _role = v),
+                          validator: (v) =>
+                              v == null ? context.l10n.role : null,
                         ),
                         const SizedBox(height: 12),
                         // Username
@@ -313,35 +314,40 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
     return grouped.entries.map((entry) {
       final resource = entry.key;
       final perms = entry.value;
+      final permIds = perms.map((p) => p.id).whereType<String>().toSet();
+      final allSelected =
+          permIds.isNotEmpty && permIds.every(_selectedPermissionIds.contains);
       return Card(
         margin: const EdgeInsets.symmetric(vertical: 6),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        child: ExpansionTile(
-          leading: Icon(_iconForResource(resource)),
+        child: CheckboxListTile(
+          secondary: Icon(_iconForResource(resource)),
           title: Text(
-            resource[0].toUpperCase() + resource.substring(1),
+            _resourceLabel(resource),
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
-          children: perms.map((perm) {
-            final checked = _selectedPermissionIds.contains(perm.id);
-            return CheckboxListTile(
-              title: Text(perm.displayName ?? ""),
-              subtitle: Text(perm.description ?? ''),
-              value: checked,
-              onChanged: (v) {
-                setState(() {
-                  if (v == true) {
-                    _selectedPermissionIds.add(perm.id!);
-                  } else {
-                    _selectedPermissionIds.remove(perm.id);
-                  }
-                });
-              },
-            );
-          }).toList(),
+          subtitle: Text('${permIds.length} permissions'),
+          value: allSelected,
+          onChanged: (v) {
+            setState(() {
+              if (v == true) {
+                _selectedPermissionIds.addAll(permIds);
+              } else {
+                _selectedPermissionIds.removeAll(permIds);
+              }
+            });
+          },
         ),
       );
     }).toList();
+  }
+
+  String _resourceLabel(String resource) {
+    if (resource.trim().isEmpty) return 'Other';
+    return resource
+        .split('_')
+        .map((p) => p.isEmpty ? p : p[0].toUpperCase() + p.substring(1))
+        .join(' ');
   }
 
   IconData _iconForResource(String resource) {
@@ -369,6 +375,8 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
 
   void _onUpdateProfile() {
     if (!_formKey.currentState!.validate()) return;
+    final selectedRole = UserRoleX.fromValue(_role);
+    if (selectedRole == null) return;
     final model = UpdateUserModel(
       username:
           _usernameCtl.text.trim().isEmpty ? null : _usernameCtl.text.trim(),
@@ -376,6 +384,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
       email: _emailCtl.text.trim().isEmpty ? null : _emailCtl.text.trim(),
       phone: _phoneCtl.text.trim().isEmpty ? null : _phoneCtl.text.trim(),
       image: _uploadedPhotoUrl,
+      role: selectedRole.value,
     );
     context
         .read<StaffActionBloc>()

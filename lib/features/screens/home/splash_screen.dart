@@ -1,6 +1,7 @@
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/themes/app_theme.dart';
-import 'package:cleaning_service_driver/data/models/staff/permission_model.dart';
+import 'package:cleaning_service_driver/core/utils/app_remote_config.dart';
+import 'package:cleaning_service_driver/core/utils/app_update_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -15,6 +16,8 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+  final AppUpdateService _updateService =
+      AppUpdateService(AppRemoteConfig.instance);
 
   @override
   void initState() {
@@ -43,10 +46,14 @@ class _SplashScreenState extends State<SplashScreen>
     await Future.delayed(const Duration(seconds: 2));
 
     if (!mounted) return;
+
+    final shouldBlockForUpdate = await _updateService.checkForUpdate(context);
+    if (shouldBlockForUpdate) {
+      return;
+    }
+
     final storage = SecureStorageService();
     final token = await storage.getAccessToken();
-    final user = await storage.getUser();
-    final perms = user?.permissions ?? <PermissionModel>[];
     _navigateBasedOnAuthState(token != null);
   }
 

@@ -1,10 +1,13 @@
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
+import 'package:cleaning_service_driver/data/models/housekeeping/housekeeping_pricing.dart';
 import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
 import 'package:cleaning_service_driver/features/bloc/housekeeping/housekeeping_pricing_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/housekeeping/housekeeping_pricing_event.dart';
 import 'package:cleaning_service_driver/features/bloc/housekeeping/housekeeping_pricing_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class HousekeepingConfigurationScreen extends StatefulWidget {
@@ -20,6 +23,10 @@ class _HousekeepingConfigurationScreenState
   static const double _feeStep = 0.5;
   final _basePriceController = TextEditingController();
   final _basePriceFocus = FocusNode();
+  final _cleaningProductsController = TextEditingController();
+  final _cleaningProductsFocus = FocusNode();
+  final Map<String, TextEditingController> _optionPriceControllers = {};
+  final Map<String, FocusNode> _optionPriceFocusNodes = {};
   final _numberFormat = NumberFormat('0.###');
 
   @override
@@ -32,6 +39,14 @@ class _HousekeepingConfigurationScreenState
   void dispose() {
     _basePriceController.dispose();
     _basePriceFocus.dispose();
+    _cleaningProductsController.dispose();
+    _cleaningProductsFocus.dispose();
+    for (final controller in _optionPriceControllers.values) {
+      controller.dispose();
+    }
+    for (final focus in _optionPriceFocusNodes.values) {
+      focus.dispose();
+    }
     super.dispose();
   }
 
@@ -59,6 +74,31 @@ class _HousekeepingConfigurationScreenState
     }
   }
 
+  void _syncCleaningProductsText(double value) {
+    final formatted = _formatAmount(value);
+    if (_cleaningProductsFocus.hasFocus) return;
+    if (_cleaningProductsController.text != formatted) {
+      _cleaningProductsController.text = formatted;
+    }
+  }
+
+  void _syncMultipleOptionTexts(HousekeepingPricingState state) {
+    for (final option in state.multiplePricingOptions) {
+      final id = option.optionId;
+      if (id.isEmpty) continue;
+      final controller = _optionPriceControllers.putIfAbsent(
+        id,
+        TextEditingController.new,
+      );
+      final focusNode = _optionPriceFocusNodes.putIfAbsent(id, FocusNode.new);
+      if (focusNode.hasFocus) continue;
+      final formatted = _formatAmount(option.price);
+      if (controller.text != formatted) {
+        controller.text = formatted;
+      }
+    }
+  }
+
   void _updateAreaFee(String areaId, double next) {
     final normalized = _parseAmount(next.toString());
     context
@@ -66,24 +106,72 @@ class _HousekeepingConfigurationScreenState
         .add(UpdateAreaFee(areaId: areaId, fee: normalized));
   }
 
+  bool _isArabic(BuildContext context) =>
+      Localizations.localeOf(context).languageCode == 'ar';
+
   String _governorateTitle(BuildContext context, Governorate? title) {
-    final isAr = Localizations.localeOf(context).languageCode == 'ar';
+    final isAr = _isArabic(context);
     return isAr
         ? (title?.ar ?? title?.en ?? '-')
         : (title?.en ?? title?.ar ?? '-');
   }
 
   String _areaTitle(BuildContext context, AreaModel area) {
-    final isAr = Localizations.localeOf(context).languageCode == 'ar';
+    final isAr = _isArabic(context);
     return isAr
         ? (area.ar ?? area.en ?? area.name ?? '-')
         : (area.en ?? area.ar ?? area.name ?? '-');
+  }
+
+  String _optionHoursLabel(HousekeepingPricingOption option) {
+    final useAr = _isArabic(context);
+    final raw = (useAr ? option.titleAr : option.titleEn) ??
+        option.titleEn ??
+        option.titleAr ??
+        '';
+    final parsed = int.tryParse(raw.trim());
+    if (parsed == null) return raw;
+    return parsed == 1
+        ? '$parsed ${context.l10n.hour}'
+        : '$parsed ${context.l10n.hours}';
+  }
+
+  void _savePricing(HousekeepingPricingState state) {
+    final base = _parseAmount(_basePriceController.text);
+    final cleaningProducts = _parseAmount(_cleaningProductsController.text);
+
+    if (state.singlePricingModelActive && base <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.price_must_be_greater_than_zero)),
+      );
+      return;
+    }
+
+    if (state.multiplePricingModelActive &&
+        state.multiplePricingOptions.any((o) => o.price <= 0)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.price_must_be_greater_than_zero)),
+      );
+      return;
+    }
+
+    context.read<HousekeepingPricingBloc>().add(UpdateBasePrice(base));
+    context
+        .read<HousekeepingPricingBloc>()
+        .add(UpdateCleaningProductsPrice(cleaningProducts));
+    context
+        .read<HousekeepingPricingBloc>()
+        .add(const SaveHousekeepingPricing());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.goNamed('housekeeping-main-screen'),
+        ),
         title: Text(context.l10n.housekeeping_configuration),
         actions: [
           IconButton(
@@ -92,31 +180,45 @@ class _HousekeepingConfigurationScreenState
           ),
         ],
       ),
-      body: BlocConsumer<HousekeepingPricingBloc, HousekeepingPricingState>(
-        listener: (ctx, state) {
-          if (state.error != null) {
-            ctx.showErrorToast();
-          }
-        },
-        builder: (ctx, state) {
-          if (state.isLoading && state.areas.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          _syncBasePriceText(state.basePrice);
-          return RefreshIndicator(
-            onRefresh: _refresh,
-            child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
-              children: [
-                _pricingSection(state),
-                const SizedBox(height: 24),
-                _areaFeesSection(state),
-                const SizedBox(height: 24),
-              ],
-            ),
-          );
-        },
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: NotificationListener<UserScrollNotification>(
+          onNotification: (n) {
+            if (n.direction != ScrollDirection.idle) {
+              FocusScope.of(context).unfocus();
+            }
+            return false;
+          },
+          child: BlocConsumer<HousekeepingPricingBloc, HousekeepingPricingState>(
+            listener: (ctx, state) {
+              if (state.error != null) {
+                ctx.showErrorToast();
+              }
+            },
+            builder: (ctx, state) {
+              if (state.isLoading && state.areas.isEmpty) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              _syncBasePriceText(state.basePrice);
+              _syncCleaningProductsText(state.cleaningProductsPrice);
+              _syncMultipleOptionTexts(state);
+              return RefreshIndicator(
+                onRefresh: _refresh,
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    _pricingSection(state),
+                    const SizedBox(height: 24),
+                    _areaFeesSection(state),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
       ),
     );
   }
@@ -136,6 +238,11 @@ class _HousekeepingConfigurationScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  context.l10n.single_pricing_model,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
                 TextField(
                   controller: _basePriceController,
                   focusNode: _basePriceFocus,
@@ -143,42 +250,117 @@ class _HousekeepingConfigurationScreenState
                       const TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
                     labelText: context.l10n.base_price_per_cleaner_per_hour,
-                    suffixText: 'KWD',
+                    suffixText: context.l10n.kwd,
                   ),
                   onChanged: (value) {
                     final parsed = _parseAmount(value);
-                    context
-                        .read<HousekeepingPricingBloc>()
-                        .add(UpdateBasePrice(parsed));
+                    if (parsed > 0) {
+                      context
+                          .read<HousekeepingPricingBloc>()
+                          .add(UpdateBasePrice(parsed));
+                    }
                   },
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 SwitchListTile(
-                  value: state.isActive,
+                  value: state.singlePricingModelActive,
                   onChanged: (value) {
                     context
                         .read<HousekeepingPricingBloc>()
-                        .add(ToggleHousekeepingActive(value));
+                        .add(ToggleSinglePricingModelActive(value));
                   },
                   contentPadding: EdgeInsets.zero,
                   title: Text(context.l10n.housekeeping_active),
+                ),
+                const Divider(),
+                const SizedBox(height: 8),
+                Text(
+                  context.l10n.multiple_pricing_model,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  context.l10n.hours,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                ...state.multiplePricingOptions.map((option) {
+                  if (option.optionId.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  final controller = _optionPriceControllers[option.optionId]!;
+                  final focusNode = _optionPriceFocusNodes[option.optionId]!;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 120,
+                          child: Text(
+                            _optionHoursLabel(option),
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: controller,
+                            focusNode: focusNode,
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            decoration: InputDecoration(
+                              suffixText: context.l10n.kwd,
+                            ),
+                            onChanged: (value) {
+                              final parsed = _parseAmount(value);
+                              if (parsed > 0) {
+                                context.read<HousekeepingPricingBloc>().add(
+                                      UpdateMultipleOptionPrice(
+                                        optionId: option.optionId,
+                                        price: parsed,
+                                      ),
+                                    );
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+                const SizedBox(height: 8),
+                SwitchListTile(
+                  value: state.multiplePricingModelActive,
+                  onChanged: (value) {
+                    context
+                        .read<HousekeepingPricingBloc>()
+                        .add(ToggleMultiplePricingModelActive(value));
+                  },
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(context.l10n.housekeeping_active),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _cleaningProductsController,
+                  focusNode: _cleaningProductsFocus,
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.cleaning_products_price,
+                    suffixText: context.l10n.kwd,
+                  ),
+                  onChanged: (value) {
+                    context.read<HousekeepingPricingBloc>().add(
+                          UpdateCleaningProductsPrice(_parseAmount(value)),
+                        );
+                  },
                 ),
                 const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
-                    onPressed: state.isSaving
-                        ? null
-                        : () {
-                            final parsed =
-                                _parseAmount(_basePriceController.text);
-                            context
-                                .read<HousekeepingPricingBloc>()
-                                .add(UpdateBasePrice(parsed));
-                            context
-                                .read<HousekeepingPricingBloc>()
-                                .add(const SaveHousekeepingPricing());
-                          },
+                    onPressed: state.isSaving ? null : () => _savePricing(state),
                     icon: state.isSaving
                         ? const SizedBox(
                             width: 16,
@@ -211,8 +393,7 @@ class _HousekeepingConfigurationScreenState
         else
           ...state.areas
               .where((group) => (group.areas ?? const []).isNotEmpty)
-              .map((group) => _areaGroupCard(group, state))
-              .toList(),
+              .map((group) => _areaGroupCard(group, state)),
       ],
     );
   }
@@ -246,8 +427,7 @@ class _HousekeepingConfigurationScreenState
           ),
           IconButton(
             icon: const Icon(Icons.remove_circle_outline),
-            onPressed:
-                canDecrease ? () => _updateAreaFee(id!, fee - _feeStep) : null,
+            onPressed: canDecrease ? () => _updateAreaFee(id, fee - _feeStep) : null,
           ),
           Container(
             width: 72,
@@ -264,8 +444,7 @@ class _HousekeepingConfigurationScreenState
           ),
           IconButton(
             icon: const Icon(Icons.add_circle_outline),
-            onPressed:
-                id == null ? null : () => _updateAreaFee(id, fee + _feeStep),
+            onPressed: id == null ? null : () => _updateAreaFee(id, fee + _feeStep),
           ),
         ],
       ),

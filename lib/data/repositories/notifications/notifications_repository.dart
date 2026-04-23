@@ -1,9 +1,10 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/data/models/notifications/register_token.dart';
-import 'package:cleaning_service_driver/data/repositories/notifications/play_services_check.dart';
 import 'package:cleaning_service_driver/data/services/notifications/notifications_service.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -13,6 +14,13 @@ class NotificationsRepository {
   final NotificationsService _notificationsService;
   final FirebaseMessaging _messaging;
   final FlutterLocalNotificationsPlugin _localNotifications;
+  StreamSubscription<String>? _tokenRefreshSubscription;
+  StreamSubscription<RemoteMessage>? _foregroundMessageSubscription;
+  bool _initialized = false;
+  bool _notificationsActive = false;
+  bool _tokenRegistrationCompleted = false;
+  bool _tokenRetryLoopRunning = false;
+  int _tokenRetryEpoch = 0;
 
   NotificationsRepository(
     this._notificationsService,
@@ -21,23 +29,23 @@ class NotificationsRepository {
   }) : _localNotifications =
             localNotifications ?? FlutterLocalNotificationsPlugin();
 
-  // Notification channel for Android
+  // Notification channel for Android (default priority)
   static const AndroidNotificationChannel channel = AndroidNotificationChannel(
-    'high_importance_channel', // ID
-    'High Importance Notifications', // Name
-    description: 'Used for important notifications.',
-    importance: Importance.max,
+    'default_alert_channel',
+    'Alert Notifications',
+    description: 'Used for customer notifications.',
+    importance: Importance.defaultImportance,
+    playSound: true,
+    enableVibration: true,
   );
 
+  static const String _apnsTokenNotSetCode = 'apns-token-not-set';
+
   Future<void> initializeAndRegister() async {
-    if (Platform.isAndroid) {
-      final ok = await PlayServices.ensureAvailable();
-      if (!ok) {
-        debugPrint(
-            'Play services not available; FCM won’t work. Skipping init.');
-        return; // bail out early; no token/notifications without Play services
-      }
-    }
+    if (_initialized) return;
+    _initialized = true;
+    _notificationsActive = true;
+    _tokenRegistrationCompleted = false;
 
     await _initializeLocalNotifications();
 
@@ -48,7 +56,9 @@ class NotificationsRepository {
       final settings = await _messaging.requestPermission(
           alert: true, badge: true, sound: true);
       await SecureStorageService().askedForNotificationsPermission();
-      print('Notification permission status: ${settings.authorizationStatus}');
+      debugPrint(
+        'Notification permission status: ${settings.authorizationStatus}',
+      );
     }
 
     // 2b) Explicitly allow foreground presentation on iOS
@@ -65,48 +75,145 @@ class NotificationsRepository {
     if (savedDeviceId == null) {
       await SecureStorageService().saveDeviceId(deviceId);
     }
-    print('Prev saved FCM token: $prev');
-    print('Using deviceId: $deviceId');
+    debugPrint('Prev saved FCM token: $prev');
+    debugPrint('Using deviceId: $deviceId');
 
-    // 4) Obtain a token (with a quick retry if null)
-    String? token = await _messaging.getToken();
-    if (token == null) {
-      await Future.delayed(const Duration(seconds: 2));
-      token = await _messaging.getToken();
+    // 4) Try immediate registration once, then keep retrying in background.
+    final registered = await _tryRegisterCurrentToken(
+      deviceId: deviceId,
+      previousToken: prev,
+    );
+    if (!registered) {
+      _startTokenRegistrationRetryLoop(deviceId);
     }
-    print('DEVICE TOKEN: $token');
 
-    // 5) Register if new or not saved yet
-    final shouldRegister = token != null && token != prev;
-    print('Should register with backend? $shouldRegister');
+    // 5) Always listen for future refreshes
+    await _tokenRefreshSubscription?.cancel();
+    _tokenRefreshSubscription = _messaging.onTokenRefresh.listen((t) async {
+      if (!_notificationsActive) return;
+      debugPrint('FCM token refreshed: $t');
+      try {
+        await _notificationsService.registerDeviceToken(
+          RegisterToken(
+            fcmToken: t,
+            deviceId: deviceId,
+            platform: Platform.isAndroid ? "android" : "ios",
+          ),
+        );
+        await SecureStorageService().saveFcmToken(t);
+        _tokenRegistrationCompleted = true;
+      } catch (e) {
+        _tokenRegistrationCompleted = false;
+        debugPrint('Failed to register refreshed FCM token: $e');
+        _startTokenRegistrationRetryLoop(deviceId);
+      }
+    });
 
-    if (shouldRegister) {
+    // 6) Foreground notifications
+    await _foregroundMessageSubscription?.cancel();
+    _foregroundMessageSubscription = FirebaseMessaging.onMessage.listen(
+      _handleMessage,
+    );
+  }
+
+  Future<bool> _tryRegisterCurrentToken({
+    required String deviceId,
+    String? previousToken,
+  }) async {
+    if (!_notificationsActive) return false;
+    try {
+      final token = await _safeGetFcmToken();
+      debugPrint('DEVICE TOKEN: $token');
+      final prev = previousToken ?? await SecureStorageService().getFcmToken();
+      final shouldRegister = token != null && token != prev;
+      debugPrint('Should register with backend? $shouldRegister');
+
+      if (!shouldRegister) {
+        _tokenRegistrationCompleted = token != null;
+        return _tokenRegistrationCompleted;
+      }
+
       await _notificationsService.registerDeviceToken(
         RegisterToken(
-          fcmToken: token!, // safe due to `shouldRegister`
+          fcmToken: token,
           deviceId: deviceId,
           platform: Platform.isAndroid ? "android" : "ios",
         ),
       );
       await SecureStorageService().saveFcmToken(token);
-      print('Device token registered and saved.');
+      _tokenRegistrationCompleted = true;
+      debugPrint('Device token registered and saved.');
+      return true;
+    } catch (e) {
+      _tokenRegistrationCompleted = false;
+      debugPrint('Failed to register current FCM token: $e');
+      return false;
+    }
+  }
+
+  void _startTokenRegistrationRetryLoop(String deviceId) {
+    if (_tokenRetryLoopRunning) return;
+    _tokenRetryLoopRunning = true;
+    final loopEpoch = _tokenRetryEpoch;
+
+    unawaited(() async {
+      var attempt = 0;
+      while (_notificationsActive &&
+          loopEpoch == _tokenRetryEpoch &&
+          !_tokenRegistrationCompleted) {
+        attempt += 1;
+        final delaySeconds = _retryDelaySeconds(attempt);
+        await Future.delayed(Duration(seconds: delaySeconds));
+
+        if (!_notificationsActive || loopEpoch != _tokenRetryEpoch) {
+          break;
+        }
+
+        final ok = await _tryRegisterCurrentToken(deviceId: deviceId);
+        if (ok) break;
+      }
+      _tokenRetryLoopRunning = false;
+    }());
+  }
+
+  int _retryDelaySeconds(int attempt) {
+    if (attempt <= 1) return 5;
+    if (attempt <= 2) return 10;
+    if (attempt <= 4) return 20;
+    if (attempt <= 8) return 30;
+    if (attempt <= 16) return 45;
+    return 60;
+  }
+
+  Future<String?> _safeGetFcmToken() async {
+    if (!Platform.isIOS) {
+      return _getTokenWithRetry();
     }
 
-    // 6) Always listen for future refreshes
-    _messaging.onTokenRefresh.listen((t) async {
-      print('FCM token refreshed: $t');
-      await _notificationsService.registerDeviceToken(
-        RegisterToken(
-          fcmToken: t, // <-- use the new token
-          deviceId: deviceId,
-          platform: Platform.isAndroid ? "android" : "ios",
-        ),
-      );
-      await SecureStorageService().saveFcmToken(t);
-    });
+    final apns = await _messaging.getAPNSToken();
+    if (apns == null) {
+      debugPrint('APNs token not ready yet on iOS; skipping FCM token fetch.');
+      return null;
+    }
 
-    // 7) Foreground notifications
-    FirebaseMessaging.onMessage.listen(_handleMessage);
+    try {
+      return await _getTokenWithRetry();
+    } on FirebaseException catch (e) {
+      if (e.code == _apnsTokenNotSetCode) {
+        debugPrint('APNs token not set yet; will retry later.');
+        return null;
+      }
+      rethrow;
+    }
+  }
+
+  Future<String?> _getTokenWithRetry() async {
+    String? token = await _messaging.getToken();
+    if (token == null) {
+      await Future.delayed(const Duration(seconds: 2));
+      token = await _messaging.getToken();
+    }
+    return token;
   }
 
   Future<void> _initializeLocalNotifications() async {
@@ -118,8 +225,7 @@ class NotificationsRepository {
 
     // Initialize local notifications
     const initializationSettings = InitializationSettings(
-      android: AndroidInitializationSettings(
-          'ic_notifications'), // Match drawable icon
+      android: AndroidInitializationSettings('@drawable/ic_notifications'),
       iOS: DarwinInitializationSettings(
         requestAlertPermission: true,
         requestBadgePermission: true,
@@ -129,23 +235,21 @@ class NotificationsRepository {
 
     await _localNotifications.initialize(
       initializationSettings,
-      onDidReceiveNotificationResponse: (payload) async {
-        if (payload != null) {
-          print('Notification tapped: $payload');
-          // Handle navigation, e.g., to DeepCleaningJobDetailsScreen
-          // Example: Navigate based on payload
-          // if (payload == 'deep_cleaning_job_details') {
-          //   Navigator.push(context, MaterialPageRoute(builder: (context) => DeepCleaningJobDetailsScreen(...)));
-          // }
-        }
+      onDidReceiveNotificationResponse: (response) async {
+        debugPrint('Notification tapped: ${response.payload}');
       },
     );
   }
 
   void _handleMessage(RemoteMessage message) {
-    print("NOTIFICATION RECEIVED 1");
+    debugPrint('Notification received');
+
+    // iOS handles foreground presentation via system when enabled.
+    if (Platform.isIOS) {
+      return;
+    }
+
     if (message.notification != null) {
-      print("NOTIFICATION RECEIVED 2");
       _localNotifications.show(
         message.notification.hashCode,
         message.notification?.title,
@@ -155,8 +259,10 @@ class NotificationsRepository {
             channel.id,
             channel.name,
             channelDescription: channel.description,
-            importance: Importance.max,
-            priority: Priority.high,
+            importance: Importance.defaultImportance,
+            priority: Priority.defaultPriority,
+            playSound: true,
+            enableVibration: true,
           ),
           iOS: const DarwinNotificationDetails(),
         ),
@@ -166,6 +272,16 @@ class NotificationsRepository {
   }
 
   Future<void> onLogoutCleanup() async {
+    _notificationsActive = false;
+    _tokenRegistrationCompleted = false;
+    _tokenRetryLoopRunning = false;
+    _tokenRetryEpoch += 1;
+    _initialized = false;
+    await _tokenRefreshSubscription?.cancel();
+    _tokenRefreshSubscription = null;
+    await _foregroundMessageSubscription?.cancel();
+    _foregroundMessageSubscription = null;
+
     final storedToken = await SecureStorageService().getFcmToken();
     final deviceId = await SecureStorageService().getDeviceId();
 

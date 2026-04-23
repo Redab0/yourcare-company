@@ -2,13 +2,13 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'create_user_model.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class CreateUserModel {
   final String role;
   final String username;
-  final String password;
-  final String email;
-  final String phone;
+  final String? password;
+  final String? email;
+  final String? phone;
   final String image;
 
   CreateUserModel(

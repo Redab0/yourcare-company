@@ -1,6 +1,7 @@
 import 'package:cleaning_service_driver/components/contact_actions.dart';
 import 'package:cleaning_service_driver/components/detail_row.dart';
 import 'package:cleaning_service_driver/components/open_map_action.dart';
+import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
@@ -20,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 
 class HouseKeepingJobDetails extends StatefulWidget {
   const HouseKeepingJobDetails({super.key, required this.request});
@@ -35,6 +37,7 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
   bool _isFilteringWorkers = false;
   final Set<String> _selectedWorkerIds = {};
   late HouseKeepingHistory _currentRequest;
+  bool _hidePriceForWorker = false;
 
   @override
   void initState() {
@@ -43,7 +46,16 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
     _selectedWorkerIds.clear();
     _currentRequest.assignedWorker
         ?.forEach((w) => _selectedWorkerIds.add(w.id));
+    _loadRole();
     _loadAvailableWorkers();
+  }
+
+  Future<void> _loadRole() async {
+    final user = await SecureStorageService().getUser();
+    if (!mounted) return;
+    setState(() {
+      _hidePriceForWorker = user?.role?.toLowerCase() == 'worker';
+    });
   }
 
   void _loadAvailableWorkers() {
@@ -94,6 +106,66 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
     } catch (_) {}
   }
 
+  String _statusPair(RequestStatus status) {
+    switch (status) {
+      case RequestStatus.confirmed:
+        return 'Confirmed / مؤكد';
+      case RequestStatus.pending:
+        return 'Pending / قيد الانتظار';
+      case RequestStatus.inProgress:
+        return 'In Progress / قيد التنفيذ';
+      case RequestStatus.completed:
+        return 'Completed / مكتمل';
+      case RequestStatus.cancelled:
+      case RequestStatus.canceled:
+        return 'Cancelled / ملغي';
+      case RequestStatus.notPaid:
+        return 'Not Paid / غير مدفوع';
+      case RequestStatus.paid:
+        return 'Paid / مدفوع';
+      case RequestStatus.unknown:
+        return 'Unknown / غير معروف';
+    }
+  }
+
+  Future<void> _shareDetails() async {
+    final req = _currentRequest;
+    final detail = req.detail;
+    final name = req.customer.username?.trim();
+    final phone = req.customer.phone?.trim();
+    final lat = detail.address?.latitude;
+    final lng = detail.address?.longitude;
+    final mapUrl = (lat != null && lng != null)
+        ? 'https://www.google.com/maps/search/?api=1&query=$lat,$lng'
+        : null;
+    final lines = <String>[
+      '==============================',
+      'House Keeping / التنظيف المنزلي',
+      '==============================',
+      '',
+      '--- Request / الطلب ---',
+      'Request ID / رقم الطلب: ${req.id ?? '-'}',
+      'Request Status / حالة الطلب: ${_statusPair(req.requestStatus)}',
+      'Date and Time / الوقت والتاريخ: ${RequestFmt.date(req.scheduledTime)} ${RequestFmt.time(req.scheduledTime)}',
+      'Address / العنوان: ${detail.fullAddress}',
+      '',
+      '--- Customer / العميل ---',
+      'Customer Name / اسم العميل: ${(name == null || name.isEmpty) ? '-' : name}',
+      'Customer Phone / رقم العميل: ${(phone == null || phone.isEmpty) ? '-' : phone}',
+      '',
+      '--- Location / الموقع ---',
+      'Google Maps: ${mapUrl ?? '-'}',
+      '',
+      '--- Job Details / تفاصيل الطلب ---',
+      'Cleaners / عدد العمال: ${detail.cleanersCount}',
+      'Duration / المدة: ${detail.durationHours} hour / ساعة',
+    ];
+    if (!_hidePriceForWorker) {
+      lines.add('Price / السعر: ${RequestFmt.price(req.totalPrice)}');
+    }
+    await Share.share(lines.join('\n'));
+  }
+
   @override
   Widget build(BuildContext context) {
     final req = _currentRequest;
@@ -142,7 +214,15 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
       },
       builder: (ctx, state) {
         return Scaffold(
-          appBar: AppBar(title: Text('#${_currentRequest.id}')),
+          appBar: AppBar(
+            title: Text('#${_currentRequest.id}'),
+            actions: [
+              IconButton(
+                onPressed: _shareDetails,
+                icon: const Icon(Icons.share),
+              ),
+            ],
+          ),
           body: SafeArea(
             minimum: const EdgeInsets.symmetric(horizontal: 24),
             child: SingleChildScrollView(
@@ -293,9 +373,11 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                     title: context.l10n.job_details,
                     child: Column(
                       children: [
-                        DetailRow(context.l10n.request_price,
-                            RequestFmt.price(req.totalPrice)),
-                        const Divider(),
+                        if (!_hidePriceForWorker) ...[
+                          DetailRow(context.l10n.request_price,
+                              RequestFmt.price(req.totalPrice)),
+                          const Divider(),
+                        ],
                         DetailRow(
                             context.l10n.request_card_cleaners,
                             RequestFmt.plural(
@@ -303,9 +385,9 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                         const Divider(),
                         DetailRow(context.l10n.request_card_duration,
                             "${detail.durationHours} ${context.l10n.hour}"),
-                        // const Divider(),
-                        // DetailRow(context.l10n.requests_cleaning_product_title,
-                        //     RequestFmt.yesNo(detail.productsIncluded)),
+                        const Divider(),
+                        DetailRow(context.l10n.requests_cleaning_product_title,
+                            RequestFmt.yesNo(detail.productsIncluded)),
                         // const Divider(),
                         // DetailRow("Sessions",
                         //     "${widget.request.subRequests?.length ?? 1}"),

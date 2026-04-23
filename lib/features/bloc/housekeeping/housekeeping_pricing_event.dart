@@ -20,10 +20,19 @@ class UpdateBasePrice extends HousekeepingPricingEvent {
   List<Object?> get props => [basePrice];
 }
 
-class ToggleHousekeepingActive extends HousekeepingPricingEvent {
+class ToggleSinglePricingModelActive extends HousekeepingPricingEvent {
   final bool isActive;
 
-  const ToggleHousekeepingActive(this.isActive);
+  const ToggleSinglePricingModelActive(this.isActive);
+
+  @override
+  List<Object?> get props => [isActive];
+}
+
+class ToggleMultiplePricingModelActive extends HousekeepingPricingEvent {
+  final bool isActive;
+
+  const ToggleMultiplePricingModelActive(this.isActive);
 
   @override
   List<Object?> get props => [isActive];
@@ -37,6 +46,25 @@ class UpdateAreaFee extends HousekeepingPricingEvent {
 
   @override
   List<Object?> get props => [areaId, fee];
+}
+
+class UpdateMultipleOptionPrice extends HousekeepingPricingEvent {
+  final String optionId;
+  final double price;
+
+  const UpdateMultipleOptionPrice({required this.optionId, required this.price});
+
+  @override
+  List<Object?> get props => [optionId, price];
+}
+
+class UpdateCleaningProductsPrice extends HousekeepingPricingEvent {
+  final double cleaningProductsPrice;
+
+  const UpdateCleaningProductsPrice(this.cleaningProductsPrice);
+
+  @override
+  List<Object?> get props => [cleaningProductsPrice];
 }
 
 class SaveHousekeepingPricing extends HousekeepingPricingEvent {

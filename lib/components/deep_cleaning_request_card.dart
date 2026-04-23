@@ -76,7 +76,7 @@ class DeepCleaningRequestCard extends StatelessWidget {
           if (isApartment) ...[
             if (detail.floor > 0)
               _iconLine(Icons.elevator_outlined,
-                  '${detail.floors} ${context.l10n.numberOfFloors}'),
+                  '${detail.floor ?? ""} ${context.l10n.numberOfFloors}'),
             if (detail.bedrooms > 0)
               _iconLine(Icons.king_bed_outlined,
                   '${detail.bedrooms} ${context.l10n.request_card_bedroom}'),
@@ -142,17 +142,6 @@ class DeepCleaningRequestCard extends StatelessWidget {
       ),
     );
   }
-
-  // ───────────────────────── helpers ────────────────────────────────
-  Widget _pill(String text) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: _blue.withOpacity(.15),
-          borderRadius: BorderRadius.circular(32),
-        ),
-        child: Text(text,
-            style: const TextStyle(color: _blue, fontWeight: FontWeight.w600)),
-      );
 
   Widget _iconLine(IconData icon, String label) => Padding(
         padding: const EdgeInsets.only(bottom: 12),

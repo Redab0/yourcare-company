@@ -18,6 +18,13 @@ BusinessProfileModel _$BusinessProfileModelFromJson(
       json['phone'] as String?,
       json['email'] as String?,
       json['website'] as String?,
+      (json['services'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      (json['serviceDescriptions'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, e as String),
+      ),
+      (json['coveredServices'] as List<dynamic>?)
+          ?.map((e) => CoveredServiceGroup.fromJson(e as Map<String, dynamic>))
+          .toList(),
       (json['areas'] as List<dynamic>?)
           ?.map((e) => AreaModel.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -41,6 +48,9 @@ Map<String, dynamic> _$BusinessProfileModelToJson(
       'phone': instance.phone,
       'email': instance.email,
       'website': instance.website,
+      'services': instance.services,
+      'serviceDescriptions': instance.serviceDescriptions,
+      'coveredServices': instance.coveredServices,
       'areas': instance.areas,
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),

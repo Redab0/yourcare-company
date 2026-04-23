@@ -1,5 +1,6 @@
 import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
 import 'package:cleaning_service_driver/data/models/profile/business_profile_model.dart';
+import 'package:cleaning_service_driver/data/models/profile/covered_service_item_model.dart';
 import 'package:cleaning_service_driver/data/models/profile/media_upload_response.dart';
 import 'package:equatable/equatable.dart';
 
@@ -51,4 +52,13 @@ class MediaUploaded extends BusinessProfileState {
 
   @override
   List<Object> get props => [media];
+}
+
+class CoveredServiceItemsLoaded extends BusinessProfileState {
+  final List<CoveredServiceGroup> groups;
+
+  const CoveredServiceItemsLoaded(this.groups);
+
+  @override
+  List<Object?> get props => [groups];
 }

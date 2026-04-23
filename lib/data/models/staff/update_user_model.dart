@@ -10,15 +10,16 @@ class UpdateUserModel {
   final String? phone;
   final String? image;
   final bool? enabled;
+  final String? role;
 
-  UpdateUserModel({
-    this.username,
-    this.image,
-    this.email,
-    this.password,
-    this.phone,
-    this.enabled,
-  });
+  UpdateUserModel(
+      {this.username,
+      this.image,
+      this.email,
+      this.password,
+      this.phone,
+      this.enabled,
+      this.role});
 
   factory UpdateUserModel.fromJson(Map<String, dynamic> json) =>
       _$UpdateUserModelFromJson(json);

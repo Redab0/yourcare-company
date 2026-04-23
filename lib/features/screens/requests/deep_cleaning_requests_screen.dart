@@ -147,9 +147,9 @@ class _DeepCleaningRequestState extends State<DeepCleaningRequestScreen> {
                         d.propertyTypeTitle),
                     if (d.isApartmentOrHouse) ...[
                       const Divider(),
-                      if (d.floors != null && d.floor > 0) ...[
-                        DetailRow(
-                            context.l10n.numberOfFloors, d.floors.toString()),
+                      if (d.numberOfFloors != null && d.floor > 0) ...[
+                        DetailRow(context.l10n.numberOfFloors,
+                            d.numberOfFloors.toString()),
                         const Divider(),
                       ],
                       DetailRow(context.l10n.request_card_bedroom,

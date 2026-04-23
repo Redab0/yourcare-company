@@ -12,6 +12,17 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+def secretsProperties = new Properties()
+def secretsPropertiesFile = rootProject.file('secrets.properties')
+if (secretsPropertiesFile.exists()) {
+    secretsProperties.load(new FileInputStream(secretsPropertiesFile))
+}
+
+def googleMapsApiKey =
+        secretsProperties.getProperty('GOOGLE_MAPS_API_KEY') ?:
+                System.getenv('GOOGLE_MAPS_API_KEY') ?:
+                ""
+
 android {
     namespace = "com.yourcarehere.partner"
     compileSdk = flutter.compileSdkVersion
@@ -43,9 +54,12 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = 35
-        versionCode = 4
-        versionName = "1.0.0"
+        versionCode = 14
+        versionName = "1.0.7"
         multiDexEnabled true
+        manifestPlaceholders = [
+                GOOGLE_MAPS_API_KEY: googleMapsApiKey
+        ]
     }
 
     buildTypes {
@@ -55,6 +69,7 @@ android {
             signingConfig = signingConfigs.release
         }
     }
+
 }
 
 flutter {

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cleaning_service_driver/data/models/profile/covered_service_item_model.dart';
 import 'package:cleaning_service_driver/data/models/profile/update_business_profile_model.dart';
 import 'package:equatable/equatable.dart';
 
@@ -29,4 +30,54 @@ class UploadMediaEvent extends BusinessProfileEvent {
 
   @override
   List<Object> get props => [files];
+}
+
+class LoadCoveredServiceItemsEvent extends BusinessProfileEvent {}
+
+class UpdateCoveredServiceItemsEvent extends BusinessProfileEvent {
+  final List<CoveredServiceGroup> groups;
+
+  const UpdateCoveredServiceItemsEvent(this.groups);
+
+  @override
+  List<Object?> get props => [groups];
+}
+
+class CreateCustomServiceItemEvent extends BusinessProfileEvent {
+  final String serviceType;
+  final String titleEn;
+  final String titleAr;
+
+  const CreateCustomServiceItemEvent({
+    required this.serviceType,
+    required this.titleEn,
+    required this.titleAr,
+  });
+
+  @override
+  List<Object?> get props => [serviceType, titleEn, titleAr];
+}
+
+class UpdateCustomServiceItemEvent extends BusinessProfileEvent {
+  final String serviceItemId;
+  final String titleEn;
+  final String titleAr;
+
+  const UpdateCustomServiceItemEvent({
+    required this.serviceItemId,
+    required this.titleEn,
+    required this.titleAr,
+  });
+
+  @override
+  List<Object?> get props => [serviceItemId, titleEn, titleAr];
+}
+
+class DeleteCustomServiceItemEvent extends BusinessProfileEvent {
+  final String serviceItemId;
+
+  const DeleteCustomServiceItemEvent(this.serviceItemId);
+
+  @override
+  List<Object?> get props => [serviceItemId];
 }

@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:share_plus/share_plus.dart';
 
 enum _MediaChoice { gallery, cameraPhoto, cameraVideo }
 
@@ -83,6 +84,66 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
       builder: (_) =>
           MediaCarouselViewer(urls: urls, initialIndex: initialIndex),
     );
+  }
+
+  String _statusPair(RequestStatus status) {
+    switch (status) {
+      case RequestStatus.confirmed:
+        return 'Confirmed / مؤكد';
+      case RequestStatus.pending:
+        return 'Pending / قيد الانتظار';
+      case RequestStatus.inProgress:
+        return 'In Progress / قيد التنفيذ';
+      case RequestStatus.completed:
+        return 'Completed / مكتمل';
+      case RequestStatus.cancelled:
+      case RequestStatus.canceled:
+        return 'Cancelled / ملغي';
+      case RequestStatus.notPaid:
+        return 'Not Paid / غير مدفوع';
+      case RequestStatus.paid:
+        return 'Paid / مدفوع';
+      case RequestStatus.unknown:
+        return 'Unknown / غير معروف';
+    }
+  }
+
+  Future<void> _shareDetails() async {
+    final req = _currentRequest;
+    final d = req.detail;
+    final name = req.customer.username?.trim();
+    final phone = req.customer.phone?.trim();
+    final lat = d.address?.latitude;
+    final lng = d.address?.longitude;
+    final mapUrl = (lat != null && lng != null)
+        ? 'https://www.google.com/maps/search/?api=1&query=$lat,$lng'
+        : null;
+    final lines = <String>[
+      '==============================',
+      'Deep Cleaning / التنظيف العميق',
+      '==============================',
+      '',
+      '--- Request / الطلب ---',
+      'Request ID / رقم الطلب: ${req.id ?? '-'}',
+      'Request Status / حالة الطلب: ${_statusPair(req.requestStatus)}',
+      'Date and Time / الوقت والتاريخ: ${RequestFmt.date(d.scheduledTime)} ${RequestFmt.time(d.scheduledTime)}',
+      'Address / العنوان: ${d.fullAddress}',
+      '',
+      '--- Customer / العميل ---',
+      'Customer Name / اسم العميل: ${(name == null || name.isEmpty) ? '-' : name}',
+      'Customer Phone / رقم العميل: ${(phone == null || phone.isEmpty) ? '-' : phone}',
+      '',
+      '--- Location / الموقع ---',
+      'Google Maps: ${mapUrl ?? '-'}',
+      '',
+      '--- Job Details / تفاصيل الطلب ---',
+      'Number of floors / عدد الطوابق: ${d.numberOfFloors}',
+      'Bedrooms / غرف النوم: ${d.bedrooms}',
+      'Bathrooms / الحمامات: ${d.bathrooms}',
+      'Kitchen / المطبخ: ${d.kitchens}',
+      'Living Room / غرفة المعيشة: ${d.livingRooms}',
+    ];
+    await Share.share(lines.join('\n'));
   }
 
   Widget _mediaThumb(String url) {
@@ -173,7 +234,15 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
       },
       builder: (ctx, state) {
         return Scaffold(
-          appBar: AppBar(title: Text('#${widget.request.id}')),
+          appBar: AppBar(
+            title: Text('#${widget.request.id}'),
+            actions: [
+              IconButton(
+                onPressed: _shareDetails,
+                icon: const Icon(Icons.share),
+              ),
+            ],
+          ),
           body: SafeArea(
             minimum: const EdgeInsets.symmetric(horizontal: 24),
             child: SingleChildScrollView(
@@ -221,8 +290,8 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
                       title: context.l10n.job_details,
                       child: Column(
                         children: [
-                          DetailRow(
-                              context.l10n.numberOfFloors, d.floors.toString()),
+                          DetailRow(context.l10n.numberOfFloors,
+                              d.numberOfFloors.toString()),
                           DetailRow(context.l10n.request_card_bedroom,
                               d.bedrooms.toString()),
                           const Divider(),

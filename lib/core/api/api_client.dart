@@ -11,7 +11,11 @@ class ApiClient {
   final Dio _dio;
 
   /// Base URL for your API (change as needed)
-  static const String baseUrl = 'https://be-cleaning.yourcarehere.com/api';
+  // static const String baseUrl = 'https://be-cleaning.yourcarehere.com/api';
+  static const String prod_baseUrl = 'https://be-cleaning.yourcarehere.com/api';
+  static const String dev_baseUrl =
+      'https://dev-be-cleaning.yourcarehere.com/api';
+  static const String baseUrl = prod_baseUrl;
 
   /// Singleton instance
   static final ApiClient _instance = ApiClient._internal();
@@ -26,9 +30,7 @@ class ApiClient {
             baseUrl: baseUrl,
             connectTimeout: const Duration(seconds: 30),
             receiveTimeout: const Duration(seconds: 30),
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers: {'Content-Type': 'application/json', 'channel': 'MANAGER'},
           ),
         ) {
     // Optional: Add interceptors for logging or auth

@@ -44,9 +44,54 @@ enum Permission {
   chatUpdate("chat:update"),
   chatDelete("chat:delete"),
 
-  teamsUpdate("teams:update"),
   teamsCreate("teams:create"),
   teamsRead("teams:read"),
+  teamsUpdate("teams:update"),
+  teamsDelete("teams:delete"),
+
+  permissionsCreate("permissions:create"),
+  permissionsRead("permissions:read"),
+  permissionsUpdate("permissions:update"),
+  permissionsDelete("permissions:delete"),
+
+  companyRequestsCreate("company_requests:create"),
+  companyRequestsRead("company_requests:read"),
+  companyRequestsUpdate("company_requests:update"),
+  companyRequestsDelete("company_requests:delete"),
+  companyRequestsStatistics("company_requests:statistics"),
+
+  availableRequestsBrowse("available_requests_browse"),
+  availableRequestsRead("available_requests:read"),
+
+  uploadCreate("upload:create"),
+  uploadDelete("upload:delete"),
+
+  companyProfileRead("company_profile:read"),
+  companyProfileUpdate("company_profile:update"),
+
+  staffCreate("staff:create"),
+  staffRead("staff:read"),
+  staffUpdate("staff:update"),
+  staffDelete("staff:delete"),
+
+  housekeepingPricingCreate("housekeeping_pricing:create"),
+  housekeepingPricingRead("housekeeping_pricing:read"),
+  housekeepingPricingUpdate("housekeeping_pricing:update"),
+  housekeepingPricingDelete("housekeeping_pricing:delete"),
+
+  cleanerAvailabilityCreate("cleaner_availability:create"),
+  cleanerAvailabilityRead("cleaner_availability:read"),
+  cleanerAvailabilityUpdate("cleaner_availability:update"),
+  cleanerAvailabilityDelete("cleaner_availability:delete"),
+
+  autoBidCreate("auto_bid:create"),
+  autoBidRead("auto_bid:read"),
+  autoBidUpdate("auto_bid:update"),
+  autoBidDelete("auto_bid:delete"),
+
+  reportsRead("reports:read"),
+
+  // Backward compatibility for legacy typo seen in older backends/clients.
   browsAvailableRequests("available_requests_brows"),
   ;
 

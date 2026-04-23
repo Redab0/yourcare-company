@@ -62,7 +62,8 @@ import 'app_localizations_en.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,7 +71,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -82,7 +84,8 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
     delegate,
     GlobalMaterialLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
@@ -863,6 +866,12 @@ abstract class AppLocalizations {
   /// **'Don\'t have an account?'**
   String get login_no_account;
 
+  /// No description provided for @login_apply_to_become_provider.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply to Become a Provider'**
+  String get login_apply_to_become_provider;
+
   /// No description provided for @login_signup.
   ///
   /// In en, this message translates to:
@@ -1469,11 +1478,89 @@ abstract class AppLocalizations {
   /// **'Base price per cleaner per hour'**
   String get base_price_per_cleaner_per_hour;
 
+  /// No description provided for @single_pricing_model.
+  ///
+  /// In en, this message translates to:
+  /// **'Single Pricing Model'**
+  String get single_pricing_model;
+
+  /// No description provided for @multiple_pricing_model.
+  ///
+  /// In en, this message translates to:
+  /// **'Multiple Pricing Model'**
+  String get multiple_pricing_model;
+
+  /// No description provided for @hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours'**
+  String get hours;
+
+  /// No description provided for @cleaning_products_price.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleaning products price'**
+  String get cleaning_products_price;
+
+  /// No description provided for @price_must_be_greater_than_zero.
+  ///
+  /// In en, this message translates to:
+  /// **'Price must be greater than zero'**
+  String get price_must_be_greater_than_zero;
+
   /// No description provided for @housekeeping_active.
   ///
   /// In en, this message translates to:
   /// **'Active'**
   String get housekeeping_active;
+
+  /// No description provided for @account_delete_request.
+  ///
+  /// In en, this message translates to:
+  /// **'Request account deletion'**
+  String get account_delete_request;
+
+  /// No description provided for @account_delete_request_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens a secure web form'**
+  String get account_delete_request_subtitle;
+
+  /// No description provided for @force_update_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Required'**
+  String get force_update_title;
+
+  /// No description provided for @force_update_message.
+  ///
+  /// In en, this message translates to:
+  /// **'A newer version of the app is required to continue.'**
+  String get force_update_message;
+
+  /// No description provided for @force_update_minimum_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum required version'**
+  String get force_update_minimum_label;
+
+  /// No description provided for @force_update_close_app.
+  ///
+  /// In en, this message translates to:
+  /// **'Close App'**
+  String get force_update_close_app;
+
+  /// No description provided for @update_now.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Now'**
+  String get update_now;
+
+  /// No description provided for @update_available_message.
+  ///
+  /// In en, this message translates to:
+  /// **'A newer version is available. Update now for the best experience.'**
+  String get update_available_message;
 
   /// No description provided for @save_pricing.
   ///
@@ -1690,6 +1777,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Company\'s Email'**
   String get business_email;
+
+  /// No description provided for @service_descriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Descriptions'**
+  String get service_descriptions;
+
+  /// No description provided for @covered_services_section_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Covered Service Items'**
+  String get covered_services_section_title;
+
+  /// No description provided for @covered_services_add_custom.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Custom Service'**
+  String get covered_services_add_custom;
+
+  /// No description provided for @covered_services_edit_custom.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Service'**
+  String get covered_services_edit_custom;
+
+  /// No description provided for @covered_services_delete_confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this service?'**
+  String get covered_services_delete_confirmation;
+
+  /// No description provided for @covered_services_title_en.
+  ///
+  /// In en, this message translates to:
+  /// **'Title (English)'**
+  String get covered_services_title_en;
+
+  /// No description provided for @covered_services_title_ar.
+  ///
+  /// In en, this message translates to:
+  /// **'Title (Arabic)'**
+  String get covered_services_title_ar;
+
+  /// No description provided for @form_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get form_required;
+
+  /// No description provided for @deep_cleaning_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Deep Cleaning Description'**
+  String get deep_cleaning_description;
+
+  /// No description provided for @house_cleaning_description.
+  ///
+  /// In en, this message translates to:
+  /// **'House Cleaning Description'**
+  String get house_cleaning_description;
+
+  /// No description provided for @upholstery_cleaning_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Upholstery Cleaning Description'**
+  String get upholstery_cleaning_description;
 
   /// No description provided for @enter_bid.
   ///
@@ -2038,9 +2191,16 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Number'**
   String get number;
+
+  /// No description provided for @kwd.
+  ///
+  /// In en, this message translates to:
+  /// **'KWD'**
+  String get kwd;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -2049,25 +2209,25 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['ar', 'en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['ar', 'en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'ar': return AppLocalizationsAr();
-    case 'en': return AppLocalizationsEn();
+    case 'ar':
+      return AppLocalizationsAr();
+    case 'en':
+      return AppLocalizationsEn();
   }
 
   throw FlutterError(
-    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-    'an issue with the localizations generation tool. Please file an issue '
-    'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
-  );
+      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }

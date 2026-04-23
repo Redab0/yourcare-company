@@ -1,4 +1,5 @@
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
+import 'package:cleaning_service_driver/core/utils/app_remote_config.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/data/models/auth/auth_user.dart';
 import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
@@ -8,7 +9,7 @@ import 'package:cleaning_service_driver/features/bloc/profile/user/user_profile_
 import 'package:cleaning_service_driver/features/bloc/profile/user/user_profile_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../components/app_button.dart';
 
@@ -25,10 +26,22 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   late AuthUser user;
+  bool _showDeactivateAccount = true;
+  static const _accountDeletionUrl =
+      'https://yourcarehere.com/#/account-deletion';
 
   @override
   void initState() {
     super.initState();
+    _loadDeactivateFlag();
+  }
+
+  Future<void> _loadDeactivateFlag() async {
+    await AppRemoteConfig.instance.initialize();
+    if (!mounted) return;
+    setState(() {
+      _showDeactivateAccount = AppRemoteConfig.instance.showDeactivateAccount;
+    });
   }
 
   @override
@@ -36,6 +49,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     _nameController.dispose();
     _phoneController.dispose();
     super.dispose();
+  }
+
+  Future<void> _openAccountDeletion() async {
+    final uri = Uri.parse(_accountDeletionUrl);
+    final launched = await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+    if (launched) return;
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.l10n.failed)),
+    );
   }
 
   @override
@@ -52,7 +75,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             future: SecureStorageService().getUser(),
             builder: (context, snapshot) {
               if (!snapshot.hasData || snapshot.data == null) {
-                return _buildNotLoggedIn();
+                return SizedBox.shrink();
               } else {
                 final user = snapshot.data!;
                 return _isEditing
@@ -73,10 +96,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: 16),
-          // TierStepper(
-          //   currentLevel: TierLevel.silver, // the user’s current tier
-          // ),
           const SizedBox(height: 24),
           Text(
             user.username!,
@@ -106,17 +125,20 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               });
             },
           ),
-
-          // const SizedBox(height: 32),
-          // LanguageToggleButtons(),
-          // const SizedBox(height: 64),
-          // AppButton(
-          //   text: context.l10n.logout,
-          //   onPressed: () {
-          //     context.read<AuthBloc>().add(AuthLogoutEvent());
-          //   },
-          //   isOutlined: true,
-          // ),
+          if (_showDeactivateAccount)
+            Card(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: ListTile(
+                leading: const Icon(Icons.delete_outline, color: Colors.red),
+                title: Text(
+                  context.l10n.account_delete_request,
+                  style: const TextStyle(color: Colors.red),
+                ),
+                subtitle: Text(context.l10n.account_delete_request_subtitle),
+                trailing: const Icon(Icons.open_in_new, size: 18),
+                onTap: _openAccountDeletion,
+              ),
+            ),
         ],
       ),
     );
@@ -222,36 +244,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         title: Text(title),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
         onTap: onTap,
-      ),
-    );
-  }
-
-  Widget _buildNotLoggedIn() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.account_circle, size: 80, color: Colors.grey),
-          const SizedBox(height: 16),
-          const Text(
-            'You are not logged in',
-            style: TextStyle(fontSize: 18),
-          ),
-          const SizedBox(height: 16),
-          AppButton(
-            text: 'Log In',
-            onPressed: () => context.go('/login'),
-            icon: Icons.login,
-            isOutlined: true,
-          ),
-          const SizedBox(height: 8),
-          AppButton(
-            text: 'Sign Up',
-            onPressed: () => context.go('/signup'),
-            icon: Icons.person_add,
-            isOutlined: true,
-          ),
-        ],
       ),
     );
   }

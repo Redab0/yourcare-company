@@ -36,69 +36,179 @@ class HousekeepingAreaFee {
   }
 }
 
-class HousekeepingPricing {
-  final double? basePricePerCleanerPerHour;
-  final List<HousekeepingAreaFee>? areaFees;
-  final bool? isActive;
+class HousekeepingPricingOption {
+  final String optionId;
+  final double price;
+  final String? titleAr;
+  final String? titleEn;
+  final String? descriptionAr;
+  final String? descriptionEn;
+  final String? logo;
 
-  const HousekeepingPricing({
-    this.basePricePerCleanerPerHour,
-    this.areaFees,
-    this.isActive,
+  const HousekeepingPricingOption({
+    required this.optionId,
+    required this.price,
+    this.titleAr,
+    this.titleEn,
+    this.descriptionAr,
+    this.descriptionEn,
+    this.logo,
   });
 
-  factory HousekeepingPricing.fromJson(Map<String, dynamic> json) {
-    return HousekeepingPricing(
-      basePricePerCleanerPerHour:
-          (json['basePricePerCleanerPerHour'] as num?)?.toDouble(),
-      areaFees: (json['areaFees'] as List<dynamic>?)
-          ?.map((e) => HousekeepingAreaFee.fromJson(
-              e as Map<String, dynamic>))
-          .toList(),
-      isActive: json['isActive'] as bool?,
+  factory HousekeepingPricingOption.fromJson(Map<String, dynamic> json) {
+    return HousekeepingPricingOption(
+      optionId: json['optionId']?.toString() ?? '',
+      price: (json['price'] as num?)?.toDouble() ?? 0,
+      titleAr: json['titleAr']?.toString(),
+      titleEn: json['titleEn']?.toString(),
+      descriptionAr: json['descriptionAr']?.toString(),
+      descriptionEn: json['descriptionEn']?.toString(),
+      logo: json['logo']?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      if (basePricePerCleanerPerHour != null)
-        'basePricePerCleanerPerHour': basePricePerCleanerPerHour,
-      if (areaFees != null)
-        'areaFees': areaFees!.map((e) => e.toJson()).toList(),
-      if (isActive != null) 'isActive': isActive,
+      'optionId': optionId,
+      'price': price,
     };
   }
 
-  HousekeepingPricing copyWith({
-    double? basePricePerCleanerPerHour,
-    List<HousekeepingAreaFee>? areaFees,
-    bool? isActive,
+  HousekeepingPricingOption copyWith({
+    String? optionId,
+    double? price,
+    String? titleAr,
+    String? titleEn,
+    String? descriptionAr,
+    String? descriptionEn,
+    String? logo,
   }) {
-    return HousekeepingPricing(
-      basePricePerCleanerPerHour:
-          basePricePerCleanerPerHour ?? this.basePricePerCleanerPerHour,
-      areaFees: areaFees ?? this.areaFees,
-      isActive: isActive ?? this.isActive,
+    return HousekeepingPricingOption(
+      optionId: optionId ?? this.optionId,
+      price: price ?? this.price,
+      titleAr: titleAr ?? this.titleAr,
+      titleEn: titleEn ?? this.titleEn,
+      descriptionAr: descriptionAr ?? this.descriptionAr,
+      descriptionEn: descriptionEn ?? this.descriptionEn,
+      logo: logo ?? this.logo,
     );
   }
 }
 
-class HousekeepingPricingRequest {
+class HousekeepingSinglePricingModel {
+  final bool isActive;
   final double basePricePerCleanerPerHour;
+
+  const HousekeepingSinglePricingModel({
+    required this.isActive,
+    required this.basePricePerCleanerPerHour,
+  });
+
+  factory HousekeepingSinglePricingModel.fromJson(Map<String, dynamic> json) {
+    return HousekeepingSinglePricingModel(
+      isActive: json['isActive'] as bool? ?? false,
+      basePricePerCleanerPerHour:
+          (json['basePricePerCleanerPerHour'] as num?)?.toDouble() ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'isActive': isActive,
+      'basePricePerCleanerPerHour': basePricePerCleanerPerHour,
+    };
+  }
+}
+
+class HousekeepingMultiplePricingModel {
+  final bool isActive;
+  final List<HousekeepingPricingOption> options;
+
+  const HousekeepingMultiplePricingModel({
+    required this.isActive,
+    required this.options,
+  });
+
+  factory HousekeepingMultiplePricingModel.fromJson(Map<String, dynamic> json) {
+    return HousekeepingMultiplePricingModel(
+      isActive: json['isActive'] as bool? ?? false,
+      options: (json['options'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(HousekeepingPricingOption.fromJson)
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'isActive': isActive,
+      'options': options.map((o) => o.toJson()).toList(),
+    };
+  }
+}
+
+class HousekeepingPricing {
+  final List<HousekeepingAreaFee>? areaFees;
+  final bool? isActive;
+  final double? cleaningProductsPrice;
+  final HousekeepingSinglePricingModel? singlePricingModel;
+  final HousekeepingMultiplePricingModel? multiplePricingModel;
+
+  const HousekeepingPricing({
+    this.areaFees,
+    this.isActive,
+    this.cleaningProductsPrice,
+    this.singlePricingModel,
+    this.multiplePricingModel,
+  });
+
+  factory HousekeepingPricing.fromJson(Map<String, dynamic> json) {
+    return HousekeepingPricing(
+      areaFees: (json['areaFees'] as List<dynamic>?)
+          ?.map((e) => HousekeepingAreaFee.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      isActive: json['isActive'] as bool?,
+      cleaningProductsPrice: (json['cleaningProductsPrice'] as num?)?.toDouble(),
+      singlePricingModel: _parseSinglePricingModel(json),
+      multiplePricingModel: _parseMultiplePricingModel(json),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      if (areaFees != null) 'areaFees': areaFees!.map((e) => e.toJson()).toList(),
+      if (isActive != null) 'isActive': isActive,
+      if (cleaningProductsPrice != null)
+        'cleaningProductsPrice': cleaningProductsPrice,
+      if (singlePricingModel != null) 'singlePricingModel': singlePricingModel!.toJson(),
+      if (multiplePricingModel != null)
+        'multiplePricingModel': multiplePricingModel!.toJson(),
+    };
+  }
+}
+
+class HousekeepingPricingRequest {
   final List<HousekeepingAreaFee> areaFees;
   final bool isActive;
+  final double cleaningProductsPrice;
+  final HousekeepingSinglePricingModel singlePricingModel;
+  final HousekeepingMultiplePricingModel multiplePricingModel;
 
   const HousekeepingPricingRequest({
-    required this.basePricePerCleanerPerHour,
     required this.areaFees,
     required this.isActive,
+    required this.cleaningProductsPrice,
+    required this.singlePricingModel,
+    required this.multiplePricingModel,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      'basePricePerCleanerPerHour': basePricePerCleanerPerHour,
       'areaFees': areaFees.map((e) => e.toJson()).toList(),
       'isActive': isActive,
+      'cleaningProductsPrice': cleaningProductsPrice,
+      'singlePricingModel': singlePricingModel.toJson(),
+      'multiplePricingModel': multiplePricingModel.toJson(),
     };
   }
 }
@@ -118,4 +228,34 @@ class HousekeepingAreaFeeRequest {
       'fee': fee,
     };
   }
+}
+
+HousekeepingSinglePricingModel? _parseSinglePricingModel(
+  Map<String, dynamic> json,
+) {
+  final raw = json['singlePricingModel'];
+  if (raw is Map<String, dynamic>) {
+    return HousekeepingSinglePricingModel.fromJson(raw);
+  }
+
+  // Backward-compatible fallback
+  final legacyBase = (json['basePricePerCleanerPerHour'] as num?)?.toDouble();
+  final legacyActive = json['isActive'] as bool?;
+  if (legacyBase != null || legacyActive != null) {
+    return HousekeepingSinglePricingModel(
+      isActive: legacyActive ?? false,
+      basePricePerCleanerPerHour: legacyBase ?? 0,
+    );
+  }
+  return null;
+}
+
+HousekeepingMultiplePricingModel? _parseMultiplePricingModel(
+  Map<String, dynamic> json,
+) {
+  final raw = json['multiplePricingModel'];
+  if (raw is Map<String, dynamic>) {
+    return HousekeepingMultiplePricingModel.fromJson(raw);
+  }
+  return null;
 }

@@ -30,7 +30,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get houseKeeping => 'عمالة بالساعة';
 
   @override
-  String get houseKeepingDescription => 'تنظيف منتظم لمنزلك مع خيارات قابلة للتخصيص';
+  String get houseKeepingDescription =>
+      'تنظيف منتظم لمنزلك مع خيارات قابلة للتخصيص';
 
   @override
   String get deepCleaning => 'تنظيف عميق';
@@ -66,13 +67,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get propertyTypeQuestion => 'ما نوع العقار الذي يحتاج إلى التنظيف؟';
 
   @override
-  String get propertyTypeDescription => 'اختر نوع العقار الذي يصف مساحتك بشكل أفضل';
+  String get propertyTypeDescription =>
+      'اختر نوع العقار الذي يصف مساحتك بشكل أفضل';
 
   @override
   String get propertyDetailsTitle => 'أخبرنا عن عقارك';
 
   @override
-  String get propertyDetailsDescription => 'هذه التفاصيل تساعد شركات التنظيف في تقديم عروض أسعار أكثر دقة';
+  String get propertyDetailsDescription =>
+      'هذه التفاصيل تساعد شركات التنظيف في تقديم عروض أسعار أكثر دقة';
 
   @override
   String get numberOfBedrooms => 'عدد غرف النوم';
@@ -93,13 +96,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get additionalInformation => 'معلومات إضافية';
 
   @override
-  String get additionalInformationHint => 'تعليمات خاصة، مناطق محددة تحتاج إلى انتباه، إلخ.';
+  String get additionalInformationHint =>
+      'تعليمات خاصة، مناطق محددة تحتاج إلى انتباه، إلخ.';
 
   @override
   String get addPhotosVideos => 'إضافة صور وفيديوهات';
 
   @override
-  String get photosVideosDescription => 'ساعدنا في فهم مساحتك بشكل أفضل عن طريق تحميل صور أو فيديوهات';
+  String get photosVideosDescription =>
+      'ساعدنا في فهم مساحتك بشكل أفضل عن طريق تحميل صور أو فيديوهات';
 
   @override
   String get gallery => 'المعرض';
@@ -279,7 +284,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get scheduleDeepCleaning => 'جدولة تنظيفك العميق';
 
   @override
-  String get scheduleDescription => 'اختر تاريخًا وزمانًا وعنوانًا لخدمة التنظيف العميق الخاصة بك';
+  String get scheduleDescription =>
+      'اختر تاريخًا وزمانًا وعنوانًا لخدمة التنظيف العميق الخاصة بك';
 
   @override
   String get date => 'التاريخ';
@@ -393,10 +399,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get login_no_account => 'لا تملك حساب؟';
 
   @override
+  String get login_apply_to_become_provider => 'قدّم لتصبح مزود خدمة';
+
+  @override
   String get login_signup => 'أنشئ حساب';
 
   @override
-  String get signup_accept_terms_conditions => 'يجب الموافقة على الشروط والأحكام';
+  String get signup_accept_terms_conditions =>
+      'يجب الموافقة على الشروط والأحكام';
 
   @override
   String get signup_title => 'انشئ حساب';
@@ -507,7 +517,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get address_no_saved_address => 'لا يوجد لديك عناوين';
 
   @override
-  String get address_delete_confirmation => 'هل أنت متأكد أنك تريد مسح العنوان؟';
+  String get address_delete_confirmation =>
+      'هل أنت متأكد أنك تريد مسح العنوان؟';
 
   @override
   String get address_building => 'المبنى';
@@ -627,7 +638,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get requests_cleaning_product_title => 'أدوات التنظيف';
 
   @override
-  String get requests_cleaning_products_description => 'هل تود أن نحضر أدوات التنظيف؟';
+  String get requests_cleaning_products_description =>
+      'هل تود أن نحضر أدوات التنظيف؟';
 
   @override
   String get general_cancel => 'الغاء';
@@ -693,10 +705,52 @@ class AppLocalizationsAr extends AppLocalizations {
   String get no_pricing_options => 'لا توجد خيارات تسعير';
 
   @override
-  String get base_price_per_cleaner_per_hour => 'السعر الأساسي لكل عامل بالساعة';
+  String get base_price_per_cleaner_per_hour =>
+      'السعر الأساسي لكل عامل بالساعة';
+
+  @override
+  String get single_pricing_model => 'نموذج التسعير الفردي';
+
+  @override
+  String get multiple_pricing_model => 'نموذج التسعير المتعدد';
+
+  @override
+  String get hours => 'ساعات';
+
+  @override
+  String get cleaning_products_price => 'سعر مواد التنظيف';
+
+  @override
+  String get price_must_be_greater_than_zero => 'يجب أن يكون السعر أكبر من صفر';
 
   @override
   String get housekeeping_active => 'مفعل';
+
+  @override
+  String get account_delete_request => 'طلب حذف الحساب';
+
+  @override
+  String get account_delete_request_subtitle => 'يفتح نموذجًا آمنًا على الويب';
+
+  @override
+  String get force_update_title => 'تحديث مطلوب';
+
+  @override
+  String get force_update_message =>
+      'يتطلب المتابعة تحديث التطبيق إلى إصدار أحدث.';
+
+  @override
+  String get force_update_minimum_label => 'الحد الأدنى للإصدار المطلوب';
+
+  @override
+  String get force_update_close_app => 'إغلاق التطبيق';
+
+  @override
+  String get update_now => 'حدّث الآن';
+
+  @override
+  String get update_available_message =>
+      'يتوفر إصدار أحدث. حدّث الآن للحصول على أفضل تجربة.';
 
   @override
   String get save_pricing => 'حفظ التسعير';
@@ -805,6 +859,40 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get business_email => 'ايميل الشركة';
+
+  @override
+  String get service_descriptions => 'وصف الخدمات';
+
+  @override
+  String get covered_services_section_title => 'عناصر الخدمة المغطاة';
+
+  @override
+  String get covered_services_add_custom => 'إضافة خدمة مخصصة';
+
+  @override
+  String get covered_services_edit_custom => 'تعديل الخدمة';
+
+  @override
+  String get covered_services_delete_confirmation =>
+      'هل أنت متأكد من حذف هذه الخدمة؟';
+
+  @override
+  String get covered_services_title_en => 'العنوان (إنجليزي)';
+
+  @override
+  String get covered_services_title_ar => 'العنوان (عربي)';
+
+  @override
+  String get form_required => 'مطلوب';
+
+  @override
+  String get deep_cleaning_description => 'وصف التنظيف العميق';
+
+  @override
+  String get house_cleaning_description => 'وصف التنظيف المنزلي';
+
+  @override
+  String get upholstery_cleaning_description => 'وصف تنظيف المفروشات';
 
   @override
   String get enter_bid => 'ادخل عرض السعر';
@@ -997,4 +1085,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get number => 'العدد';
+
+  @override
+  String get kwd => 'دك';
 }

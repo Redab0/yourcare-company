@@ -115,7 +115,7 @@ class DeepCleaningDetail {
   final CleaningItem? bathroom;
   final CleaningItem? kitchen;
   final CleaningItem? livingRoom;
-  final CleaningItem? floors;
+  final CleaningItem? numberOfFloors;
   final Address? address;
   final String? additionalInformation;
   final List<String>? photosAndVideos;
@@ -130,7 +130,7 @@ class DeepCleaningDetail {
       this.bathroom,
       this.kitchen,
       this.livingRoom,
-      this.floors,
+      this.numberOfFloors,
       this.address,
       this.additionalInformation,
       this.photosAndVideos,

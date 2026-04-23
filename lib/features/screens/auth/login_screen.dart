@@ -1,10 +1,12 @@
 import 'package:cleaning_service_driver/components/app_button.dart';
+import 'package:cleaning_service_driver/core/utils/app_remote_config.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/validators/validators.dart';
 import 'package:cleaning_service_driver/data/models/auth/login_credentials.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/auth/auth_event.dart';
@@ -21,23 +23,44 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _obscurePassword = true;
+  bool _isPasswordVisible = false;
+  bool _showRegister = true;
 
   @override
   void initState() {
     super.initState();
+    _loadRegisterFlag();
+  }
+
+  Future<void> _loadRegisterFlag() async {
+    await AppRemoteConfig.instance.initialize();
+    if (!mounted) return;
+    setState(() {
+      _showRegister = AppRemoteConfig.instance.showRegister;
+    });
   }
 
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
       final loginCredentials = LoginCredentials(
-        email: _usernameController.text.trim(),
+        phone: _usernameController.text.trim(),
         password: _passwordController.text.trim(),
       );
       final authBloc = context.read<AuthBloc>();
       authBloc.add(
         LoginEvent(loginCredentials: loginCredentials),
       );
+    }
+  }
+
+  Future<void> _openJoinUsPage() async {
+    const uri = 'https://www.yourcarehere.com/#/contact';
+    final launched = await launchUrl(
+      Uri.parse(uri),
+      mode: LaunchMode.inAppBrowserView,
+    );
+    if (!launched && mounted) {
+      context.showErrorToast();
     }
   }
 
@@ -93,21 +116,29 @@ class _LoginScreenState extends State<LoginScreen> {
                         // Email field
                         TextFormField(
                           controller: _usernameController,
-                          keyboardType: TextInputType.emailAddress,
+                          keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
-                            labelText: context.l10n.login_email,
-                            prefixIcon: Icon(Icons.email_outlined),
+                            labelText: context.l10n.signup_phone,
+                            prefixIcon: Icon(Icons.phone_outlined),
                           ),
-                          validator: Validators.validateEmail,
+                          validator: Validators.validatePhone,
                         ),
                         const SizedBox(height: 16),
                         // Password field
                         TextFormField(
                           controller: _passwordController,
-                          obscureText: true,
+                          obscureText: !_isPasswordVisible,
                           decoration: InputDecoration(
                             labelText: context.l10n.login_password,
                             prefixIcon: Icon(Icons.lock_outline),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _isPasswordVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                              ),
+                              onPressed: _togglePasswordVisibility,
+                            ),
                           ),
                           validator: Validators.validatePassword,
                         ),
@@ -118,6 +149,21 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: _login,
                           isLoading: state is AuthLoading,
                         ),
+                        if (_showRegister) ...[
+                          const SizedBox(height: 12),
+                          Text(
+                            context.l10n.login_no_account,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          AppButton(
+                            text: context.l10n.login_apply_to_become_provider,
+                            onPressed: _openJoinUsPage,
+                            isOutlined: true,
+                            isDisabled: state is AuthLoading,
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -128,5 +174,11 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  void _togglePasswordVisibility() {
+    setState(() {
+      _isPasswordVisible = !_isPasswordVisible;
+    });
   }
 }

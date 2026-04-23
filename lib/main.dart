@@ -27,9 +27,9 @@ void main() async {
   await Firebase.initializeApp();
   await setupServiceLocator();
 
-  // If already logged in, make sure notifications are initialized and token registered.
-  final existingToken = await SecureStorageService().getFcmToken();
-  if (existingToken != null) {
+  // If already logged in, initialize notifications and register token.
+  final accessToken = await SecureStorageService().getAccessToken();
+  if (accessToken != null) {
     await sl<NotificationsRepository>().initializeAndRegister();
   }
 

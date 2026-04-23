@@ -14,6 +14,7 @@ UpdateUserModel _$UpdateUserModelFromJson(Map<String, dynamic> json) =>
       password: json['password'] as String?,
       phone: json['phone'] as String?,
       enabled: json['enabled'] as bool?,
+      role: json['role'] as String?,
     );
 
 Map<String, dynamic> _$UpdateUserModelToJson(UpdateUserModel instance) =>
@@ -24,4 +25,5 @@ Map<String, dynamic> _$UpdateUserModelToJson(UpdateUserModel instance) =>
       if (instance.phone case final value?) 'phone': value,
       if (instance.image case final value?) 'image': value,
       if (instance.enabled case final value?) 'enabled': value,
+      if (instance.role case final value?) 'role': value,
     };

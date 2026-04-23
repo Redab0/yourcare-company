@@ -56,7 +56,28 @@ To use demo mode:
 
 1. Clone the repository
 2. Run `flutter pub get` to install dependencies
-3. Run `flutter run` to start the app in demo mode
+3. Prepare local secret files:
+   - `cp android/secrets.properties.example android/secrets.properties`
+   - `cp ios/Flutter/Secrets.xcconfig.example ios/Flutter/Secrets.xcconfig`
+   - `cp android/app/google-services.json.example android/app/google-services.json`
+   - `cp ios/Runner/GoogleService-Info.plist.example ios/Runner/GoogleService-Info.plist`
+4. Fill placeholders with real values (never commit secret files).
+5. Run with required dart define:
+   - `flutter run --dart-define=MAPS_API_KEY=<your_maps_api_key>`
+
+## Secrets And CI
+
+- Secret files are git-ignored:
+  - `android/secrets.properties`
+  - `ios/Flutter/Secrets.xcconfig`
+  - `android/app/google-services.json`
+  - `ios/Runner/GoogleService-Info.plist`
+- CI bootstrap script:
+  - `scripts/bootstrap_secrets.sh`
+- Expected CI environment variables:
+  - `GOOGLE_MAPS_API_KEY`
+  - `FIREBASE_ANDROID_JSON_B64`
+  - `FIREBASE_IOS_PLIST_B64`
 
 ## Screenshots
 

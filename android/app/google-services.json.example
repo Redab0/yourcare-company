@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "718014703399",
-    "project_id": "your-care-business",
-    "storage_bucket": "your-care-business.firebasestorage.app"
+    "project_number": "000000000000",
+    "project_id": "replace-with-project-id",
+    "storage_bucket": "replace-with-storage-bucket"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:718014703399:android:7592f7991b93b3a1c02b02",
+        "mobilesdk_app_id": "1:000000000000:android:replace",
         "android_client_info": {
           "package_name": "com.yourcarehere.partner"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDPOhM2CEiv1jORtB_6xynniaQCl2sLHqc"
+          "current_key": "REPLACE_WITH_FIREBASE_ANDROID_API_KEY"
         }
       ],
       "services": {

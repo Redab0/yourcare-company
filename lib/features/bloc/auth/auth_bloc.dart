@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/utils/loading_controller.dart';
 import 'package:cleaning_service_driver/data/models/auth/auth_user.dart';
+import 'package:cleaning_service_driver/data/repositories/notifications/notifications_repository.dart';
 import 'package:cleaning_service_driver/domain/usecases/auth/login_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/auth/logout_usecase.dart';
 import 'package:cleaning_service_driver/features/bloc/auth/auth_state.dart';
@@ -23,6 +24,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _loader.show();
     try {
       final user = await loginUseCase.call(event.loginCredentials);
+      try {
+        await sl<NotificationsRepository>().initializeAndRegister();
+      } catch (_) {}
       _loader.hide();
       emit(Authenticated(
         AuthUser(
@@ -40,7 +44,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   FutureOr<void> _logOut(LogoutEvent event, Emitter<AuthState> emit) async {
     _loader.show();
     try {
-      logoutUseCase.call();
+      try {
+        await sl<NotificationsRepository>().onLogoutCleanup();
+      } catch (_) {}
+      await logoutUseCase.call();
       _loader.hide();
       emit(Unauthenticated());
     } catch (e) {

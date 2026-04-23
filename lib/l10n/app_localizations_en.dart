@@ -30,13 +30,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get houseKeeping => 'Hourly Cleaning';
 
   @override
-  String get houseKeepingDescription => 'Regular cleaning for your home with customizable options';
+  String get houseKeepingDescription =>
+      'Regular cleaning for your home with customizable options';
 
   @override
   String get deepCleaning => 'Deep Cleaning';
 
   @override
-  String get deepCleaningDescription => 'Our professionals will provide quality cleaning using equipment';
+  String get deepCleaningDescription =>
+      'Our professionals will provide quality cleaning using equipment';
 
   @override
   String get searchServices => 'Search services...';
@@ -66,13 +68,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get propertyTypeQuestion => 'What type of property needs cleaning?';
 
   @override
-  String get propertyTypeDescription => 'Select the property type that best describes your space';
+  String get propertyTypeDescription =>
+      'Select the property type that best describes your space';
 
   @override
   String get propertyDetailsTitle => 'Tell us about your property';
 
   @override
-  String get propertyDetailsDescription => 'These details help cleaning companies provide more accurate quotes';
+  String get propertyDetailsDescription =>
+      'These details help cleaning companies provide more accurate quotes';
 
   @override
   String get numberOfBedrooms => 'Number of Bedrooms';
@@ -93,13 +97,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get additionalInformation => 'Additional Information';
 
   @override
-  String get additionalInformationHint => 'Special instructions, specific areas that need attention, etc.';
+  String get additionalInformationHint =>
+      'Special instructions, specific areas that need attention, etc.';
 
   @override
   String get addPhotosVideos => 'Add Photos & Videos';
 
   @override
-  String get photosVideosDescription => 'Help us understand your space better by uploading photos or videos';
+  String get photosVideosDescription =>
+      'Help us understand your space better by uploading photos or videos';
 
   @override
   String get gallery => 'Gallery';
@@ -150,7 +156,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get delete_availability_title => 'Delete Availability';
 
   @override
-  String get delete_availability_message => 'Are you sure you want to delete this availability slot?';
+  String get delete_availability_message =>
+      'Are you sure you want to delete this availability slot?';
 
   @override
   String get no_availability => 'No availability';
@@ -258,7 +265,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get schedule_conflict_title => 'Schedule conflict';
 
   @override
-  String get schedule_conflict_message => 'This worker already has a job at this time.';
+  String get schedule_conflict_message =>
+      'This worker already has a job at this time.';
 
   @override
   String get ok => 'OK';
@@ -279,7 +287,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scheduleDeepCleaning => 'Schedule Your Deep Cleaning';
 
   @override
-  String get scheduleDescription => 'Select a date, time, and address for your deep cleaning service';
+  String get scheduleDescription =>
+      'Select a date, time, and address for your deep cleaning service';
 
   @override
   String get date => 'Date';
@@ -393,10 +402,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get login_no_account => 'Don\'t have an account?';
 
   @override
+  String get login_apply_to_become_provider => 'Apply to Become a Provider';
+
+  @override
   String get login_signup => 'Sign Up';
 
   @override
-  String get signup_accept_terms_conditions => 'You must accept the Terms and Conditions';
+  String get signup_accept_terms_conditions =>
+      'You must accept the Terms and Conditions';
 
   @override
   String get signup_title => 'Create Account';
@@ -408,7 +421,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signup_join_yourcare => 'Join Your Care';
 
   @override
-  String get signup_fill_information => 'Fill in your details to create an account';
+  String get signup_fill_information =>
+      'Fill in your details to create an account';
 
   @override
   String get signup_name => 'Name';
@@ -507,7 +521,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get address_no_saved_address => 'You have no saved addresses yet';
 
   @override
-  String get address_delete_confirmation => 'Are you sure you want to delete address?';
+  String get address_delete_confirmation =>
+      'Are you sure you want to delete address?';
 
   @override
   String get address_building => 'Building';
@@ -627,7 +642,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get requests_cleaning_product_title => 'Cleaning Products';
 
   @override
-  String get requests_cleaning_products_description => 'Would you like us to bring our own cleaning products?';
+  String get requests_cleaning_products_description =>
+      'Would you like us to bring our own cleaning products?';
 
   @override
   String get general_cancel => 'Cancel';
@@ -693,10 +709,53 @@ class AppLocalizationsEn extends AppLocalizations {
   String get no_pricing_options => 'No pricing options available';
 
   @override
-  String get base_price_per_cleaner_per_hour => 'Base price per cleaner per hour';
+  String get base_price_per_cleaner_per_hour =>
+      'Base price per cleaner per hour';
+
+  @override
+  String get single_pricing_model => 'Single Pricing Model';
+
+  @override
+  String get multiple_pricing_model => 'Multiple Pricing Model';
+
+  @override
+  String get hours => 'Hours';
+
+  @override
+  String get cleaning_products_price => 'Cleaning products price';
+
+  @override
+  String get price_must_be_greater_than_zero =>
+      'Price must be greater than zero';
 
   @override
   String get housekeeping_active => 'Active';
+
+  @override
+  String get account_delete_request => 'Request account deletion';
+
+  @override
+  String get account_delete_request_subtitle => 'Opens a secure web form';
+
+  @override
+  String get force_update_title => 'Update Required';
+
+  @override
+  String get force_update_message =>
+      'A newer version of the app is required to continue.';
+
+  @override
+  String get force_update_minimum_label => 'Minimum required version';
+
+  @override
+  String get force_update_close_app => 'Close App';
+
+  @override
+  String get update_now => 'Update Now';
+
+  @override
+  String get update_available_message =>
+      'A newer version is available. Update now for the best experience.';
 
   @override
   String get save_pricing => 'Save Pricing';
@@ -805,6 +864,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get business_email => 'Company\'s Email';
+
+  @override
+  String get service_descriptions => 'Service Descriptions';
+
+  @override
+  String get covered_services_section_title => 'Covered Service Items';
+
+  @override
+  String get covered_services_add_custom => 'Add Custom Service';
+
+  @override
+  String get covered_services_edit_custom => 'Edit Service';
+
+  @override
+  String get covered_services_delete_confirmation =>
+      'Are you sure you want to delete this service?';
+
+  @override
+  String get covered_services_title_en => 'Title (English)';
+
+  @override
+  String get covered_services_title_ar => 'Title (Arabic)';
+
+  @override
+  String get form_required => 'Required';
+
+  @override
+  String get deep_cleaning_description => 'Deep Cleaning Description';
+
+  @override
+  String get house_cleaning_description => 'House Cleaning Description';
+
+  @override
+  String get upholstery_cleaning_description =>
+      'Upholstery Cleaning Description';
 
   @override
   String get enter_bid => 'Enter your bid';
@@ -993,4 +1087,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get number => 'Number';
+
+  @override
+  String get kwd => 'KWD';
 }

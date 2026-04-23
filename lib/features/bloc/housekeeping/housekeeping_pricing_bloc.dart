@@ -23,8 +23,11 @@ class HousekeepingPricingBloc
   HousekeepingPricingBloc() : super(const HousekeepingPricingInitial()) {
     on<LoadHousekeepingConfig>(_onLoadConfig);
     on<UpdateBasePrice>(_onUpdateBasePrice);
-    on<ToggleHousekeepingActive>(_onToggleActive);
+    on<ToggleSinglePricingModelActive>(_onToggleSingleActive);
+    on<ToggleMultiplePricingModelActive>(_onToggleMultipleActive);
     on<UpdateAreaFee>(_onUpdateAreaFee);
+    on<UpdateMultipleOptionPrice>(_onUpdateMultipleOptionPrice);
+    on<UpdateCleaningProductsPrice>(_onUpdateCleaningProductsPrice);
     on<SaveHousekeepingPricing>(_onSavePricing);
   }
 
@@ -52,8 +55,12 @@ class HousekeepingPricingBloc
       emit(state.copyWith(
         isLoading: false,
         areas: areas,
-        basePrice: pricing?.basePricePerCleanerPerHour ?? 0,
-        isActive: pricing?.isActive ?? true,
+        basePrice: pricing?.singlePricingModel?.basePricePerCleanerPerHour ?? 0,
+        cleaningProductsPrice: pricing?.cleaningProductsPrice ?? 0,
+        singlePricingModelActive: pricing?.singlePricingModel?.isActive ?? false,
+        multiplePricingModelActive:
+            pricing?.multiplePricingModel?.isActive ?? false,
+        multiplePricingOptions: pricing?.multiplePricingModel?.options ?? const [],
         areaFees: fees,
         error: null,
       ));
@@ -70,11 +77,26 @@ class HousekeepingPricingBloc
     emit(state.copyWith(basePrice: event.basePrice, error: null));
   }
 
-  FutureOr<void> _onToggleActive(
-    ToggleHousekeepingActive event,
+  FutureOr<void> _onToggleSingleActive(
+    ToggleSinglePricingModelActive event,
     Emitter<HousekeepingPricingState> emit,
   ) {
-    emit(state.copyWith(isActive: event.isActive, error: null));
+    emit(state.copyWith(
+      singlePricingModelActive: event.isActive,
+      multiplePricingModelActive: event.isActive ? false : state.multiplePricingModelActive,
+      error: null,
+    ));
+  }
+
+  FutureOr<void> _onToggleMultipleActive(
+    ToggleMultiplePricingModelActive event,
+    Emitter<HousekeepingPricingState> emit,
+  ) {
+    emit(state.copyWith(
+      multiplePricingModelActive: event.isActive,
+      singlePricingModelActive: event.isActive ? false : state.singlePricingModelActive,
+      error: null,
+    ));
   }
 
   FutureOr<void> _onUpdateAreaFee(
@@ -96,6 +118,25 @@ class HousekeepingPricingBloc
     }
   }
 
+  FutureOr<void> _onUpdateMultipleOptionPrice(
+    UpdateMultipleOptionPrice event,
+    Emitter<HousekeepingPricingState> emit,
+  ) {
+    final updated = state.multiplePricingOptions
+        .map((option) => option.optionId == event.optionId
+            ? option.copyWith(price: event.price)
+            : option)
+        .toList();
+    emit(state.copyWith(multiplePricingOptions: updated, error: null));
+  }
+
+  FutureOr<void> _onUpdateCleaningProductsPrice(
+    UpdateCleaningProductsPrice event,
+    Emitter<HousekeepingPricingState> emit,
+  ) {
+    emit(state.copyWith(cleaningProductsPrice: event.cleaningProductsPrice, error: null));
+  }
+
   FutureOr<void> _onSavePricing(
     SaveHousekeepingPricing event,
     Emitter<HousekeepingPricingState> emit,
@@ -104,14 +145,22 @@ class HousekeepingPricingBloc
     _loader.show();
     try {
       final request = HousekeepingPricingRequest(
-        basePricePerCleanerPerHour: state.basePrice,
         areaFees: state.areaFees.entries
             .map((entry) => HousekeepingAreaFee(
                   areaId: entry.key,
                   fee: entry.value,
                 ))
             .toList(),
-        isActive: state.isActive,
+        isActive: state.singlePricingModelActive || state.multiplePricingModelActive,
+        cleaningProductsPrice: state.cleaningProductsPrice,
+        singlePricingModel: HousekeepingSinglePricingModel(
+          isActive: state.singlePricingModelActive,
+          basePricePerCleanerPerHour: state.basePrice,
+        ),
+        multiplePricingModel: HousekeepingMultiplePricingModel(
+          isActive: state.multiplePricingModelActive,
+          options: state.multiplePricingOptions,
+        ),
       );
       final pricing = await upsertPricingUseCase.call(request);
       final fees = <String, double>{};
@@ -123,8 +172,16 @@ class HousekeepingPricingBloc
       _loader.hide();
       emit(state.copyWith(
         isSaving: false,
-        basePrice: pricing.basePricePerCleanerPerHour ?? state.basePrice,
-        isActive: pricing.isActive ?? state.isActive,
+        basePrice: pricing.singlePricingModel?.basePricePerCleanerPerHour ??
+            state.basePrice,
+        cleaningProductsPrice:
+            pricing.cleaningProductsPrice ?? state.cleaningProductsPrice,
+        singlePricingModelActive:
+            pricing.singlePricingModel?.isActive ?? state.singlePricingModelActive,
+        multiplePricingModelActive: pricing.multiplePricingModel?.isActive ??
+            state.multiplePricingModelActive,
+        multiplePricingOptions:
+            pricing.multiplePricingModel?.options ?? state.multiplePricingOptions,
         areaFees: fees.isEmpty ? state.areaFees : fees,
         error: null,
       ));
@@ -133,4 +190,5 @@ class HousekeepingPricingBloc
       emit(state.copyWith(isSaving: false, error: e.toString()));
     }
   }
+
 }

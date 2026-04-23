@@ -51,7 +51,10 @@ class _MainLayoutState extends State<MainLayout> {
           ];
 
           // Conditionally add Requests
-          if (perms.hasPermission(Permission.requestsRead)) {
+          if (perms.hasAnyPermission([
+            Permission.availableRequestsRead,
+            Permission.availableRequestsBrowse,
+          ])) {
             items.insert(
               0,
               NavItem(

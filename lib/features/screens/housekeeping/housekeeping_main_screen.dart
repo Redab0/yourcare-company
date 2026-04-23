@@ -1,5 +1,8 @@
 import 'package:cleaning_service_driver/components/home_menu_item.dart';
+import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
+import 'package:cleaning_service_driver/core/utils/permissions_helper.dart';
+import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -26,35 +29,60 @@ class HouseKeepingMainScreen extends StatelessWidget {
           final aspectRatio = isTablet ? 1.2 : .8;
           final maxWidth = isTablet ? 1100.0 : double.infinity;
 
-          final tiles = [
-            HomeMenuItem(
-              imageAsset: 'assets/images/ic_house_keeping_pricing.png',
-              title: context.l10n.housekeeping_configuration,
-              onTap: () => context.goNamed('housekeeping-configuration-screen'),
-              large: isTablet,
-            ),
-            HomeMenuItem(
-              imageAsset: 'assets/images/ic_employee_availability.png',
-              title: context.l10n.employee_availability,
-              onTap: () => context.goNamed('employee-availability-screen'),
-              large: isTablet,
-            ),
-          ];
+          return FutureBuilder<User?>(
+            future: SecureStorageService().getUser(),
+            builder: (context, snapshot) {
+              final perms = snapshot.data?.permissions ?? [];
+              final tiles = <Widget>[];
 
-          return Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: maxWidth),
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  childAspectRatio: aspectRatio,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
+              if (perms.hasAnyPermission([
+                Permission.housekeepingPricingRead,
+                Permission.housekeepingPricingCreate,
+                Permission.housekeepingPricingUpdate,
+              ])) {
+                tiles.add(
+                  HomeMenuItem(
+                    imageAsset: 'assets/images/ic_house_keeping_pricing.png',
+                    title: context.l10n.housekeeping_configuration,
+                    onTap: () =>
+                        context.goNamed('housekeeping-configuration-screen'),
+                    large: isTablet,
+                  ),
+                );
+              }
+
+              if (perms.hasAnyPermission([
+                Permission.cleanerAvailabilityRead,
+                Permission.cleanerAvailabilityCreate,
+                Permission.cleanerAvailabilityUpdate,
+                Permission.cleanerAvailabilityDelete,
+              ])) {
+                tiles.add(
+                  HomeMenuItem(
+                    imageAsset: 'assets/images/ic_employee_availability.png',
+                    title: context.l10n.employee_availability,
+                    onTap: () => context.goNamed('employee-availability-screen'),
+                    large: isTablet,
+                  ),
+                );
+              }
+
+              return Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: maxWidth),
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      childAspectRatio: aspectRatio,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                    ),
+                    itemCount: tiles.length,
+                    itemBuilder: (_, i) => tiles[i],
+                  ),
                 ),
-                itemCount: tiles.length,
-                itemBuilder: (_, i) => tiles[i],
-              ),
-            ),
+              );
+            },
           );
         }),
       ),

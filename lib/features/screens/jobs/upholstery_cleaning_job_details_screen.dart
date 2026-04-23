@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cleaning_service_driver/components/cleaning_item_summary_card.dart';
 import 'package:cleaning_service_driver/components/media_carousel_viewer.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
+import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
 import 'package:cleaning_service_driver/data/models/requests/complete_job_media_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/upholstery_cleaning_history.dart';
@@ -19,6 +20,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 
 enum _MediaChoice { gallery, cameraPhoto, cameraVideo }
 
@@ -63,6 +65,69 @@ class _UpholsteryCleaningJobDetailsState
       builder: (_) =>
           MediaCarouselViewer(urls: urls, initialIndex: initialIndex),
     );
+  }
+
+  String _statusPair(RequestStatus status) {
+    switch (status) {
+      case RequestStatus.confirmed:
+        return 'Confirmed / مؤكد';
+      case RequestStatus.pending:
+        return 'Pending / قيد الانتظار';
+      case RequestStatus.inProgress:
+        return 'In Progress / قيد التنفيذ';
+      case RequestStatus.completed:
+        return 'Completed / مكتمل';
+      case RequestStatus.cancelled:
+      case RequestStatus.canceled:
+        return 'Cancelled / ملغي';
+      case RequestStatus.notPaid:
+        return 'Not Paid / غير مدفوع';
+      case RequestStatus.paid:
+        return 'Paid / مدفوع';
+      case RequestStatus.unknown:
+        return 'Unknown / غير معروف';
+    }
+  }
+
+  Future<void> _shareDetails() async {
+    final req = _currentRequest;
+    final name = req.customer.username?.trim();
+    final phone = req.customer.phone?.trim();
+    final lat = req.upholsteryCleaning.address?.latitude;
+    final lng = req.upholsteryCleaning.address?.longitude;
+    final mapUrl = (lat != null && lng != null)
+        ? 'https://www.google.com/maps/search/?api=1&query=$lat,$lng'
+        : null;
+    final items = req.upholsteryCleaning.items ?? const [];
+    final itemLines = items.map((it) {
+      final typeTitle = it.type?.title ?? it.type?.titleEn ?? it.type?.titleAr ?? '-';
+      final qty = it.quantity ?? 0;
+      return '- $typeTitle x$qty';
+    }).toList();
+
+    final lines = <String>[
+      '==============================',
+      'Upholstery Cleaning / تنظيف المفروشات',
+      '==============================',
+      '',
+      '--- Request / الطلب ---',
+      'Request ID / رقم الطلب: ${req.id ?? '-'}',
+      'Request Status / حالة الطلب: ${_statusPair(req.requestStatus)}',
+      'Date and Time / الوقت والتاريخ: ${RequestFmt.date(req.scheduledTime)} ${RequestFmt.time(req.scheduledTime)}',
+      'Address / العنوان: ${req.upholsteryCleaning.fullAddress}',
+      '',
+      '--- Customer / العميل ---',
+      'Customer Name / اسم العميل: ${(name == null || name.isEmpty) ? '-' : name}',
+      'Customer Phone / رقم العميل: ${(phone == null || phone.isEmpty) ? '-' : phone}',
+      '',
+      '--- Location / الموقع ---',
+      'Google Maps: ${mapUrl ?? '-'}',
+      '',
+      '--- Job Details / تفاصيل الطلب ---',
+      'Job Details / تفاصيل الطلب',
+      ...itemLines,
+    ];
+    await Share.share(lines.join('\n'));
   }
 
   Widget _mediaThumb(String url) {
@@ -128,7 +193,15 @@ class _UpholsteryCleaningJobDetailsState
       },
       builder: (ctx, state) {
         return Scaffold(
-          appBar: AppBar(title: Text('#${req.id}')),
+          appBar: AppBar(
+            title: Text('#${req.id}'),
+            actions: [
+              IconButton(
+                onPressed: _shareDetails,
+                icon: const Icon(Icons.share),
+              ),
+            ],
+          ),
           body: SafeArea(
             minimum: const EdgeInsets.symmetric(horizontal: 24),
             child: ListView(

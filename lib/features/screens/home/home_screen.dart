@@ -127,10 +127,8 @@ class _HomePageState extends State<HomePage> {
               if (state is HomeFailure) {
                 return SizedBox.shrink();
               }
-              // once done, ensure we have _user
               final user = _user;
               if (user == null) {
-                // unlikely but safe fallback
                 return const SizedBox.shrink();
               }
 
@@ -141,14 +139,60 @@ class _HomePageState extends State<HomePage> {
                 final crossAxisCount = isTablet ? 3 : 2;
                 final aspectRatio = isTablet ? 1.2 : .8;
 
+                final canViewUpcomingJobs =
+                    perms!.hasPermission(Permission.companyRequestsRead);
+                final canViewCleaningRequests = perms.hasAnyPermission([
+                  Permission.availableRequestsRead,
+                  Permission.availableRequestsBrowse,
+                ]);
+                final canViewHousekeepingConfig = perms.hasAnyPermission([
+                  Permission.cleanerAvailabilityRead,
+                  Permission.cleanerAvailabilityCreate,
+                  Permission.cleanerAvailabilityUpdate,
+                  Permission.cleanerAvailabilityDelete,
+                  Permission.housekeepingPricingRead,
+                  Permission.housekeepingPricingCreate,
+                  Permission.housekeepingPricingUpdate,
+                ]);
+                final canViewAutoBid = perms.hasAnyPermission([
+                  Permission.autoBidRead,
+                  Permission.autoBidCreate,
+                  Permission.autoBidUpdate,
+                ]);
+                final canViewStaffManagement = perms.hasAnyPermission([
+                  Permission.staffRead,
+                  Permission.staffCreate,
+                  Permission.staffUpdate,
+                  Permission.teamsRead,
+                  Permission.teamsCreate,
+                  Permission.teamsUpdate,
+                  Permission.permissionsRead,
+                  Permission.permissionsUpdate,
+                  Permission.requestsRead,
+                  Permission.companyRequestsRead,
+                  Permission.companyRequestsStatistics,
+                  Permission.availableRequestsRead,
+                  Permission.availableRequestsBrowse,
+                  Permission.browsAvailableRequests,
+                ]);
+                final canViewCompanyProfile = perms.hasAnyPermission([
+                  Permission.companyProfileRead,
+                  Permission.companyProfileUpdate,
+                ]);
+                final canViewReports = perms.hasAnyPermission([
+                  Permission.reportsRead,
+                ]);
+
                 final items = <Widget>[];
-                if (perms!.hasPermission(Permission.requestsRead)) {
+                if (canViewUpcomingJobs) {
                   items.add(HomeMenuItem(
                     imageAsset: 'assets/images/jobs.png',
                     title: context.l10n.upcoming_jobs,
                     onTap: () => context.pushNamed('jobs-main-screen'),
                     large: isTablet,
                   ));
+                }
+                if (canViewCleaningRequests) {
                   items.add(HomeMenuItem(
                     imageAsset: 'assets/images/requests.png',
                     title: context.l10n.cleaning_requests,
@@ -156,20 +200,24 @@ class _HomePageState extends State<HomePage> {
                     large: isTablet,
                   ));
                 }
-                items.add(HomeMenuItem(
-                  imageAsset: 'assets/images/ic_house_keeping_management.png',
-                  title: context.l10n.house_keeping_configuration,
-                  onTap: () => context.pushNamed('housekeeping-main-screen'),
-                  large: isTablet,
-                ));
-                items.add(HomeMenuItem(
-                  imageAsset: 'assets/images/ic_requests.png',
-                  title: context.l10n.auto_bidding,
-                  onTap: () => context.pushNamed('auto-bidding-screen'),
-                  large: isTablet,
-                ));
+                if (canViewHousekeepingConfig) {
+                  items.add(HomeMenuItem(
+                    imageAsset: 'assets/images/ic_house_keeping_management.png',
+                    title: context.l10n.house_keeping_configuration,
+                    onTap: () => context.pushNamed('housekeeping-main-screen'),
+                    large: isTablet,
+                  ));
+                }
+                if (canViewAutoBid) {
+                  items.add(HomeMenuItem(
+                    imageAsset: 'assets/images/ic_requests.png',
+                    title: context.l10n.auto_bidding,
+                    onTap: () => context.pushNamed('auto-bidding-screen'),
+                    large: isTablet,
+                  ));
+                }
 
-                if (perms.hasPermission(Permission.usersRead)) {
+                if (canViewStaffManagement) {
                   items.add(HomeMenuItem(
                     imageAsset: 'assets/images/staff.png',
                     title: context.l10n.staff_management,
@@ -177,7 +225,7 @@ class _HomePageState extends State<HomePage> {
                     large: isTablet,
                   ));
                 }
-                if (perms.hasPermission(Permission.businessCreate)) {
+                if (canViewCompanyProfile) {
                   items.add(HomeMenuItem(
                     imageAsset: 'assets/images/ic_business_profile.png',
                     title: context.l10n.company_profile,
@@ -185,7 +233,7 @@ class _HomePageState extends State<HomePage> {
                     large: isTablet,
                   ));
                 }
-                if (perms.hasPermission(Permission.transactionsRead)) {
+                if (canViewReports) {
                   items.add(HomeMenuItem(
                     imageAsset: 'assets/images/analytics.png',
                     title: context.l10n.reports,
