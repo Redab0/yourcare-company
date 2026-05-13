@@ -1,4 +1,5 @@
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
+import 'package:cleaning_service_driver/data/models/housekeeping/housekeeping_service_frequency_option.dart';
 import 'package:cleaning_service_driver/data/models/housekeeping/housekeeping_pricing.dart';
 import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
 import 'package:cleaning_service_driver/features/bloc/housekeeping/housekeeping_pricing_bloc.dart';
@@ -27,6 +28,8 @@ class _HousekeepingConfigurationScreenState
   final _cleaningProductsFocus = FocusNode();
   final Map<String, TextEditingController> _optionPriceControllers = {};
   final Map<String, FocusNode> _optionPriceFocusNodes = {};
+  final Map<String, TextEditingController> _frequencyDiscountControllers = {};
+  final Map<String, FocusNode> _frequencyDiscountFocusNodes = {};
   final _numberFormat = NumberFormat('0.###');
 
   @override
@@ -45,6 +48,12 @@ class _HousekeepingConfigurationScreenState
       controller.dispose();
     }
     for (final focus in _optionPriceFocusNodes.values) {
+      focus.dispose();
+    }
+    for (final controller in _frequencyDiscountControllers.values) {
+      controller.dispose();
+    }
+    for (final focus in _frequencyDiscountFocusNodes.values) {
       focus.dispose();
     }
     super.dispose();
@@ -99,6 +108,27 @@ class _HousekeepingConfigurationScreenState
     }
   }
 
+  void _syncServiceFrequencyTexts(HousekeepingPricingState state) {
+    for (final option in state.serviceFrequencyOptions) {
+      final id = option.id;
+      if (id.isEmpty) continue;
+      final controller = _frequencyDiscountControllers.putIfAbsent(
+        id,
+        TextEditingController.new,
+      );
+      final focusNode = _frequencyDiscountFocusNodes.putIfAbsent(
+        id,
+        FocusNode.new,
+      );
+      if (focusNode.hasFocus) continue;
+      final value = state.serviceFrequencyDiscounts[id];
+      final formatted = value == null ? '' : _formatAmount(value);
+      if (controller.text != formatted) {
+        controller.text = formatted;
+      }
+    }
+  }
+
   void _updateAreaFee(String areaId, double next) {
     final normalized = _parseAmount(next.toString());
     context
@@ -136,6 +166,21 @@ class _HousekeepingConfigurationScreenState
         : '$parsed ${context.l10n.hours}';
   }
 
+  String _serviceFrequencyLabel(HousekeepingServiceFrequencyOption option) {
+    final useAr = _isArabic(context);
+    final raw = (useAr ? option.titleAr : option.titleEn) ??
+        option.titleEn ??
+        option.titleAr ??
+        '';
+    final title = raw.trim();
+    if (title.isNotEmpty) {
+      return '$title ${context.l10n.frequency_visits_per_week}';
+    }
+    final visits = option.numberOfWeeklyVisits;
+    if (visits == null) return '-';
+    return '$visits ${context.l10n.frequency_visits_per_week}';
+  }
+
   void _savePricing(HousekeepingPricingState state) {
     final base = _parseAmount(_basePriceController.text);
     final cleaningProducts = _parseAmount(_cleaningProductsController.text);
@@ -151,6 +196,21 @@ class _HousekeepingConfigurationScreenState
         state.multiplePricingOptions.any((o) => o.price <= 0)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.l10n.price_must_be_greater_than_zero)),
+      );
+      return;
+    }
+
+    final frequencyIds = state.serviceFrequencyOptions
+        .map((option) => option.id)
+        .where((id) => id.isNotEmpty)
+        .toList();
+    final hasAllFrequencyDiscounts = frequencyIds.every((id) {
+      final value = state.serviceFrequencyDiscounts[id];
+      return value != null && value >= 0;
+    });
+    if (!hasAllFrequencyDiscounts) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.enter_all_frequency_discounts)),
       );
       return;
     }
@@ -190,7 +250,8 @@ class _HousekeepingConfigurationScreenState
             }
             return false;
           },
-          child: BlocConsumer<HousekeepingPricingBloc, HousekeepingPricingState>(
+          child:
+              BlocConsumer<HousekeepingPricingBloc, HousekeepingPricingState>(
             listener: (ctx, state) {
               if (state.error != null) {
                 ctx.showErrorToast();
@@ -203,6 +264,7 @@ class _HousekeepingConfigurationScreenState
               _syncBasePriceText(state.basePrice);
               _syncCleaningProductsText(state.cleaningProductsPrice);
               _syncMultipleOptionTexts(state);
+              _syncServiceFrequencyTexts(state);
               return RefreshIndicator(
                 onRefresh: _refresh,
                 child: ListView(
@@ -329,6 +391,54 @@ class _HousekeepingConfigurationScreenState
                     ),
                   );
                 }),
+                const SizedBox(height: 12),
+                Text(
+                  context.l10n.service_frequency,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                ...state.serviceFrequencyOptions.map((option) {
+                  if (option.id.isEmpty) return const SizedBox.shrink();
+                  final controller = _frequencyDiscountControllers[option.id]!;
+                  final focusNode = _frequencyDiscountFocusNodes[option.id]!;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 160,
+                          child: Text(
+                            _serviceFrequencyLabel(option),
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: controller,
+                            focusNode: focusNode,
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            decoration: InputDecoration(
+                              labelText: context.l10n.discount_percentage,
+                              suffixText: '%',
+                            ),
+                            onChanged: (value) {
+                              final parsed = _parseAmount(value);
+                              context.read<HousekeepingPricingBloc>().add(
+                                    UpdateServiceFrequencyDiscount(
+                                      optionId: option.id,
+                                      discountPercentage: parsed,
+                                    ),
+                                  );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
                 const SizedBox(height: 8),
                 SwitchListTile(
                   value: state.multiplePricingModelActive,
@@ -360,7 +470,8 @@ class _HousekeepingConfigurationScreenState
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
-                    onPressed: state.isSaving ? null : () => _savePricing(state),
+                    onPressed:
+                        state.isSaving ? null : () => _savePricing(state),
                     icon: state.isSaving
                         ? const SizedBox(
                             width: 16,
@@ -427,7 +538,8 @@ class _HousekeepingConfigurationScreenState
           ),
           IconButton(
             icon: const Icon(Icons.remove_circle_outline),
-            onPressed: canDecrease ? () => _updateAreaFee(id, fee - _feeStep) : null,
+            onPressed:
+                canDecrease ? () => _updateAreaFee(id, fee - _feeStep) : null,
           ),
           Container(
             width: 72,
@@ -444,7 +556,8 @@ class _HousekeepingConfigurationScreenState
           ),
           IconButton(
             icon: const Icon(Icons.add_circle_outline),
-            onPressed: id == null ? null : () => _updateAreaFee(id, fee + _feeStep),
+            onPressed:
+                id == null ? null : () => _updateAreaFee(id, fee + _feeStep),
           ),
         ],
       ),

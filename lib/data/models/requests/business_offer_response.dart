@@ -5,24 +5,30 @@ part 'business_offer_response.g.dart';
 
 @JsonSerializable(checked: true)
 class BusinessOfferResponse {
-  final String id;
+  final String? id;
   final String? readableId;
+  @JsonKey(defaultValue: 0)
   final double totalPrice;
-  final RequestStatus requestStatus;
-  final String createdAt;
-  final String updatedAt;
+  @JsonKey(unknownEnumValue: RequestStatus.unknown)
+  final RequestStatus? requestStatus;
+  final String? createdAt;
+  final String? updatedAt;
   final int? serviceFrequencyCount;
   final int? serviceIntervalDays;
+  final String? timelineBusinessOffer;
+  final String? descriptionBusinessOffer;
 
   BusinessOfferResponse({
     this.readableId,
-    required this.id,
-    required this.totalPrice,
-    required this.requestStatus,
-    required this.createdAt,
-    required this.updatedAt,
+    this.id,
+    this.totalPrice = 0,
+    this.requestStatus,
+    this.createdAt,
+    this.updatedAt,
     this.serviceFrequencyCount,
     this.serviceIntervalDays,
+    this.timelineBusinessOffer,
+    this.descriptionBusinessOffer,
   });
 
   factory BusinessOfferResponse.fromJson(Map<String, dynamic> json) =>

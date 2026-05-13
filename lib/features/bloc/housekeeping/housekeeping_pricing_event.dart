@@ -52,7 +52,8 @@ class UpdateMultipleOptionPrice extends HousekeepingPricingEvent {
   final String optionId;
   final double price;
 
-  const UpdateMultipleOptionPrice({required this.optionId, required this.price});
+  const UpdateMultipleOptionPrice(
+      {required this.optionId, required this.price});
 
   @override
   List<Object?> get props => [optionId, price];
@@ -65,6 +66,19 @@ class UpdateCleaningProductsPrice extends HousekeepingPricingEvent {
 
   @override
   List<Object?> get props => [cleaningProductsPrice];
+}
+
+class UpdateServiceFrequencyDiscount extends HousekeepingPricingEvent {
+  final String optionId;
+  final double discountPercentage;
+
+  const UpdateServiceFrequencyDiscount({
+    required this.optionId,
+    required this.discountPercentage,
+  });
+
+  @override
+  List<Object?> get props => [optionId, discountPercentage];
 }
 
 class SaveHousekeepingPricing extends HousekeepingPricingEvent {

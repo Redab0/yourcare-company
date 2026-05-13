@@ -1,4 +1,7 @@
 import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
+import 'package:cleaning_service_driver/data/models/housekeeping/housekeeping_frequency_discount.dart';
+import 'package:cleaning_service_driver/data/models/housekeeping/housekeeping_pricing_discount.dart';
+import 'package:cleaning_service_driver/data/models/housekeeping/housekeeping_service_frequency_option.dart';
 
 class HousekeepingAreaFee {
   final String? areaId;
@@ -153,6 +156,9 @@ class HousekeepingPricing {
   final double? cleaningProductsPrice;
   final HousekeepingSinglePricingModel? singlePricingModel;
   final HousekeepingMultiplePricingModel? multiplePricingModel;
+  final List<HousekeepingServiceFrequencyOption>? serviceFrequency;
+  final List<HousekeepingPricingDiscount>? pricing;
+  final List<HousekeepingFrequencyDiscount>? frequencyDiscounts;
 
   const HousekeepingPricing({
     this.areaFees,
@@ -160,6 +166,9 @@ class HousekeepingPricing {
     this.cleaningProductsPrice,
     this.singlePricingModel,
     this.multiplePricingModel,
+    this.serviceFrequency,
+    this.pricing,
+    this.frequencyDiscounts,
   });
 
   factory HousekeepingPricing.fromJson(Map<String, dynamic> json) {
@@ -168,21 +177,38 @@ class HousekeepingPricing {
           ?.map((e) => HousekeepingAreaFee.fromJson(e as Map<String, dynamic>))
           .toList(),
       isActive: json['isActive'] as bool?,
-      cleaningProductsPrice: (json['cleaningProductsPrice'] as num?)?.toDouble(),
+      cleaningProductsPrice:
+          (json['cleaningProductsPrice'] as num?)?.toDouble(),
       singlePricingModel: _parseSinglePricingModel(json),
       multiplePricingModel: _parseMultiplePricingModel(json),
+      serviceFrequency: (json['serviceFrequency'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(HousekeepingServiceFrequencyOption.fromJson)
+          .toList(),
+      pricing: (json['pricing'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(HousekeepingPricingDiscount.fromJson)
+          .toList(),
+      frequencyDiscounts:
+          (json['frequencyDiscounts'] as List<dynamic>? ?? const [])
+              .whereType<Map<String, dynamic>>()
+              .map(HousekeepingFrequencyDiscount.fromJson)
+              .toList(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      if (areaFees != null) 'areaFees': areaFees!.map((e) => e.toJson()).toList(),
+      if (areaFees != null)
+        'areaFees': areaFees!.map((e) => e.toJson()).toList(),
       if (isActive != null) 'isActive': isActive,
       if (cleaningProductsPrice != null)
         'cleaningProductsPrice': cleaningProductsPrice,
-      if (singlePricingModel != null) 'singlePricingModel': singlePricingModel!.toJson(),
+      if (singlePricingModel != null)
+        'singlePricingModel': singlePricingModel!.toJson(),
       if (multiplePricingModel != null)
         'multiplePricingModel': multiplePricingModel!.toJson(),
+      if (pricing != null) 'pricing': pricing!.map((e) => e.toJson()).toList(),
     };
   }
 }
@@ -193,6 +219,7 @@ class HousekeepingPricingRequest {
   final double cleaningProductsPrice;
   final HousekeepingSinglePricingModel singlePricingModel;
   final HousekeepingMultiplePricingModel multiplePricingModel;
+  final List<HousekeepingPricingDiscount> frequencyDiscounts;
 
   const HousekeepingPricingRequest({
     required this.areaFees,
@@ -200,6 +227,7 @@ class HousekeepingPricingRequest {
     required this.cleaningProductsPrice,
     required this.singlePricingModel,
     required this.multiplePricingModel,
+    required this.frequencyDiscounts,
   });
 
   Map<String, dynamic> toJson() {
@@ -209,6 +237,7 @@ class HousekeepingPricingRequest {
       'cleaningProductsPrice': cleaningProductsPrice,
       'singlePricingModel': singlePricingModel.toJson(),
       'multiplePricingModel': multiplePricingModel.toJson(),
+      'frequencyDiscounts': frequencyDiscounts.map((e) => e.toJson()).toList(),
     };
   }
 }

@@ -24,6 +24,7 @@ class DeepCleaningRequestCard extends StatelessWidget {
     final theme = Theme.of(context);
     final cardR = BorderRadius.circular(24);
     final detail = request.detail;
+    final myBid = request.myBid;
     final isApartment = detail.isApartmentOrHouse;
     final isCommercial = detail.isCommercialOrOffice;
     final isOther = detail.isOtherType;
@@ -76,7 +77,7 @@ class DeepCleaningRequestCard extends StatelessWidget {
           if (isApartment) ...[
             if (detail.floor > 0)
               _iconLine(Icons.elevator_outlined,
-                  '${detail.floor ?? ""} ${context.l10n.numberOfFloors}'),
+                  '${detail.floor} ${context.l10n.numberOfFloors}'),
             if (detail.bedrooms > 0)
               _iconLine(Icons.king_bed_outlined,
                   '${detail.bedrooms} ${context.l10n.request_card_bedroom}'),
@@ -122,22 +123,35 @@ class DeepCleaningRequestCard extends StatelessWidget {
             Text('“${detail.notes}”', style: theme.textTheme.bodyMedium),
           ],
 
-          const SizedBox(height: 32),
-          // ── submit button ───────────────────────────────────────
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              style: FilledButton.styleFrom(
-                backgroundColor: _blue,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: cardR),
-              ),
-              icon: const Icon(Icons.gavel_rounded),
-              label:
-                  Text(context.l10n.submit_bit, style: TextStyle(fontSize: 16)),
-              onPressed: onSubmitBid,
+          const SizedBox(height: 24),
+          if (myBid != null) ...[
+            Text(
+              context.l10n.submitted_bid_title,
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w700),
             ),
-          ),
+            const SizedBox(height: 8),
+            _iconLine(Icons.payments_outlined, '${myBid.totalPrice} KWD'),
+            if ((myBid.timelineBusinessOffer ?? '').isNotEmpty)
+              _iconLine(Icons.schedule, myBid.timelineBusinessOffer!),
+            if ((myBid.descriptionBusinessOffer ?? '').isNotEmpty)
+              _iconLine(Icons.notes_outlined, myBid.descriptionBusinessOffer!),
+          ] else ...[
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: _blue,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: cardR),
+                ),
+                icon: const Icon(Icons.gavel_rounded),
+                label: Text(context.l10n.submit_bit,
+                    style: const TextStyle(fontSize: 16)),
+                onPressed: onSubmitBid,
+              ),
+            ),
+          ],
         ],
       ),
     );

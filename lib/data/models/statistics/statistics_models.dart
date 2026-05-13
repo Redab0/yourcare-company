@@ -13,7 +13,11 @@ class StatisticsOverview {
   final int? canceledRequests;
   final int? deepCleaningRequests;
   final int? houseCleaningRequests;
-  final int? totalRevenue;
+  final int? upholsteryCleaningRequests;
+  final double? totalRevenue;
+  final double? totalFees;
+  final double? totalIncome;
+  final double? totalIncomeAfterFee;
   final double? avgRequestValue;
 
   StatisticsOverview({
@@ -25,7 +29,11 @@ class StatisticsOverview {
     this.canceledRequests,
     this.deepCleaningRequests,
     this.houseCleaningRequests,
+    this.upholsteryCleaningRequests,
     this.totalRevenue,
+    this.totalFees,
+    this.totalIncome,
+    this.totalIncomeAfterFee,
     this.avgRequestValue,
   });
 

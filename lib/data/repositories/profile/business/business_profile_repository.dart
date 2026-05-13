@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:developer' as developer;
 
 import 'package:cleaning_service_driver/core/models/response.dart';
 import 'package:cleaning_service_driver/core/models/response_payload.dart';
@@ -20,63 +21,92 @@ class BusinessProfileRepository {
 
   BusinessProfileRepository(this._profileService);
 
-  Future<BusinessProfileModel> getBusinessProfile() async {
-    final response = await _profileService.getCompanyProfile();
+  void _logError(String action, Object error, [StackTrace? stackTrace]) {
+    developer.log(
+      '[BusinessProfileRepository] $action failed: $error',
+      name: 'BusinessProfileRepository',
+      error: error,
+      stackTrace: stackTrace,
+    );
+  }
 
-    if (response.success && response.data != null) {
-      return response.data!.data!;
-    } else {
-      throw Exception(response.message);
+  Future<BusinessProfileModel> getBusinessProfile() async {
+    try {
+      final response = await _profileService.getCompanyProfile();
+      if (response.success && response.data != null) {
+        return response.data!.data!;
+      } else {
+        throw Exception(response.message);
+      }
+    } catch (e, s) {
+      _logError('getBusinessProfile', e, s);
+      rethrow;
     }
   }
 
   Future<BusinessProfileModel> updateBusinessProfile(
       UpdateBusinessProfileModel model) async {
-    final response = await _profileService.updateCompanyProfile(model);
-
-    if (response.success && response.data != null) {
-      return response.data!.data!;
-    } else {
-      throw Exception(response.message);
+    try {
+      final response = await _profileService.updateCompanyProfile(model);
+      if (response.success && response.data != null) {
+        return response.data!.data!;
+      } else {
+        throw Exception(response.message);
+      }
+    } catch (e, s) {
+      _logError('updateBusinessProfile', e, s);
+      rethrow;
     }
   }
 
   Future<List<CoveredServiceGroup>> getCoveredServiceItems() async {
-    final response = await _profileService.getCoveredServiceItems();
-    ApiResponse<ResponsePayload<BusinessProfileModel>>? profileResponse;
     try {
-      profileResponse = await _profileService.getCompanyProfile();
-    } catch (_) {}
+      final response = await _profileService.getCoveredServiceItems();
+      ApiResponse<ResponsePayload<BusinessProfileModel>>? profileResponse;
+      try {
+        profileResponse = await _profileService.getCompanyProfile();
+      } catch (e, s) {
+        _logError('getCoveredServiceItems->getCompanyProfile', e, s);
+      }
 
-    if (response.success && response.data != null) {
-      final apiGroups = response.data!.data ?? const [];
-      final profileGroups =
-          profileResponse?.data?.data?.coveredServices ?? const [];
-      return _mergeAndDedupeCoveredGroups(
-        apiGroups: apiGroups,
-        profileGroups: profileGroups,
-      );
-    } else {
-      throw Exception(response.message);
+      if (response.success && response.data != null) {
+        final apiGroups = response.data!.data ?? const [];
+        final profileGroups =
+            profileResponse?.data?.data?.coveredServices ?? const [];
+        return _mergeAndDedupeCoveredGroups(
+          apiGroups: apiGroups,
+          profileGroups: profileGroups,
+        );
+      } else {
+        throw Exception(response.message);
+      }
+    } catch (e, s) {
+      _logError('getCoveredServiceItems', e, s);
+      rethrow;
     }
   }
 
   Future<List<CoveredServiceGroup>> updateCoveredServiceItems(
       List<String> serviceItemIds) async {
-    final response = await _profileService.updateCoveredServiceItems(
-      UpdateCoveredServiceItemsRequest(serviceItemIds),
-    );
-
-    if (response.success && response.data != null) {
-      final groups = await _profileService.getCoveredServiceItems();
-      final apiGroups = groups.data?.data ?? const [];
-      final profileGroups = response.data!.data?.coveredServices ?? const [];
-      return _mergeAndDedupeCoveredGroups(
-        apiGroups: apiGroups,
-        profileGroups: profileGroups,
+    try {
+      final response = await _profileService.updateCoveredServiceItems(
+        UpdateCoveredServiceItemsRequest(serviceItemIds),
       );
-    } else {
-      throw Exception(response.message);
+
+      if (response.success && response.data != null) {
+        final groups = await _profileService.getCoveredServiceItems();
+        final apiGroups = groups.data?.data ?? const [];
+        final profileGroups = response.data!.data?.coveredServices ?? const [];
+        return _mergeAndDedupeCoveredGroups(
+          apiGroups: apiGroups,
+          profileGroups: profileGroups,
+        );
+      } else {
+        throw Exception(response.message);
+      }
+    } catch (e, s) {
+      _logError('updateCoveredServiceItems', e, s);
+      rethrow;
     }
   }
 
@@ -85,24 +115,29 @@ class BusinessProfileRepository {
     required String titleEn,
     required String titleAr,
   }) async {
-    final response = await _profileService.createCustomServiceItem(
-      CustomServiceItemRequest(
-        serviceType: serviceType,
-        titleEn: titleEn,
-        titleAr: titleAr,
-      ),
-    );
-
-    if (response.success && response.data != null) {
-      final groups = await _profileService.getCoveredServiceItems();
-      final apiGroups = groups.data?.data ?? const [];
-      final profileGroups = response.data!.data?.coveredServices ?? const [];
-      return _mergeAndDedupeCoveredGroups(
-        apiGroups: apiGroups,
-        profileGroups: profileGroups,
+    try {
+      final response = await _profileService.createCustomServiceItem(
+        CustomServiceItemRequest(
+          serviceType: serviceType,
+          titleEn: titleEn,
+          titleAr: titleAr,
+        ),
       );
+
+      if (response.success && response.data != null) {
+        final groups = await _profileService.getCoveredServiceItems();
+        final apiGroups = groups.data?.data ?? const [];
+        final profileGroups = response.data!.data?.coveredServices ?? const [];
+        return _mergeAndDedupeCoveredGroups(
+          apiGroups: apiGroups,
+          profileGroups: profileGroups,
+        );
+      }
+      throw Exception(response.message);
+    } catch (e, s) {
+      _logError('createCustomServiceItem', e, s);
+      rethrow;
     }
-    throw Exception(response.message);
   }
 
   Future<List<CoveredServiceGroup>> updateCustomServiceItem({
@@ -110,41 +145,51 @@ class BusinessProfileRepository {
     required String titleEn,
     required String titleAr,
   }) async {
-    final response = await _profileService.updateCustomServiceItem(
-      serviceItemId,
-      UpdateCustomServiceItemRequest(
-        titleEn: titleEn,
-        titleAr: titleAr,
-      ),
-    );
-
-    if (response.success && response.data != null) {
-      final groups = await _profileService.getCoveredServiceItems();
-      final apiGroups = groups.data?.data ?? const [];
-      final profileGroups = response.data!.data?.coveredServices ?? const [];
-      return _mergeAndDedupeCoveredGroups(
-        apiGroups: apiGroups,
-        profileGroups: profileGroups,
+    try {
+      final response = await _profileService.updateCustomServiceItem(
+        serviceItemId,
+        UpdateCustomServiceItemRequest(
+          titleEn: titleEn,
+          titleAr: titleAr,
+        ),
       );
+
+      if (response.success && response.data != null) {
+        final groups = await _profileService.getCoveredServiceItems();
+        final apiGroups = groups.data?.data ?? const [];
+        final profileGroups = response.data!.data?.coveredServices ?? const [];
+        return _mergeAndDedupeCoveredGroups(
+          apiGroups: apiGroups,
+          profileGroups: profileGroups,
+        );
+      }
+      throw Exception(response.message);
+    } catch (e, s) {
+      _logError('updateCustomServiceItem', e, s);
+      rethrow;
     }
-    throw Exception(response.message);
   }
 
   Future<List<CoveredServiceGroup>> deleteCustomServiceItem(
       String serviceItemId) async {
-    final response =
-        await _profileService.deleteCustomServiceItem(serviceItemId);
+    try {
+      final response =
+          await _profileService.deleteCustomServiceItem(serviceItemId);
 
-    if (response.success && response.data != null) {
-      final groups = await _profileService.getCoveredServiceItems();
-      final apiGroups = groups.data?.data ?? const [];
-      final profileGroups = response.data!.data?.coveredServices ?? const [];
-      return _mergeAndDedupeCoveredGroups(
-        apiGroups: apiGroups,
-        profileGroups: profileGroups,
-      );
+      if (response.success && response.data != null) {
+        final groups = await _profileService.getCoveredServiceItems();
+        final apiGroups = groups.data?.data ?? const [];
+        final profileGroups = response.data!.data?.coveredServices ?? const [];
+        return _mergeAndDedupeCoveredGroups(
+          apiGroups: apiGroups,
+          profileGroups: profileGroups,
+        );
+      }
+      throw Exception(response.message);
+    } catch (e, s) {
+      _logError('deleteCustomServiceItem', e, s);
+      rethrow;
     }
-    throw Exception(response.message);
   }
 
   List<CoveredServiceGroup> _mergeAndDedupeCoveredGroups({
@@ -220,32 +265,41 @@ class BusinessProfileRepository {
   }
 
   Future<List<AreaResponse>> getAreas() async {
-    late List<AreaResponse> areas;
-    var response = await _profileService.getAreas();
-    if (response.success && response.data != null) {
-      areas = response.data!.data!;
-      // await SecureStorageService().saveAreas(areas);
-    } else {
-      throw Exception(response.message);
+    try {
+      late List<AreaResponse> areas;
+      var response = await _profileService.getAreas();
+      if (response.success && response.data != null) {
+        areas = response.data!.data!;
+        // await SecureStorageService().saveAreas(areas);
+      } else {
+        throw Exception(response.message);
+      }
+      return areas;
+    } catch (e, s) {
+      _logError('getAreas', e, s);
+      rethrow;
     }
-
-    return areas;
   }
 
   Future<List<MediaUploadResponse>> uploadMedia(List<File> files) async {
-    final parts = files
-        .map((f) => MultipartFile.fromFileSync(
-              f.path,
-              filename: p.basename(f.path),
-              contentType: MediaType('image', 'jpeg'),
-            ))
-        .toList();
-    final response = await _profileService.uploadMedia(parts);
+    try {
+      final parts = files
+          .map((f) => MultipartFile.fromFileSync(
+                f.path,
+                filename: p.basename(f.path),
+                contentType: MediaType('image', 'jpeg'),
+              ))
+          .toList();
+      final response = await _profileService.uploadMedia(parts);
 
-    if (response.success && response.data != null) {
-      return response.data!.data!;
-    } else {
-      throw Exception('Upload failed: ${response.message}');
+      if (response.success && response.data != null) {
+        return response.data!.data!;
+      } else {
+        throw Exception('Upload failed: ${response.message}');
+      }
+    } catch (e, s) {
+      _logError('uploadMedia', e, s);
+      rethrow;
     }
   }
 }

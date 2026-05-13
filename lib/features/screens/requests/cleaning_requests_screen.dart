@@ -315,6 +315,11 @@ class _ExpandableRequestItemState extends State<_ExpandableRequestItem> {
 
   @override
   Widget build(BuildContext context) {
+    final hasSubmittedBid = (widget.request is DeepCleaningHistory &&
+            (widget.request as DeepCleaningHistory).myBid != null) ||
+        (widget.request is UpholsteryCleaningHistory &&
+            (widget.request as UpholsteryCleaningHistory).myBid != null);
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       elevation: 2,
@@ -332,7 +337,14 @@ class _ExpandableRequestItemState extends State<_ExpandableRequestItem> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _pill(widget.summaryLabel, widget.pillColor),
+                      Row(
+                        children: [
+                          _pill(widget.summaryLabel, widget.pillColor),
+                          const Spacer(),
+                          if (hasSubmittedBid)
+                            _bidPill(context.l10n.bid_submitted),
+                        ],
+                      ),
                       SizedBox(
                         height: 4,
                       ),
@@ -387,5 +399,21 @@ class _ExpandableRequestItemState extends State<_ExpandableRequestItem> {
         child: Text(text,
             style: TextStyle(
                 color: color, fontWeight: FontWeight.w900, fontSize: 15)),
+      );
+
+  Widget _bidPill(String text) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: const Color(0xFF2979FF).withOpacity(0.12),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: Color(0xFF2979FF),
+            fontWeight: FontWeight.w700,
+            fontSize: 12,
+          ),
+        ),
       );
 }

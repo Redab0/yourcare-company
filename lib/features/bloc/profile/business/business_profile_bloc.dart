@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/utils/loading_controller.dart';
@@ -29,6 +30,19 @@ class BusinessProfileBloc
   final deleteCustomServiceItemUseCase = sl<DeleteCustomServiceItemUseCase>();
   final _loader = sl<LoadingController>();
 
+  void _logError(
+    String action,
+    Object error,
+    StackTrace stackTrace,
+  ) {
+    developer.log(
+      '[BusinessProfileBloc] $action failed: $error',
+      name: 'BusinessProfileBloc',
+      error: error,
+      stackTrace: stackTrace,
+    );
+  }
+
   BusinessProfileBloc() : super(ProfileInitial()) {
     on<LoadProfileEvent>(_onLoadProfileEvent);
     on<UpdateProfileEvent>(_onUpdateProfileEvent);
@@ -48,7 +62,8 @@ class BusinessProfileBloc
       final profile = await getProfileUseCase.call();
       _loader.hide();
       emit(ProfileLoaded(profile));
-    } catch (e) {
+    } catch (e, s) {
+      _logError('_onLoadProfileEvent', e, s);
       _loader.hide();
       emit(ProfileError(e.toString()));
     }
@@ -61,7 +76,8 @@ class BusinessProfileBloc
       final profile = await updateProfileUseCase(event.model);
       _loader.hide();
       emit(ProfileLoaded(profile));
-    } catch (e) {
+    } catch (e, s) {
+      _logError('_onUpdateProfileEvent', e, s);
       _loader.hide();
       emit(ProfileError(e.toString()));
     }
@@ -72,7 +88,8 @@ class BusinessProfileBloc
     try {
       var areas = await getAreasUseCase.execute();
       emit(AreasLoaded(areas));
-    } catch (e) {
+    } catch (e, s) {
+      _logError('_onGetAreas', e, s);
       emit(ProfileError(e.toString()));
     }
   }
@@ -84,7 +101,8 @@ class BusinessProfileBloc
       final response = await uploadMediaUseCase.call(event.files);
       _loader.hide();
       emit(MediaUploaded(response));
-    } catch (e) {
+    } catch (e, s) {
+      _logError('_upload', e, s);
       _loader.hide();
       emit(ProfileError("Request Failed $e"));
     }
@@ -95,7 +113,8 @@ class BusinessProfileBloc
     try {
       final groups = await getCoveredServiceItemsUseCase.call();
       emit(CoveredServiceItemsLoaded(groups));
-    } catch (e) {
+    } catch (e, s) {
+      _logError('_onLoadCoveredServiceItems', e, s);
       emit(ProfileError(e.toString()));
     }
   }
@@ -118,7 +137,8 @@ class BusinessProfileBloc
       final groups = await updateCoveredServiceItemsUseCase.call(ids.toList());
       _loader.hide();
       emit(CoveredServiceItemsLoaded(groups));
-    } catch (e) {
+    } catch (e, s) {
+      _logError('_onUpdateCoveredServiceItems', e, s);
       _loader.hide();
       emit(ProfileError(e.toString()));
     }
@@ -135,7 +155,8 @@ class BusinessProfileBloc
       );
       _loader.hide();
       emit(CoveredServiceItemsLoaded(groups));
-    } catch (e) {
+    } catch (e, s) {
+      _logError('_onCreateCustomServiceItem', e, s);
       _loader.hide();
       emit(ProfileError(e.toString()));
     }
@@ -152,7 +173,8 @@ class BusinessProfileBloc
       );
       _loader.hide();
       emit(CoveredServiceItemsLoaded(groups));
-    } catch (e) {
+    } catch (e, s) {
+      _logError('_onUpdateCustomServiceItem', e, s);
       _loader.hide();
       emit(ProfileError(e.toString()));
     }
@@ -166,7 +188,8 @@ class BusinessProfileBloc
           await deleteCustomServiceItemUseCase.call(event.serviceItemId);
       _loader.hide();
       emit(CoveredServiceItemsLoaded(groups));
-    } catch (e) {
+    } catch (e, s) {
+      _logError('_onDeleteCustomServiceItem', e, s);
       _loader.hide();
       emit(ProfileError(e.toString()));
     }

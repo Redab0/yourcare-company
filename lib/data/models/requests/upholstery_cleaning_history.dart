@@ -4,6 +4,7 @@ import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
 import 'package:cleaning_service_driver/data/models/auth/address.dart';
 import 'package:cleaning_service_driver/data/models/customer/customer.dart';
 import 'package:cleaning_service_driver/data/models/requests/assigned_worker.dart';
+import 'package:cleaning_service_driver/data/models/requests/business_offer_response.dart';
 import 'package:cleaning_service_driver/data/models/requests/company_information.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -40,6 +41,7 @@ class UpholsteryCleaningHistory implements CleaningRequest {
 
   @JsonKey(name: 'UpholsteryCleaning')
   final UpholsteryCleaningDetails upholsteryCleaning;
+  final BusinessOfferResponse? myBid;
 
   UpholsteryCleaningHistory({
     this.id,
@@ -54,6 +56,7 @@ class UpholsteryCleaningHistory implements CleaningRequest {
     this.companyInformation,
     this.assignedWorker,
     this.subRequests,
+    this.myBid,
   });
 
   factory UpholsteryCleaningHistory.fromJson(Map<String, dynamic> json) =>

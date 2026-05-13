@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/utils/loading_controller.dart';
+import 'package:cleaning_service_driver/data/models/housekeeping/housekeeping_pricing_discount.dart';
 import 'package:cleaning_service_driver/data/models/housekeeping/housekeeping_pricing.dart';
 import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
 import 'package:cleaning_service_driver/domain/usecases/housekeeping/get_housekeeping_pricing_usecase.dart';
@@ -28,6 +29,7 @@ class HousekeepingPricingBloc
     on<UpdateAreaFee>(_onUpdateAreaFee);
     on<UpdateMultipleOptionPrice>(_onUpdateMultipleOptionPrice);
     on<UpdateCleaningProductsPrice>(_onUpdateCleaningProductsPrice);
+    on<UpdateServiceFrequencyDiscount>(_onUpdateServiceFrequencyDiscount);
     on<SaveHousekeepingPricing>(_onSavePricing);
   }
 
@@ -51,16 +53,35 @@ class HousekeepingPricingBloc
         if (id == null) continue;
         fees[id] = fee.fee ?? 0;
       }
+      final serviceFrequencyOptions = pricing?.serviceFrequency ?? const [];
+      final serviceFrequencyDiscounts = <String, double>{};
+      final fallbackDiscounts = pricing?.frequencyDiscounts ?? const [];
+      for (final discount in fallbackDiscounts) {
+        if (discount.frequencyOptionId.isEmpty) continue;
+        serviceFrequencyDiscounts[discount.frequencyOptionId] =
+            discount.discountPercentage;
+      }
+      for (final option in serviceFrequencyOptions) {
+        if (option.id.isEmpty) continue;
+        serviceFrequencyDiscounts.putIfAbsent(
+          option.id,
+          () => option.discountPercentage ?? 0,
+        );
+      }
       _loader.hide();
       emit(state.copyWith(
         isLoading: false,
         areas: areas,
         basePrice: pricing?.singlePricingModel?.basePricePerCleanerPerHour ?? 0,
         cleaningProductsPrice: pricing?.cleaningProductsPrice ?? 0,
-        singlePricingModelActive: pricing?.singlePricingModel?.isActive ?? false,
+        singlePricingModelActive:
+            pricing?.singlePricingModel?.isActive ?? false,
         multiplePricingModelActive:
             pricing?.multiplePricingModel?.isActive ?? false,
-        multiplePricingOptions: pricing?.multiplePricingModel?.options ?? const [],
+        multiplePricingOptions:
+            pricing?.multiplePricingModel?.options ?? const [],
+        serviceFrequencyOptions: serviceFrequencyOptions,
+        serviceFrequencyDiscounts: serviceFrequencyDiscounts,
         areaFees: fees,
         error: null,
       ));
@@ -83,7 +104,8 @@ class HousekeepingPricingBloc
   ) {
     emit(state.copyWith(
       singlePricingModelActive: event.isActive,
-      multiplePricingModelActive: event.isActive ? false : state.multiplePricingModelActive,
+      multiplePricingModelActive:
+          event.isActive ? false : state.multiplePricingModelActive,
       error: null,
     ));
   }
@@ -94,7 +116,8 @@ class HousekeepingPricingBloc
   ) {
     emit(state.copyWith(
       multiplePricingModelActive: event.isActive,
-      singlePricingModelActive: event.isActive ? false : state.singlePricingModelActive,
+      singlePricingModelActive:
+          event.isActive ? false : state.singlePricingModelActive,
       error: null,
     ));
   }
@@ -134,7 +157,17 @@ class HousekeepingPricingBloc
     UpdateCleaningProductsPrice event,
     Emitter<HousekeepingPricingState> emit,
   ) {
-    emit(state.copyWith(cleaningProductsPrice: event.cleaningProductsPrice, error: null));
+    emit(state.copyWith(
+        cleaningProductsPrice: event.cleaningProductsPrice, error: null));
+  }
+
+  FutureOr<void> _onUpdateServiceFrequencyDiscount(
+    UpdateServiceFrequencyDiscount event,
+    Emitter<HousekeepingPricingState> emit,
+  ) {
+    final updated = Map<String, double>.from(state.serviceFrequencyDiscounts)
+      ..[event.optionId] = event.discountPercentage;
+    emit(state.copyWith(serviceFrequencyDiscounts: updated, error: null));
   }
 
   FutureOr<void> _onSavePricing(
@@ -151,7 +184,8 @@ class HousekeepingPricingBloc
                   fee: entry.value,
                 ))
             .toList(),
-        isActive: state.singlePricingModelActive || state.multiplePricingModelActive,
+        isActive:
+            state.singlePricingModelActive || state.multiplePricingModelActive,
         cleaningProductsPrice: state.cleaningProductsPrice,
         singlePricingModel: HousekeepingSinglePricingModel(
           isActive: state.singlePricingModelActive,
@@ -161,6 +195,16 @@ class HousekeepingPricingBloc
           isActive: state.multiplePricingModelActive,
           options: state.multiplePricingOptions,
         ),
+        frequencyDiscounts: state.serviceFrequencyOptions
+            .where((option) => option.id.isNotEmpty)
+            .map(
+              (option) => HousekeepingPricingDiscount(
+                optionId: option.id,
+                discountPercentage:
+                    state.serviceFrequencyDiscounts[option.id] ?? 0,
+              ),
+            )
+            .toList(),
       );
       final pricing = await upsertPricingUseCase.call(request);
       final fees = <String, double>{};
@@ -169,6 +213,22 @@ class HousekeepingPricingBloc
         if (id == null) continue;
         fees[id] = fee.fee ?? 0;
       }
+      final updatedServiceFrequencyOptions =
+          pricing.serviceFrequency ?? state.serviceFrequencyOptions;
+      final updatedFrequencyDiscounts = <String, double>{};
+      final returnedFallbackDiscounts = pricing.frequencyDiscounts ?? const [];
+      for (final discount in returnedFallbackDiscounts) {
+        if (discount.frequencyOptionId.isEmpty) continue;
+        updatedFrequencyDiscounts[discount.frequencyOptionId] =
+            discount.discountPercentage;
+      }
+      for (final option in updatedServiceFrequencyOptions) {
+        if (option.id.isEmpty) continue;
+        updatedFrequencyDiscounts.putIfAbsent(
+          option.id,
+          () => option.discountPercentage ?? 0,
+        );
+      }
       _loader.hide();
       emit(state.copyWith(
         isSaving: false,
@@ -176,12 +236,14 @@ class HousekeepingPricingBloc
             state.basePrice,
         cleaningProductsPrice:
             pricing.cleaningProductsPrice ?? state.cleaningProductsPrice,
-        singlePricingModelActive:
-            pricing.singlePricingModel?.isActive ?? state.singlePricingModelActive,
+        singlePricingModelActive: pricing.singlePricingModel?.isActive ??
+            state.singlePricingModelActive,
         multiplePricingModelActive: pricing.multiplePricingModel?.isActive ??
             state.multiplePricingModelActive,
-        multiplePricingOptions:
-            pricing.multiplePricingModel?.options ?? state.multiplePricingOptions,
+        multiplePricingOptions: pricing.multiplePricingModel?.options ??
+            state.multiplePricingOptions,
+        serviceFrequencyOptions: updatedServiceFrequencyOptions,
+        serviceFrequencyDiscounts: updatedFrequencyDiscounts,
         areaFees: fees.isEmpty ? state.areaFees : fees,
         error: null,
       ));
@@ -190,5 +252,4 @@ class HousekeepingPricingBloc
       emit(state.copyWith(isSaving: false, error: e.toString()));
     }
   }
-
 }

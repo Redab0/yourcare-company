@@ -19,23 +19,24 @@ class StatsOverview extends StatelessWidget {
       decimalDigits: 3,
     );
 
-    Widget statCard(String title, String value) => Card(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    style: t.textTheme.labelMedium
-                        ?.copyWith(color: t.colorScheme.secondary)),
-                const SizedBox(height: 6),
-                Text(value,
-                    style: t.textTheme.titleLarge
-                        ?.copyWith(fontWeight: FontWeight.w700)),
-              ],
-            ),
+    Widget statRow(String title, String value) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: t.textTheme.bodyMedium,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                value,
+                style: t.textTheme.titleSmall
+                    ?.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ],
           ),
         );
 
@@ -45,13 +46,6 @@ class StatsOverview extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          statCard(context.l10n.total_requests_label, '${vm.total}'),
-          const SizedBox(height: 12),
-          statCard(
-            context.l10n.total_revenue_label,
-            money.format(vm.totalRevenue),
-          ),
-          const SizedBox(height: 12),
           Card(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -60,24 +54,39 @@ class StatsOverview extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Request Types', style: t.textTheme.titleMedium),
+                  Text(context.l10n.statistics_title,
+                      style: t.textTheme.titleMedium),
+                  const SizedBox(height: 12),
+                  statRow(context.l10n.total_requests_label, '${vm.total}'),
+                  statRow(context.l10n.total_income_label,
+                      money.format(vm.totalIncome)),
+                  statRow(context.l10n.total_fees_label,
+                      money.format(vm.totalFees)),
+                  statRow(
+                    context.l10n.total_income_after_fee_label,
+                    money.format(vm.totalIncomeAfterFee),
+                  ),
+                  statRow(
+                    context.l10n.average_requests_label,
+                    money.format(vm.avgRequestValue),
+                  ),
+                  const Divider(height: 24),
+                  Text(context.l10n.request_types_title,
+                      style: t.textTheme.titleMedium),
                   const SizedBox(height: 12),
                   _typeRow(context.l10n.houseKeeping, vm.houseCleaning),
                   const SizedBox(height: 8),
                   _typeRow(context.l10n.deepCleaning, vm.deepCleaning),
-                ],
-              ),
-            ),
-          ),
-          Card(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Request Status', style: t.textTheme.titleMedium),
+                  const SizedBox(height: 8),
+                  _typeRow(
+                    context.l10n.upholstery_cleaning,
+                    vm.upholsteryCleaning,
+                  ),
+                  const Divider(height: 24),
+                  Text(
+                    context.l10n.request_status_title,
+                    style: t.textTheme.titleMedium,
+                  ),
                   const SizedBox(height: 12),
                   _typeRow(context.l10n.completed, vm.completed),
                   const SizedBox(height: 8),

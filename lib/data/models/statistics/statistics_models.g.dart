@@ -28,8 +28,16 @@ StatisticsOverview _$StatisticsOverviewFromJson(Map<String, dynamic> json) =>
               'deepCleaningRequests', (v) => (v as num?)?.toInt()),
           houseCleaningRequests: $checkedConvert(
               'houseCleaningRequests', (v) => (v as num?)?.toInt()),
+          upholsteryCleaningRequests: $checkedConvert(
+              'upholsteryCleaningRequests', (v) => (v as num?)?.toInt()),
           totalRevenue:
-              $checkedConvert('totalRevenue', (v) => (v as num?)?.toInt()),
+              $checkedConvert('totalRevenue', (v) => (v as num?)?.toDouble()),
+          totalFees:
+              $checkedConvert('totalFees', (v) => (v as num?)?.toDouble()),
+          totalIncome:
+              $checkedConvert('totalIncome', (v) => (v as num?)?.toDouble()),
+          totalIncomeAfterFee: $checkedConvert(
+              'totalIncomeAfterFee', (v) => (v as num?)?.toDouble()),
           avgRequestValue: $checkedConvert(
               'avgRequestValue', (v) => (v as num?)?.toDouble()),
         );
@@ -47,7 +55,11 @@ Map<String, dynamic> _$StatisticsOverviewToJson(StatisticsOverview instance) =>
       'canceledRequests': instance.canceledRequests,
       'deepCleaningRequests': instance.deepCleaningRequests,
       'houseCleaningRequests': instance.houseCleaningRequests,
+      'upholsteryCleaningRequests': instance.upholsteryCleaningRequests,
       'totalRevenue': instance.totalRevenue,
+      'totalFees': instance.totalFees,
+      'totalIncome': instance.totalIncome,
+      'totalIncomeAfterFee': instance.totalIncomeAfterFee,
       'avgRequestValue': instance.avgRequestValue,
     };
 

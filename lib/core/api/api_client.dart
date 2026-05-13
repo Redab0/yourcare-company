@@ -15,7 +15,7 @@ class ApiClient {
   static const String prod_baseUrl = 'https://be-cleaning.yourcarehere.com/api';
   static const String dev_baseUrl =
       'https://dev-be-cleaning.yourcarehere.com/api';
-  static const String baseUrl = prod_baseUrl;
+  static const String baseUrl = dev_baseUrl;
 
   /// Singleton instance
   static final ApiClient _instance = ApiClient._internal();

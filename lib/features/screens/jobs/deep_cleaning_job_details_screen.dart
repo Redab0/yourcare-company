@@ -175,6 +175,9 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final d = widget.request.detail;
+    final propertyType = d.propertyTypeTitle.toLowerCase();
+    final isHouse =
+        propertyType.contains('house') || propertyType.contains('منزل');
     final hasNotes =
         (widget.request.detail.additionalInformation?.trim().isNotEmpty ??
             false);
@@ -290,8 +293,9 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
                       title: context.l10n.job_details,
                       child: Column(
                         children: [
-                          DetailRow(context.l10n.numberOfFloors,
-                              d.numberOfFloors.toString()),
+                          if (isHouse)
+                            DetailRow(context.l10n.numberOfFloors,
+                                d.numberOfFloors.toString()),
                           DetailRow(context.l10n.request_card_bedroom,
                               d.bedrooms.toString()),
                           const Divider(),

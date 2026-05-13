@@ -22,7 +22,7 @@ class UpholsteryCleaningRequestCard extends StatelessWidget {
     final theme = Theme.of(context);
     final cardR = BorderRadius.circular(24);
     final items = request.upholsteryCleaning.items ?? const [];
-    final scheduled = request.scheduledTime;
+    final myBid = request.myBid;
 
     return Padding(
       padding: padding ?? const EdgeInsets.fromLTRB(24, 24, 24, 32),
@@ -64,20 +64,42 @@ class UpholsteryCleaningRequestCard extends StatelessWidget {
             Text(context.l10n.requests_no_requests,
                 style: theme.textTheme.bodyMedium),
           const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              style: FilledButton.styleFrom(
-                backgroundColor: _blue,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: cardR),
-              ),
-              icon: const Icon(Icons.gavel_rounded),
-              label: Text(context.l10n.submit_bit,
-                  style: const TextStyle(fontSize: 16)),
-              onPressed: onSubmitBid,
+          if (myBid != null) ...[
+            Text(
+              context.l10n.submitted_bid_title,
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w700),
             ),
-          ),
+            const SizedBox(height: 8),
+            _line(theme, context.l10n.enter_bid, '${myBid.totalPrice} KWD'),
+            if ((myBid.timelineBusinessOffer ?? '').isNotEmpty)
+              _line(
+                theme,
+                context.l10n.enter_timeline,
+                myBid.timelineBusinessOffer!,
+              ),
+            if ((myBid.descriptionBusinessOffer ?? '').isNotEmpty)
+              _line(
+                theme,
+                context.l10n.enter_note,
+                myBid.descriptionBusinessOffer!,
+              ),
+          ] else ...[
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: _blue,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: cardR),
+                ),
+                icon: const Icon(Icons.gavel_rounded),
+                label: Text(context.l10n.submit_bit,
+                    style: const TextStyle(fontSize: 16)),
+                onPressed: onSubmitBid,
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -90,7 +112,6 @@ class UpholsteryCleaningRequestCard extends StatelessWidget {
     final size = it.size?.title ?? '-';
     final material = it.material?.title ?? '-';
     final condition = it.condition?.title ?? '-';
-    final price = it.calculatedPrice;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -167,14 +188,4 @@ class UpholsteryCleaningRequestCard extends StatelessWidget {
     }
     return Icons.local_laundry_service_outlined;
   }
-
-  Widget _pill(String text) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: _blue.withOpacity(.15),
-          borderRadius: BorderRadius.circular(32),
-        ),
-        child: Text(text,
-            style: const TextStyle(color: _blue, fontWeight: FontWeight.w600)),
-      );
 }

@@ -160,6 +160,19 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
       'Cleaners / عدد العمال: ${detail.cleanersCount}',
       'Duration / المدة: ${detail.durationHours} hour / ساعة',
     ];
+    final subRequests = req.subRequests ?? const [];
+    if (subRequests.isNotEmpty) {
+      lines.add('');
+      lines.add('--- ${context.l10n.number_of_visits} ---');
+      for (var i = 0; i < subRequests.length; i++) {
+        final visit = subRequests[i];
+        final dateStr = (visit.date != null)
+            ? DateFormat.yMMMd().add_jm().format(visit.date!)
+            : '-';
+        final statusText = visit.status?.displayText(context) ?? '-';
+        lines.add('${i + 1}. $dateStr - $statusText');
+      }
+    }
     if (!_hidePriceForWorker) {
       lines.add('Price / السعر: ${RequestFmt.price(req.totalPrice)}');
     }
@@ -238,7 +251,7 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                         shape: const RoundedRectangleBorder(
                             side: BorderSide(color: Colors.transparent)),
                         title: Text(
-                          "Sessions", // or a hardcoded 'Package sessions'
+                          context.l10n.number_of_visits,
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
@@ -572,33 +585,33 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
               ),
             ),
           ),
-          bottomNavigationBar: req.requestStatus != RequestStatus.completed &&
-                  req.requestStatus != RequestStatus.cancelled
-              ? Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-                  child: FilledButton(
-                    onPressed: () {
-                      if (req.requestStatus == RequestStatus.confirmed) {
-                        ctx
-                            .read<JobActionsBloc>()
-                            .add(StartJobEvent(req.id ?? ""));
-                      } else if (req.requestStatus ==
-                          RequestStatus.inProgress) {
-                        ctx
-                            .read<JobActionsBloc>()
-                            .add(CompleteJobEvent(req.id ?? "", null));
-                      }
-                    },
-                    child: Text(
-                      req.requestStatus == RequestStatus.confirmed
-                          ? context.l10n.start_job
-                          : req.requestStatus == RequestStatus.inProgress
-                              ? context.l10n.complete_job
-                              : 'OK',
-                    ),
-                  ),
-                )
-              : SizedBox.shrink(),
+          // bottomNavigationBar: req.requestStatus != RequestStatus.completed &&
+          //         req.requestStatus != RequestStatus.cancelled
+          //     ? Padding(
+          //         padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+          //         child: FilledButton(
+          //           onPressed: () {
+          //             if (req.requestStatus == RequestStatus.confirmed) {
+          //               ctx
+          //                   .read<JobActionsBloc>()
+          //                   .add(StartJobEvent(req.id ?? ""));
+          //             } else if (req.requestStatus ==
+          //                 RequestStatus.inProgress) {
+          //               ctx
+          //                   .read<JobActionsBloc>()
+          //                   .add(CompleteJobEvent(req.id ?? "", null));
+          //             }
+          //           },
+          //           child: Text(
+          //             req.requestStatus == RequestStatus.confirmed
+          //                 ? context.l10n.start_job
+          //                 : req.requestStatus == RequestStatus.inProgress
+          //                     ? context.l10n.complete_job
+          //                     : 'OK',
+          //           ),
+          //         ),
+          //       )
+          //     : SizedBox.shrink(),
         );
       },
     );

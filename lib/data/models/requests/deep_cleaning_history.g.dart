@@ -48,6 +48,11 @@ DeepCleaningHistory _$DeepCleaningHistoryFromJson(Map<String, dynamic> json) =>
                   ?.map(
                       (e) => FrequencyDate.fromJson(e as Map<String, dynamic>))
                   .toList()),
+          myBid: $checkedConvert(
+              'myBid',
+              (v) => v == null
+                  ? null
+                  : BusinessOfferResponse.fromJson(v as Map<String, dynamic>)),
         );
         return val;
       },
@@ -75,6 +80,7 @@ Map<String, dynamic> _$DeepCleaningHistoryToJson(
       'serviceIntervalDays': instance.serviceIntervalDays,
       'frequencyDates': instance.frequencyDates,
       'requestStatus': _$RequestStatusEnumMap[instance.requestStatus]!,
+      'myBid': instance.myBid,
     };
 
 const _$RequestStatusEnumMap = {

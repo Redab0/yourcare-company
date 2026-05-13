@@ -16,8 +16,13 @@ class StatsVM {
       completed,
       canceled,
       deepCleaning,
-      houseCleaning;
-  final num totalRevenue, avgRequestValue;
+      houseCleaning,
+      upholsteryCleaning;
+  final num totalRevenue,
+      totalIncome,
+      totalFees,
+      totalIncomeAfterFee,
+      avgRequestValue;
   final List<MonthlyStatVM> monthly;
 
   StatsVM({
@@ -29,7 +34,11 @@ class StatsVM {
     required this.canceled,
     required this.deepCleaning,
     required this.houseCleaning,
+    required this.upholsteryCleaning,
     required this.totalRevenue,
+    required this.totalIncome,
+    required this.totalFees,
+    required this.totalIncomeAfterFee,
     required this.avgRequestValue,
     required this.monthly,
   });
@@ -47,7 +56,11 @@ class StatsVM {
       canceled: o?.canceledRequests ?? 0,
       deepCleaning: o?.deepCleaningRequests ?? 0,
       houseCleaning: o?.houseCleaningRequests ?? 0,
+      upholsteryCleaning: o?.upholsteryCleaningRequests ?? 0,
       totalRevenue: o?.totalRevenue ?? 0,
+      totalIncome: o?.totalIncome ?? 0,
+      totalFees: o?.totalFees ?? 0,
+      totalIncomeAfterFee: o?.totalIncomeAfterFee ?? 0,
       avgRequestValue: o?.avgRequestValue ?? 0,
       monthly: m
           .map((e) => MonthlyStatVM(

@@ -34,6 +34,16 @@ class _UpholsteryCleaningRequestState
   @override
   void initState() {
     super.initState();
+    final myBid = widget.request.myBid;
+    if (myBid != null) {
+      _amountController.text = myBid.totalPrice.toString();
+      _bidAmount = myBid.totalPrice;
+      final timeline = myBid.timelineBusinessOffer ?? '';
+      if (const ['2', '5', '8', '12', '24+'].contains(timeline)) {
+        _selectedTimelineHours = timeline;
+      }
+      _descriptionController.text = myBid.descriptionBusinessOffer ?? '';
+    }
     _amountController.addListener(() => setState(() {}));
     _descriptionController.addListener(() => setState(() {}));
   }

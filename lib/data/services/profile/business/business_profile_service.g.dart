@@ -256,9 +256,7 @@ class _BusinessProfileService implements BusinessProfileService {
 
   @override
   Future<ApiResponse<ResponsePayload<BusinessProfileModel>>>
-      deleteCustomServiceItem(
-    String serviceItemId,
-  ) async {
+      deleteCustomServiceItem(String serviceItemId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};

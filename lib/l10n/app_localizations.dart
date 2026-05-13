@@ -62,8 +62,7 @@ import 'app_localizations_en.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -71,8 +70,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -84,8 +82,7 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
     delegate,
     GlobalMaterialLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
@@ -1568,6 +1565,30 @@ abstract class AppLocalizations {
   /// **'Save Pricing'**
   String get save_pricing;
 
+  /// No description provided for @service_frequency.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Frequency'**
+  String get service_frequency;
+
+  /// No description provided for @discount_percentage.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount Percentage'**
+  String get discount_percentage;
+
+  /// No description provided for @frequency_visits_per_week.
+  ///
+  /// In en, this message translates to:
+  /// **'visit'**
+  String get frequency_visits_per_week;
+
+  /// No description provided for @enter_all_frequency_discounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter all service frequency discounts.'**
+  String get enter_all_frequency_discounts;
+
   /// No description provided for @no_areas_available.
   ///
   /// In en, this message translates to:
@@ -1874,6 +1895,12 @@ abstract class AppLocalizations {
   /// **'Bid Submitted'**
   String get bid_submitted;
 
+  /// No description provided for @submitted_bid_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted Bid'**
+  String get submitted_bid_title;
+
   /// No description provided for @navigate_back_to_requests.
   ///
   /// In en, this message translates to:
@@ -2012,6 +2039,24 @@ abstract class AppLocalizations {
   /// **'Total Requests'**
   String get total_requests_label;
 
+  /// No description provided for @total_income_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Income'**
+  String get total_income_label;
+
+  /// No description provided for @total_fees_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Fees'**
+  String get total_fees_label;
+
+  /// No description provided for @total_income_after_fee_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Income After Fee'**
+  String get total_income_after_fee_label;
+
   /// No description provided for @total_revenue_label.
   ///
   /// In en, this message translates to:
@@ -2023,6 +2068,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Avg / Request'**
   String get average_requests_label;
+
+  /// No description provided for @request_types_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Types'**
+  String get request_types_title;
+
+  /// No description provided for @request_status_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Status'**
+  String get request_status_title;
 
   /// No description provided for @statistics_title.
   ///
@@ -2199,8 +2256,7 @@ abstract class AppLocalizations {
   String get kwd;
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -2209,25 +2265,25 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['ar', 'en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['ar', 'en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'ar':
-      return AppLocalizationsAr();
-    case 'en':
-      return AppLocalizationsEn();
+    case 'ar': return AppLocalizationsAr();
+    case 'en': return AppLocalizationsEn();
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.'
+  );
 }

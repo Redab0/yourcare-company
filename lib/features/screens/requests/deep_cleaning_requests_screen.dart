@@ -33,6 +33,18 @@ class _DeepCleaningRequestState extends State<DeepCleaningRequestScreen> {
   @override
   void initState() {
     super.initState();
+    final myBid = widget.request.myBid;
+    if (myBid != null) {
+      _amountController.text = myBid.totalPrice.toString();
+      _bidAmount = myBid.totalPrice;
+      final timeline = int.tryParse(myBid.timelineBusinessOffer ?? '');
+      if (timeline != null && const [1, 2, 3, 4, 5, 7].contains(timeline)) {
+        _selectedTimelineDays = timeline;
+      }
+      final description = myBid.descriptionBusinessOffer ?? '';
+      _descriptionController.text = description;
+      _description = description;
+    }
     _amountController.addListener(() => setState(() {}));
     _timelineController.addListener(() => setState(() {}));
     _descriptionController.addListener(() => setState(() {}));
@@ -94,6 +106,9 @@ class _DeepCleaningRequestState extends State<DeepCleaningRequestScreen> {
   @override
   Widget build(BuildContext context) {
     final d = widget.request.detail;
+    final propertyType = d.propertyTypeTitle.toLowerCase();
+    final isHouse =
+        propertyType.contains('house') || propertyType.contains('منزل');
     return BlocConsumer<RequestsActionBloc, RequestsActionState>(
       listener: (ctx, state) {
         if (state is OfferSubmitted) {
@@ -147,9 +162,9 @@ class _DeepCleaningRequestState extends State<DeepCleaningRequestScreen> {
                         d.propertyTypeTitle),
                     if (d.isApartmentOrHouse) ...[
                       const Divider(),
-                      if (d.numberOfFloors != null && d.floor > 0) ...[
-                        DetailRow(context.l10n.numberOfFloors,
-                            d.numberOfFloors.toString()),
+                      if (isHouse) ...[
+                        DetailRow(
+                            context.l10n.numberOfFloors, d.floor.toString()),
                         const Divider(),
                       ],
                       DetailRow(context.l10n.request_card_bedroom,

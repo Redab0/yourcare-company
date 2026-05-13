@@ -5,6 +5,7 @@ import 'package:cleaning_service_driver/data/models/auth/address.dart';
 import 'package:cleaning_service_driver/data/models/customer/customer.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_item.dart';
 import 'package:cleaning_service_driver/data/models/requests/company_information.dart';
+import 'package:cleaning_service_driver/data/models/requests/business_offer_response.dart';
 import 'package:cleaning_service_driver/data/models/staff/team_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -50,6 +51,8 @@ class DeepCleaningHistory implements CleaningRequest {
   @override
   final RequestStatus requestStatus;
 
+  final BusinessOfferResponse? myBid;
+
   DeepCleaningHistory({
     this.id,
     required this.requestStatus,
@@ -65,6 +68,7 @@ class DeepCleaningHistory implements CleaningRequest {
     this.serviceFrequencyCount,
     this.serviceIntervalDays,
     this.frequencyDates,
+    this.myBid,
   });
 
   DeepCleaningHistory copyWith({
@@ -80,6 +84,7 @@ class DeepCleaningHistory implements CleaningRequest {
     int? serviceFrequencyCount,
     int? serviceIntervalDays,
     List<FrequencyDate>? frequencyDates,
+    BusinessOfferResponse? myBid,
   }) {
     return DeepCleaningHistory(
         id: id ?? this.id,
@@ -96,6 +101,7 @@ class DeepCleaningHistory implements CleaningRequest {
             serviceFrequencyCount ?? this.serviceFrequencyCount,
         serviceIntervalDays: serviceIntervalDays ?? this.serviceIntervalDays,
         frequencyDates: frequencyDates ?? this.frequencyDates,
+        myBid: myBid ?? this.myBid,
         type: type ?? this.type);
   }
 

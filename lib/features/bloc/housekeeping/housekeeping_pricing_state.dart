@@ -1,6 +1,7 @@
 import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
 import 'package:equatable/equatable.dart';
 import 'package:cleaning_service_driver/data/models/housekeeping/housekeeping_pricing.dart';
+import 'package:cleaning_service_driver/data/models/housekeeping/housekeeping_service_frequency_option.dart';
 
 class HousekeepingPricingState extends Equatable {
   final bool isLoading;
@@ -13,6 +14,8 @@ class HousekeepingPricingState extends Equatable {
   final bool singlePricingModelActive;
   final bool multiplePricingModelActive;
   final List<HousekeepingPricingOption> multiplePricingOptions;
+  final List<HousekeepingServiceFrequencyOption> serviceFrequencyOptions;
+  final Map<String, double> serviceFrequencyDiscounts;
 
   const HousekeepingPricingState({
     this.isLoading = false,
@@ -25,6 +28,8 @@ class HousekeepingPricingState extends Equatable {
     this.singlePricingModelActive = false,
     this.multiplePricingModelActive = false,
     this.multiplePricingOptions = const [],
+    this.serviceFrequencyOptions = const [],
+    this.serviceFrequencyDiscounts = const {},
   });
 
   HousekeepingPricingState copyWith({
@@ -38,6 +43,8 @@ class HousekeepingPricingState extends Equatable {
     bool? singlePricingModelActive,
     bool? multiplePricingModelActive,
     List<HousekeepingPricingOption>? multiplePricingOptions,
+    List<HousekeepingServiceFrequencyOption>? serviceFrequencyOptions,
+    Map<String, double>? serviceFrequencyDiscounts,
   }) {
     return HousekeepingPricingState(
       isLoading: isLoading ?? this.isLoading,
@@ -46,13 +53,18 @@ class HousekeepingPricingState extends Equatable {
       areas: areas ?? this.areas,
       areaFees: areaFees ?? this.areaFees,
       basePrice: basePrice ?? this.basePrice,
-      cleaningProductsPrice: cleaningProductsPrice ?? this.cleaningProductsPrice,
+      cleaningProductsPrice:
+          cleaningProductsPrice ?? this.cleaningProductsPrice,
       singlePricingModelActive:
           singlePricingModelActive ?? this.singlePricingModelActive,
       multiplePricingModelActive:
           multiplePricingModelActive ?? this.multiplePricingModelActive,
       multiplePricingOptions:
           multiplePricingOptions ?? this.multiplePricingOptions,
+      serviceFrequencyOptions:
+          serviceFrequencyOptions ?? this.serviceFrequencyOptions,
+      serviceFrequencyDiscounts:
+          serviceFrequencyDiscounts ?? this.serviceFrequencyDiscounts,
     );
   }
 
@@ -68,6 +80,8 @@ class HousekeepingPricingState extends Equatable {
         singlePricingModelActive,
         multiplePricingModelActive,
         multiplePricingOptions,
+        serviceFrequencyOptions,
+        serviceFrequencyDiscounts,
       ];
 }
 

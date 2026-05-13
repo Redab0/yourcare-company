@@ -48,6 +48,11 @@ UpholsteryCleaningHistory _$UpholsteryCleaningHistoryFromJson(
                   ?.map((e) =>
                       FrequentRequestModel.fromJson(e as Map<String, dynamic>))
                   .toList()),
+          myBid: $checkedConvert(
+              'myBid',
+              (v) => v == null
+                  ? null
+                  : BusinessOfferResponse.fromJson(v as Map<String, dynamic>)),
         );
         return val;
       },
@@ -74,6 +79,7 @@ Map<String, dynamic> _$UpholsteryCleaningHistoryToJson(
       'cleaners': instance.assignedWorker,
       'frequencyDates': instance.subRequests,
       'UpholsteryCleaning': instance.upholsteryCleaning,
+      'myBid': instance.myBid,
     };
 
 const _$RequestStatusEnumMap = {

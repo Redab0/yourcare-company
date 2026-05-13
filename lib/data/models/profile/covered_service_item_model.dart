@@ -1,3 +1,8 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'covered_service_item_model.g.dart';
+
+@JsonSerializable()
 class CoveredServiceGroup {
   final String serviceType;
   final List<CoveredServiceItem> services;
@@ -7,25 +12,20 @@ class CoveredServiceGroup {
     required this.services,
   });
 
-  factory CoveredServiceGroup.fromJson(Map<String, dynamic> json) {
-    final rawServices = json['services'];
-    return CoveredServiceGroup(
-      serviceType: (json['serviceType'] as String?) ?? '',
-      services: rawServices is List
-          ? rawServices
-              .whereType<Map<String, dynamic>>()
-              .map(CoveredServiceItem.fromJson)
-              .toList()
-          : const [],
-    );
-  }
+  factory CoveredServiceGroup.fromJson(Map<String, dynamic> json) =>
+      _$CoveredServiceGroupFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CoveredServiceGroupToJson(this);
 }
 
+@JsonSerializable()
 class CoveredServiceItem {
   final String id;
   final String? titleEn;
   final String? titleAr;
+  @JsonKey(defaultValue: false)
   final bool selected;
+  @JsonKey(defaultValue: false)
   final bool canManage;
 
   const CoveredServiceItem({
@@ -36,15 +36,10 @@ class CoveredServiceItem {
     this.canManage = false,
   });
 
-  factory CoveredServiceItem.fromJson(Map<String, dynamic> json) {
-    return CoveredServiceItem(
-      id: (json['id'] as String?) ?? '',
-      titleEn: json['titleEn'] as String?,
-      titleAr: json['titleAr'] as String?,
-      selected: json['selected'] as bool? ?? false,
-      canManage: json['canManage'] as bool? ?? false,
-    );
-  }
+  factory CoveredServiceItem.fromJson(Map<String, dynamic> json) =>
+      _$CoveredServiceItemFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CoveredServiceItemToJson(this);
 
   CoveredServiceItem copyWith({
     String? id,
