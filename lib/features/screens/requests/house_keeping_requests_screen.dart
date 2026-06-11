@@ -12,6 +12,7 @@ import 'package:cleaning_service_driver/features/bloc/requests/requests_actions_
 import 'package:cleaning_service_driver/features/bloc/requests/requests_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_event.dart'
     as requests_events;
+import 'package:cleaning_service_driver/features/chats/presentation/chat_open_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -50,6 +51,10 @@ class _HouseKeepingRequestScreenState extends State<HouseKeepingRequestScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveRequestId = widget.request.id;
+    final canChat = (widget.request.requestStatus == RequestStatus.confirmed ||
+            widget.request.requestStatus == RequestStatus.inProgress) &&
+        ((effectiveRequestId ?? '').isNotEmpty);
     return BlocConsumer<RequestsActionBloc, RequestsActionState>(
       listener: (ctx, state) {
         if (state is RequestsActionFailed) {
@@ -97,7 +102,9 @@ class _HouseKeepingRequestScreenState extends State<HouseKeepingRequestScreen> {
       },
       builder: (ctx, state) {
         return Scaffold(
-          appBar: AppBar(title: Text(context.l10n.request_details_label)),
+          appBar: AppBar(
+            title: Text(context.l10n.request_details_label),
+          ),
           body: SafeArea(
             minimum: const EdgeInsets.symmetric(horizontal: 24),
             child: ListView(
@@ -314,27 +321,55 @@ class _HouseKeepingRequestScreenState extends State<HouseKeepingRequestScreen> {
           ),
           bottomNavigationBar: Padding(
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-            child: FilledButton(
-              onPressed: _selectedWorkerIds.length !=
-                      widget.request.detail.cleanersCount
-                  ? null
-                  : () {
-                      context.read<RequestsActionBloc>().add(
-                            ObtainHouseKeepingRequest(
-                              requestId: widget.request.id ?? "",
-                              acceptHouseKeepingModel: AcceptHouseKeepingModel(
-                                  cleanerIds: _selectedWorkerIds.toList(),
-                                  serviceIntervalDays: 7,
-                                  serviceFrequencyCount:
-                                      widget.request.subRequests?.length ?? 1),
-                            ),
-                          );
-                    },
-              child: Text(
-                _selectedWorkerIds.isEmpty
-                    ? context.l10n.select_cleaners
-                    : '${context.l10n.request_accept_job} (${_selectedWorkerIds.length}/'
-                        '${widget.request.detail.cleanersCount})',
+            child: SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (canChat) ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () => openChatForRequest(
+                          context: context,
+                          businessId: widget.request.companyInformation?.id,
+                          requestId: effectiveRequestId!,
+                        ),
+                        icon: const Icon(Icons.chat_bubble_outline),
+                        label: Text(context.l10n.chat_with_customer),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: _selectedWorkerIds.length !=
+                              widget.request.detail.cleanersCount
+                          ? null
+                          : () {
+                              context.read<RequestsActionBloc>().add(
+                                    ObtainHouseKeepingRequest(
+                                      requestId: widget.request.id ?? "",
+                                      acceptHouseKeepingModel:
+                                          AcceptHouseKeepingModel(
+                                        cleanerIds: _selectedWorkerIds.toList(),
+                                        serviceIntervalDays: 7,
+                                        serviceFrequencyCount: widget
+                                                .request.subRequests?.length ??
+                                            1,
+                                      ),
+                                    ),
+                                  );
+                            },
+                      child: Text(
+                        _selectedWorkerIds.isEmpty
+                            ? context.l10n.select_cleaners
+                            : '${context.l10n.request_accept_job} (${_selectedWorkerIds.length}/'
+                                '${widget.request.detail.cleanersCount})',
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

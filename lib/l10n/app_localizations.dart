@@ -2254,6 +2254,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'KWD'**
   String get kwd;
+
+  /// No description provided for @chat_with_customer.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat with customer'**
+  String get chat_with_customer;
+
+  /// No description provided for @chat_created_successfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat created successfully'**
+  String get chat_created_successfully;
+
+  /// No description provided for @chat_fab_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get chat_fab_title;
+
+  /// No description provided for @chat_minimize.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimize'**
+  String get chat_minimize;
+
+  /// No description provided for @chat_close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get chat_close;
+
+  /// No description provided for @chat_close_confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to close this chat?'**
+  String get chat_close_confirmation;
+
+  /// No description provided for @chat_close_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to close chat'**
+  String get chat_close_failed;
+
+  /// No description provided for @chat_no_conversations.
+  ///
+  /// In en, this message translates to:
+  /// **'No conversations yet'**
+  String get chat_no_conversations;
+
+  /// No description provided for @chat_no_messages.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet'**
+  String get chat_no_messages;
+
+  /// No description provided for @chat_closed_status.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get chat_closed_status;
+
+  /// No description provided for @chat_closed.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat closed'**
+  String get chat_closed;
+
+  /// No description provided for @chat_status_connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get chat_status_connected;
+
+  /// No description provided for @chat_status_connecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting'**
+  String get chat_status_connecting;
+
+  /// No description provided for @chat_status_disconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnected'**
+  String get chat_status_disconnected;
+
+  /// No description provided for @chat_status_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get chat_status_error;
+
+  /// No description provided for @chat_type_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a message'**
+  String get chat_type_message;
+
+  /// No description provided for @chat_load_older_messages.
+  ///
+  /// In en, this message translates to:
+  /// **'Load older messages'**
+  String get chat_load_older_messages;
+
+  /// No description provided for @chat_send_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to send message'**
+  String get chat_send_failed;
+
+  /// No description provided for @chat_request.
+  ///
+  /// In en, this message translates to:
+  /// **'Request'**
+  String get chat_request;
+
+  /// No description provided for @chat_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get chat_type;
+
+  /// No description provided for @chat_status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get chat_status;
+
+  /// No description provided for @chat_customer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get chat_customer;
+
+  /// No description provided for @chat_phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get chat_phone;
+
+  /// No description provided for @chat_price.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get chat_price;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

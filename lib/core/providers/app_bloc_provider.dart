@@ -15,6 +15,7 @@ import 'package:cleaning_service_driver/features/bloc/schedule/employee_availabi
 import 'package:cleaning_service_driver/features/bloc/staff/staff_action_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/statistics/statistics_bloc.dart';
+import 'package:cleaning_service_driver/features/chats/bloc/chat_launcher_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -43,6 +44,7 @@ class AppBlocProviders extends StatelessWidget {
         BlocProvider(create: (_) => sl<EmployeeAvailabilityBloc>()),
         BlocProvider(create: (_) => sl<HousekeepingPricingBloc>()),
         BlocProvider(create: (_) => sl<AutoBidConfigBloc>()),
+        BlocProvider(create: (_) => sl<ChatLauncherCubit>()),
       ],
       child: child,
     );

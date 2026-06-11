@@ -1101,4 +1101,76 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get kwd => 'KWD';
+
+  @override
+  String get chat_with_customer => 'Chat with customer';
+
+  @override
+  String get chat_created_successfully => 'Chat created successfully';
+
+  @override
+  String get chat_fab_title => 'Chat';
+
+  @override
+  String get chat_minimize => 'Minimize';
+
+  @override
+  String get chat_close => 'Close';
+
+  @override
+  String get chat_close_confirmation => 'Do you want to close this chat?';
+
+  @override
+  String get chat_close_failed => 'Failed to close chat';
+
+  @override
+  String get chat_no_conversations => 'No conversations yet';
+
+  @override
+  String get chat_no_messages => 'No messages yet';
+
+  @override
+  String get chat_closed_status => 'Closed';
+
+  @override
+  String get chat_closed => 'Chat closed';
+
+  @override
+  String get chat_status_connected => 'Connected';
+
+  @override
+  String get chat_status_connecting => 'Connecting';
+
+  @override
+  String get chat_status_disconnected => 'Disconnected';
+
+  @override
+  String get chat_status_error => 'Error';
+
+  @override
+  String get chat_type_message => 'Type a message';
+
+  @override
+  String get chat_load_older_messages => 'Load older messages';
+
+  @override
+  String get chat_send_failed => 'Failed to send message';
+
+  @override
+  String get chat_request => 'Request';
+
+  @override
+  String get chat_type => 'Type';
+
+  @override
+  String get chat_status => 'Status';
+
+  @override
+  String get chat_customer => 'Customer';
+
+  @override
+  String get chat_phone => 'Phone';
+
+  @override
+  String get chat_price => 'Price';
 }

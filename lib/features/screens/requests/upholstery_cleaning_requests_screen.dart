@@ -2,7 +2,9 @@ import 'package:cleaning_service_driver/components/date_time_picker_field.dart';
 import 'package:cleaning_service_driver/components/media_carousel_viewer.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
+import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
 import 'package:cleaning_service_driver/data/models/requests/upholstery_cleaning_history.dart';
+import 'package:cleaning_service_driver/features/chats/presentation/chat_open_helper.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_action_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_action_event.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_actions_state.dart';
@@ -114,6 +116,10 @@ class _UpholsteryCleaningRequestState
   Widget build(BuildContext context) {
     final details = widget.request;
     final items = widget.request.upholsteryCleaning.items;
+    final effectiveRequestId = widget.request.id;
+    final canChat = (widget.request.requestStatus == RequestStatus.confirmed ||
+            widget.request.requestStatus == RequestStatus.inProgress) &&
+        ((effectiveRequestId ?? '').isNotEmpty);
     return BlocConsumer<RequestsActionBloc, RequestsActionState>(
       listener: (ctx, state) {
         if (state is OfferSubmitted) {
@@ -134,7 +140,9 @@ class _UpholsteryCleaningRequestState
               return false;
             },
             child: Scaffold(
-              appBar: AppBar(title: Text(context.l10n.request_details_label)),
+              appBar: AppBar(
+                title: Text(context.l10n.request_details_label),
+              ),
               body: SafeArea(
                 minimum: const EdgeInsets.symmetric(horizontal: 24),
                 child: ListView(
@@ -299,21 +307,46 @@ class _UpholsteryCleaningRequestState
               ),
               bottomNavigationBar: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-                child: FilledButton(
-                  onPressed:
-                      _bidAmount == null || _selectedTimelineHours == null
-                          ? null
-                          : () {
-                              context.read<RequestsActionBloc>().add(
-                                    SubmitUpholsteryOffer(
-                                      _composeNotes(context),
-                                      double.parse(_amountController.text),
-                                      widget.request.id ?? '',
-                                      _selectedTimelineHours!,
-                                    ),
-                                  );
-                            },
-                  child: Text(context.l10n.submit_bid),
+                child: SafeArea(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (canChat) ...[
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () => openChatForRequest(
+                              context: context,
+                              businessId: widget.request.companyInformation?.id,
+                              requestId: effectiveRequestId!,
+                            ),
+                            icon: const Icon(Icons.chat_bubble_outline),
+                            label: Text(context.l10n.chat_with_customer),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: _bidAmount == null ||
+                                  _selectedTimelineHours == null
+                              ? null
+                              : () {
+                                  context.read<RequestsActionBloc>().add(
+                                        SubmitUpholsteryOffer(
+                                          _composeNotes(context),
+                                          double.parse(_amountController.text),
+                                          widget.request.id ?? '',
+                                          _selectedTimelineHours!,
+                                        ),
+                                      );
+                                },
+                          child: Text(context.l10n.submit_bid),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

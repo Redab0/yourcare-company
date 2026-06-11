@@ -7,6 +7,7 @@ import 'package:cleaning_service_driver/features/bloc/auth/auth_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/auth/auth_state.dart';
 import 'package:cleaning_service_driver/features/bloc/profile/user/user_profile_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/profile/user/user_profile_event.dart';
+import 'package:cleaning_service_driver/features/chats/presentation/conversations_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -123,6 +124,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 _nameController.text = user.username!;
                 _phoneController.text = user.phone ?? '';
               });
+            },
+          ),
+          _buildProfileSection(
+            title: context.l10n.chat_fab_title,
+            icon: Icons.chat_bubble_outline,
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const ConversationsScreen(),
+                ),
+              );
             },
           ),
           if (_showDeactivateAccount)

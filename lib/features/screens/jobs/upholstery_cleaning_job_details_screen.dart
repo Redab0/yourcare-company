@@ -15,6 +15,7 @@ import 'package:cleaning_service_driver/features/bloc/jobs/job_event.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_event.dart'
     as requests_events;
+import 'package:cleaning_service_driver/features/chats/presentation/chat_open_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -100,7 +101,8 @@ class _UpholsteryCleaningJobDetailsState
         : null;
     final items = req.upholsteryCleaning.items ?? const [];
     final itemLines = items.map((it) {
-      final typeTitle = it.type?.title ?? it.type?.titleEn ?? it.type?.titleAr ?? '-';
+      final typeTitle =
+          it.type?.title ?? it.type?.titleEn ?? it.type?.titleAr ?? '-';
       final qty = it.quantity ?? 0;
       return '- $typeTitle x$qty';
     }).toList();
@@ -162,6 +164,8 @@ class _UpholsteryCleaningJobDetailsState
     final status = req.requestStatus;
     final isConfirmed = status == RequestStatus.confirmed;
     final isInProgress = status == RequestStatus.inProgress;
+    final canChat =
+        (isConfirmed || isInProgress) && ((req.id ?? '').isNotEmpty);
 
     return BlocConsumer<JobActionsBloc, JobActionsState>(
       listener: (ctx, state) {
@@ -334,33 +338,60 @@ class _UpholsteryCleaningJobDetailsState
 
                     return Padding(
                       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-                      child: FilledButton(
-                        onPressed: isConfirmed
-                            ? () {
-                                context.read<JobActionsBloc>().add(
-                                      StartJobEvent(_currentRequest.id ?? ""),
-                                    );
-                                // Confirmed -> prompt to attach media (start job flow)
-                              }
-                            : (isInProgress && canCompleteNow
-                                ? () {
-                                    // In progress + has media -> complete
-                                    final body = CompleteJobRequest(
-                                      files:
-                                          List<String>.from(uploadedFilesUrls),
-                                    );
-                                    context.read<JobActionsBloc>().add(
-                                          CompleteJobEvent(
-                                              _currentRequest.id ?? "", body),
-                                        );
-                                  }
-                                : null), // disabled if no media (or uploading)
-                        child: Text(
-                          isConfirmed
-                              ? context.l10n.start_job
-                              : isInProgress
-                                  ? context.l10n.complete_job
-                                  : 'OK',
+                      child: SafeArea(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (canChat) ...[
+                              SizedBox(
+                                width: double.infinity,
+                                child: OutlinedButton.icon(
+                                  onPressed: () => openChatForRequest(
+                                    context: context,
+                                    businessId:
+                                        _currentRequest.companyInformation?.id,
+                                    requestId: _currentRequest.id!,
+                                  ),
+                                  icon: const Icon(Icons.chat_bubble_outline),
+                                  label: Text(context.l10n.chat_with_customer),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                            ],
+                            SizedBox(
+                              width: double.infinity,
+                              child: FilledButton(
+                                onPressed: isConfirmed
+                                    ? () {
+                                        context.read<JobActionsBloc>().add(
+                                              StartJobEvent(
+                                                  _currentRequest.id ?? ""),
+                                            );
+                                      }
+                                    : (isInProgress && canCompleteNow
+                                        ? () {
+                                            final body = CompleteJobRequest(
+                                              files: List<String>.from(
+                                                  uploadedFilesUrls),
+                                            );
+                                            context.read<JobActionsBloc>().add(
+                                                  CompleteJobEvent(
+                                                    _currentRequest.id ?? "",
+                                                    body,
+                                                  ),
+                                                );
+                                          }
+                                        : null),
+                                child: Text(
+                                  isConfirmed
+                                      ? context.l10n.start_job
+                                      : isInProgress
+                                          ? context.l10n.complete_job
+                                          : 'OK',
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     );

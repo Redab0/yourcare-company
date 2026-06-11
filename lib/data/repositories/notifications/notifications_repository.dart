@@ -1,12 +1,16 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/data/models/notifications/register_token.dart';
 import 'package:cleaning_service_driver/data/services/notifications/notifications_service.dart';
+import 'package:cleaning_service_driver/features/chats/bloc/chat_launcher_cubit.dart';
+import 'package:cleaning_service_driver/features/chats/presentation/chat_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:uuid/uuid.dart';
 
@@ -16,6 +20,9 @@ class NotificationsRepository {
   final FlutterLocalNotificationsPlugin _localNotifications;
   StreamSubscription<String>? _tokenRefreshSubscription;
   StreamSubscription<RemoteMessage>? _foregroundMessageSubscription;
+  StreamSubscription<RemoteMessage>? _messageOpenedSubscription;
+  Map<String, dynamic>? _pendingChatNotificationData;
+  bool _openingPendingChatNotification = false;
   bool _initialized = false;
   bool _notificationsActive = false;
   bool _tokenRegistrationCompleted = false;
@@ -114,6 +121,16 @@ class NotificationsRepository {
     _foregroundMessageSubscription = FirebaseMessaging.onMessage.listen(
       _handleMessage,
     );
+
+    await _messageOpenedSubscription?.cancel();
+    _messageOpenedSubscription = FirebaseMessaging.onMessageOpenedApp.listen(
+      _handleNotificationTap,
+    );
+
+    final initialMessage = await _messaging.getInitialMessage();
+    if (initialMessage != null) {
+      _handleNotificationTap(initialMessage);
+    }
   }
 
   Future<bool> _tryRegisterCurrentToken({
@@ -125,12 +142,12 @@ class NotificationsRepository {
       final token = await _safeGetFcmToken();
       debugPrint('DEVICE TOKEN: $token');
       final prev = previousToken ?? await SecureStorageService().getFcmToken();
-      final shouldRegister = token != null && token != prev;
-      debugPrint('Should register with backend? $shouldRegister');
+      final tokenChanged = token != null && token != prev;
+      debugPrint('FCM token changed locally? $tokenChanged');
 
-      if (!shouldRegister) {
-        _tokenRegistrationCompleted = token != null;
-        return _tokenRegistrationCompleted;
+      if (token == null) {
+        _tokenRegistrationCompleted = false;
+        return false;
       }
 
       await _notificationsService.registerDeviceToken(
@@ -236,7 +253,9 @@ class NotificationsRepository {
     await _localNotifications.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (response) async {
-        debugPrint('Notification tapped: ${response.payload}');
+        final data = _payloadToMap(response.payload);
+        if (data == null) return;
+        _openChatFromNotificationData(data);
       },
     );
   }
@@ -266,9 +285,125 @@ class NotificationsRepository {
           ),
           iOS: const DarwinNotificationDetails(),
         ),
-        payload: message.data['screen'],
+        payload: jsonEncode(message.data),
       );
     }
+  }
+
+  void _handleNotificationTap(RemoteMessage message) {
+    _openChatFromNotificationData(message.data);
+  }
+
+  Map<String, dynamic>? _payloadToMap(String? payload) {
+    if (payload == null || payload.isEmpty) return null;
+    try {
+      final decoded = jsonDecode(payload);
+      if (decoded is Map) return Map<String, dynamic>.from(decoded);
+    } catch (_) {
+      return {'screen': payload};
+    }
+    return null;
+  }
+
+  void _openChatFromNotificationData(Map<String, dynamic> data) {
+    if (!_isChatNotification(data)) return;
+    final conversationId = _readConversationId(data);
+    if (conversationId == null || conversationId.isEmpty) return;
+
+    _pendingChatNotificationData = data;
+    unawaited(_flushPendingChatNotification());
+  }
+
+  Future<void> _flushPendingChatNotification({int attempt = 0}) async {
+    if (_openingPendingChatNotification) return;
+    final data = _pendingChatNotificationData;
+    if (data == null) return;
+
+    final navigator = sl<GlobalKey<NavigatorState>>().currentState;
+    if (navigator == null) {
+      if (attempt < 20) {
+        await Future<void>.delayed(const Duration(milliseconds: 250));
+        return _flushPendingChatNotification(attempt: attempt + 1);
+      }
+      return;
+    }
+
+    final conversationId = _readConversationId(data);
+    if (conversationId == null || conversationId.isEmpty) return;
+
+    _openingPendingChatNotification = true;
+    _pendingChatNotificationData = null;
+    try {
+      final launcher = sl<ChatLauncherCubit>();
+      final openConversationId = launcher.state.openConversationId;
+      final alreadyOpen = launcher.state.isChatWindowOpen &&
+          openConversationId == conversationId;
+      launcher.setActiveChat(
+        conversationId: conversationId,
+        hasLastMessage: true,
+        requestId: _readString(data, const ['requestId', 'request_id']),
+        businessId: _readString(data, const ['businessId', 'business_id']),
+      );
+      if (alreadyOpen) return;
+      if (openConversationId != null &&
+          openConversationId.isNotEmpty &&
+          navigator.canPop()) {
+        navigator.pop();
+        await Future<void>.delayed(const Duration(milliseconds: 150));
+      }
+      unawaited(
+        navigator.push(
+          MaterialPageRoute(
+            builder: (_) => ChatScreen(
+              conversationId: conversationId,
+              shouldLoadHistory: true,
+            ),
+          ),
+        ),
+      );
+    } finally {
+      _openingPendingChatNotification = false;
+      if (_pendingChatNotificationData != null) {
+        unawaited(_flushPendingChatNotification());
+      }
+    }
+  }
+
+  bool _isChatNotification(Map<String, dynamic> data) {
+    final type =
+        _readString(data, const ['type', 'notificationType', 'screen']);
+    final deeplink =
+        _readString(data, const ['deeplink', 'deepLink', 'link', 'screen']);
+    return type == 'chat_message' ||
+        type == 'chat' ||
+        (deeplink?.startsWith('/chat') ?? false) ||
+        _readConversationId(data) != null;
+  }
+
+  String? _readConversationId(Map<String, dynamic> data) {
+    final direct = _readString(
+      data,
+      const ['conversationId', 'conversation_id', 'chatConversationId'],
+    );
+    if (direct != null && direct.isNotEmpty) return direct;
+
+    final deeplink =
+        _readString(data, const ['deeplink', 'deepLink', 'link', 'screen']);
+    if (deeplink == null || deeplink.isEmpty) return null;
+    final uri = Uri.tryParse(deeplink);
+    if (uri == null) return null;
+    return uri.queryParameters['conversationId'] ??
+        uri.queryParameters['conversation_id'];
+  }
+
+  String? _readString(Map<String, dynamic> data, List<String> keys) {
+    for (final key in keys) {
+      final value = data[key];
+      if (value == null) continue;
+      final text = value.toString().trim();
+      if (text.isNotEmpty) return text;
+    }
+    return null;
   }
 
   Future<void> onLogoutCleanup() async {
@@ -281,6 +416,9 @@ class NotificationsRepository {
     _tokenRefreshSubscription = null;
     await _foregroundMessageSubscription?.cancel();
     _foregroundMessageSubscription = null;
+    await _messageOpenedSubscription?.cancel();
+    _messageOpenedSubscription = null;
+    _pendingChatNotificationData = null;
 
     final storedToken = await SecureStorageService().getFcmToken();
     final deviceId = await SecureStorageService().getDeviceId();

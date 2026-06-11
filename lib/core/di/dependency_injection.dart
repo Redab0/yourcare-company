@@ -17,6 +17,7 @@ import 'package:cleaning_service_driver/data/repositories/schedule/schedule_repo
 import 'package:cleaning_service_driver/data/repositories/staff/permissions_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/staff/staff_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/statistics/statistics_repository.dart';
+import 'package:cleaning_service_driver/data/repos/chats/chats_repository.dart';
 import 'package:cleaning_service_driver/data/services/auth/auth_service.dart';
 import 'package:cleaning_service_driver/data/services/auto_bid/auto_bid_categories_service.dart';
 import 'package:cleaning_service_driver/data/services/auto_bid/auto_bid_config_service.dart';
@@ -29,6 +30,7 @@ import 'package:cleaning_service_driver/data/services/requests/requests_service.
 import 'package:cleaning_service_driver/data/services/schedule/schedule_service.dart';
 import 'package:cleaning_service_driver/data/services/staff/staff_service.dart';
 import 'package:cleaning_service_driver/data/services/statistics/statistics_service.dart';
+import 'package:cleaning_service_driver/data/services/chats/chat_service.dart';
 import 'package:cleaning_service_driver/domain/usecases/auth/login_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/auth/logout_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/auto_bid/get_auto_bid_categories_usecase.dart';
@@ -78,6 +80,11 @@ import 'package:cleaning_service_driver/domain/usecases/staff/get_user_details.d
 import 'package:cleaning_service_driver/domain/usecases/staff/update_team_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/update_user_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/statistics/get_requests_statistics_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/chats/create_conversation_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/chats/close_conversation_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/chats/get_conversations_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/chats/get_latest_conversation_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/chats/open_conversation_usecase.dart';
 import 'package:cleaning_service_driver/features/bloc/auth/auth_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/auto_bid/auto_bid_config_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/calendar/employee_calendar_bloc.dart';
@@ -93,6 +100,11 @@ import 'package:cleaning_service_driver/features/bloc/schedule/employee_availabi
 import 'package:cleaning_service_driver/features/bloc/staff/staff_action_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/statistics/statistics_bloc.dart';
+import 'package:cleaning_service_driver/features/chats/bloc/chat_launcher_cubit.dart';
+import 'package:cleaning_service_driver/features/chats/bloc/chats_bloc.dart';
+import 'package:cleaning_service_driver/features/chats/data/chat_history_service.dart';
+import 'package:cleaning_service_driver/features/chats/data/chat_memory_store.dart';
+import 'package:cleaning_service_driver/features/chats/data/chat_socket_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -166,6 +178,9 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<StatisticsService>(
     () => StatisticsService(sl<ApiClient>().dio),
   );
+  sl.registerLazySingleton<ChatService>(
+    () => ChatService(sl<ApiClient>().dio),
+  );
 
   // Repos
   sl.registerLazySingleton<AuthRepository>(
@@ -220,6 +235,14 @@ Future<void> setupServiceLocator() async {
 
   sl.registerLazySingleton<UserProfileRepository>(
     () => UserProfileRepository(sl<UserProfileService>()),
+  );
+  sl.registerLazySingleton<ChatsRepository>(
+    () => ChatsRepository(sl<ChatService>()),
+  );
+  sl.registerLazySingleton<ChatMemoryStore>(() => ChatMemoryStore());
+  sl.registerLazySingleton<ChatSocketService>(() => ChatSocketService());
+  sl.registerLazySingleton<ChatHistoryService>(
+    () => ChatHistoryService(sl<ChatsRepository>()),
   );
 
   //use cases
@@ -297,6 +320,11 @@ Future<void> setupServiceLocator() async {
       () => UpdateCleanerAvailabilityUseCase(sl<ScheduleRepository>()));
   sl.registerFactory(
       () => DeleteCleanerAvailabilityUseCase(sl<ScheduleRepository>()));
+  sl.registerFactory(() => CreateConversationUseCase(sl<ChatsRepository>()));
+  sl.registerFactory(() => CloseConversationUseCase(sl<ChatsRepository>()));
+  sl.registerFactory(() => GetConversationsUseCase(sl<ChatsRepository>()));
+  sl.registerFactory(() => GetLatestConversationUseCase(sl<ChatsRepository>()));
+  sl.registerFactory(() => OpenConversationUseCase(sl<ChatsRepository>()));
 
   // Blocs
   sl.registerFactory(() => AuthBloc());
@@ -314,4 +342,7 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory(() => EmployeeAvailabilityBloc());
   sl.registerFactory(() => HousekeepingPricingBloc());
   sl.registerFactory(() => AutoBidConfigBloc());
+  sl.registerLazySingleton(() => ChatLauncherCubit());
+  sl.registerFactory(() => ChatsBloc(sl<ChatSocketService>(),
+      sl<ChatMemoryStore>(), sl<ChatHistoryService>()));
 }

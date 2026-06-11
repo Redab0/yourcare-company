@@ -17,6 +17,7 @@ import 'package:cleaning_service_driver/features/bloc/jobs/job_event.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_event.dart'
     as requests_events;
+import 'package:cleaning_service_driver/features/chats/presentation/chat_open_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -184,6 +185,9 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
     final req = _currentRequest;
     final detail = req.detail;
     final hasNotes = (detail.specialNotes?.trim().isNotEmpty ?? false);
+    final canChat = (req.requestStatus == RequestStatus.confirmed ||
+            req.requestStatus == RequestStatus.inProgress) &&
+        ((req.id ?? '').isNotEmpty);
 
     return BlocConsumer<JobActionsBloc, JobActionsState>(
       listener: (ctx, state) {
@@ -585,33 +589,25 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
               ),
             ),
           ),
-          // bottomNavigationBar: req.requestStatus != RequestStatus.completed &&
-          //         req.requestStatus != RequestStatus.cancelled
-          //     ? Padding(
-          //         padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-          //         child: FilledButton(
-          //           onPressed: () {
-          //             if (req.requestStatus == RequestStatus.confirmed) {
-          //               ctx
-          //                   .read<JobActionsBloc>()
-          //                   .add(StartJobEvent(req.id ?? ""));
-          //             } else if (req.requestStatus ==
-          //                 RequestStatus.inProgress) {
-          //               ctx
-          //                   .read<JobActionsBloc>()
-          //                   .add(CompleteJobEvent(req.id ?? "", null));
-          //             }
-          //           },
-          //           child: Text(
-          //             req.requestStatus == RequestStatus.confirmed
-          //                 ? context.l10n.start_job
-          //                 : req.requestStatus == RequestStatus.inProgress
-          //                     ? context.l10n.complete_job
-          //                     : 'OK',
-          //           ),
-          //         ),
-          //       )
-          //     : SizedBox.shrink(),
+          bottomNavigationBar: canChat
+              ? Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                  child: SafeArea(
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () => openChatForRequest(
+                          context: context,
+                          businessId: req.companyInformation?.id,
+                          requestId: req.id!,
+                        ),
+                        icon: const Icon(Icons.chat_bubble_outline),
+                        label: Text(context.l10n.chat_with_customer),
+                      ),
+                    ),
+                  ),
+                )
+              : const SizedBox.shrink(),
         );
       },
     );

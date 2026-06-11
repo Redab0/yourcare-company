@@ -1105,4 +1105,76 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get kwd => 'دك';
+
+  @override
+  String get chat_with_customer => 'تحدث مع العميل';
+
+  @override
+  String get chat_created_successfully => 'تم إنشاء المحادثة بنجاح';
+
+  @override
+  String get chat_fab_title => 'الدردشة';
+
+  @override
+  String get chat_minimize => 'تصغير';
+
+  @override
+  String get chat_close => 'إغلاق';
+
+  @override
+  String get chat_close_confirmation => 'هل تريد إغلاق المحادثة؟';
+
+  @override
+  String get chat_close_failed => 'تعذر إغلاق المحادثة';
+
+  @override
+  String get chat_no_conversations => 'لا توجد محادثات';
+
+  @override
+  String get chat_no_messages => 'بدون رسائل بعد';
+
+  @override
+  String get chat_closed_status => 'مغلقة';
+
+  @override
+  String get chat_closed => 'المحادثة مغلقة';
+
+  @override
+  String get chat_status_connected => 'متصل';
+
+  @override
+  String get chat_status_connecting => 'جار الاتصال';
+
+  @override
+  String get chat_status_disconnected => 'غير متصل';
+
+  @override
+  String get chat_status_error => 'خطأ';
+
+  @override
+  String get chat_type_message => 'اكتب رسالة';
+
+  @override
+  String get chat_load_older_messages => 'تحميل الرسائل الأقدم';
+
+  @override
+  String get chat_send_failed => 'تعذر إرسال الرسالة';
+
+  @override
+  String get chat_request => 'الطلب';
+
+  @override
+  String get chat_type => 'النوع';
+
+  @override
+  String get chat_status => 'الحالة';
+
+  @override
+  String get chat_customer => 'العميل';
+
+  @override
+  String get chat_phone => 'الهاتف';
+
+  @override
+  String get chat_price => 'السعر';
 }
