@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cleaning_service_driver/data/models/requests/accept_house_keeping_model.dart';
+import 'package:cleaning_service_driver/data/models/requests/add_extra_fees_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/complete_job_media_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/update_request_frequency_request.dart';
 import 'package:equatable/equatable.dart';
@@ -97,4 +98,14 @@ class UpdateFrequencyRequestEvent extends JobActionsEvent {
   const UpdateFrequencyRequestEvent(this.body, this.id);
   @override
   List<Object> get props => [id, body];
+}
+
+class AddExtraFeesEvent extends JobActionsEvent {
+  final String id;
+  final AddExtraFeesRequest request;
+
+  const AddExtraFeesEvent(this.id, this.request);
+
+  @override
+  List<Object> get props => [id, request];
 }

@@ -15,12 +15,23 @@ class AutoBidConfigBloc extends Bloc<AutoBidConfigEvent, AutoBidConfigState> {
   static const deepCleaning = 'deepCleaning';
   static const upholsteryCleaning = 'upholsteryCleaning';
 
-  final getCategoriesUseCase = sl<GetAutoBidCategoriesUseCase>();
-  final getConfigUseCase = sl<GetAutoBidConfigUseCase>();
-  final upsertConfigUseCase = sl<UpsertAutoBidConfigUseCase>();
-  final _loader = sl<LoadingController>();
+  final GetAutoBidCategoriesUseCase getCategoriesUseCase;
+  final GetAutoBidConfigUseCase getConfigUseCase;
+  final UpsertAutoBidConfigUseCase upsertConfigUseCase;
+  final LoadingController _loader;
 
-  AutoBidConfigBloc() : super(AutoBidConfigState.initial()) {
+  AutoBidConfigBloc({
+    GetAutoBidCategoriesUseCase? getCategoriesUseCase,
+    GetAutoBidConfigUseCase? getConfigUseCase,
+    UpsertAutoBidConfigUseCase? upsertConfigUseCase,
+    LoadingController? loader,
+  })  : getCategoriesUseCase =
+            getCategoriesUseCase ?? sl<GetAutoBidCategoriesUseCase>(),
+        getConfigUseCase = getConfigUseCase ?? sl<GetAutoBidConfigUseCase>(),
+        upsertConfigUseCase =
+            upsertConfigUseCase ?? sl<UpsertAutoBidConfigUseCase>(),
+        _loader = loader ?? sl<LoadingController>(),
+        super(AutoBidConfigState.initial()) {
     on<LoadAutoBidConfigs>(_onLoadConfigs);
     on<ToggleAutoBidEnabled>(_onToggleEnabled);
     on<UpdateDeepCleaningPrice>(_onUpdateDeepPrice);
@@ -36,35 +47,24 @@ class AutoBidConfigBloc extends Bloc<AutoBidConfigEvent, AutoBidConfigState> {
   ) async {
     emit(state.copyWith(
       isLoadingDeep: true,
-      isLoadingUpholstery: true,
+      isLoadingUpholstery: false,
       error: null,
     ));
     try {
       final results = await Future.wait([
         getCategoriesUseCase.getDeepCleaning(deepCleaning),
-        getCategoriesUseCase.getUpholstery(upholsteryCleaning),
         getConfigUseCase.call(deepCleaning),
-        getConfigUseCase.call(upholsteryCleaning),
       ]);
       final deepCategories = results[0] as AutoBidDeepCleaningCategories?;
-      final upholsteryCategories = results[1] as AutoBidUpholsteryCategories?;
-      final deepConfig = results[2] as AutoBidConfig?;
-      final upholsteryConfig = results[3] as AutoBidConfig?;
+      final deepConfig = results[1] as AutoBidConfig?;
 
       emit(state.copyWith(
         isLoadingDeep: false,
         isLoadingUpholstery: false,
-        deepCategories:
-            deepCategories ?? AutoBidDeepCleaningCategories.empty(),
-        upholsteryCategories:
-            upholsteryCategories ?? AutoBidUpholsteryCategories.empty(),
-        deepCleaningPricing:
-            deepConfig?.deepCleaningPricing ?? AutoBidDeepCleaningPricing.empty(),
-        upholsteryPricing:
-            upholsteryConfig?.upholsteryPricing ??
-                AutoBidUpholsteryPricing.empty(),
+        deepCategories: deepCategories ?? AutoBidDeepCleaningCategories.empty(),
+        deepCleaningPricing: deepConfig?.deepCleaningPricing ??
+            AutoBidDeepCleaningPricing.empty(),
         deepEnabled: deepConfig?.isEnabled ?? true,
-        upholsteryEnabled: upholsteryConfig?.isEnabled ?? true,
         error: null,
       ));
     } catch (e) {
@@ -132,41 +132,44 @@ class AutoBidConfigBloc extends Bloc<AutoBidConfigEvent, AutoBidConfigState> {
       case 'departmentTypes':
         updated = pricing.copyWith(
           departmentTypes: _upsertOption(
-              pricing.departmentTypes, event.optionId, price: event.price),
+              pricing.departmentTypes, event.optionId,
+              price: event.price),
         );
         break;
       case 'bedrooms':
         updated = pricing.copyWith(
-          bedrooms: _upsertOption(pricing.bedrooms, event.optionId, price: event.price),
+          bedrooms: _upsertOption(pricing.bedrooms, event.optionId,
+              price: event.price),
         );
         break;
       case 'bathrooms':
         updated = pricing.copyWith(
-          bathrooms:
-              _upsertOption(pricing.bathrooms, event.optionId, price: event.price),
+          bathrooms: _upsertOption(pricing.bathrooms, event.optionId,
+              price: event.price),
         );
         break;
       case 'kitchens':
         updated = pricing.copyWith(
-          kitchens: _upsertOption(pricing.kitchens, event.optionId, price: event.price),
+          kitchens: _upsertOption(pricing.kitchens, event.optionId,
+              price: event.price),
         );
         break;
       case 'livingRooms':
         updated = pricing.copyWith(
-          livingRooms:
-              _upsertOption(pricing.livingRooms, event.optionId, price: event.price),
+          livingRooms: _upsertOption(pricing.livingRooms, event.optionId,
+              price: event.price),
         );
         break;
       case 'numberOfFloors':
         updated = pricing.copyWith(
-          numberOfFloors: _upsertOption(
-              pricing.numberOfFloors, event.optionId, price: event.price),
+          numberOfFloors: _upsertOption(pricing.numberOfFloors, event.optionId,
+              price: event.price),
         );
         break;
       case 'sizeOptions':
         updated = pricing.copyWith(
-          sizeOptions:
-              _upsertOption(pricing.sizeOptions, event.optionId, price: event.price),
+          sizeOptions: _upsertOption(pricing.sizeOptions, event.optionId,
+              price: event.price),
         );
         break;
       default:
@@ -175,7 +178,6 @@ class AutoBidConfigBloc extends Bloc<AutoBidConfigEvent, AutoBidConfigState> {
 
     emit(state.copyWith(deepCleaningPricing: updated, error: null));
   }
-
 
   FutureOr<void> _onUpdateDeepExpectedTime(
     UpdateDeepCleaningExpectedTime event,
@@ -267,19 +269,20 @@ class AutoBidConfigBloc extends Bloc<AutoBidConfigEvent, AutoBidConfigState> {
 
       if (event.section == 'sizes') {
         return typeOverride.copyWith(
-          sizes: _upsertOption(typeOverride.sizes, event.optionId, price: event.price),
+          sizes: _upsertOption(typeOverride.sizes, event.optionId,
+              price: event.price),
         );
       }
       if (event.section == 'materials') {
         return typeOverride.copyWith(
-          materials:
-              _upsertOption(typeOverride.materials, event.optionId, price: event.price),
+          materials: _upsertOption(typeOverride.materials, event.optionId,
+              price: event.price),
         );
       }
       if (event.section == 'conditions') {
         return typeOverride.copyWith(
-          conditions: _upsertOption(
-              typeOverride.conditions, event.optionId, price: event.price),
+          conditions: _upsertOption(typeOverride.conditions, event.optionId,
+              price: event.price),
         );
       }
       return typeOverride;
@@ -306,7 +309,6 @@ class AutoBidConfigBloc extends Bloc<AutoBidConfigEvent, AutoBidConfigState> {
       error: null,
     ));
   }
-
 
   FutureOr<void> _onUpdateUpholsteryExpectedTime(
     UpdateUpholsteryExpectedTime event,
@@ -396,8 +398,9 @@ class AutoBidConfigBloc extends Bloc<AutoBidConfigEvent, AutoBidConfigState> {
         deepCleaningPricing:
             config.deepCleaningPricing ?? state.deepCleaningPricing,
         upholsteryPricing: config.upholsteryPricing ?? state.upholsteryPricing,
-        deepEnabled:
-            isDeep ? (config.isEnabled ?? state.deepEnabled) : state.deepEnabled,
+        deepEnabled: isDeep
+            ? (config.isEnabled ?? state.deepEnabled)
+            : state.deepEnabled,
         upholsteryEnabled: !isDeep
             ? (config.isEnabled ?? state.upholsteryEnabled)
             : state.upholsteryEnabled,

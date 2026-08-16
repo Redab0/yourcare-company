@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
 import 'package:cleaning_service_driver/data/models/staff/assign_permission_model.dart';
@@ -86,9 +87,8 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit User Profile & Permissions'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, size: 28),
-          onPressed: () => Navigator.of(context).pop(),
+        leading: const BusinessBackButton(
+          fallbackRouteName: 'staffList',
         ),
       ),
       body: BlocConsumer<StaffActionBloc, StaffActionState>(
@@ -209,7 +209,8 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
                                       r.value
                                           .split('_')
                                           .map((p) =>
-                                              p[0].toUpperCase() + p.substring(1))
+                                              p[0].toUpperCase() +
+                                              p.substring(1))
                                           .join(' '),
                                     ),
                                   ))

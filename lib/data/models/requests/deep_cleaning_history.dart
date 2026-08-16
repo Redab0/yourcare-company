@@ -51,6 +51,16 @@ class DeepCleaningHistory implements CleaningRequest {
   @override
   final RequestStatus requestStatus;
 
+  @override
+  final double? extraFees;
+  @override
+  final String? extraFeesDescription;
+  @override
+  @JsonKey(defaultValue: false)
+  final bool awaitingExtraPayment;
+  @override
+  final String? extraPaymentUrl;
+
   final BusinessOfferResponse? myBid;
 
   DeepCleaningHistory({
@@ -69,6 +79,10 @@ class DeepCleaningHistory implements CleaningRequest {
     this.serviceIntervalDays,
     this.frequencyDates,
     this.myBid,
+    this.extraFees,
+    this.extraFeesDescription,
+    this.awaitingExtraPayment = false,
+    this.extraPaymentUrl,
   });
 
   DeepCleaningHistory copyWith({
@@ -85,6 +99,10 @@ class DeepCleaningHistory implements CleaningRequest {
     int? serviceIntervalDays,
     List<FrequencyDate>? frequencyDates,
     BusinessOfferResponse? myBid,
+    double? extraFees,
+    String? extraFeesDescription,
+    bool? awaitingExtraPayment,
+    String? extraPaymentUrl,
   }) {
     return DeepCleaningHistory(
         id: id ?? this.id,
@@ -102,8 +120,26 @@ class DeepCleaningHistory implements CleaningRequest {
         serviceIntervalDays: serviceIntervalDays ?? this.serviceIntervalDays,
         frequencyDates: frequencyDates ?? this.frequencyDates,
         myBid: myBid ?? this.myBid,
+        extraFees: extraFees ?? this.extraFees,
+        extraFeesDescription: extraFeesDescription ?? this.extraFeesDescription,
+        awaitingExtraPayment: awaitingExtraPayment ?? this.awaitingExtraPayment,
+        extraPaymentUrl: extraPaymentUrl ?? this.extraPaymentUrl,
         type: type ?? this.type);
   }
+
+  @override
+  DeepCleaningHistory copyWithExtraInvoice({
+    required double extraFees,
+    required String extraFeesDescription,
+    required bool awaitingExtraPayment,
+    String? extraPaymentUrl,
+  }) =>
+      copyWith(
+        extraFees: extraFees,
+        extraFeesDescription: extraFeesDescription,
+        awaitingExtraPayment: awaitingExtraPayment,
+        extraPaymentUrl: extraPaymentUrl,
+      );
 
   factory DeepCleaningHistory.fromJson(
     Map<String, dynamic> json,

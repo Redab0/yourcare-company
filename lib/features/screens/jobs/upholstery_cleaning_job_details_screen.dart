@@ -1,10 +1,13 @@
 import 'dart:io';
 
+import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/cleaning_item_summary_card.dart';
+import 'package:cleaning_service_driver/components/extra_invoice.dart';
 import 'package:cleaning_service_driver/components/media_carousel_viewer.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
+import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/complete_job_media_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/upholstery_cleaning_history.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_actions_bloc.dart';
@@ -20,7 +23,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 
 enum _MediaChoice { gallery, cameraPhoto, cameraVideo }
@@ -62,10 +64,28 @@ class _UpholsteryCleaningJobDetailsState
       {int initialIndex = 0}) {
     return showDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.9),
+      barrierColor: Colors.black.withValues(alpha: 0.9),
       builder: (_) =>
           MediaCarouselViewer(urls: urls, initialIndex: initialIndex),
     );
+  }
+
+  Future<void> _showExtraInvoiceDialog() async {
+    final id = _currentRequest.id;
+    if (!_currentRequest.canCreateExtraInvoice ||
+        _currentRequest.awaitingExtraPayment ||
+        id == null ||
+        id.isEmpty) {
+      return;
+    }
+
+    final request = await showExtraInvoiceDialog(context);
+    if (!mounted || request == null) return;
+    if (!_currentRequest.canCreateExtraInvoice ||
+        _currentRequest.awaitingExtraPayment) {
+      return;
+    }
+    context.read<JobActionsBloc>().add(AddExtraFeesEvent(id, request));
   }
 
   String _statusPair(RequestStatus status) {
@@ -92,19 +112,17 @@ class _UpholsteryCleaningJobDetailsState
 
   Future<void> _shareDetails() async {
     final req = _currentRequest;
+    final specialNotes = req.customerSpecialNotes;
     final name = req.customer.username?.trim();
     final phone = req.customer.phone?.trim();
-    final lat = req.upholsteryCleaning.address?.latitude;
-    final lng = req.upholsteryCleaning.address?.longitude;
-    final mapUrl = (lat != null && lng != null)
-        ? 'https://www.google.com/maps/search/?api=1&query=$lat,$lng'
-        : null;
     final items = req.upholsteryCleaning.items ?? const [];
     final itemLines = items.map((it) {
       final typeTitle =
           it.type?.title ?? it.type?.titleEn ?? it.type?.titleAr ?? '-';
       final qty = it.quantity ?? 0;
-      return '- $typeTitle x$qty';
+      final packageTitle = it.package?.localizedTitle(isArabic: false);
+      final packageSuffix = packageTitle == null ? '' : ' - $packageTitle';
+      return '- $typeTitle x$qty$packageSuffix';
     }).toList();
 
     final lines = <String>[
@@ -115,20 +133,29 @@ class _UpholsteryCleaningJobDetailsState
       '--- Request / الطلب ---',
       'Request ID / رقم الطلب: ${req.id ?? '-'}',
       'Request Status / حالة الطلب: ${_statusPair(req.requestStatus)}',
-      'Date and Time / الوقت والتاريخ: ${RequestFmt.date(req.scheduledTime)} ${RequestFmt.time(req.scheduledTime)}',
       'Address / العنوان: ${req.upholsteryCleaning.fullAddress}',
       '',
       '--- Customer / العميل ---',
       'Customer Name / اسم العميل: ${(name == null || name.isEmpty) ? '-' : name}',
       'Customer Phone / رقم العميل: ${(phone == null || phone.isEmpty) ? '-' : phone}',
       '',
-      '--- Location / الموقع ---',
-      'Google Maps: ${mapUrl ?? '-'}',
-      '',
       '--- Job Details / تفاصيل الطلب ---',
       'Job Details / تفاصيل الطلب',
       ...itemLines,
     ];
+    if (specialNotes != null) {
+      lines.add('Special Notes / ملاحظات خاصة: $specialNotes');
+    }
+    if ((req.extraFees ?? 0) > 0) {
+      lines.add(
+        'Extra invoice / الفاتورة الإضافية: ${RequestFmt.price(req.extraFees)}',
+      );
+    }
+    if (req.extraFeesDescription?.isNotEmpty ?? false) {
+      lines.add(
+        'Extra invoice reason / سبب الفاتورة الإضافية: ${req.extraFeesDescription}',
+      );
+    }
     await Share.share(lines.join('\n'));
   }
 
@@ -161,6 +188,7 @@ class _UpholsteryCleaningJobDetailsState
   Widget build(BuildContext context) {
     final req = _currentRequest;
     final items = req.upholsteryCleaning.items ?? const [];
+    final specialNotes = req.customerSpecialNotes;
     final status = req.requestStatus;
     final isConfirmed = status == RequestStatus.confirmed;
     final isInProgress = status == RequestStatus.inProgress;
@@ -180,6 +208,22 @@ class _UpholsteryCleaningJobDetailsState
           ScaffoldMessenger.of(ctx).showSnackBar(
             SnackBar(content: Text('Added ${urls.length} item(s)')),
           );
+        } else if (state is ExtraFeesAdded) {
+          setState(() {
+            _currentRequest =
+                resolveExtraInvoiceResult<UpholsteryCleaningHistory>(
+              currentRequest: _currentRequest,
+              submittedRequest: state.request,
+              updatedRequest: state.updatedRequest,
+            );
+          });
+          context.read<JobBloc>().add(LoadJobsEvent());
+          _maybeRefreshRequests();
+          ScaffoldMessenger.of(ctx).showSnackBar(
+            SnackBar(
+              content: Text(context.l10n.extra_invoice_created_successfully),
+            ),
+          );
         } else if (state is JobActionFailed) {
           ctx.showErrorToast();
         } else if (state is JobStarted) {
@@ -198,6 +242,9 @@ class _UpholsteryCleaningJobDetailsState
       builder: (ctx, state) {
         return Scaffold(
           appBar: AppBar(
+            leading: const BusinessBackButton(
+              fallbackRouteName: 'jobs-main-screen',
+            ),
             title: Text('#${req.id}'),
             actions: [
               IconButton(
@@ -265,52 +312,56 @@ class _UpholsteryCleaningJobDetailsState
                       .toList();
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
-                    child: CleaningItemSummaryCard(
-                      icon: _iconForTitle(typeTitle),
-                      title: qty > 0 ? '$typeTitle x$qty' : typeTitle,
-                      size: size,
-                      material: material,
-                      condition: condition,
-                      mediaGallery: mediaUrls.isEmpty
-                          ? null
-                          : SizedBox(
-                              height: 160,
-                              child: ListView.separated(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: mediaUrls.length,
-                                separatorBuilder: (_, __) =>
-                                    const SizedBox(width: 12),
-                                itemBuilder: (_, i) {
-                                  final url = mediaUrls[i];
-                                  return GestureDetector(
-                                    onTap: () => _openMedia(context, mediaUrls,
-                                        initialIndex: i),
-                                    child: SizedBox(
-                                      width: 220,
-                                      child: _mediaThumb(url),
+                    child: it.isDirectBookingItem
+                        ? _directItemCard(context, it, typeTitle)
+                        : CleaningItemSummaryCard(
+                            icon: _iconForTitle(typeTitle),
+                            title: qty > 0 ? '$typeTitle x$qty' : typeTitle,
+                            size: size,
+                            material: material,
+                            condition: condition,
+                            mediaGallery: mediaUrls.isEmpty
+                                ? null
+                                : SizedBox(
+                                    height: 160,
+                                    child: ListView.separated(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: mediaUrls.length,
+                                      separatorBuilder: (_, __) =>
+                                          const SizedBox(width: 12),
+                                      itemBuilder: (_, i) {
+                                        final url = mediaUrls[i];
+                                        return GestureDetector(
+                                          onTap: () => _openMedia(
+                                            context,
+                                            mediaUrls,
+                                            initialIndex: i,
+                                          ),
+                                          child: SizedBox(
+                                            width: 220,
+                                            child: _mediaThumb(url),
+                                          ),
+                                        );
+                                      },
                                     ),
-                                  );
-                                },
-                              ),
-                            ),
-                    ),
+                                  ),
+                          ),
                   );
                 }),
                 const SizedBox(height: 24),
-                _title(context.l10n.request_card_schedule),
-                Text(
-                    req.scheduledTime == null
-                        ? context.l10n.as_soon_as_possible
-                        : DateFormat.yMMMd(
-                                Localizations.localeOf(context).toLanguageTag())
-                            .format(
-                            req.scheduledTime!,
-                          ),
-                    style: Theme.of(context).textTheme.bodyLarge),
-                const SizedBox(height: 16),
                 _title(context.l10n.address),
-                Text(req.upholsteryCleaning.address?.area ?? '—',
+                Text(req.upholsteryCleaning.fullAddress,
                     style: Theme.of(context).textTheme.bodyLarge),
+                if (specialNotes != null) ...[
+                  const SizedBox(height: 24),
+                  _title(context.l10n.request_card_notes),
+                  Text(
+                    specialNotes,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                ],
+                const SizedBox(height: 24),
+                ExtraInvoiceStatusCard(request: _currentRequest),
                 const SizedBox(height: 80),
                 if (_currentRequest.requestStatus == RequestStatus.inProgress)
                   _media(context),
@@ -342,6 +393,12 @@ class _UpholsteryCleaningJobDetailsState
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            ExtraInvoiceActionButton(
+                              request: _currentRequest,
+                              onPressed: _showExtraInvoiceDialog,
+                            ),
+                            if (_currentRequest.canCreateExtraInvoice)
+                              const SizedBox(height: 12),
                             if (canChat) ...[
                               SizedBox(
                                 width: double.infinity,
@@ -400,6 +457,73 @@ class _UpholsteryCleaningJobDetailsState
               : const SizedBox.shrink(),
         );
       },
+    );
+  }
+
+  Widget _directItemCard(
+    BuildContext context,
+    UpholsteryCleaningItems item,
+    String typeTitle,
+  ) {
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+    final packageTitle =
+        item.package?.localizedTitle(isArabic: isArabic) ?? '-';
+    final quantity = item.quantity ?? 1;
+    final unitPrice = item.price ?? item.package?.discountedPrice;
+    final total = item.calculatedPrice ??
+        (unitPrice == null ? null : unitPrice * quantity);
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: Colors.grey.shade400),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(9),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(11),
+              ),
+              child: Icon(_iconForTitle(typeTitle), color: Colors.blue),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    quantity > 1 ? '$typeTitle x$quantity' : typeTitle,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    packageTitle,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.blueGrey,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            if (total != null) ...[
+              const SizedBox(width: 10),
+              Text(
+                RequestFmt.price(total),
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 
@@ -513,7 +637,7 @@ class _UpholsteryCleaningJobDetailsState
       return;
     }
     final media = await _picker.pickMultipleMedia(); // List<XFile>
-    if (media.isEmpty) return;
+    if (!mounted || media.isEmpty) return;
     final files = media.take(remaining).map((x) => File(x.path)).toList();
     if (media.length > remaining) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -530,7 +654,7 @@ class _UpholsteryCleaningJobDetailsState
       return;
     }
     final x = await _picker.pickImage(source: ImageSource.camera);
-    if (x == null) return;
+    if (!mounted || x == null) return;
     context.read<JobActionsBloc>().add(UploadMediaEvent([File(x.path)]));
   }
 
@@ -542,7 +666,7 @@ class _UpholsteryCleaningJobDetailsState
       return;
     }
     final x = await _picker.pickVideo(source: ImageSource.camera);
-    if (x == null) return;
+    if (!mounted || x == null) return;
     context.read<JobActionsBloc>().add(UploadMediaEvent([File(x.path)]));
   }
 

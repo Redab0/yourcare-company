@@ -1,9 +1,11 @@
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
+import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../data/models/requests/cleaning_request.dart';
+import '../../data/models/requests/car_wash_history.dart';
 import '../../data/models/requests/deep_cleaning_history.dart';
 import '../../data/models/requests/house_keeping_history.dart';
 import '../../data/models/requests/upholstery_cleaning_history.dart';
@@ -35,6 +37,8 @@ class JobTile extends StatelessWidget {
         return l10n.houseKeeping; // ← localized
       case 'upholsterycleaning':
         return l10n.upholstery_cleaning;
+      case 'carwash':
+        return l10n.car_wash_service;
       default:
         return request.type ?? l10n.houseKeeping;
     }
@@ -49,7 +53,24 @@ class JobTile extends StatelessWidget {
       return (request as HouseKeepingHistory).detail.address?.area ?? '—';
     }
     if (request is UpholsteryCleaningHistory) {
-      return request.customer.addresses?.first.area ?? '—';
+      final upholstery = request as UpholsteryCleaningHistory;
+      final detailAddress = upholstery.upholsteryCleaning.address;
+      if ((detailAddress?.area ?? '').isNotEmpty) return detailAddress!.area!;
+      final addressId = upholstery.upholsteryCleaning.addressId;
+      for (final address in upholstery.customer.addresses ?? const []) {
+        if (address.id == addressId) return address.area ?? '—';
+      }
+      return upholstery.customer.addresses?.firstOrNull?.area ?? '—';
+    }
+    if (request is CarWashHistory) {
+      final carWash = request as CarWashHistory;
+      final detailAddress = carWash.detail?.address;
+      if ((detailAddress?.area ?? '').isNotEmpty) return detailAddress!.area!;
+      final addressId = carWash.detail?.addressId;
+      for (final address in carWash.customer.addresses ?? const []) {
+        if (address.id == addressId) return address.area ?? '—';
+      }
+      return carWash.customer.addresses?.firstOrNull?.area ?? '—';
     }
     return '—';
   }
@@ -109,12 +130,14 @@ class JobTile extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  _schedule ?? context.l10n.as_soon_as_possible,
-                  style: theme.textTheme.bodySmall!
-                      .copyWith(color: Colors.blueGrey),
-                ),
+                if (request.showsScheduleInBusinessApp) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    _schedule ?? context.l10n.as_soon_as_possible,
+                    style: theme.textTheme.bodySmall!
+                        .copyWith(color: Colors.blueGrey),
+                  ),
+                ],
               ],
             ),
           ),

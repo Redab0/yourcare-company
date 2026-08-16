@@ -1,5 +1,6 @@
 // lib/features/screens/staff/teams_list_screen.dart
 
+import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_event.dart';
@@ -26,6 +27,9 @@ class _TeamsListScreenState extends State<TeamsListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: const BusinessBackButton(
+          fallbackRouteName: 'staff-main-screen',
+        ),
         title: Text(context.l10n.team_label),
         elevation: 1,
       ),
@@ -84,7 +88,7 @@ class _TeamsListScreenState extends State<TeamsListScreen> {
                                     alignment: Alignment.centerRight,
                                     child: TextButton.icon(
                                       onPressed: () {
-                                        context.goNamed(
+                                        context.pushNamed(
                                           "createEditTeamScreen",
                                           extra: team,
                                         );

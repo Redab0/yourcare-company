@@ -156,7 +156,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get no_availability => 'No availability';
 
   @override
-  String get invalid_time_range => 'End hour must be after start hour';
+  String get invalid_time_range => 'End time must be after start time';
 
   @override
   String get invalid_total_cleaners => 'Total cleaners must be greater than 0';
@@ -798,6 +798,123 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboard => 'Dashboard';
 
   @override
+  String get business_setup_tour_restart => 'Show setup guide';
+
+  @override
+  String get business_setup_tour_skip => 'Skip guide';
+
+  @override
+  String get business_setup_tour_previous => 'Back';
+
+  @override
+  String get business_setup_tour_next => 'Next';
+
+  @override
+  String get business_setup_tour_done => 'Done';
+
+  @override
+  String get business_setup_tour_profile => 'Start here: add your logo, company details, service descriptions, and the services you provide.';
+
+  @override
+  String get business_setup_tour_housekeeping => 'Set hourly pricing and area fees, then define when your team is available.';
+
+  @override
+  String get business_setup_tour_car_wash => 'Create wash packages, assign them to vehicle types, add area fees, and set service availability.';
+
+  @override
+  String get business_setup_tour_furniture => 'Activate the furniture types you clean, price every supported size, and set service availability.';
+
+  @override
+  String get business_setup_tour_auto_bid => 'For deep cleaning, enable automatic bidding and define the prices and expected duration.';
+
+  @override
+  String get business_setup_tour_staff => 'Create staff accounts and teams, assign permissions, and review the employee calendar.';
+
+  @override
+  String get business_setup_tour_requests => 'Review new customer requests and submit or accept work according to the service.';
+
+  @override
+  String get business_setup_tour_jobs => 'Manage confirmed jobs here, from assignment and start through completion.';
+
+  @override
+  String get business_inner_tour_housekeeping_pricing => 'Set hourly and duration-based prices, repeat-booking discounts, cleaning-product charges, and area fees.';
+
+  @override
+  String get business_inner_tour_housekeeping_availability => 'Choose the days and time slots when your housekeeping team can accept bookings.';
+
+  @override
+  String get business_inner_tour_car_wash_packages => 'Create reusable wash packages, then assign each package to the vehicle types you support.';
+
+  @override
+  String get business_inner_tour_car_wash_hours => 'Define the weekly days and time slots when customers can book car washing.';
+
+  @override
+  String get business_inner_tour_staff_create_user => 'Create a staff account and grant only the permissions needed for that role.';
+
+  @override
+  String get business_inner_tour_staff_manage_users => 'Review staff accounts, update permissions, and enable or disable access.';
+
+  @override
+  String get business_inner_tour_staff_create_team => 'Group staff into a team that can be assigned to customer requests.';
+
+  @override
+  String get business_inner_tour_staff_manage_teams => 'Review and update the teams available for job assignment.';
+
+  @override
+  String get business_inner_tour_staff_calendar => 'Use the employee calendar to review scheduled work and team workload.';
+
+  @override
+  String get business_inner_tour_profile_identity => 'Add a clear logo and complete the company contact details shown to customers.';
+
+  @override
+  String get business_inner_tour_profile_services => 'Open each offered service to choose and describe the exact work your company covers.';
+
+  @override
+  String get business_inner_tour_profile_areas => 'Select every area your company serves. These areas control where customers can find you.';
+
+  @override
+  String get business_inner_tour_profile_save => 'Save after updating company details, coverage, service descriptions, or media.';
+
+  @override
+  String get business_inner_tour_upholstery_type => 'Expand a furniture type to set size prices, and use its switch to offer or hide that type.';
+
+  @override
+  String get business_inner_tour_upholstery_save => 'Save after activating furniture types and entering a valid price for every supported size.';
+
+  @override
+  String get business_inner_tour_requests => 'Expand a request to review its details, then open it to accept the work or submit a bid when applicable.';
+
+  @override
+  String get business_inner_tour_jobs_statuses => 'Switch between confirmed, in-progress, completed, and cancelled jobs.';
+
+  @override
+  String get business_inner_tour_jobs_list => 'Open a job to assign staff, manage its status, contact the customer, or add an extra invoice when allowed.';
+
+  @override
+  String get business_inner_tour_area_fees => 'Set the additional travel fee for each service area. Leave unsupported areas without an active fee.';
+
+  @override
+  String get business_inner_tour_schedule_days => 'Select a day to review and configure its availability.';
+
+  @override
+  String get business_inner_tour_schedule_day_status => 'Mark the selected day open or closed before editing its time slots.';
+
+  @override
+  String get business_inner_tour_schedule_apply_week => 'Use this only when the selected day\'s schedule should replace every other day in the week.';
+
+  @override
+  String get business_inner_tour_schedule_slots => 'Add and edit the booking time slots available on the selected day.';
+
+  @override
+  String get business_inner_tour_schedule_save => 'Save the complete weekly schedule after reviewing every day.';
+
+  @override
+  String get business_inner_tour_car_wash_sections => 'Move between reusable packages, vehicle assignments, and delivery fees by area.';
+
+  @override
+  String get business_inner_tour_car_wash_package_editor => 'Create package details here. Next, assign saved packages to vehicle types and configure area fees.';
+
+  @override
   String get requests => 'requests';
 
   @override
@@ -1173,4 +1290,262 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chat_price => 'Price';
+
+  @override
+  String get car_wash_configuration => 'Car Wash Configuration';
+
+  @override
+  String get car_wash_pricing => 'Car Wash Pricing';
+
+  @override
+  String get car_wash_packages_and_pricing => 'Packages, Vehicles & Fees';
+
+  @override
+  String get car_wash_packages => 'Packages';
+
+  @override
+  String get car_wash_packages_hint => 'Create each package once with its duration and optional booking hours, then assign it to every supported vehicle type.';
+
+  @override
+  String get car_wash_vehicle_assignments => 'Vehicle Types';
+
+  @override
+  String get car_wash_vehicle_assignments_hint => 'Choose which reusable packages are offered for each vehicle type.';
+
+  @override
+  String get car_wash_area_fees => 'Area Fees';
+
+  @override
+  String get car_wash_area_fees_hint => 'Set an optional delivery fee for each service area.';
+
+  @override
+  String get car_wash_working_hours => 'Car Wash Availability';
+
+  @override
+  String get vehicle_type => 'Vehicle Type';
+
+  @override
+  String get package_label => 'Package';
+
+  @override
+  String get save_working_hours => 'Save Working Hours';
+
+  @override
+  String get pricing_saved_successfully => 'Pricing saved successfully';
+
+  @override
+  String get working_hours_saved_successfully => 'Working hours saved successfully';
+
+  @override
+  String get no_car_wash_options => 'No car wash options available';
+
+  @override
+  String get start_time => 'Start Time';
+
+  @override
+  String get end_time => 'End Time';
+
+  @override
+  String get car_wash_description_en => 'Description (English)';
+
+  @override
+  String get car_wash_description_ar => 'Description (Arabic)';
+
+  @override
+  String get add_car_wash_package => 'Add Package';
+
+  @override
+  String get remove_package => 'Remove Package';
+
+  @override
+  String get no_vehicle_packages => 'No packages added for this vehicle type';
+
+  @override
+  String get create_car_wash_package => 'Create Package';
+
+  @override
+  String get edit_car_wash_package => 'Edit Package';
+
+  @override
+  String get delete_car_wash_package => 'Delete Package';
+
+  @override
+  String get delete_car_wash_package_message => 'Delete this package? It will no longer be available for any vehicle type.';
+
+  @override
+  String get package_created_successfully => 'Package created successfully';
+
+  @override
+  String get package_updated_successfully => 'Package updated successfully';
+
+  @override
+  String get package_deleted_successfully => 'Package deleted successfully';
+
+  @override
+  String get no_car_wash_packages => 'No packages created yet';
+
+  @override
+  String get package_title_required => 'Enter the package title in English and Arabic';
+
+  @override
+  String get invalid_discount_percentage => 'Discount must be between 0 and 100';
+
+  @override
+  String get package_working_hours => 'Package Availability';
+
+  @override
+  String get package_working_hours_hint => 'Optionally add the days and time slots when this package can be booked.';
+
+  @override
+  String get package_availability_not_set => 'No availability slots added';
+
+  @override
+  String get package_time_slots => 'time slots';
+
+  @override
+  String get package_duration_minutes => 'Package Duration';
+
+  @override
+  String get package_duration_minutes_hint => 'How long one booking takes, in minutes';
+
+  @override
+  String get duration_must_be_positive => 'Duration must be greater than zero';
+
+  @override
+  String get minutes_short => 'min';
+
+  @override
+  String get add_time_slot => 'Add Time Slot';
+
+  @override
+  String get edit_time_slot => 'Edit Time Slot';
+
+  @override
+  String get overlapping_time_slot => 'This time overlaps another slot on the same day';
+
+  @override
+  String get save_package => 'Save Package';
+
+  @override
+  String get create_package_first => 'Create at least one package before assigning packages to vehicles.';
+
+  @override
+  String get assign_packages_to_vehicle => 'Select the packages offered for this vehicle type';
+
+  @override
+  String get save_package_assignments => 'Save Assignments';
+
+  @override
+  String get package_assignments_saved_successfully => 'Vehicle package assignments saved successfully';
+
+  @override
+  String get delivery_fee => 'Delivery Fee';
+
+  @override
+  String get fee_not_set => 'Not set';
+
+  @override
+  String get set_delivery_fee => 'Set Delivery Fee';
+
+  @override
+  String get edit_delivery_fee => 'Edit Delivery Fee';
+
+  @override
+  String get remove_delivery_fee => 'Remove Delivery Fee';
+
+  @override
+  String get remove_delivery_fee_message => 'Remove the delivery fee for this area?';
+
+  @override
+  String get fee_cannot_be_negative => 'Fee cannot be negative';
+
+  @override
+  String get area_fee_saved_successfully => 'Area fee saved successfully';
+
+  @override
+  String get area_fee_deleted_successfully => 'Area fee removed successfully';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
+  String get upholstery_configuration => 'Furniture Cleaning Configuration';
+
+  @override
+  String get upholstery_pricing => 'Furniture Cleaning Pricing';
+
+  @override
+  String get upholstery_description_en => 'Description (English)';
+
+  @override
+  String get upholstery_description_ar => 'Description (Arabic)';
+
+  @override
+  String get add_upholstery_package => 'Add Package';
+
+  @override
+  String get no_upholstery_types => 'No furniture types are available';
+
+  @override
+  String get no_upholstery_packages => 'No packages added for this furniture type';
+
+  @override
+  String get upholstery_size_pricing_hint => 'Enable each furniture type your company cleans, then set the price and optional discount for every size.';
+
+  @override
+  String get offer_upholstery_type => 'Offer cleaning for this furniture type';
+
+  @override
+  String get no_upholstery_sizes => 'No sizes are configured for this furniture type';
+
+  @override
+  String get additional_upholstery_packages => 'Existing additional packages';
+
+  @override
+  String get car_wash_service => 'Car Wash';
+
+  @override
+  String get car_wash_request_vehicles => 'Vehicles and Packages';
+
+  @override
+  String get no_car_wash_vehicle_details => 'No vehicle details are available for this request.';
+
+  @override
+  String get original_order_total => 'Original order total';
+
+  @override
+  String get create_extra_invoice => 'Create extra invoice';
+
+  @override
+  String get extra_invoice => 'Extra invoice';
+
+  @override
+  String get extra_invoice_amount => 'Extra amount';
+
+  @override
+  String get extra_invoice_reason => 'Reason';
+
+  @override
+  String get extra_invoice_reason_hint => 'For example, an additional service requested on site';
+
+  @override
+  String get extra_invoice_customer_payment_hint => 'Enter the additional service amount and reason. The customer will receive an invoice to pay from the request details screen.';
+
+  @override
+  String get extra_invoice_created_successfully => 'Extra invoice created successfully';
+
+  @override
+  String get extra_invoice_amount_required => 'Enter an amount greater than zero';
+
+  @override
+  String get extra_invoice_reason_required => 'Enter a reason for the extra invoice';
+
+  @override
+  String get extra_invoice_payment_pending => 'Waiting for extra payment';
+
+  @override
+  String get extra_invoice_payment_pending_hint => 'The customer must pay this invoice from the request details screen before another one can be created.';
+
+  @override
+  String get share => 'Share';
 }

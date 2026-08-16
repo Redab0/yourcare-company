@@ -1,7 +1,6 @@
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/data/models/requests/upholstery_cleaning_history.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class UpholsteryCleaningRequestCard extends StatelessWidget {
   const UpholsteryCleaningRequestCard({
@@ -41,15 +40,6 @@ class UpholsteryCleaningRequestCard extends StatelessWidget {
                   Text('#${request.id}',
                       style: theme.textTheme.titleMedium!
                           .copyWith(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 4),
-                  Text(context.l10n.request_card_schedule,
-                      style: theme.textTheme.labelSmall!
-                          .copyWith(color: Colors.grey[600])),
-                  Text(
-                      request.scheduledTime == null
-                          ? context.l10n.as_soon_as_possible
-                          : DateFormat.yMMMd().format(request.scheduledTime!),
-                      style: theme.textTheme.bodyMedium),
                 ],
               ),
             ],

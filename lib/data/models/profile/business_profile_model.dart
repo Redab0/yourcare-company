@@ -1,5 +1,7 @@
 import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
+import 'package:cleaning_service_driver/data/models/car_wash/car_wash_models.dart';
 import 'package:cleaning_service_driver/data/models/profile/covered_service_item_model.dart';
+import 'package:cleaning_service_driver/data/models/upholstery/upholstery_pricing_models.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'business_profile_model.g.dart';
@@ -18,6 +20,9 @@ class BusinessProfileModel {
   final List<String>? services;
   final Map<String, String>? serviceDescriptions;
   final List<CoveredServiceGroup>? coveredServices;
+  final List<CarWashPricingGroup>? carWashPricing;
+  final List<CarWashWorkingHour>? carWashWorkingHours;
+  final List<UpholsteryPricingGroup>? upholsteryPricing;
   final List<AreaModel>? areas;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -35,6 +40,9 @@ class BusinessProfileModel {
       this.services,
       this.serviceDescriptions,
       this.coveredServices,
+      this.carWashPricing,
+      this.carWashWorkingHours,
+      this.upholsteryPricing,
       this.areas,
       this.createdAt,
       this.updatedAt);

@@ -32,6 +32,16 @@ class HouseKeepingHistory implements CleaningRequest {
   @override
   final RequestStatus requestStatus;
 
+  @override
+  final double? extraFees;
+  @override
+  final String? extraFeesDescription;
+  @override
+  @JsonKey(defaultValue: false)
+  final bool awaitingExtraPayment;
+  @override
+  final String? extraPaymentUrl;
+
   @JsonKey(name: 'cleaners')
   final List<AssignedWorker>? assignedWorker;
 
@@ -60,6 +70,10 @@ class HouseKeepingHistory implements CleaningRequest {
     required this.customer,
     this.companyInformation,
     this.subRequests,
+    this.extraFees,
+    this.extraFeesDescription,
+    this.awaitingExtraPayment = false,
+    this.extraPaymentUrl,
   });
 
   HouseKeepingHistory copyWith({
@@ -73,6 +87,10 @@ class HouseKeepingHistory implements CleaningRequest {
     Customer? customer,
     CompanyInformation? companyInformation,
     List<FrequentRequestModel>? subRequests,
+    double? extraFees,
+    String? extraFeesDescription,
+    bool? awaitingExtraPayment,
+    String? extraPaymentUrl,
   }) {
     return HouseKeepingHistory(
         id: id ?? this.id,
@@ -85,9 +103,28 @@ class HouseKeepingHistory implements CleaningRequest {
         scheduledTime: scheduledTime ?? this.scheduledTime,
         customer: customer ?? this.customer,
         companyInformation: companyInformation ?? this.companyInformation,
+        cleanersIds: cleanersIds,
         type: type ?? this.type,
-        subRequests: subRequests ?? this.subRequests);
+        subRequests: subRequests ?? this.subRequests,
+        extraFees: extraFees ?? this.extraFees,
+        extraFeesDescription: extraFeesDescription ?? this.extraFeesDescription,
+        awaitingExtraPayment: awaitingExtraPayment ?? this.awaitingExtraPayment,
+        extraPaymentUrl: extraPaymentUrl ?? this.extraPaymentUrl);
   }
+
+  @override
+  HouseKeepingHistory copyWithExtraInvoice({
+    required double extraFees,
+    required String extraFeesDescription,
+    required bool awaitingExtraPayment,
+    String? extraPaymentUrl,
+  }) =>
+      copyWith(
+        extraFees: extraFees,
+        extraFeesDescription: extraFeesDescription,
+        awaitingExtraPayment: awaitingExtraPayment,
+        extraPaymentUrl: extraPaymentUrl,
+      );
 
   factory HouseKeepingHistory.fromJson(Map<String, dynamic> json) =>
       _$HouseKeepingHistoryFromJson(json);

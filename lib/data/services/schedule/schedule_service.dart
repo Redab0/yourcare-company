@@ -12,7 +12,9 @@ abstract class ScheduleService {
 
   @GET('/company/cleaner-availability')
   Future<ApiResponse<ResponsePayload<List<CleanerAvailabilitySlot>>>>
-      getCleanerAvailability();
+      getCleanerAvailability(
+    @Query('serviceType') String serviceType,
+  );
 
   @POST('/company/cleaner-availability')
   Future<ApiResponse<ResponsePayload<CleanerAvailabilitySlot>>>
@@ -24,7 +26,7 @@ abstract class ScheduleService {
   Future<ApiResponse<ResponsePayload<CleanerAvailabilitySlot>>>
       updateCleanerAvailability(
     @Path('id') String id,
-    @Body() CleanerAvailabilityRequest body,
+    @Body() Map<String, dynamic> body,
   );
 
   @DELETE('/company/cleaner-availability/{id}')

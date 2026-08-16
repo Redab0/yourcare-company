@@ -3,6 +3,7 @@ import 'package:cleaning_service_driver/core/utils/locale_cubit.dart';
 import 'package:cleaning_service_driver/features/bloc/auth/auth_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/auto_bid/auto_bid_config_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/calendar/employee_calendar_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/car_wash/car_wash_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/housekeeping/housekeeping_pricing_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/home/home_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_actions_bloc.dart';
@@ -15,6 +16,7 @@ import 'package:cleaning_service_driver/features/bloc/schedule/employee_availabi
 import 'package:cleaning_service_driver/features/bloc/staff/staff_action_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/statistics/statistics_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/upholstery/upholstery_pricing_bloc.dart';
 import 'package:cleaning_service_driver/features/chats/bloc/chat_launcher_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -43,6 +45,8 @@ class AppBlocProviders extends StatelessWidget {
         BlocProvider(create: (_) => sl<EmployeeCalendarBloc>()),
         BlocProvider(create: (_) => sl<EmployeeAvailabilityBloc>()),
         BlocProvider(create: (_) => sl<HousekeepingPricingBloc>()),
+        BlocProvider(create: (_) => sl<CarWashBloc>()),
+        BlocProvider(create: (_) => sl<UpholsteryPricingBloc>()),
         BlocProvider(create: (_) => sl<AutoBidConfigBloc>()),
         BlocProvider(create: (_) => sl<ChatLauncherCubit>()),
       ],

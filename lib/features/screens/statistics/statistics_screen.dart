@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/date_time_picker_field.dart';
 import 'package:cleaning_service_driver/components/stats_overview.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
@@ -52,7 +53,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.statistics_title)),
+      appBar: AppBar(
+        leading: const BusinessBackButton(fallbackRouteName: 'home'),
+        title: Text(context.l10n.statistics_title),
+      ),
       body: BlocConsumer<StatisticsBloc, StatisticsState>(
         listener: (ctx, state) {
           if (state is StatisticsFailure) {

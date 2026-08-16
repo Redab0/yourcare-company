@@ -1,4 +1,5 @@
 // lib/screens/requests/house_keeping_success_screen.dart
+import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/data/models/requests/house_keeping_history.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,10 @@ class HouseKeepingJobSuccessScreen extends StatelessWidget {
     final d = request.detail;
 
     return Scaffold(
+      appBar: AppBar(
+        leading:
+            const BusinessBackButton(fallbackRouteName: 'jobs-main-screen'),
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),

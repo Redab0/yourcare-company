@@ -15,7 +15,7 @@ class ApiClient {
   static const String prod_baseUrl = 'https://be-cleaning.yourcarehere.com/api';
   static const String dev_baseUrl =
       'https://dev-be-cleaning.yourcarehere.com/api';
-  static const String baseUrl = prod_baseUrl;
+  static const String baseUrl = dev_baseUrl;
 
   /// Singleton instance
   static final ApiClient _instance = ApiClient._internal();
@@ -46,8 +46,12 @@ class ApiClient {
           // Language (use the SAME LocaleCubit instance you provided to the app)
           final langTag =
               sl<LocaleCubit>().state.toLanguageTag(); // e.g. "ar" or "ar-AE"
-          options.headers['Accept-Language'] = langTag;
-          options.headers['locale'] = langTag;
+          final requestLanguage =
+              options.headers['Accept-Language']?.toString().trim();
+          final effectiveLanguage =
+              requestLanguage?.isNotEmpty == true ? requestLanguage! : langTag;
+          options.headers['Accept-Language'] = effectiveLanguage;
+          options.headers['locale'] = effectiveLanguage;
           final token = await SecureStorageService().getAccessToken();
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';

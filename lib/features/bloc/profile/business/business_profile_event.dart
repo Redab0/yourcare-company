@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cleaning_service_driver/data/models/profile/business_profile_model.dart';
 import 'package:cleaning_service_driver/data/models/profile/covered_service_item_model.dart';
 import 'package:cleaning_service_driver/data/models/profile/update_business_profile_model.dart';
 import 'package:equatable/equatable.dart';
@@ -11,7 +12,14 @@ abstract class BusinessProfileEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class LoadProfileEvent extends BusinessProfileEvent {}
+class LoadProfileEvent extends BusinessProfileEvent {
+  final BusinessProfileModel? cachedProfile;
+
+  const LoadProfileEvent({this.cachedProfile});
+
+  @override
+  List<Object?> get props => [cachedProfile];
+}
 
 class GetAreasEvent extends BusinessProfileEvent {}
 
@@ -32,7 +40,14 @@ class UploadMediaEvent extends BusinessProfileEvent {
   List<Object> get props => [files];
 }
 
-class LoadCoveredServiceItemsEvent extends BusinessProfileEvent {}
+class LoadCoveredServiceItemsEvent extends BusinessProfileEvent {
+  final BusinessProfileModel? cachedProfile;
+
+  const LoadCoveredServiceItemsEvent({this.cachedProfile});
+
+  @override
+  List<Object?> get props => [cachedProfile];
+}
 
 class UpdateCoveredServiceItemsEvent extends BusinessProfileEvent {
   final List<CoveredServiceGroup> groups;

@@ -52,6 +52,7 @@ class User {
   final String? image;
   final bool? enabled;
   final String? businessId;
+  final List<String>? services;
   final List<Address>? addresses;
   final List<PermissionModel>? permissions;
   final String? createdAt;
@@ -67,6 +68,7 @@ class User {
     this.createdAt,
     this.updatedAt,
     this.businessId,
+    this.services,
     this.image,
     this.permissions = const [],
     this.addresses = const [],
@@ -86,6 +88,7 @@ class User {
     String? createdAt,
     String? updatedAt,
     String? businessId,
+    List<String>? services,
     List<Address>? addresses,
     List<PermissionModel>? permissions,
     String? image,
@@ -100,6 +103,7 @@ class User {
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
         businessId: businessId ?? this.businessId,
+        services: services ?? this.services,
         addresses: addresses ?? this.addresses,
         permissions: permissions ?? this.permissions,
         image: image ?? this.image);

@@ -1,5 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:cleaning_service_driver/components/business_back_button.dart';
+import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
+import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
 import 'package:cleaning_service_driver/data/models/profile/business_profile_model.dart';
@@ -8,6 +12,8 @@ import 'package:cleaning_service_driver/data/models/profile/update_business_prof
 import 'package:cleaning_service_driver/features/bloc/profile/business/business_profile_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/profile/business/business_profile_event.dart';
 import 'package:cleaning_service_driver/features/bloc/profile/business/business_profile_state.dart';
+import 'package:cleaning_service_driver/features/screens/home/company_profile_cubit.dart';
+import 'package:cleaning_service_driver/features/onboarding/business_showcase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -24,7 +30,15 @@ class BusinessProfileScreen extends StatefulWidget {
 }
 
 class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
+  static const _tourScope = 'business_profile_journey';
   final _formKey = GlobalKey<FormState>();
+  final _logoTourKey = GlobalKey(debugLabel: 'business-profile-logo-tour');
+  final _servicesTourKey =
+      GlobalKey(debugLabel: 'business-profile-services-tour');
+  final _areasTourKey = GlobalKey(debugLabel: 'business-profile-areas-tour');
+  final _saveTourKey = GlobalKey(debugLabel: 'business-profile-save-tour');
+  late final BusinessShowcaseTourController _tour;
+  String? _tourOwnerId;
   BusinessProfileModel? _profile;
   List<AreaResponse> _areas = [];
   List<CoveredServiceGroup> _coveredServiceGroups = [];
@@ -46,14 +60,36 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
   @override
   void initState() {
     super.initState();
+    _tour = BusinessShowcaseTourController(scope: _tourScope);
+    SecureStorageService().getUser().then((user) {
+      if (!mounted) return;
+      setState(() => _tourOwnerId = businessShowcaseOwnerId(user));
+    });
     final bloc = context.read<BusinessProfileBloc>();
-    bloc.add(LoadProfileEvent());
     bloc.add(GetAreasEvent());
-    bloc.add(LoadCoveredServiceItemsEvent());
+    unawaited(_loadProfileFromCache());
+  }
+
+  Future<void> _loadProfileFromCache() async {
+    final companyProfileCubit = sl<CompanyProfileCubit>();
+    await companyProfileCubit.preload();
+    if (!mounted) return;
+
+    final cachedProfile = companyProfileCubit.state.profile;
+    final bloc = context.read<BusinessProfileBloc>();
+    if (cachedProfile != null) {
+      bloc.add(LoadProfileEvent(cachedProfile: cachedProfile));
+      bloc.add(LoadCoveredServiceItemsEvent(cachedProfile: cachedProfile));
+      return;
+    }
+
+    bloc.add(const LoadProfileEvent());
+    bloc.add(const LoadCoveredServiceItemsEvent());
   }
 
   @override
   void dispose() {
+    _tour.dispose();
     _nameCtrl.dispose();
     _descCtrl.dispose();
     _addressCtrl.dispose();
@@ -63,11 +99,25 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
     super.dispose();
   }
 
+  bool get _showServicesTour => _enabledServiceTypes.isNotEmpty;
+
+  List<GlobalKey> get _tourKeys => [
+        _logoTourKey,
+        if (_showServicesTour) _servicesTourKey,
+        _areasTourKey,
+        _saveTourKey,
+      ];
+
+  int get _areasTourIndex => _showServicesTour ? 2 : 1;
+
+  int get _saveTourIndex => _showServicesTour ? 3 : 2;
+
   Future<void> _pickAndUpload(_UploadTarget target) async {
     final picker = ImagePicker();
     if (target == _UploadTarget.logo) {
       final XFile? file = await picker.pickImage(source: ImageSource.gallery);
       if (file == null) return;
+      if (!mounted) return;
       setState(() {
         _uploadTarget = target;
         _uploading = true;
@@ -112,6 +162,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
       if (file != null) files = [file];
     }
     if (files.isEmpty) return;
+    if (!mounted) return;
 
     setState(() {
       _uploadTarget = _UploadTarget.images;
@@ -390,6 +441,14 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final ownerId = _tourOwnerId;
+    if (ownerId != null && _profile != null && _areas.isNotEmpty) {
+      _tour.scheduleStartOnce(
+        ownerId: ownerId,
+        journeyId: 'business_profile',
+        keys: _tourKeys,
+      );
+    }
     return BlocListener<BusinessProfileBloc, BusinessProfileState>(
       listener: (ctx, state) {
         if (state is ProfileLoaded || state is ProfileUpdated) {
@@ -437,11 +496,12 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-            title: Text(context.l10n.profile_title),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back, size: 28),
-              onPressed: () => Navigator.of(context).pop(),
-            )),
+          title: Text(context.l10n.profile_title),
+          leading: const BusinessBackButton(fallbackRouteName: 'home'),
+          actions: [
+            BusinessShowcaseHelpButton(onPressed: () => _tour.start(_tourKeys)),
+          ],
+        ),
         body: (_profile == null || _areas.isEmpty)
             ? SizedBox.shrink()
             : SingleChildScrollView(
@@ -452,36 +512,46 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Logo
-                      Center(
-                        child: Stack(
-                          children: [
-                            CircleAvatar(
-                              radius: 48,
-                              backgroundImage: _logoUrl != null
-                                  ? NetworkImage(_logoUrl!)
-                                  : null,
-                              child: _logoUrl == null
-                                  ? const Icon(Icons.business, size: 48)
-                                  : null,
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: InkWell(
-                                onTap: () => _pickAndUpload(_UploadTarget.logo),
-                                child: CircleAvatar(
-                                  radius: 16,
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.primary,
-                                  child: _uploading &&
-                                          _uploadTarget == _UploadTarget.logo
-                                      ? SizedBox.shrink()
-                                      : const Icon(Icons.camera_alt,
-                                          size: 16, color: Colors.white),
+                      BusinessShowcaseStep(
+                        showcaseKey: _logoTourKey,
+                        scope: _tourScope,
+                        title: context.l10n.profile_title,
+                        description:
+                            context.l10n.business_inner_tour_profile_identity,
+                        index: 0,
+                        itemCount: _tourKeys.length,
+                        child: Center(
+                          child: Stack(
+                            children: [
+                              CircleAvatar(
+                                radius: 48,
+                                backgroundImage: _logoUrl != null
+                                    ? NetworkImage(_logoUrl!)
+                                    : null,
+                                child: _logoUrl == null
+                                    ? const Icon(Icons.business, size: 48)
+                                    : null,
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: InkWell(
+                                  onTap: () =>
+                                      _pickAndUpload(_UploadTarget.logo),
+                                  child: CircleAvatar(
+                                    radius: 16,
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.primary,
+                                    child: _uploading &&
+                                            _uploadTarget == _UploadTarget.logo
+                                        ? SizedBox.shrink()
+                                        : const Icon(Icons.camera_alt,
+                                            size: 16, color: Colors.white),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -527,59 +597,88 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                       ),
                       const SizedBox(height: 24),
                       if (_enabledServiceTypes.isNotEmpty) ...[
-                        Text(
-                          context.l10n.covered_services_section_title,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        if (_visibleCoveredServiceEntries().isEmpty)
-                          Text(
-                            '-',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          )
-                        else
-                          ..._visibleCoveredServiceEntries().map((groupEntry) {
-                            final groupIndex = groupEntry.key;
-                            final group = groupEntry.value;
-                            return Card(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              child: ListTile(
-                                title:
-                                    Text(_serviceTypeTitle(group.serviceType)),
-                                subtitle: Text(_serviceItemSummary(group)),
-                                trailing: const Icon(Icons.arrow_forward_ios,
-                                    size: 16),
-                                onTap: () =>
-                                    _openCoveredServiceItemsPage(groupIndex),
+                        BusinessShowcaseStep(
+                          showcaseKey: _servicesTourKey,
+                          scope: _tourScope,
+                          title: context.l10n.covered_services_section_title,
+                          description:
+                              context.l10n.business_inner_tour_profile_services,
+                          index: 1,
+                          itemCount: _tourKeys.length,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                context.l10n.covered_services_section_title,
+                                style: Theme.of(context).textTheme.titleMedium,
                               ),
-                            );
-                          }),
+                              const SizedBox(height: 8),
+                              if (_visibleCoveredServiceEntries().isEmpty)
+                                Text(
+                                  '-',
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                )
+                              else
+                                ..._visibleCoveredServiceEntries()
+                                    .map((groupEntry) {
+                                  final groupIndex = groupEntry.key;
+                                  final group = groupEntry.value;
+                                  return Card(
+                                    margin: const EdgeInsets.only(bottom: 12),
+                                    child: ListTile(
+                                      title: Text(
+                                        _serviceTypeTitle(group.serviceType),
+                                      ),
+                                      subtitle:
+                                          Text(_serviceItemSummary(group)),
+                                      trailing: const Icon(
+                                        Icons.arrow_forward_ios,
+                                        size: 16,
+                                      ),
+                                      onTap: () => _openCoveredServiceItemsPage(
+                                          groupIndex),
+                                    ),
+                                  );
+                                }),
+                            ],
+                          ),
+                        ),
                         const SizedBox(height: 24),
                       ],
 
                       // Areas multi‐select
                       Text(context.l10n.business_service_area),
                       const SizedBox(height: 8),
-                      InkWell(
-                        onTap: _areas.isEmpty ? null : _showAreasSheet,
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                                color: Theme.of(context).dividerColor),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  _selectedAreaSummary(context),
-                                  style: Theme.of(context).textTheme.bodyMedium,
+                      BusinessShowcaseStep(
+                        showcaseKey: _areasTourKey,
+                        scope: _tourScope,
+                        title: context.l10n.business_service_area,
+                        description:
+                            context.l10n.business_inner_tour_profile_areas,
+                        index: _areasTourIndex,
+                        itemCount: _tourKeys.length,
+                        child: InkWell(
+                          onTap: _areas.isEmpty ? null : _showAreasSheet,
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: Theme.of(context).dividerColor),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    _selectedAreaSummary(context),
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
+                                  ),
                                 ),
-                              ),
-                              const Icon(Icons.arrow_forward_ios, size: 16),
-                            ],
+                                const Icon(Icons.arrow_forward_ios, size: 16),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -619,9 +718,18 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                       ),
 
                       const SizedBox(height: 32),
-                      ElevatedButton(
-                        onPressed: _onSave,
-                        child: Text(context.l10n.general_save),
+                      BusinessShowcaseStep(
+                        showcaseKey: _saveTourKey,
+                        scope: _tourScope,
+                        title: context.l10n.general_save,
+                        description:
+                            context.l10n.business_inner_tour_profile_save,
+                        index: _saveTourIndex,
+                        itemCount: _tourKeys.length,
+                        child: ElevatedButton(
+                          onPressed: _onSave,
+                          child: Text(context.l10n.general_save),
+                        ),
                       ),
                     ],
                   ),
@@ -768,6 +876,7 @@ class _CoveredServiceItemsPageState extends State<_CoveredServiceItemsPage> {
       dialogTitle: context.l10n.covered_services_add_custom,
     );
     if (values == null) return;
+    if (!mounted) return;
     setState(() {
       _saving = true;
       _popOnSuccess = false;
@@ -788,6 +897,7 @@ class _CoveredServiceItemsPageState extends State<_CoveredServiceItemsPage> {
       initialTitleAr: item.titleAr,
     );
     if (values == null) return;
+    if (!mounted) return;
     setState(() {
       _saving = true;
       _popOnSuccess = false;
@@ -820,6 +930,7 @@ class _CoveredServiceItemsPageState extends State<_CoveredServiceItemsPage> {
       ),
     );
     if (confirm != true) return;
+    if (!mounted) return;
     setState(() {
       _items = _items.where((e) => e.id != item.id).toList();
       _deletedItemIds.add(item.id);

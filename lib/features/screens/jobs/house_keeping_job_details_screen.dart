@@ -1,12 +1,14 @@
+import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/contact_actions.dart';
 import 'package:cleaning_service_driver/components/detail_row.dart';
-import 'package:cleaning_service_driver/components/open_map_action.dart';
+import 'package:cleaning_service_driver/components/extra_invoice.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
 import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
 import 'package:cleaning_service_driver/data/models/requests/accept_house_keeping_model.dart';
+import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/house_keeping_history.dart';
 import 'package:cleaning_service_driver/data/models/requests/update_request_frequency_request.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_actions_bloc.dart';
@@ -107,6 +109,24 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
     } catch (_) {}
   }
 
+  Future<void> _showExtraInvoiceDialog() async {
+    final id = _currentRequest.id;
+    if (!_currentRequest.canCreateExtraInvoice ||
+        _currentRequest.awaitingExtraPayment ||
+        id == null ||
+        id.isEmpty) {
+      return;
+    }
+
+    final request = await showExtraInvoiceDialog(context);
+    if (!mounted || request == null) return;
+    if (!_currentRequest.canCreateExtraInvoice ||
+        _currentRequest.awaitingExtraPayment) {
+      return;
+    }
+    context.read<JobActionsBloc>().add(AddExtraFeesEvent(id, request));
+  }
+
   String _statusPair(RequestStatus status) {
     switch (status) {
       case RequestStatus.confirmed:
@@ -132,13 +152,9 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
   Future<void> _shareDetails() async {
     final req = _currentRequest;
     final detail = req.detail;
+    final specialNotes = req.customerSpecialNotes;
     final name = req.customer.username?.trim();
     final phone = req.customer.phone?.trim();
-    final lat = detail.address?.latitude;
-    final lng = detail.address?.longitude;
-    final mapUrl = (lat != null && lng != null)
-        ? 'https://www.google.com/maps/search/?api=1&query=$lat,$lng'
-        : null;
     final lines = <String>[
       '==============================',
       'House Keeping / التنظيف المنزلي',
@@ -154,13 +170,13 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
       'Customer Name / اسم العميل: ${(name == null || name.isEmpty) ? '-' : name}',
       'Customer Phone / رقم العميل: ${(phone == null || phone.isEmpty) ? '-' : phone}',
       '',
-      '--- Location / الموقع ---',
-      'Google Maps: ${mapUrl ?? '-'}',
-      '',
       '--- Job Details / تفاصيل الطلب ---',
       'Cleaners / عدد العمال: ${detail.cleanersCount}',
       'Duration / المدة: ${detail.durationHours} hour / ساعة',
     ];
+    if (specialNotes != null) {
+      lines.add('Special Notes / ملاحظات خاصة: $specialNotes');
+    }
     final subRequests = req.subRequests ?? const [];
     if (subRequests.isNotEmpty) {
       lines.add('');
@@ -177,6 +193,16 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
     if (!_hidePriceForWorker) {
       lines.add('Price / السعر: ${RequestFmt.price(req.totalPrice)}');
     }
+    if ((req.extraFees ?? 0) > 0) {
+      lines.add(
+        'Extra invoice / الفاتورة الإضافية: ${RequestFmt.price(req.extraFees)}',
+      );
+    }
+    if (req.extraFeesDescription?.isNotEmpty ?? false) {
+      lines.add(
+        'Extra invoice reason / سبب الفاتورة الإضافية: ${req.extraFeesDescription}',
+      );
+    }
     await Share.share(lines.join('\n'));
   }
 
@@ -184,7 +210,7 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
   Widget build(BuildContext context) {
     final req = _currentRequest;
     final detail = req.detail;
-    final hasNotes = (detail.specialNotes?.trim().isNotEmpty ?? false);
+    final specialNotes = req.customerSpecialNotes;
     final canChat = (req.requestStatus == RequestStatus.confirmed ||
             req.requestStatus == RequestStatus.inProgress) &&
         ((req.id ?? '').isNotEmpty);
@@ -197,6 +223,21 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
             _allWorkers = state.workers;
             _isFilteringWorkers = false;
           });
+        } else if (state is ExtraFeesAdded) {
+          setState(() {
+            _currentRequest = resolveExtraInvoiceResult<HouseKeepingHistory>(
+              currentRequest: _currentRequest,
+              submittedRequest: state.request,
+              updatedRequest: state.updatedRequest,
+            );
+          });
+          context.read<JobBloc>().add(LoadJobsEvent());
+          _maybeRefreshRequests();
+          ScaffoldMessenger.of(ctx).showSnackBar(
+            SnackBar(
+              content: Text(context.l10n.extra_invoice_created_successfully),
+            ),
+          );
         } else if (state is JobActionFailed) {
           if (mounted) {
             setState(() => _isFilteringWorkers = false);
@@ -232,6 +273,9 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
       builder: (ctx, state) {
         return Scaffold(
           appBar: AppBar(
+            leading: const BusinessBackButton(
+              fallbackRouteName: 'jobs-main-screen',
+            ),
             title: Text('#${_currentRequest.id}'),
             actions: [
               IconButton(
@@ -425,26 +469,17 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                     _buildSection(
                       expanded: false,
                       title: context.l10n.address,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          DetailRow(context.l10n.request_full_location,
-                              detail.fullAddress),
-                          DetailWidgetRow(
-                              context.l10n.request_location,
-                              OpenMapAction(
-                                  latitude: detail.address!.latitude ?? 0.0,
-                                  longitude: detail.address!.longitude ?? 0.0))
-                        ],
-                      ),
+                      child: DetailRow(context.l10n.request_full_location,
+                          detail.fullAddress),
                     ),
-                  if (hasNotes)
+                  if (specialNotes != null)
                     _buildSection(
                       expanded: false,
                       title: context.l10n.request_card_notes,
-                      child: Text(detail.specialNotes!,
+                      child: Text(specialNotes,
                           style: Theme.of(context).textTheme.bodyLarge),
                     ),
+                  ExtraInvoiceStatusCard(request: _currentRequest),
                   Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -589,21 +624,33 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
               ),
             ),
           ),
-          bottomNavigationBar: canChat
+          bottomNavigationBar: req.canCreateExtraInvoice || canChat
               ? Padding(
                   padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
                   child: SafeArea(
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: () => openChatForRequest(
-                          context: context,
-                          businessId: req.companyInformation?.id,
-                          requestId: req.id!,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ExtraInvoiceActionButton(
+                          request: req,
+                          onPressed: _showExtraInvoiceDialog,
                         ),
-                        icon: const Icon(Icons.chat_bubble_outline),
-                        label: Text(context.l10n.chat_with_customer),
-                      ),
+                        if (canChat) ...[
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () => openChatForRequest(
+                                context: context,
+                                businessId: req.companyInformation?.id,
+                                requestId: req.id!,
+                              ),
+                              icon: const Icon(Icons.chat_bubble_outline),
+                              label: Text(context.l10n.chat_with_customer),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 )

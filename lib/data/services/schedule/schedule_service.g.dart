@@ -19,9 +19,9 @@ class _ScheduleService implements ScheduleService {
 
   @override
   Future<ApiResponse<ResponsePayload<List<CleanerAvailabilitySlot>>>>
-      getCleanerAvailability() async {
+      getCleanerAvailability(String serviceType) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'serviceType': serviceType};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<
@@ -104,13 +104,12 @@ class _ScheduleService implements ScheduleService {
 
   @override
   Future<ApiResponse<ResponsePayload<CleanerAvailabilitySlot>>>
-      updateCleanerAvailability(
-          String id, CleanerAvailabilityRequest body) async {
+      updateCleanerAvailability(String id, Map<String, dynamic> body) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(body.toJson());
+    _data.addAll(body);
     final _options =
         _setStreamType<ApiResponse<ResponsePayload<CleanerAvailabilitySlot>>>(
       Options(method: 'PATCH', headers: _headers, extra: _extra)

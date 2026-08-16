@@ -53,6 +53,14 @@ DeepCleaningHistory _$DeepCleaningHistoryFromJson(Map<String, dynamic> json) =>
               (v) => v == null
                   ? null
                   : BusinessOfferResponse.fromJson(v as Map<String, dynamic>)),
+          extraFees:
+              $checkedConvert('extraFees', (v) => (v as num?)?.toDouble()),
+          extraFeesDescription:
+              $checkedConvert('extraFeesDescription', (v) => v as String?),
+          awaitingExtraPayment: $checkedConvert(
+              'awaitingExtraPayment', (v) => v as bool? ?? false),
+          extraPaymentUrl:
+              $checkedConvert('extraPaymentUrl', (v) => v as String?),
         );
         return val;
       },
@@ -80,6 +88,10 @@ Map<String, dynamic> _$DeepCleaningHistoryToJson(
       'serviceIntervalDays': instance.serviceIntervalDays,
       'frequencyDates': instance.frequencyDates,
       'requestStatus': _$RequestStatusEnumMap[instance.requestStatus]!,
+      'extraFees': instance.extraFees,
+      'extraFeesDescription': instance.extraFeesDescription,
+      'awaitingExtraPayment': instance.awaitingExtraPayment,
+      'extraPaymentUrl': instance.extraPaymentUrl,
       'myBid': instance.myBid,
     };
 

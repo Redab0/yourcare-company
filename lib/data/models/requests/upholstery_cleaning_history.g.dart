@@ -53,6 +53,14 @@ UpholsteryCleaningHistory _$UpholsteryCleaningHistoryFromJson(
               (v) => v == null
                   ? null
                   : BusinessOfferResponse.fromJson(v as Map<String, dynamic>)),
+          extraFees:
+              $checkedConvert('extraFees', (v) => (v as num?)?.toDouble()),
+          extraFeesDescription:
+              $checkedConvert('extraFeesDescription', (v) => v as String?),
+          awaitingExtraPayment: $checkedConvert(
+              'awaitingExtraPayment', (v) => v as bool? ?? false),
+          extraPaymentUrl:
+              $checkedConvert('extraPaymentUrl', (v) => v as String?),
         );
         return val;
       },
@@ -75,6 +83,10 @@ Map<String, dynamic> _$UpholsteryCleaningHistoryToJson(
       'updatedAt': instance.updatedAt.toIso8601String(),
       'customer': instance.customer,
       'scheduledTime': instance.scheduledTime?.toIso8601String(),
+      'extraFees': instance.extraFees,
+      'extraFeesDescription': instance.extraFeesDescription,
+      'awaitingExtraPayment': instance.awaitingExtraPayment,
+      'extraPaymentUrl': instance.extraPaymentUrl,
       'businessId': instance.companyInformation,
       'cleaners': instance.assignedWorker,
       'frequencyDates': instance.subRequests,
@@ -112,9 +124,9 @@ UpholsteryCleaningDetails _$UpholsteryCleaningDetailsFromJson(
               (v) => v == null
                   ? null
                   : Address.fromJson(v as Map<String, dynamic>)),
+          addressId: $checkedConvert('addressId', (v) => v as String?),
           areaId: $checkedConvert('areaId', (v) => v as String?),
-          additionalInformation:
-              $checkedConvert('additionalInformation', (v) => v as String?),
+          specialNotes: $checkedConvert('specialNotes', (v) => v as String?),
           scheduledTime: $checkedConvert('scheduledTime',
               (v) => v == null ? null : DateTime.parse(v as String)),
         );
@@ -126,8 +138,9 @@ Map<String, dynamic> _$UpholsteryCleaningDetailsToJson(
         UpholsteryCleaningDetails instance) =>
     <String, dynamic>{
       'address': instance.address,
+      'addressId': instance.addressId,
       'areaId': instance.areaId,
-      'additionalInformation': instance.additionalInformation,
+      'specialNotes': instance.specialNotes,
       'scheduledTime': instance.scheduledTime?.toIso8601String(),
       'items': instance.items,
     };
@@ -142,30 +155,26 @@ UpholsteryCleaningItems _$UpholsteryCleaningItemsFromJson(
           quantity: $checkedConvert('quantity', (v) => (v as num?)?.toInt()),
           calculatedPrice: $checkedConvert(
               'calculatedPrice', (v) => (v as num?)?.toDouble()),
-          type: $checkedConvert(
-              'type',
-              (v) => v == null
-                  ? null
-                  : CleaningItemType.fromJson(v as Map<String, dynamic>)),
-          size: $checkedConvert(
-              'size',
-              (v) => v == null
-                  ? null
-                  : CleaningItemSize.fromJson(v as Map<String, dynamic>)),
-          material: $checkedConvert(
-              'material',
-              (v) => v == null
-                  ? null
-                  : CleaningItemMaterial.fromJson(v as Map<String, dynamic>)),
+          type: $checkedConvert('type', (v) => _parseCleaningItemType(v)),
+          size: $checkedConvert('size', (v) => _parseCleaningItemSize(v)),
+          material:
+              $checkedConvert('material', (v) => _parseCleaningItemMaterial(v)),
           condition: $checkedConvert(
-              'condition',
-              (v) => v == null
-                  ? null
-                  : CleaningItemCondition.fromJson(v as Map<String, dynamic>)),
+              'condition', (v) => _parseCleaningItemCondition(v)),
           mediaUrls: $checkedConvert('mediaUrls',
               (v) => (v as List<dynamic>?)?.map((e) => e as String).toList()),
           additionalInformation:
               $checkedConvert('additionalInformation', (v) => v as String?),
+          upholsteryTypeId:
+              $checkedConvert('upholsteryTypeId', (v) => v as String?),
+          packageId: $checkedConvert('packageId', (v) => v as String?),
+          package: $checkedConvert(
+              'package',
+              (v) => v == null
+                  ? null
+                  : UpholsteryCleaningPackage.fromJson(
+                      v as Map<String, dynamic>)),
+          price: $checkedConvert('price', (v) => (v as num?)?.toDouble()),
         );
         return val;
       },
@@ -182,6 +191,42 @@ Map<String, dynamic> _$UpholsteryCleaningItemsToJson(
       'condition': instance.condition,
       'mediaUrls': instance.mediaUrls,
       'additionalInformation': instance.additionalInformation,
+      'upholsteryTypeId': instance.upholsteryTypeId,
+      'packageId': instance.packageId,
+      'package': instance.package,
+      'price': instance.price,
+    };
+
+UpholsteryCleaningPackage _$UpholsteryCleaningPackageFromJson(
+        Map<String, dynamic> json) =>
+    $checkedCreate(
+      'UpholsteryCleaningPackage',
+      json,
+      ($checkedConvert) {
+        final val = UpholsteryCleaningPackage(
+          packageId: $checkedConvert('packageId', (v) => v as String?),
+          titleEn: $checkedConvert('titleEn', (v) => v as String?),
+          titleAr: $checkedConvert('titleAr', (v) => v as String?),
+          descriptionEn: $checkedConvert('descriptionEn', (v) => v as String?),
+          descriptionAr: $checkedConvert('descriptionAr', (v) => v as String?),
+          price: $checkedConvert('price', (v) => (v as num?)?.toDouble()),
+          discountPercentage: $checkedConvert(
+              'discountPercentage', (v) => (v as num?)?.toDouble()),
+        );
+        return val;
+      },
+    );
+
+Map<String, dynamic> _$UpholsteryCleaningPackageToJson(
+        UpholsteryCleaningPackage instance) =>
+    <String, dynamic>{
+      'packageId': instance.packageId,
+      'titleEn': instance.titleEn,
+      'titleAr': instance.titleAr,
+      'descriptionEn': instance.descriptionEn,
+      'descriptionAr': instance.descriptionAr,
+      'price': instance.price,
+      'discountPercentage': instance.discountPercentage,
     };
 
 FrequentRequestModel _$FrequentRequestModelFromJson(

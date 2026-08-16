@@ -25,6 +25,16 @@ BusinessProfileModel _$BusinessProfileModelFromJson(
       (json['coveredServices'] as List<dynamic>?)
           ?.map((e) => CoveredServiceGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
+      (json['carWashPricing'] as List<dynamic>?)
+          ?.map((e) => CarWashPricingGroup.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      (json['carWashWorkingHours'] as List<dynamic>?)
+          ?.map((e) => CarWashWorkingHour.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      (json['upholsteryPricing'] as List<dynamic>?)
+          ?.map(
+              (e) => UpholsteryPricingGroup.fromJson(e as Map<String, dynamic>))
+          .toList(),
       (json['areas'] as List<dynamic>?)
           ?.map((e) => AreaModel.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -51,6 +61,9 @@ Map<String, dynamic> _$BusinessProfileModelToJson(
       'services': instance.services,
       'serviceDescriptions': instance.serviceDescriptions,
       'coveredServices': instance.coveredServices,
+      'carWashPricing': instance.carWashPricing,
+      'carWashWorkingHours': instance.carWashWorkingHours,
+      'upholsteryPricing': instance.upholsteryPricing,
       'areas': instance.areas,
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),

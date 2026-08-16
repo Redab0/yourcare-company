@@ -14,6 +14,7 @@ import 'package:cleaning_service_driver/domain/usecases/profile/business/update_
 import 'package:cleaning_service_driver/domain/usecases/profile/business/upload_media_usecase.dart';
 import 'package:cleaning_service_driver/features/bloc/profile/business/business_profile_event.dart';
 import 'package:cleaning_service_driver/features/bloc/profile/business/business_profile_state.dart';
+import 'package:cleaning_service_driver/features/screens/home/company_profile_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BusinessProfileBloc
@@ -57,10 +58,17 @@ class BusinessProfileBloc
 
   FutureOr<void> _onLoadProfileEvent(
       LoadProfileEvent event, Emitter<BusinessProfileState> emit) async {
+    final cachedProfile = event.cachedProfile;
+    if (cachedProfile != null) {
+      emit(ProfileLoaded(cachedProfile));
+      return;
+    }
+
     _loader.show();
     try {
       final profile = await getProfileUseCase.call();
       _loader.hide();
+      sl<CompanyProfileCubit>().setProfile(profile);
       emit(ProfileLoaded(profile));
     } catch (e, s) {
       _logError('_onLoadProfileEvent', e, s);
@@ -75,6 +83,7 @@ class BusinessProfileBloc
     try {
       final profile = await updateProfileUseCase(event.model);
       _loader.hide();
+      sl<CompanyProfileCubit>().setProfile(profile);
       emit(ProfileLoaded(profile));
     } catch (e, s) {
       _logError('_onUpdateProfileEvent', e, s);
@@ -111,7 +120,8 @@ class BusinessProfileBloc
   FutureOr<void> _onLoadCoveredServiceItems(LoadCoveredServiceItemsEvent event,
       Emitter<BusinessProfileState> emit) async {
     try {
-      final groups = await getCoveredServiceItemsUseCase.call();
+      final groups =
+          await getCoveredServiceItemsUseCase.call(profile: event.cachedProfile);
       emit(CoveredServiceItemsLoaded(groups));
     } catch (e, s) {
       _logError('_onLoadCoveredServiceItems', e, s);

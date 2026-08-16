@@ -6,8 +6,12 @@ class ScheduleRepository {
 
   ScheduleRepository(this._scheduleService);
 
-  Future<List<CleanerAvailabilitySlot>> getCleanerAvailability() async {
-    final response = await _scheduleService.getCleanerAvailability();
+  Future<List<CleanerAvailabilitySlot>> getCleanerAvailability(
+    AvailabilityServiceType serviceType,
+  ) async {
+    final response = await _scheduleService.getCleanerAvailability(
+      serviceType.apiValue,
+    );
     if (response.success && response.data != null) {
       return response.data!.data ?? [];
     } else {
@@ -29,7 +33,7 @@ class ScheduleRepository {
       String id, CleanerAvailabilityRequest request) async {
     final response = await _scheduleService.updateCleanerAvailability(
       id,
-      request,
+      request.toUpdateJson(),
     );
     if (response.success && response.data != null) {
       return response.data!.data!;

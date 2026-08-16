@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/data/models/staff/create_team_model.dart';
 import 'package:cleaning_service_driver/data/models/staff/team_model.dart';
@@ -71,9 +72,8 @@ class _CreateEditTeamScreenState extends State<CreateEditTeamScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
         title: Text(isEdit ? context.l10n.edit_team : context.l10n.create_team),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, size: 28),
-          onPressed: () => Navigator.of(context).pop(),
+        leading: const BusinessBackButton(
+          fallbackRouteName: 'staff-main-screen',
         ),
         elevation: 1,
       ),

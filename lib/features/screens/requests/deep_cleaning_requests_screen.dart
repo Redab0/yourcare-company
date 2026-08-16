@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/date_time_picker_field.dart';
 import 'package:cleaning_service_driver/components/detail_row.dart';
 import 'package:cleaning_service_driver/components/media_carousel_viewer.dart';
@@ -108,6 +109,7 @@ class _DeepCleaningRequestState extends State<DeepCleaningRequestScreen> {
   @override
   Widget build(BuildContext context) {
     final d = widget.request.detail;
+    final specialNotes = widget.request.customerSpecialNotes;
     final propertyType = d.propertyTypeTitle.toLowerCase();
     final isHouse =
         propertyType.contains('house') || propertyType.contains('منزل');
@@ -135,6 +137,9 @@ class _DeepCleaningRequestState extends State<DeepCleaningRequestScreen> {
             },
             child: Scaffold(
               appBar: AppBar(
+                leading: const BusinessBackButton(
+                  fallbackRouteName: 'requests-main-screen',
+                ),
                 title: Text(context.l10n.request_details_label),
               ),
               body: SafeArea(
@@ -198,23 +203,18 @@ class _DeepCleaningRequestState extends State<DeepCleaningRequestScreen> {
                       const Divider(),
                       DetailRow(context.l10n.request_card_bathroom,
                           d.includeBathroom ? ctx.l10n.yes : ctx.l10n.no),
-                    ] else if (d.isOtherType) ...[
-                      const Divider(),
-                      DetailRow(
-                          context.l10n.request_card_notes, d.notes ?? '—'),
                     ],
                     const SizedBox(height: 32),
                     _title(context.l10n.address),
                     Text(d.fullAddress,
                         style: Theme.of(context).textTheme.bodyLarge),
                     const SizedBox(height: 32),
-                    if (d.additionalInformation?.trim().isNotEmpty ??
-                        false) ...[
+                    if (specialNotes != null) ...[
                       _title(context.l10n.request_card_notes),
-                      Text(d.additionalInformation!,
+                      Text(specialNotes,
                           style: Theme.of(context).textTheme.bodyLarge),
+                      const SizedBox(height: 32),
                     ],
-                    const SizedBox(height: 32),
                     _title(context.l10n.request_card_schedule),
                     d.scheduledTime == null
                         ? Column(

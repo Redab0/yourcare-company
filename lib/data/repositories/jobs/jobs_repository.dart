@@ -1,5 +1,6 @@
 import 'package:cleaning_service_driver/core/models/page_wrapper.dart';
 import 'package:cleaning_service_driver/data/models/requests/accept_house_keeping_model.dart';
+import 'package:cleaning_service_driver/data/models/requests/add_extra_fees_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/assign_team_model.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/complete_job_media_request.dart';
@@ -94,5 +95,43 @@ class JobsRepository {
     } else {
       throw Exception(response.message);
     }
+  }
+
+  Future<CleaningRequest?> addExtraFees(
+    String id,
+    AddExtraFeesRequest body,
+  ) async {
+    final response = await _jobsService.addExtraFees(id, body);
+    final statusCode = response.response.statusCode;
+    if (statusCode != null && (statusCode < 200 || statusCode >= 300)) {
+      throw Exception('Extra invoice request failed ($statusCode)');
+    }
+
+    return _tryParseCleaningRequest(response.data);
+  }
+
+  CleaningRequest? _tryParseCleaningRequest(Object? value) {
+    Object? candidate = value;
+    for (var depth = 0; depth < 4; depth++) {
+      if (candidate is! Map) return null;
+      final map = Map<String, dynamic>.from(candidate);
+      final looksLikeRequest = map['type'] != null ||
+          map.containsKey('DeepCleaning') ||
+          map.containsKey('HouseCleaning') ||
+          map.containsKey('houseCleaning') ||
+          map.containsKey('UpholsteryCleaning') ||
+          map.containsKey('upholsteryCleaning') ||
+          map.containsKey('CarWash') ||
+          map.containsKey('carWash');
+      if (looksLikeRequest) {
+        try {
+          return CleaningRequest.fromJson(map);
+        } catch (_) {
+          return null;
+        }
+      }
+      candidate = map['data'];
+    }
+    return null;
   }
 }

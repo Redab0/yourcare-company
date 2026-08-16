@@ -2,6 +2,7 @@ import 'package:cleaning_service_driver/core/models/page_wrapper.dart';
 import 'package:cleaning_service_driver/core/models/response.dart';
 import 'package:cleaning_service_driver/core/models/response_payload.dart';
 import 'package:cleaning_service_driver/data/models/requests/accept_house_keeping_model.dart';
+import 'package:cleaning_service_driver/data/models/requests/add_extra_fees_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/assign_team_model.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/complete_job_media_request.dart';
@@ -56,4 +57,10 @@ abstract class JobsService {
   @PATCH('/requests/{id}/frequency-status')
   Future<ApiResponse<ResponsePayload<CleaningRequest>>> updateFrequencyStatus(
       @Path('id') String id, @Body() UpdateRequestFrequencyRequest body);
+
+  @PATCH('/requests/{id}/extra-fees')
+  Future<HttpResponse<dynamic>> addExtraFees(
+    @Path('id') String id,
+    @Body() AddExtraFeesRequest body,
+  );
 }

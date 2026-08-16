@@ -156,7 +156,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get no_availability => 'لا يوجد توافر';
 
   @override
-  String get invalid_time_range => 'يجب أن تكون ساعة النهاية بعد ساعة البداية';
+  String get invalid_time_range => 'يجب أن يكون وقت النهاية بعد وقت البداية';
 
   @override
   String get invalid_total_cleaners => 'يجب أن يكون إجمالي العمالة أكبر من 0';
@@ -798,6 +798,123 @@ class AppLocalizationsAr extends AppLocalizations {
   String get dashboard => 'لوحة التحكم';
 
   @override
+  String get business_setup_tour_restart => 'عرض دليل الإعداد';
+
+  @override
+  String get business_setup_tour_skip => 'تخطي الدليل';
+
+  @override
+  String get business_setup_tour_previous => 'السابق';
+
+  @override
+  String get business_setup_tour_next => 'التالي';
+
+  @override
+  String get business_setup_tour_done => 'تم';
+
+  @override
+  String get business_setup_tour_profile => 'ابدأ من هنا: أضف شعار الشركة وبياناتها وأوصاف الخدمات وحدد الخدمات التي تقدمها.';
+
+  @override
+  String get business_setup_tour_housekeeping => 'حدد سعر الساعة ورسوم المناطق، ثم اضبط أوقات توفر فريقك.';
+
+  @override
+  String get business_setup_tour_car_wash => 'أنشئ باقات الغسيل واربطها بأنواع المركبات وأضف رسوم المناطق وحدد أوقات توفر الخدمة.';
+
+  @override
+  String get business_setup_tour_furniture => 'فعّل أنواع الأثاث التي تنظفها وحدد سعراً لكل مقاس مدعوم وأوقات توفر الخدمة.';
+
+  @override
+  String get business_setup_tour_auto_bid => 'للتنظيف العميق، فعّل المزايدة التلقائية وحدد الأسعار والمدة المتوقعة.';
+
+  @override
+  String get business_setup_tour_staff => 'أنشئ حسابات الموظفين والفرق ووزع الصلاحيات وراجع تقويم الموظفين.';
+
+  @override
+  String get business_setup_tour_requests => 'راجع طلبات العملاء الجديدة وقدم عرضاً أو اقبل العمل بحسب نوع الخدمة.';
+
+  @override
+  String get business_setup_tour_jobs => 'أدر الطلبات المؤكدة هنا، من تعيين الفريق وبدء العمل حتى إكماله.';
+
+  @override
+  String get business_inner_tour_housekeeping_pricing => 'حدد سعر الساعة وأسعار المدد وخصومات الحجوزات المتكررة ورسوم مواد التنظيف ورسوم المناطق.';
+
+  @override
+  String get business_inner_tour_housekeeping_availability => 'حدد الأيام والفترات الزمنية التي يمكن لفريق التنظيف المنزلي استقبال الحجوزات فيها.';
+
+  @override
+  String get business_inner_tour_car_wash_packages => 'أنشئ باقات غسيل قابلة لإعادة الاستخدام ثم اربط كل باقة بأنواع المركبات التي تدعمها.';
+
+  @override
+  String get business_inner_tour_car_wash_hours => 'حدد أيام وفترات العمل الأسبوعية التي يمكن للعملاء حجز غسيل السيارات خلالها.';
+
+  @override
+  String get business_inner_tour_staff_create_user => 'أنشئ حساب موظف وامنحه فقط الصلاحيات اللازمة لدوره.';
+
+  @override
+  String get business_inner_tour_staff_manage_users => 'راجع حسابات الموظفين وعدل الصلاحيات وفعّل الوصول أو أوقفه.';
+
+  @override
+  String get business_inner_tour_staff_create_team => 'اجمع الموظفين في فريق يمكن تعيينه لطلبات العملاء.';
+
+  @override
+  String get business_inner_tour_staff_manage_teams => 'راجع الفرق المتاحة لتعيين الطلبات وعدلها.';
+
+  @override
+  String get business_inner_tour_staff_calendar => 'استخدم تقويم الموظفين لمراجعة الأعمال المجدولة وحجم عمل الفرق.';
+
+  @override
+  String get business_inner_tour_profile_identity => 'أضف شعاراً واضحاً وأكمل بيانات تواصل الشركة التي تظهر للعملاء.';
+
+  @override
+  String get business_inner_tour_profile_services => 'افتح كل خدمة مقدمة لاختيار ووصف الأعمال التي تغطيها شركتك بدقة.';
+
+  @override
+  String get business_inner_tour_profile_areas => 'حدد جميع المناطق التي تخدمها الشركة، فهي تحدد أين يمكن للعملاء العثور عليك.';
+
+  @override
+  String get business_inner_tour_profile_save => 'احفظ بعد تعديل بيانات الشركة أو التغطية أو أوصاف الخدمات أو الوسائط.';
+
+  @override
+  String get business_inner_tour_upholstery_type => 'وسّع نوع الأثاث لتحديد أسعار المقاسات، واستخدم المفتاح لتقديم هذا النوع أو إخفائه.';
+
+  @override
+  String get business_inner_tour_upholstery_save => 'احفظ بعد تفعيل أنواع الأثاث وإدخال سعر صحيح لكل مقاس مدعوم.';
+
+  @override
+  String get business_inner_tour_requests => 'وسّع الطلب لمراجعة تفاصيله ثم افتحه لقبول العمل أو تقديم عرض عندما ينطبق ذلك.';
+
+  @override
+  String get business_inner_tour_jobs_statuses => 'تنقل بين الطلبات المؤكدة وقيد التنفيذ والمكتملة والملغاة.';
+
+  @override
+  String get business_inner_tour_jobs_list => 'افتح الطلب لتعيين الموظفين أو إدارة حالته أو التواصل مع العميل أو إضافة فاتورة إضافية عند السماح.';
+
+  @override
+  String get business_inner_tour_area_fees => 'حدد رسوم الانتقال الإضافية لكل منطقة خدمة، واترك المناطق غير المدعومة دون رسوم مفعلة.';
+
+  @override
+  String get business_inner_tour_schedule_days => 'اختر يوماً لمراجعة أوقات توفره وضبطها.';
+
+  @override
+  String get business_inner_tour_schedule_day_status => 'حدد ما إذا كان اليوم المختار مفتوحاً أو مغلقاً قبل تعديل فتراته.';
+
+  @override
+  String get business_inner_tour_schedule_apply_week => 'استخدم هذا فقط عندما تريد استبدال جداول باقي الأسبوع بجدول اليوم المختار.';
+
+  @override
+  String get business_inner_tour_schedule_slots => 'أضف فترات الحجز المتاحة في اليوم المختار وعدلها.';
+
+  @override
+  String get business_inner_tour_schedule_save => 'احفظ الجدول الأسبوعي الكامل بعد مراجعة جميع الأيام.';
+
+  @override
+  String get business_inner_tour_car_wash_sections => 'تنقل بين الباقات القابلة لإعادة الاستخدام وربط المركبات ورسوم التوصيل حسب المنطقة.';
+
+  @override
+  String get business_inner_tour_car_wash_package_editor => 'أنشئ تفاصيل الباقة هنا، ثم اربط الباقات المحفوظة بأنواع المركبات واضبط رسوم المناطق.';
+
+  @override
   String get requests => 'طلبات جديدة';
 
   @override
@@ -957,7 +1074,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get create_team => 'انشئ الفريق';
 
   @override
-  String get create_user => 'Create User';
+  String get create_user => 'إنشاء مستخدم';
 
   @override
   String get staff_title => 'فريق العمل';
@@ -1177,4 +1294,262 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get chat_price => 'السعر';
+
+  @override
+  String get car_wash_configuration => 'إعدادات غسيل السيارات';
+
+  @override
+  String get car_wash_pricing => 'تسعير غسيل السيارات';
+
+  @override
+  String get car_wash_packages_and_pricing => 'الباقات والمركبات والرسوم';
+
+  @override
+  String get car_wash_packages => 'الباقات';
+
+  @override
+  String get car_wash_packages_hint => 'أنشئ كل باقة مرة واحدة وحدد مدتها وأوقات الحجز الاختيارية، ثم اربطها بكل أنواع المركبات التي تخدمها.';
+
+  @override
+  String get car_wash_vehicle_assignments => 'أنواع المركبات';
+
+  @override
+  String get car_wash_vehicle_assignments_hint => 'اختر الباقات المتاحة لكل نوع من المركبات.';
+
+  @override
+  String get car_wash_area_fees => 'رسوم المناطق';
+
+  @override
+  String get car_wash_area_fees_hint => 'حدد رسوم انتقال اختيارية لكل منطقة خدمة.';
+
+  @override
+  String get car_wash_working_hours => 'توفر خدمة غسيل السيارات';
+
+  @override
+  String get vehicle_type => 'نوع المركبة';
+
+  @override
+  String get package_label => 'الباقة';
+
+  @override
+  String get save_working_hours => 'حفظ ساعات العمل';
+
+  @override
+  String get pricing_saved_successfully => 'تم حفظ التسعير بنجاح';
+
+  @override
+  String get working_hours_saved_successfully => 'تم حفظ ساعات العمل بنجاح';
+
+  @override
+  String get no_car_wash_options => 'لا توجد خيارات غسيل سيارات';
+
+  @override
+  String get start_time => 'وقت البداية';
+
+  @override
+  String get end_time => 'وقت النهاية';
+
+  @override
+  String get car_wash_description_en => 'الوصف (إنجليزي)';
+
+  @override
+  String get car_wash_description_ar => 'الوصف (عربي)';
+
+  @override
+  String get add_car_wash_package => 'إضافة باقة';
+
+  @override
+  String get remove_package => 'حذف الباقة';
+
+  @override
+  String get no_vehicle_packages => 'لا توجد باقات مضافة لهذا النوع من المركبات';
+
+  @override
+  String get create_car_wash_package => 'إنشاء باقة';
+
+  @override
+  String get edit_car_wash_package => 'تعديل الباقة';
+
+  @override
+  String get delete_car_wash_package => 'حذف الباقة';
+
+  @override
+  String get delete_car_wash_package_message => 'هل تريد حذف هذه الباقة؟ لن تعود متاحة لأي نوع من المركبات.';
+
+  @override
+  String get package_created_successfully => 'تم إنشاء الباقة بنجاح';
+
+  @override
+  String get package_updated_successfully => 'تم تحديث الباقة بنجاح';
+
+  @override
+  String get package_deleted_successfully => 'تم حذف الباقة بنجاح';
+
+  @override
+  String get no_car_wash_packages => 'لم يتم إنشاء أي باقات بعد';
+
+  @override
+  String get package_title_required => 'أدخل اسم الباقة باللغتين العربية والإنجليزية';
+
+  @override
+  String get invalid_discount_percentage => 'يجب أن يكون الخصم بين 0 و100';
+
+  @override
+  String get package_working_hours => 'توفر الباقة';
+
+  @override
+  String get package_working_hours_hint => 'يمكنك اختيارياً إضافة الأيام والفترات التي يمكن حجز هذه الباقة فيها.';
+
+  @override
+  String get package_availability_not_set => 'لم تتم إضافة فترات توفر';
+
+  @override
+  String get package_time_slots => 'فترات زمنية';
+
+  @override
+  String get package_duration_minutes => 'مدة الباقة';
+
+  @override
+  String get package_duration_minutes_hint => 'المدة اللازمة لتنفيذ حجز واحد بالدقائق';
+
+  @override
+  String get duration_must_be_positive => 'يجب أن تكون المدة أكبر من صفر';
+
+  @override
+  String get minutes_short => 'دقيقة';
+
+  @override
+  String get add_time_slot => 'إضافة فترة زمنية';
+
+  @override
+  String get edit_time_slot => 'تعديل الفترة الزمنية';
+
+  @override
+  String get overlapping_time_slot => 'تتداخل هذه الفترة مع فترة أخرى في اليوم نفسه';
+
+  @override
+  String get save_package => 'حفظ الباقة';
+
+  @override
+  String get create_package_first => 'أنشئ باقة واحدة على الأقل قبل ربط الباقات بالمركبات.';
+
+  @override
+  String get assign_packages_to_vehicle => 'اختر الباقات المتاحة لهذا النوع من المركبات';
+
+  @override
+  String get save_package_assignments => 'حفظ الربط';
+
+  @override
+  String get package_assignments_saved_successfully => 'تم حفظ ربط الباقات بالمركبات بنجاح';
+
+  @override
+  String get delivery_fee => 'رسوم الانتقال';
+
+  @override
+  String get fee_not_set => 'غير محددة';
+
+  @override
+  String get set_delivery_fee => 'تحديد رسوم الانتقال';
+
+  @override
+  String get edit_delivery_fee => 'تعديل رسوم الانتقال';
+
+  @override
+  String get remove_delivery_fee => 'حذف رسوم الانتقال';
+
+  @override
+  String get remove_delivery_fee_message => 'هل تريد حذف رسوم الانتقال لهذه المنطقة؟';
+
+  @override
+  String get fee_cannot_be_negative => 'لا يمكن أن تكون الرسوم سالبة';
+
+  @override
+  String get area_fee_saved_successfully => 'تم حفظ رسوم المنطقة بنجاح';
+
+  @override
+  String get area_fee_deleted_successfully => 'تم حذف رسوم المنطقة بنجاح';
+
+  @override
+  String get refresh => 'تحديث';
+
+  @override
+  String get upholstery_configuration => 'إعدادات تنظيف الأثاث';
+
+  @override
+  String get upholstery_pricing => 'تسعير تنظيف الأثاث';
+
+  @override
+  String get upholstery_description_en => 'الوصف (إنجليزي)';
+
+  @override
+  String get upholstery_description_ar => 'الوصف (عربي)';
+
+  @override
+  String get add_upholstery_package => 'إضافة باقة';
+
+  @override
+  String get no_upholstery_types => 'لا توجد أنواع أثاث متاحة';
+
+  @override
+  String get no_upholstery_packages => 'لا توجد باقات مضافة لهذا النوع من الأثاث';
+
+  @override
+  String get upholstery_size_pricing_hint => 'فعّل كل نوع أثاث تنظفه شركتك، ثم حدد السعر والخصم الاختياري لكل حجم.';
+
+  @override
+  String get offer_upholstery_type => 'تقديم خدمة التنظيف لهذا النوع من الأثاث';
+
+  @override
+  String get no_upholstery_sizes => 'لا توجد أحجام مضافة لهذا النوع من الأثاث';
+
+  @override
+  String get additional_upholstery_packages => 'الباقات الإضافية الحالية';
+
+  @override
+  String get car_wash_service => 'غسيل السيارات';
+
+  @override
+  String get car_wash_request_vehicles => 'المركبات والباقات';
+
+  @override
+  String get no_car_wash_vehicle_details => 'لا تتوفر تفاصيل المركبات لهذا الطلب.';
+
+  @override
+  String get original_order_total => 'إجمالي الطلب الأساسي';
+
+  @override
+  String get create_extra_invoice => 'إنشاء فاتورة إضافية';
+
+  @override
+  String get extra_invoice => 'فاتورة إضافية';
+
+  @override
+  String get extra_invoice_amount => 'المبلغ الإضافي';
+
+  @override
+  String get extra_invoice_reason => 'السبب';
+
+  @override
+  String get extra_invoice_reason_hint => 'مثال: خدمة إضافية طلبها العميل في الموقع';
+
+  @override
+  String get extra_invoice_customer_payment_hint => 'أدخل مبلغ الخدمة الإضافية وسببها. ستظهر للعميل فاتورة للدفع من شاشة تفاصيل الطلب.';
+
+  @override
+  String get extra_invoice_created_successfully => 'تم إنشاء الفاتورة الإضافية بنجاح';
+
+  @override
+  String get extra_invoice_amount_required => 'أدخل مبلغًا أكبر من صفر';
+
+  @override
+  String get extra_invoice_reason_required => 'أدخل سبب الفاتورة الإضافية';
+
+  @override
+  String get extra_invoice_payment_pending => 'بانتظار دفع الفاتورة الإضافية';
+
+  @override
+  String get extra_invoice_payment_pending_hint => 'يجب على العميل دفع هذه الفاتورة من شاشة تفاصيل الطلب قبل إنشاء فاتورة أخرى.';
+
+  @override
+  String get share => 'مشاركة';
 }

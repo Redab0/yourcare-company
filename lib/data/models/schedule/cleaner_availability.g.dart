@@ -19,6 +19,7 @@ CleanerAvailabilitySlot _$CleanerAvailabilitySlotFromJson(
           endHour: $checkedConvert('endHour', (v) => (v as num?)?.toInt()),
           totalCleaners:
               $checkedConvert('totalCleaners', (v) => (v as num?)?.toInt()),
+          serviceType: $checkedConvert('serviceType', (v) => v as String?),
           employeeId: $checkedConvert(
             'employeeId',
             (v) => v as String?,
@@ -37,8 +38,15 @@ Map<String, dynamic> _$CleanerAvailabilitySlotToJson(
       'startHour': instance.startHour,
       'endHour': instance.endHour,
       'totalCleaners': instance.totalCleaners,
+      'serviceType': instance.serviceType,
       'employeeId': instance.employeeId,
     };
+
+const _$AvailabilityServiceTypeEnumMap = {
+  AvailabilityServiceType.houseCleaning: 'houseCleaning',
+  AvailabilityServiceType.carWash: 'carWash',
+  AvailabilityServiceType.upholsteryCleaning: 'upholsteryCleaning',
+};
 
 CleanerAvailabilityRequest _$CleanerAvailabilityRequestFromJson(
         Map<String, dynamic> json) =>
@@ -47,6 +55,8 @@ CleanerAvailabilityRequest _$CleanerAvailabilityRequestFromJson(
       startHour: (json['startHour'] as num).toInt(),
       endHour: (json['endHour'] as num).toInt(),
       totalCleaners: (json['totalCleaners'] as num).toInt(),
+      serviceType:
+          $enumDecode(_$AvailabilityServiceTypeEnumMap, json['serviceType']),
     );
 
 Map<String, dynamic> _$CleanerAvailabilityRequestToJson(
@@ -56,4 +66,5 @@ Map<String, dynamic> _$CleanerAvailabilityRequestToJson(
       'startHour': instance.startHour,
       'endHour': instance.endHour,
       'totalCleaners': instance.totalCleaners,
+      'serviceType': _$AvailabilityServiceTypeEnumMap[instance.serviceType]!,
     };

@@ -44,6 +44,9 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
       createdAt: json['createdAt'] as String?,
       updatedAt: json['updatedAt'] as String?,
       businessId: json['businessId'] as String?,
+      services: (json['services'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
       image: json['image'] as String?,
       permissions: (json['permissions'] as List<dynamic>?)
               ?.map((e) => PermissionModel.fromJson(e as Map<String, dynamic>))
@@ -64,6 +67,7 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'image': instance.image,
       'enabled': instance.enabled,
       'businessId': instance.businessId,
+      'services': instance.services,
       'addresses': instance.addresses,
       'permissions': instance.permissions,
       'createdAt': instance.createdAt,

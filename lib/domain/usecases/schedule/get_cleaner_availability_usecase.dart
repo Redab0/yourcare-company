@@ -6,9 +6,11 @@ class GetCleanerAvailabilityUseCase {
 
   GetCleanerAvailabilityUseCase(this._scheduleRepository);
 
-  Future<List<CleanerAvailabilitySlot>> call() async {
+  Future<List<CleanerAvailabilitySlot>> call(
+    AvailabilityServiceType serviceType,
+  ) async {
     try {
-      return await _scheduleRepository.getCleanerAvailability();
+      return await _scheduleRepository.getCleanerAvailability(serviceType);
     } catch (e) {
       throw Exception('Getting availability failed ${e.toString()}');
     }

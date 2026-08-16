@@ -50,87 +50,105 @@ class NotificationsRepository {
 
   Future<void> initializeAndRegister() async {
     if (_initialized) return;
-    _initialized = true;
     _notificationsActive = true;
     _tokenRegistrationCompleted = false;
 
-    await _initializeLocalNotifications();
+    try {
+      await _initializeLocalNotifications();
+      await _ensureNotificationPermission();
 
-    // 2) Ask permission once (optional on Android 13+ it matters)
-    final asked =
-        await SecureStorageService().getAskedForNotificationsPermission();
-    if (asked == null) {
-      final settings = await _messaging.requestPermission(
-          alert: true, badge: true, sound: true);
-      await SecureStorageService().askedForNotificationsPermission();
-      debugPrint(
-        'Notification permission status: ${settings.authorizationStatus}',
+      // Explicitly allow foreground presentation on iOS.
+      await _messaging.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
       );
-    }
 
-    // 2b) Explicitly allow foreground presentation on iOS
-    await _messaging.setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+      // Get current saved token and deviceId (persist deviceId).
+      final prev = await SecureStorageService().getFcmToken();
+      final savedDeviceId = await SecureStorageService().getDeviceId();
+      final deviceId = savedDeviceId ?? const Uuid().v4();
+      if (savedDeviceId == null) {
+        await SecureStorageService().saveDeviceId(deviceId);
+      }
+      debugPrint('Prev saved FCM token: $prev');
+      debugPrint('Using deviceId: $deviceId');
 
-    // 3) Get current saved token and deviceId (persist deviceId)
-    final prev = await SecureStorageService().getFcmToken();
-    final savedDeviceId = await SecureStorageService().getDeviceId();
-    final deviceId = savedDeviceId ?? const Uuid().v4();
-    if (savedDeviceId == null) {
-      await SecureStorageService().saveDeviceId(deviceId);
-    }
-    debugPrint('Prev saved FCM token: $prev');
-    debugPrint('Using deviceId: $deviceId');
-
-    // 4) Try immediate registration once, then keep retrying in background.
-    final registered = await _tryRegisterCurrentToken(
-      deviceId: deviceId,
-      previousToken: prev,
-    );
-    if (!registered) {
-      _startTokenRegistrationRetryLoop(deviceId);
-    }
-
-    // 5) Always listen for future refreshes
-    await _tokenRefreshSubscription?.cancel();
-    _tokenRefreshSubscription = _messaging.onTokenRefresh.listen((t) async {
-      if (!_notificationsActive) return;
-      debugPrint('FCM token refreshed: $t');
-      try {
-        await _notificationsService.registerDeviceToken(
-          RegisterToken(
-            fcmToken: t,
-            deviceId: deviceId,
-            platform: Platform.isAndroid ? "android" : "ios",
-          ),
-        );
-        await SecureStorageService().saveFcmToken(t);
-        _tokenRegistrationCompleted = true;
-      } catch (e) {
-        _tokenRegistrationCompleted = false;
-        debugPrint('Failed to register refreshed FCM token: $e');
+      // Try immediate registration once, then keep retrying in background.
+      final registered = await _tryRegisterCurrentToken(
+        deviceId: deviceId,
+        previousToken: prev,
+      );
+      if (!registered) {
         _startTokenRegistrationRetryLoop(deviceId);
       }
-    });
 
-    // 6) Foreground notifications
-    await _foregroundMessageSubscription?.cancel();
-    _foregroundMessageSubscription = FirebaseMessaging.onMessage.listen(
-      _handleMessage,
-    );
+      // Always listen for future refreshes.
+      await _tokenRefreshSubscription?.cancel();
+      _tokenRefreshSubscription = _messaging.onTokenRefresh.listen((t) async {
+        if (!_notificationsActive) return;
+        debugPrint('FCM token refreshed: $t');
+        try {
+          await _notificationsService.registerDeviceToken(
+            RegisterToken(
+              fcmToken: t,
+              deviceId: deviceId,
+              platform: Platform.isAndroid ? "android" : "ios",
+            ),
+          );
+          await SecureStorageService().saveFcmToken(t);
+          _tokenRegistrationCompleted = true;
+        } catch (e) {
+          _tokenRegistrationCompleted = false;
+          debugPrint('Failed to register refreshed FCM token: $e');
+          _startTokenRegistrationRetryLoop(deviceId);
+        }
+      });
 
-    await _messageOpenedSubscription?.cancel();
-    _messageOpenedSubscription = FirebaseMessaging.onMessageOpenedApp.listen(
-      _handleNotificationTap,
-    );
+      // Foreground notifications.
+      await _foregroundMessageSubscription?.cancel();
+      _foregroundMessageSubscription = FirebaseMessaging.onMessage.listen(
+        _handleMessage,
+      );
 
-    final initialMessage = await _messaging.getInitialMessage();
-    if (initialMessage != null) {
-      _handleNotificationTap(initialMessage);
+      await _messageOpenedSubscription?.cancel();
+      _messageOpenedSubscription = FirebaseMessaging.onMessageOpenedApp.listen(
+        _handleNotificationTap,
+      );
+
+      final initialMessage = await _messaging.getInitialMessage();
+      if (initialMessage != null) {
+        _handleNotificationTap(initialMessage);
+      }
+      _initialized = true;
+    } catch (e) {
+      _initialized = false;
+      _notificationsActive = false;
+      debugPrint('Failed to initialize notifications: $e');
+      rethrow;
     }
+  }
+
+  Future<void> _ensureNotificationPermission() async {
+    var settings = await _messaging.getNotificationSettings();
+    debugPrint(
+      'Notification authorization status before request: '
+      '${settings.authorizationStatus}',
+    );
+
+    if (settings.authorizationStatus == AuthorizationStatus.notDetermined) {
+      settings = await _messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+      await SecureStorageService().askedForNotificationsPermission();
+    }
+
+    debugPrint(
+      'Notification authorization status after request: '
+      '${settings.authorizationStatus}',
+    );
   }
 
   Future<bool> _tryRegisterCurrentToken({

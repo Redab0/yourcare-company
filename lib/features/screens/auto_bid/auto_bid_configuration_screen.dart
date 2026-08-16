@@ -1,10 +1,13 @@
+import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
+import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/data/models/auto_bid/auto_bid_categories.dart';
 import 'package:cleaning_service_driver/data/models/auto_bid/auto_bid_config.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_item.dart';
 import 'package:cleaning_service_driver/features/bloc/auto_bid/auto_bid_config_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/auto_bid/auto_bid_config_event.dart';
 import 'package:cleaning_service_driver/features/bloc/auto_bid/auto_bid_config_state.dart';
+import 'package:cleaning_service_driver/features/onboarding/business_showcase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -19,7 +22,12 @@ class AutoBidConfigurationScreen extends StatefulWidget {
 
 class _AutoBidConfigurationScreenState
     extends State<AutoBidConfigurationScreen> {
+  static const _tourScope = 'business_auto_bid_journey';
   static const double _priceStep = 5;
+  final _configurationTourKey =
+      GlobalKey(debugLabel: 'auto-bid-configuration-tour');
+  late final BusinessShowcaseTourController _tour;
+  String? _tourOwnerId;
   final _numberFormat = NumberFormat('0.##');
   final Map<String, TextEditingController> _priceControllers = {};
   final Map<String, FocusNode> _priceFocusNodes = {};
@@ -29,6 +37,11 @@ class _AutoBidConfigurationScreenState
   @override
   void initState() {
     super.initState();
+    _tour = BusinessShowcaseTourController(scope: _tourScope);
+    SecureStorageService().getUser().then((user) {
+      if (!mounted) return;
+      setState(() => _tourOwnerId = businessShowcaseOwnerId(user));
+    });
     context.read<AutoBidConfigBloc>().add(const LoadAutoBidConfigs());
   }
 
@@ -106,6 +119,7 @@ class _AutoBidConfigurationScreenState
 
   @override
   void dispose() {
+    _tour.dispose();
     for (final controller in _priceControllers.values) {
       controller.dispose();
     }
@@ -125,8 +139,12 @@ class _AutoBidConfigurationScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: const BusinessBackButton(fallbackRouteName: 'home'),
         title: Text(context.l10n.auto_bidding),
         actions: [
+          BusinessShowcaseHelpButton(
+            onPressed: () => _tour.start([_configurationTourKey]),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _refresh,
@@ -141,11 +159,17 @@ class _AutoBidConfigurationScreenState
         },
         builder: (ctx, state) {
           final showLoading = state.isLoadingDeep &&
-              state.isLoadingUpholstery &&
-              state.deepCategories.departmentTypes.isEmpty &&
-              state.upholsteryCategories.upholsteryTypes.isEmpty;
+              state.deepCategories.departmentTypes.isEmpty;
           if (showLoading) {
             return const Center(child: CircularProgressIndicator());
+          }
+          final ownerId = _tourOwnerId;
+          if (ownerId != null) {
+            _tour.scheduleStartOnce(
+              ownerId: ownerId,
+              journeyId: 'auto_bid_configuration',
+              keys: [_configurationTourKey],
+            );
           }
 
           return RefreshIndicator(
@@ -154,9 +178,15 @@ class _AutoBidConfigurationScreenState
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16),
               children: [
-                _deepCleaningSection(state),
-                const SizedBox(height: 24),
-                _upholsterySection(state),
+                BusinessShowcaseStep(
+                  showcaseKey: _configurationTourKey,
+                  scope: _tourScope,
+                  title: context.l10n.auto_bidding,
+                  description: context.l10n.business_setup_tour_auto_bid,
+                  index: 0,
+                  itemCount: 1,
+                  child: _deepCleaningSection(state),
+                ),
                 const SizedBox(height: 24),
               ],
             ),
@@ -203,42 +233,6 @@ class _AutoBidConfigurationScreenState
       children: groups,
       emptyLabel: context.l10n.no_pricing_options,
       hasData: groups.isNotEmpty,
-    );
-  }
-
-  Widget _upholsterySection(AutoBidConfigState state) {
-    final types = state.upholsteryCategories.upholsteryTypes;
-    final content = types
-        .where((type) =>
-            type.sizes.isNotEmpty ||
-            type.materials.isNotEmpty ||
-            type.conditions.isNotEmpty)
-        .map((type) => _upholsteryTypeCard(type, state.upholsteryPricing))
-        .toList();
-
-    return _serviceSection(
-      title: context.l10n.upholstery_cleaning,
-      isEnabled: state.upholsteryEnabled,
-      isLoading: state.isLoadingUpholstery,
-      isSaving: state.isSavingUpholstery,
-      onToggle: (value) {
-        context.read<AutoBidConfigBloc>().add(
-              ToggleAutoBidEnabled(
-                serviceType: AutoBidConfigBloc.upholsteryCleaning,
-                isEnabled: value,
-              ),
-            );
-      },
-      onSave: () {
-        context.read<AutoBidConfigBloc>().add(
-              const SaveAutoBidConfig(
-                serviceType: AutoBidConfigBloc.upholsteryCleaning,
-              ),
-            );
-      },
-      children: content,
-      emptyLabel: context.l10n.no_pricing_options,
-      hasData: content.isNotEmpty,
     );
   }
 

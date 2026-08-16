@@ -392,7 +392,7 @@ abstract class AppLocalizations {
   /// No description provided for @invalid_time_range.
   ///
   /// In en, this message translates to:
-  /// **'End hour must be after start hour'**
+  /// **'End time must be after start time'**
   String get invalid_time_range;
 
   /// No description provided for @invalid_total_cleaners.
@@ -1673,6 +1673,240 @@ abstract class AppLocalizations {
   /// **'Dashboard'**
   String get dashboard;
 
+  /// No description provided for @business_setup_tour_restart.
+  ///
+  /// In en, this message translates to:
+  /// **'Show setup guide'**
+  String get business_setup_tour_restart;
+
+  /// No description provided for @business_setup_tour_skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip guide'**
+  String get business_setup_tour_skip;
+
+  /// No description provided for @business_setup_tour_previous.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get business_setup_tour_previous;
+
+  /// No description provided for @business_setup_tour_next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get business_setup_tour_next;
+
+  /// No description provided for @business_setup_tour_done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get business_setup_tour_done;
+
+  /// No description provided for @business_setup_tour_profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Start here: add your logo, company details, service descriptions, and the services you provide.'**
+  String get business_setup_tour_profile;
+
+  /// No description provided for @business_setup_tour_housekeeping.
+  ///
+  /// In en, this message translates to:
+  /// **'Set hourly pricing and area fees, then define when your team is available.'**
+  String get business_setup_tour_housekeeping;
+
+  /// No description provided for @business_setup_tour_car_wash.
+  ///
+  /// In en, this message translates to:
+  /// **'Create wash packages, assign them to vehicle types, add area fees, and set service availability.'**
+  String get business_setup_tour_car_wash;
+
+  /// No description provided for @business_setup_tour_furniture.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate the furniture types you clean, price every supported size, and set service availability.'**
+  String get business_setup_tour_furniture;
+
+  /// No description provided for @business_setup_tour_auto_bid.
+  ///
+  /// In en, this message translates to:
+  /// **'For deep cleaning, enable automatic bidding and define the prices and expected duration.'**
+  String get business_setup_tour_auto_bid;
+
+  /// No description provided for @business_setup_tour_staff.
+  ///
+  /// In en, this message translates to:
+  /// **'Create staff accounts and teams, assign permissions, and review the employee calendar.'**
+  String get business_setup_tour_staff;
+
+  /// No description provided for @business_setup_tour_requests.
+  ///
+  /// In en, this message translates to:
+  /// **'Review new customer requests and submit or accept work according to the service.'**
+  String get business_setup_tour_requests;
+
+  /// No description provided for @business_setup_tour_jobs.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage confirmed jobs here, from assignment and start through completion.'**
+  String get business_setup_tour_jobs;
+
+  /// No description provided for @business_inner_tour_housekeeping_pricing.
+  ///
+  /// In en, this message translates to:
+  /// **'Set hourly and duration-based prices, repeat-booking discounts, cleaning-product charges, and area fees.'**
+  String get business_inner_tour_housekeeping_pricing;
+
+  /// No description provided for @business_inner_tour_housekeeping_availability.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the days and time slots when your housekeeping team can accept bookings.'**
+  String get business_inner_tour_housekeeping_availability;
+
+  /// No description provided for @business_inner_tour_car_wash_packages.
+  ///
+  /// In en, this message translates to:
+  /// **'Create reusable wash packages, then assign each package to the vehicle types you support.'**
+  String get business_inner_tour_car_wash_packages;
+
+  /// No description provided for @business_inner_tour_car_wash_hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Define the weekly days and time slots when customers can book car washing.'**
+  String get business_inner_tour_car_wash_hours;
+
+  /// No description provided for @business_inner_tour_staff_create_user.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a staff account and grant only the permissions needed for that role.'**
+  String get business_inner_tour_staff_create_user;
+
+  /// No description provided for @business_inner_tour_staff_manage_users.
+  ///
+  /// In en, this message translates to:
+  /// **'Review staff accounts, update permissions, and enable or disable access.'**
+  String get business_inner_tour_staff_manage_users;
+
+  /// No description provided for @business_inner_tour_staff_create_team.
+  ///
+  /// In en, this message translates to:
+  /// **'Group staff into a team that can be assigned to customer requests.'**
+  String get business_inner_tour_staff_create_team;
+
+  /// No description provided for @business_inner_tour_staff_manage_teams.
+  ///
+  /// In en, this message translates to:
+  /// **'Review and update the teams available for job assignment.'**
+  String get business_inner_tour_staff_manage_teams;
+
+  /// No description provided for @business_inner_tour_staff_calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the employee calendar to review scheduled work and team workload.'**
+  String get business_inner_tour_staff_calendar;
+
+  /// No description provided for @business_inner_tour_profile_identity.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a clear logo and complete the company contact details shown to customers.'**
+  String get business_inner_tour_profile_identity;
+
+  /// No description provided for @business_inner_tour_profile_services.
+  ///
+  /// In en, this message translates to:
+  /// **'Open each offered service to choose and describe the exact work your company covers.'**
+  String get business_inner_tour_profile_services;
+
+  /// No description provided for @business_inner_tour_profile_areas.
+  ///
+  /// In en, this message translates to:
+  /// **'Select every area your company serves. These areas control where customers can find you.'**
+  String get business_inner_tour_profile_areas;
+
+  /// No description provided for @business_inner_tour_profile_save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save after updating company details, coverage, service descriptions, or media.'**
+  String get business_inner_tour_profile_save;
+
+  /// No description provided for @business_inner_tour_upholstery_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand a furniture type to set size prices, and use its switch to offer or hide that type.'**
+  String get business_inner_tour_upholstery_type;
+
+  /// No description provided for @business_inner_tour_upholstery_save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save after activating furniture types and entering a valid price for every supported size.'**
+  String get business_inner_tour_upholstery_save;
+
+  /// No description provided for @business_inner_tour_requests.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand a request to review its details, then open it to accept the work or submit a bid when applicable.'**
+  String get business_inner_tour_requests;
+
+  /// No description provided for @business_inner_tour_jobs_statuses.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch between confirmed, in-progress, completed, and cancelled jobs.'**
+  String get business_inner_tour_jobs_statuses;
+
+  /// No description provided for @business_inner_tour_jobs_list.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a job to assign staff, manage its status, contact the customer, or add an extra invoice when allowed.'**
+  String get business_inner_tour_jobs_list;
+
+  /// No description provided for @business_inner_tour_area_fees.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the additional travel fee for each service area. Leave unsupported areas without an active fee.'**
+  String get business_inner_tour_area_fees;
+
+  /// No description provided for @business_inner_tour_schedule_days.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a day to review and configure its availability.'**
+  String get business_inner_tour_schedule_days;
+
+  /// No description provided for @business_inner_tour_schedule_day_status.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark the selected day open or closed before editing its time slots.'**
+  String get business_inner_tour_schedule_day_status;
+
+  /// No description provided for @business_inner_tour_schedule_apply_week.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this only when the selected day\'s schedule should replace every other day in the week.'**
+  String get business_inner_tour_schedule_apply_week;
+
+  /// No description provided for @business_inner_tour_schedule_slots.
+  ///
+  /// In en, this message translates to:
+  /// **'Add and edit the booking time slots available on the selected day.'**
+  String get business_inner_tour_schedule_slots;
+
+  /// No description provided for @business_inner_tour_schedule_save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save the complete weekly schedule after reviewing every day.'**
+  String get business_inner_tour_schedule_save;
+
+  /// No description provided for @business_inner_tour_car_wash_sections.
+  ///
+  /// In en, this message translates to:
+  /// **'Move between reusable packages, vehicle assignments, and delivery fees by area.'**
+  String get business_inner_tour_car_wash_sections;
+
+  /// No description provided for @business_inner_tour_car_wash_package_editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Create package details here. Next, assign saved packages to vehicle types and configure area fees.'**
+  String get business_inner_tour_car_wash_package_editor;
+
   /// No description provided for @requests.
   ///
   /// In en, this message translates to:
@@ -2398,6 +2632,522 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Price'**
   String get chat_price;
+
+  /// No description provided for @car_wash_configuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Car Wash Configuration'**
+  String get car_wash_configuration;
+
+  /// No description provided for @car_wash_pricing.
+  ///
+  /// In en, this message translates to:
+  /// **'Car Wash Pricing'**
+  String get car_wash_pricing;
+
+  /// No description provided for @car_wash_packages_and_pricing.
+  ///
+  /// In en, this message translates to:
+  /// **'Packages, Vehicles & Fees'**
+  String get car_wash_packages_and_pricing;
+
+  /// No description provided for @car_wash_packages.
+  ///
+  /// In en, this message translates to:
+  /// **'Packages'**
+  String get car_wash_packages;
+
+  /// No description provided for @car_wash_packages_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Create each package once with its duration and optional booking hours, then assign it to every supported vehicle type.'**
+  String get car_wash_packages_hint;
+
+  /// No description provided for @car_wash_vehicle_assignments.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle Types'**
+  String get car_wash_vehicle_assignments;
+
+  /// No description provided for @car_wash_vehicle_assignments_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which reusable packages are offered for each vehicle type.'**
+  String get car_wash_vehicle_assignments_hint;
+
+  /// No description provided for @car_wash_area_fees.
+  ///
+  /// In en, this message translates to:
+  /// **'Area Fees'**
+  String get car_wash_area_fees;
+
+  /// No description provided for @car_wash_area_fees_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Set an optional delivery fee for each service area.'**
+  String get car_wash_area_fees_hint;
+
+  /// No description provided for @car_wash_working_hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Car Wash Availability'**
+  String get car_wash_working_hours;
+
+  /// No description provided for @vehicle_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle Type'**
+  String get vehicle_type;
+
+  /// No description provided for @package_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Package'**
+  String get package_label;
+
+  /// No description provided for @save_working_hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Working Hours'**
+  String get save_working_hours;
+
+  /// No description provided for @pricing_saved_successfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Pricing saved successfully'**
+  String get pricing_saved_successfully;
+
+  /// No description provided for @working_hours_saved_successfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Working hours saved successfully'**
+  String get working_hours_saved_successfully;
+
+  /// No description provided for @no_car_wash_options.
+  ///
+  /// In en, this message translates to:
+  /// **'No car wash options available'**
+  String get no_car_wash_options;
+
+  /// No description provided for @start_time.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Time'**
+  String get start_time;
+
+  /// No description provided for @end_time.
+  ///
+  /// In en, this message translates to:
+  /// **'End Time'**
+  String get end_time;
+
+  /// No description provided for @car_wash_description_en.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (English)'**
+  String get car_wash_description_en;
+
+  /// No description provided for @car_wash_description_ar.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (Arabic)'**
+  String get car_wash_description_ar;
+
+  /// No description provided for @add_car_wash_package.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Package'**
+  String get add_car_wash_package;
+
+  /// No description provided for @remove_package.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Package'**
+  String get remove_package;
+
+  /// No description provided for @no_vehicle_packages.
+  ///
+  /// In en, this message translates to:
+  /// **'No packages added for this vehicle type'**
+  String get no_vehicle_packages;
+
+  /// No description provided for @create_car_wash_package.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Package'**
+  String get create_car_wash_package;
+
+  /// No description provided for @edit_car_wash_package.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Package'**
+  String get edit_car_wash_package;
+
+  /// No description provided for @delete_car_wash_package.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Package'**
+  String get delete_car_wash_package;
+
+  /// No description provided for @delete_car_wash_package_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this package? It will no longer be available for any vehicle type.'**
+  String get delete_car_wash_package_message;
+
+  /// No description provided for @package_created_successfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Package created successfully'**
+  String get package_created_successfully;
+
+  /// No description provided for @package_updated_successfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Package updated successfully'**
+  String get package_updated_successfully;
+
+  /// No description provided for @package_deleted_successfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Package deleted successfully'**
+  String get package_deleted_successfully;
+
+  /// No description provided for @no_car_wash_packages.
+  ///
+  /// In en, this message translates to:
+  /// **'No packages created yet'**
+  String get no_car_wash_packages;
+
+  /// No description provided for @package_title_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the package title in English and Arabic'**
+  String get package_title_required;
+
+  /// No description provided for @invalid_discount_percentage.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount must be between 0 and 100'**
+  String get invalid_discount_percentage;
+
+  /// No description provided for @package_working_hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Package Availability'**
+  String get package_working_hours;
+
+  /// No description provided for @package_working_hours_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optionally add the days and time slots when this package can be booked.'**
+  String get package_working_hours_hint;
+
+  /// No description provided for @package_availability_not_set.
+  ///
+  /// In en, this message translates to:
+  /// **'No availability slots added'**
+  String get package_availability_not_set;
+
+  /// No description provided for @package_time_slots.
+  ///
+  /// In en, this message translates to:
+  /// **'time slots'**
+  String get package_time_slots;
+
+  /// No description provided for @package_duration_minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Package Duration'**
+  String get package_duration_minutes;
+
+  /// No description provided for @package_duration_minutes_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'How long one booking takes, in minutes'**
+  String get package_duration_minutes_hint;
+
+  /// No description provided for @duration_must_be_positive.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration must be greater than zero'**
+  String get duration_must_be_positive;
+
+  /// No description provided for @minutes_short.
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get minutes_short;
+
+  /// No description provided for @add_time_slot.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Time Slot'**
+  String get add_time_slot;
+
+  /// No description provided for @edit_time_slot.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Time Slot'**
+  String get edit_time_slot;
+
+  /// No description provided for @overlapping_time_slot.
+  ///
+  /// In en, this message translates to:
+  /// **'This time overlaps another slot on the same day'**
+  String get overlapping_time_slot;
+
+  /// No description provided for @save_package.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Package'**
+  String get save_package;
+
+  /// No description provided for @create_package_first.
+  ///
+  /// In en, this message translates to:
+  /// **'Create at least one package before assigning packages to vehicles.'**
+  String get create_package_first;
+
+  /// No description provided for @assign_packages_to_vehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the packages offered for this vehicle type'**
+  String get assign_packages_to_vehicle;
+
+  /// No description provided for @save_package_assignments.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Assignments'**
+  String get save_package_assignments;
+
+  /// No description provided for @package_assignments_saved_successfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle package assignments saved successfully'**
+  String get package_assignments_saved_successfully;
+
+  /// No description provided for @delivery_fee.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery Fee'**
+  String get delivery_fee;
+
+  /// No description provided for @fee_not_set.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get fee_not_set;
+
+  /// No description provided for @set_delivery_fee.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Delivery Fee'**
+  String get set_delivery_fee;
+
+  /// No description provided for @edit_delivery_fee.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Delivery Fee'**
+  String get edit_delivery_fee;
+
+  /// No description provided for @remove_delivery_fee.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Delivery Fee'**
+  String get remove_delivery_fee;
+
+  /// No description provided for @remove_delivery_fee_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the delivery fee for this area?'**
+  String get remove_delivery_fee_message;
+
+  /// No description provided for @fee_cannot_be_negative.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee cannot be negative'**
+  String get fee_cannot_be_negative;
+
+  /// No description provided for @area_fee_saved_successfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Area fee saved successfully'**
+  String get area_fee_saved_successfully;
+
+  /// No description provided for @area_fee_deleted_successfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Area fee removed successfully'**
+  String get area_fee_deleted_successfully;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
+  /// No description provided for @upholstery_configuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Furniture Cleaning Configuration'**
+  String get upholstery_configuration;
+
+  /// No description provided for @upholstery_pricing.
+  ///
+  /// In en, this message translates to:
+  /// **'Furniture Cleaning Pricing'**
+  String get upholstery_pricing;
+
+  /// No description provided for @upholstery_description_en.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (English)'**
+  String get upholstery_description_en;
+
+  /// No description provided for @upholstery_description_ar.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (Arabic)'**
+  String get upholstery_description_ar;
+
+  /// No description provided for @add_upholstery_package.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Package'**
+  String get add_upholstery_package;
+
+  /// No description provided for @no_upholstery_types.
+  ///
+  /// In en, this message translates to:
+  /// **'No furniture types are available'**
+  String get no_upholstery_types;
+
+  /// No description provided for @no_upholstery_packages.
+  ///
+  /// In en, this message translates to:
+  /// **'No packages added for this furniture type'**
+  String get no_upholstery_packages;
+
+  /// No description provided for @upholstery_size_pricing_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable each furniture type your company cleans, then set the price and optional discount for every size.'**
+  String get upholstery_size_pricing_hint;
+
+  /// No description provided for @offer_upholstery_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Offer cleaning for this furniture type'**
+  String get offer_upholstery_type;
+
+  /// No description provided for @no_upholstery_sizes.
+  ///
+  /// In en, this message translates to:
+  /// **'No sizes are configured for this furniture type'**
+  String get no_upholstery_sizes;
+
+  /// No description provided for @additional_upholstery_packages.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing additional packages'**
+  String get additional_upholstery_packages;
+
+  /// No description provided for @car_wash_service.
+  ///
+  /// In en, this message translates to:
+  /// **'Car Wash'**
+  String get car_wash_service;
+
+  /// No description provided for @car_wash_request_vehicles.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicles and Packages'**
+  String get car_wash_request_vehicles;
+
+  /// No description provided for @no_car_wash_vehicle_details.
+  ///
+  /// In en, this message translates to:
+  /// **'No vehicle details are available for this request.'**
+  String get no_car_wash_vehicle_details;
+
+  /// No description provided for @original_order_total.
+  ///
+  /// In en, this message translates to:
+  /// **'Original order total'**
+  String get original_order_total;
+
+  /// No description provided for @create_extra_invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Create extra invoice'**
+  String get create_extra_invoice;
+
+  /// No description provided for @extra_invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra invoice'**
+  String get extra_invoice;
+
+  /// No description provided for @extra_invoice_amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra amount'**
+  String get extra_invoice_amount;
+
+  /// No description provided for @extra_invoice_reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get extra_invoice_reason;
+
+  /// No description provided for @extra_invoice_reason_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example, an additional service requested on site'**
+  String get extra_invoice_reason_hint;
+
+  /// No description provided for @extra_invoice_customer_payment_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the additional service amount and reason. The customer will receive an invoice to pay from the request details screen.'**
+  String get extra_invoice_customer_payment_hint;
+
+  /// No description provided for @extra_invoice_created_successfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra invoice created successfully'**
+  String get extra_invoice_created_successfully;
+
+  /// No description provided for @extra_invoice_amount_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount greater than zero'**
+  String get extra_invoice_amount_required;
+
+  /// No description provided for @extra_invoice_reason_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a reason for the extra invoice'**
+  String get extra_invoice_reason_required;
+
+  /// No description provided for @extra_invoice_payment_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for extra payment'**
+  String get extra_invoice_payment_pending;
+
+  /// No description provided for @extra_invoice_payment_pending_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer must pay this invoice from the request details screen before another one can be created.'**
+  String get extra_invoice_payment_pending_hint;
+
+  /// No description provided for @share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get share;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

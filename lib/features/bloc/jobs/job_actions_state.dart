@@ -1,5 +1,6 @@
 import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
 import 'package:cleaning_service_driver/data/models/profile/media_upload_response.dart';
+import 'package:cleaning_service_driver/data/models/requests/add_extra_fees_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
 import 'package:cleaning_service_driver/data/models/staff/team_model.dart';
 import 'package:equatable/equatable.dart';
@@ -85,4 +86,17 @@ class RequestFrequencyUpdated extends JobActionsState {
   const RequestFrequencyUpdated(this.response);
   @override
   List<Object> get props => [response];
+}
+
+class ExtraFeesAdded extends JobActionsState {
+  final AddExtraFeesRequest request;
+  final CleaningRequest? updatedRequest;
+
+  const ExtraFeesAdded({
+    required this.request,
+    this.updatedRequest,
+  });
+
+  @override
+  List<Object?> get props => [request, updatedRequest];
 }

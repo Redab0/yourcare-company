@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/date_time_picker_field.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
@@ -61,6 +62,9 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: const BusinessBackButton(
+          fallbackRouteName: 'staff-main-screen',
+        ),
         title: Text(context.l10n.employee_calendar),
       ),
       body: BlocConsumer<EmployeeCalendarBloc, EmployeeCalendarState>(
@@ -773,8 +777,9 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
               ? Text('-', style: Theme.of(context).textTheme.bodySmall)
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children:
-                      works.map((work) => _buildWorkCard(context, work)).toList(),
+                  children: works
+                      .map((work) => _buildWorkCard(context, work))
+                      .toList(),
                 ),
         ),
       ],

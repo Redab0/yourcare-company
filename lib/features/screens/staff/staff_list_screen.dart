@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/shimmer_box.dart';
 import 'package:cleaning_service_driver/components/user_profile_card.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
@@ -50,9 +51,8 @@ class _StaffListScreenState extends State<StaffListScreen>
           ),
         ),
         title: Text(context.l10n.staff_title),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, size: 28),
-          onPressed: () => Navigator.of(context).pop(),
+        leading: const BusinessBackButton(
+          fallbackRouteName: 'staff-main-screen',
         ),
       ),
       body: BlocConsumer<StaffBloc, StaffState>(
@@ -94,8 +94,10 @@ class _StaffListScreenState extends State<StaffListScreen>
                       if (idx < state.all.length) {
                         final user = state.all[idx];
                         return InkWell(
-                          onTap: () =>
-                              context.goNamed('userDetailsScreen', extra: user),
+                          onTap: () => context.pushNamed(
+                            'userDetailsScreen',
+                            extra: user,
+                          ),
                           child: UserProfileCard(user: user),
                         );
                       } else {

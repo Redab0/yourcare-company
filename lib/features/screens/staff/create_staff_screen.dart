@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/data/models/staff/assign_permission_model.dart';
 import 'package:cleaning_service_driver/data/models/staff/create_user_model.dart';
@@ -77,9 +78,8 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(context.l10n.create_user_title),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, size: 28),
-          onPressed: () => Navigator.of(context).pop(),
+        leading: const BusinessBackButton(
+          fallbackRouteName: 'staff-main-screen',
         ),
       ),
       body: BlocConsumer<StaffActionBloc, StaffActionState>(
@@ -288,8 +288,7 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
                             if (_formKey.currentState!.validate()) {
                               final selectedRole = UserRoleX.fromValue(_role);
                               if (selectedRole == null) return;
-                              final isCleaner =
-                                  selectedRole == UserRole.worker;
+                              final isCleaner = selectedRole == UserRole.worker;
                               setState(() {
                                 _saving = true;
                                 _pendingPermissionAssign =

@@ -1,16 +1,22 @@
+import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
-import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
+import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/data/models/schedule/cleaner_availability.dart';
 import 'package:cleaning_service_driver/features/bloc/schedule/employee_availability_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/schedule/employee_availability_event.dart';
 import 'package:cleaning_service_driver/features/bloc/schedule/employee_availability_state.dart';
+import 'package:cleaning_service_driver/features/onboarding/business_showcase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class EmployeeAvailabilityScreen extends StatefulWidget {
-  const EmployeeAvailabilityScreen({super.key});
+  final AvailabilityServiceType serviceType;
+
+  const EmployeeAvailabilityScreen({
+    super.key,
+    this.serviceType = AvailabilityServiceType.houseCleaning,
+  });
 
   @override
   State<EmployeeAvailabilityScreen> createState() =>
@@ -19,23 +25,52 @@ class EmployeeAvailabilityScreen extends StatefulWidget {
 
 class _EmployeeAvailabilityScreenState
     extends State<EmployeeAvailabilityScreen> {
-  String? _selectedEmployeeId;
+  String get _tourScope =>
+      'business_${widget.serviceType.apiValue}_availability_journey';
   int _selectedDayIndex = DateTime.now().weekday % 7;
   final Map<int, bool> _dayClosed = {};
+  final _daysTourKey = GlobalKey(debugLabel: 'availability-days-tour');
+  final _dayStatusTourKey = GlobalKey(debugLabel: 'availability-status-tour');
+  final _applyWeekTourKey =
+      GlobalKey(debugLabel: 'availability-apply-week-tour');
+  final _slotsTourKey = GlobalKey(debugLabel: 'availability-slots-tour');
+  final _saveTourKey = GlobalKey(debugLabel: 'availability-save-tour');
+  late final BusinessShowcaseTourController _tour;
+  String? _tourOwnerId;
+
+  List<GlobalKey> get _tourKeys => [
+        _daysTourKey,
+        _dayStatusTourKey,
+        _applyWeekTourKey,
+        _slotsTourKey,
+        _saveTourKey,
+      ];
 
   @override
   void initState() {
     super.initState();
-    context.read<EmployeeAvailabilityBloc>().add(const LoadAvailabilityData());
+    _tour = BusinessShowcaseTourController(scope: _tourScope);
+    SecureStorageService().getUser().then((user) {
+      if (!mounted) return;
+      setState(() => _tourOwnerId = businessShowcaseOwnerId(user));
+    });
+    context
+        .read<EmployeeAvailabilityBloc>()
+        .add(LoadAvailabilityData(widget.serviceType));
+  }
+
+  @override
+  void dispose() {
+    _tour.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.goNamed('housekeeping-main-screen'),
+        leading: BusinessBackButton(
+          fallbackRouteName: _parentRouteName,
         ),
         centerTitle: true,
         title: Column(
@@ -43,7 +78,8 @@ class _EmployeeAvailabilityScreenState
             Text(context.l10n.weekly_availability_title),
             const SizedBox(height: 2),
             Text(
-              context.l10n.fixed_schedule_management.toUpperCase(),
+              '${_serviceTitle(context)} · '
+              '${context.l10n.fixed_schedule_management.toUpperCase()}',
               style: Theme.of(context)
                   .textTheme
                   .labelSmall
@@ -52,6 +88,7 @@ class _EmployeeAvailabilityScreenState
           ],
         ),
         actions: [
+          BusinessShowcaseHelpButton(onPressed: () => _tour.start(_tourKeys)),
           IconButton(
             onPressed: _refresh,
             icon: const Icon(Icons.refresh),
@@ -67,6 +104,14 @@ class _EmployeeAvailabilityScreenState
         builder: (ctx, state) {
           if (state.isLoading && state.slots.isEmpty) {
             return const Center(child: CircularProgressIndicator());
+          }
+          final ownerId = _tourOwnerId;
+          if (ownerId != null) {
+            _tour.scheduleStartOnce(
+              ownerId: ownerId,
+              journeyId: '${widget.serviceType.apiValue}_availability',
+              keys: _tourKeys,
+            );
           }
           final daySlots = _slotsForSelectedDay(state.slots, _selectedDayIndex);
           final isClosed = _isDayClosed();
@@ -109,17 +154,39 @@ class _EmployeeAvailabilityScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _daySelector(),
+        _scheduleTourStep(
+          key: _daysTourKey,
+          title: context.l10n.weekly_availability_title,
+          description: context.l10n.business_inner_tour_schedule_days,
+          index: 0,
+          child: _daySelector(),
+        ),
         const SizedBox(height: 12),
         _infoBanner(),
         const SizedBox(height: 12),
-        _closedCard(isClosed),
+        _scheduleTourStep(
+          key: _dayStatusTourKey,
+          title: context.l10n.weekly_availability_title,
+          description: context.l10n.business_inner_tour_schedule_day_status,
+          index: 1,
+          child: _closedCard(isClosed),
+        ),
         const SizedBox(height: 12),
-        _applyToWeekButton(daySlots),
+        _scheduleTourStep(
+          key: _applyWeekTourKey,
+          title: context.l10n.weekly_availability_title,
+          description: context.l10n.business_inner_tour_schedule_apply_week,
+          index: 2,
+          child: _applyToWeekButton(daySlots),
+        ),
         const SizedBox(height: 16),
-        _timeSlotsSection(daySlots, isClosed),
-        const SizedBox(height: 24),
-        _employeesSection(state.employees),
+        _scheduleTourStep(
+          key: _slotsTourKey,
+          title: context.l10n.employee_availability,
+          description: context.l10n.business_inner_tour_schedule_slots,
+          index: 3,
+          child: _timeSlotsSection(daySlots, isClosed),
+        ),
         const SizedBox(height: 24),
       ],
     );
@@ -130,35 +197,41 @@ class _EmployeeAvailabilityScreenState
     List<CleanerAvailabilitySlot> daySlots,
     bool isClosed,
   ) {
-    return Row(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          flex: 3,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _daySelector(),
-              const SizedBox(height: 12),
-              _infoBanner(),
-              const SizedBox(height: 12),
-              _closedCard(isClosed),
-              const SizedBox(height: 12),
-              _applyToWeekButton(daySlots),
-              const SizedBox(height: 16),
-              _timeSlotsSection(daySlots, isClosed),
-            ],
-          ),
+        _scheduleTourStep(
+          key: _daysTourKey,
+          title: context.l10n.weekly_availability_title,
+          description: context.l10n.business_inner_tour_schedule_days,
+          index: 0,
+          child: _daySelector(),
         ),
-        const SizedBox(width: 24),
-        Expanded(
-          flex: 2,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _employeesSection(state.employees),
-            ],
-          ),
+        const SizedBox(height: 12),
+        _infoBanner(),
+        const SizedBox(height: 12),
+        _scheduleTourStep(
+          key: _dayStatusTourKey,
+          title: context.l10n.weekly_availability_title,
+          description: context.l10n.business_inner_tour_schedule_day_status,
+          index: 1,
+          child: _closedCard(isClosed),
+        ),
+        const SizedBox(height: 12),
+        _scheduleTourStep(
+          key: _applyWeekTourKey,
+          title: context.l10n.weekly_availability_title,
+          description: context.l10n.business_inner_tour_schedule_apply_week,
+          index: 2,
+          child: _applyToWeekButton(daySlots),
+        ),
+        const SizedBox(height: 16),
+        _scheduleTourStep(
+          key: _slotsTourKey,
+          title: context.l10n.employee_availability,
+          description: context.l10n.business_inner_tour_schedule_slots,
+          index: 3,
+          child: _timeSlotsSection(daySlots, isClosed),
         ),
       ],
     );
@@ -183,17 +256,6 @@ class _EmployeeAvailabilityScreenState
     );
   }
 
-  Widget _employeesSection(List<User> employees) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _assignedEmployeesHeader(employees.length),
-        const SizedBox(height: 12),
-        ...employees.map(_employeeRow),
-      ],
-    );
-  }
-
   Widget _buildBottomBar(BuildContext context) {
     final button = FilledButton.icon(
       onPressed: _refresh,
@@ -207,9 +269,36 @@ class _EmployeeAvailabilityScreenState
         heightFactor: 1,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1100),
-          child: SizedBox(width: double.infinity, child: button),
+          child: SizedBox(
+            width: double.infinity,
+            child: _scheduleTourStep(
+              key: _saveTourKey,
+              title: context.l10n.save_weekly_schedule,
+              description: context.l10n.business_inner_tour_schedule_save,
+              index: 4,
+              child: button,
+            ),
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _scheduleTourStep({
+    required GlobalKey key,
+    required String title,
+    required String description,
+    required int index,
+    required Widget child,
+  }) {
+    return BusinessShowcaseStep(
+      showcaseKey: key,
+      scope: _tourScope,
+      title: title,
+      description: description,
+      index: index,
+      itemCount: _tourKeys.length,
+      child: child,
     );
   }
 
@@ -252,7 +341,7 @@ class _EmployeeAvailabilityScreenState
                           color: Theme.of(context)
                               .colorScheme
                               .primary
-                              .withOpacity(0.2),
+                              .withValues(alpha: 0.2),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),
@@ -286,10 +375,10 @@ class _EmployeeAvailabilityScreenState
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -322,7 +411,7 @@ class _EmployeeAvailabilityScreenState
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: Colors.redAccent.withOpacity(0.15),
+                color: Colors.redAccent.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.block, color: Colors.redAccent, size: 18),
@@ -354,7 +443,7 @@ class _EmployeeAvailabilityScreenState
 
   Widget _applyToWeekButton(List<CleanerAvailabilitySlot> daySlots) {
     final dayLabel = _dayLabels(context)[_selectedDayIndex];
-    final isDisabled = _selectedEmployeeId != null || daySlots.isEmpty;
+    final isDisabled = daySlots.isEmpty;
     return OutlinedButton.icon(
       onPressed: isDisabled ? null : () => _applyDayToWeek(daySlots),
       icon: const Icon(Icons.copy),
@@ -384,71 +473,10 @@ class _EmployeeAvailabilityScreenState
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(context.l10n.no_services_day),
-    );
-  }
-
-  Widget _assignedEmployeesHeader(int count) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            context.l10n.assigned_employees,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-        ),
-        Text(
-          '$count ${context.l10n.total_label}',
-          style: Theme.of(context).textTheme.labelSmall,
-        ),
-      ],
-    );
-  }
-
-  Widget _employeeRow(User employee) {
-    final isActive = employee.id == _selectedEmployeeId;
-    final roleLabel = employee.role ?? context.l10n.employee;
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-              child: Icon(Icons.person,
-                  color: Theme.of(context).colorScheme.primary),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(_employeeLabel(employee),
-                      style: Theme.of(context).textTheme.bodyMedium),
-                  const SizedBox(height: 2),
-                  Text(
-                    '$roleLabel · ${context.l10n.available}',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-            ),
-            Switch(
-              value: isActive,
-              onChanged: (value) {
-                setState(() {
-                  _selectedEmployeeId = value ? employee.id : null;
-                });
-              },
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -469,7 +497,7 @@ class _EmployeeAvailabilityScreenState
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 6),
           ),
@@ -483,7 +511,10 @@ class _EmployeeAvailabilityScreenState
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.access_time,
@@ -533,16 +564,12 @@ class _EmployeeAvailabilityScreenState
         return _AvailabilitySheet(
           initial: existing,
           fixedDay: _selectedDayIndex,
+          serviceType: widget.serviceType,
         );
       },
     );
     if (result == null) return;
-    if (_selectedEmployeeId != null) {
-      context.read<EmployeeAvailabilityBloc>().add(
-            UpdateAvailabilitySlot(_selectedEmployeeId!, result),
-          );
-      return;
-    }
+    if (!mounted) return;
     final slotId = existing?.id;
     if (slotId != null) {
       context.read<EmployeeAvailabilityBloc>().add(
@@ -553,6 +580,9 @@ class _EmployeeAvailabilityScreenState
     context
         .read<EmployeeAvailabilityBloc>()
         .add(CreateAvailabilitySlot(result));
+    setState(() {
+      _dayClosed[result.dayOfWeek] = false;
+    });
   }
 
   Future<void> _confirmDelete(CleanerAvailabilitySlot slot) async {
@@ -574,20 +604,12 @@ class _EmployeeAvailabilityScreenState
       ),
     );
     if (result != true) return;
-    final id = _selectedEmployeeId ?? slot.id;
+    if (!mounted) return;
+    final id = slot.id;
     if (id == null) return;
-    context.read<EmployeeAvailabilityBloc>().add(DeleteAvailabilitySlot(id));
-  }
-
-  List<CleanerAvailabilitySlot> _filterSlots(
-    List<CleanerAvailabilitySlot> slots,
-  ) {
-    if (_selectedEmployeeId == null) {
-      return slots.where((slot) => slot.employeeId == null).toList();
-    }
-    return slots
-        .where((slot) => slot.employeeId == _selectedEmployeeId)
-        .toList();
+    context.read<EmployeeAvailabilityBloc>().add(
+          DeleteAvailabilitySlot(id, widget.serviceType),
+        );
   }
 
   List<String> _dayLabels(BuildContext context) => [
@@ -609,25 +631,17 @@ class _EmployeeAvailabilityScreenState
     return '${formatter.format(start)} - ${formatter.format(end)}';
   }
 
-  String _employeeLabel(User employee) {
-    return employee.username ??
-        employee.phone ??
-        employee.email ??
-        employee.id ??
-        '-';
-  }
-
   Future<void> _refresh() async {
-    context.read<EmployeeAvailabilityBloc>().add(const LoadAvailabilityData());
+    context
+        .read<EmployeeAvailabilityBloc>()
+        .add(LoadAvailabilityData(widget.serviceType));
   }
 
   List<CleanerAvailabilitySlot> _slotsForSelectedDay(
     List<CleanerAvailabilitySlot> slots,
     int dayIndex,
   ) {
-    final filtered = _filterSlots(slots);
-    final daySlots =
-        filtered.where((slot) => slot.dayOfWeek == dayIndex).toList();
+    final daySlots = slots.where((slot) => slot.dayOfWeek == dayIndex).toList();
     daySlots.sort((a, b) => (a.startHour ?? 0).compareTo(b.startHour ?? 0));
     return daySlots;
   }
@@ -640,32 +654,62 @@ class _EmployeeAvailabilityScreenState
     setState(() {
       _dayClosed[_selectedDayIndex] = value;
     });
+    if (value) {
+      context.read<EmployeeAvailabilityBloc>().add(
+            ReplaceAvailabilityDays(
+              serviceType: widget.serviceType,
+              scheduleByDay: {_selectedDayIndex: const []},
+            ),
+          );
+    }
   }
 
   void _applyDayToWeek(List<CleanerAvailabilitySlot> daySlots) {
     if (daySlots.isEmpty) return;
-    final bloc = context.read<EmployeeAvailabilityBloc>();
-    final existingSlots = _filterSlots(bloc.state.slots);
-    for (var day = 0; day < 7; day++) {
-      if (day == _selectedDayIndex) continue;
-      for (final slot in daySlots) {
-        final exists = existingSlots.any((s) =>
-            s.dayOfWeek == day &&
-            s.startHour == slot.startHour &&
-            s.endHour == slot.endHour);
-        if (exists) continue;
-        bloc.add(
-          CreateAvailabilitySlot(
-            CleanerAvailabilityRequest(
+    final sourceSlots = daySlots
+        .where((slot) => slot.startHour != null && slot.endHour != null)
+        .toList();
+    if (sourceSlots.isEmpty) return;
+    const weekDays = [0, 1, 2, 3, 4, 5, 6];
+    final scheduleByDay = <int, List<CleanerAvailabilityRequest>>{};
+    for (final day in weekDays) {
+      scheduleByDay[day] = sourceSlots
+          .map(
+            (slot) => CleanerAvailabilityRequest(
               dayOfWeek: day,
-              startHour: slot.startHour ?? 0,
-              endHour: slot.endHour ?? 0,
+              startHour: slot.startHour!,
+              endHour: slot.endHour!,
               totalCleaners: slot.totalCleaners ?? 1,
+              serviceType: widget.serviceType,
             ),
-          ),
-        );
-      }
+          )
+          .toList();
     }
+    setState(() {
+      for (final day in weekDays) {
+        _dayClosed[day] = false;
+      }
+    });
+    context.read<EmployeeAvailabilityBloc>().add(ReplaceAvailabilityDays(
+          serviceType: widget.serviceType,
+          scheduleByDay: scheduleByDay,
+        ));
+  }
+
+  String get _parentRouteName => switch (widget.serviceType) {
+        AvailabilityServiceType.houseCleaning => 'housekeeping-main-screen',
+        AvailabilityServiceType.carWash => 'car-wash-main-screen',
+        AvailabilityServiceType.upholsteryCleaning =>
+          'upholstery-configuration-screen',
+      };
+
+  String _serviceTitle(BuildContext context) {
+    return switch (widget.serviceType) {
+      AvailabilityServiceType.houseCleaning => context.l10n.house_keeping_title,
+      AvailabilityServiceType.carWash => context.l10n.car_wash_service,
+      AvailabilityServiceType.upholsteryCleaning =>
+        context.l10n.upholstery_cleaning,
+    };
   }
 
   String _slotLabel(int startHour) {
@@ -682,8 +726,13 @@ class _EmployeeAvailabilityScreenState
 class _AvailabilitySheet extends StatefulWidget {
   final CleanerAvailabilitySlot? initial;
   final int? fixedDay;
+  final AvailabilityServiceType serviceType;
 
-  const _AvailabilitySheet({this.initial, this.fixedDay});
+  const _AvailabilitySheet({
+    this.initial,
+    this.fixedDay,
+    required this.serviceType,
+  });
 
   @override
   State<_AvailabilitySheet> createState() => _AvailabilitySheetState();
@@ -742,7 +791,7 @@ class _AvailabilitySheetState extends State<_AvailabilitySheet> {
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<int>(
-            value: _dayOfWeek,
+            initialValue: _dayOfWeek,
             decoration:
                 InputDecoration(labelText: context.l10n.day_of_week_label),
             items: dayOrder
@@ -765,10 +814,10 @@ class _AvailabilitySheetState extends State<_AvailabilitySheet> {
             children: [
               Expanded(
                 child: DropdownButtonFormField<int>(
-                  value: _startHour,
+                  initialValue: _startHour,
                   decoration:
                       InputDecoration(labelText: context.l10n.start_hour_label),
-                  items: _hourItems(context),
+                  items: _hourItems(context, minHour: 0, maxHour: 23),
                   onChanged: (value) {
                     if (value == null) return;
                     setState(() => _startHour = value);
@@ -778,10 +827,10 @@ class _AvailabilitySheetState extends State<_AvailabilitySheet> {
               const SizedBox(width: 12),
               Expanded(
                 child: DropdownButtonFormField<int>(
-                  value: _endHour,
+                  initialValue: _endHour,
                   decoration:
                       InputDecoration(labelText: context.l10n.end_hour_label),
-                  items: _hourItems(context),
+                  items: _hourItems(context, minHour: 1, maxHour: 24),
                   onChanged: (value) {
                     if (value == null) return;
                     setState(() => _endHour = value);
@@ -808,15 +857,22 @@ class _AvailabilitySheetState extends State<_AvailabilitySheet> {
     );
   }
 
-  List<DropdownMenuItem<int>> _hourItems(BuildContext context) {
+  List<DropdownMenuItem<int>> _hourItems(
+    BuildContext context, {
+    required int minHour,
+    required int maxHour,
+  }) {
     final locale = Localizations.localeOf(context).toLanguageTag();
     final formatter = DateFormat.jm(locale);
     return List.generate(
-      24,
-      (hour) => DropdownMenuItem<int>(
-        value: hour,
-        child: Text(formatter.format(DateTime(2025, 1, 1, hour))),
-      ),
+      maxHour - minHour + 1,
+      (index) {
+        final hour = minHour + index;
+        return DropdownMenuItem<int>(
+          value: hour,
+          child: Text(formatter.format(DateTime(2025, 1, 1, hour))),
+        );
+      },
     );
   }
 
@@ -841,6 +897,7 @@ class _AvailabilitySheetState extends State<_AvailabilitySheet> {
         startHour: _startHour,
         endHour: _endHour,
         totalCleaners: totalCleaners,
+        serviceType: widget.serviceType,
       ),
     );
   }

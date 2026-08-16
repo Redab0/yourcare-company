@@ -1,14 +1,16 @@
+import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
+import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/data/models/housekeeping/housekeeping_service_frequency_option.dart';
 import 'package:cleaning_service_driver/data/models/housekeeping/housekeeping_pricing.dart';
 import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
 import 'package:cleaning_service_driver/features/bloc/housekeeping/housekeeping_pricing_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/housekeeping/housekeeping_pricing_event.dart';
 import 'package:cleaning_service_driver/features/bloc/housekeeping/housekeeping_pricing_state.dart';
+import 'package:cleaning_service_driver/features/onboarding/business_showcase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class HousekeepingConfigurationScreen extends StatefulWidget {
@@ -21,7 +23,13 @@ class HousekeepingConfigurationScreen extends StatefulWidget {
 
 class _HousekeepingConfigurationScreenState
     extends State<HousekeepingConfigurationScreen> {
+  static const _tourScope = 'business_housekeeping_pricing_journey';
   static const double _feeStep = 0.5;
+  final _pricingTourKey =
+      GlobalKey(debugLabel: 'housekeeping-price-editor-tour');
+  final _areaFeesTourKey = GlobalKey(debugLabel: 'housekeeping-area-fees-tour');
+  late final BusinessShowcaseTourController _tour;
+  String? _tourOwnerId;
   final _basePriceController = TextEditingController();
   final _basePriceFocus = FocusNode();
   final _cleaningProductsController = TextEditingController();
@@ -35,11 +43,17 @@ class _HousekeepingConfigurationScreenState
   @override
   void initState() {
     super.initState();
+    _tour = BusinessShowcaseTourController(scope: _tourScope);
+    SecureStorageService().getUser().then((user) {
+      if (!mounted) return;
+      setState(() => _tourOwnerId = businessShowcaseOwnerId(user));
+    });
     context.read<HousekeepingPricingBloc>().add(const LoadHousekeepingConfig());
   }
 
   @override
   void dispose() {
+    _tour.dispose();
     _basePriceController.dispose();
     _basePriceFocus.dispose();
     _cleaningProductsController.dispose();
@@ -228,12 +242,17 @@ class _HousekeepingConfigurationScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.goNamed('housekeeping-main-screen'),
+        leading: const BusinessBackButton(
+          fallbackRouteName: 'housekeeping-main-screen',
         ),
         title: Text(context.l10n.housekeeping_configuration),
         actions: [
+          BusinessShowcaseHelpButton(
+            onPressed: () => _tour.start([
+              _pricingTourKey,
+              _areaFeesTourKey,
+            ]),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _refresh,
@@ -261,6 +280,14 @@ class _HousekeepingConfigurationScreenState
               if (state.isLoading && state.areas.isEmpty) {
                 return const Center(child: CircularProgressIndicator());
               }
+              final ownerId = _tourOwnerId;
+              if (ownerId != null) {
+                _tour.scheduleStartOnce(
+                  ownerId: ownerId,
+                  journeyId: 'housekeeping_pricing',
+                  keys: [_pricingTourKey, _areaFeesTourKey],
+                );
+              }
               _syncBasePriceText(state.basePrice);
               _syncCleaningProductsText(state.cleaningProductsPrice);
               _syncMultipleOptionTexts(state);
@@ -271,9 +298,26 @@ class _HousekeepingConfigurationScreenState
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(16),
                   children: [
-                    _pricingSection(state),
+                    BusinessShowcaseStep(
+                      showcaseKey: _pricingTourKey,
+                      scope: _tourScope,
+                      title: context.l10n.housekeeping_pricing,
+                      description:
+                          context.l10n.business_inner_tour_housekeeping_pricing,
+                      index: 0,
+                      itemCount: 2,
+                      child: _pricingSection(state),
+                    ),
                     const SizedBox(height: 24),
-                    _areaFeesSection(state),
+                    BusinessShowcaseStep(
+                      showcaseKey: _areaFeesTourKey,
+                      scope: _tourScope,
+                      title: context.l10n.housekeeping_area_fees,
+                      description: context.l10n.business_inner_tour_area_fees,
+                      index: 1,
+                      itemCount: 2,
+                      child: _areaFeesSection(state),
+                    ),
                     const SizedBox(height: 24),
                   ],
                 ),

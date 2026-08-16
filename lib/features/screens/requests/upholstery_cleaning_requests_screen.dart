@@ -1,4 +1,4 @@
-import 'package:cleaning_service_driver/components/date_time_picker_field.dart';
+import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/media_carousel_viewer.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../../components/cleaning_item_summary_card.dart';
 
@@ -31,7 +30,6 @@ class _UpholsteryCleaningRequestState
   final _descriptionController = TextEditingController();
   double? _bidAmount;
   String? _selectedTimelineHours;
-  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -116,6 +114,7 @@ class _UpholsteryCleaningRequestState
   Widget build(BuildContext context) {
     final details = widget.request;
     final items = widget.request.upholsteryCleaning.items;
+    final specialNotes = widget.request.customerSpecialNotes;
     final effectiveRequestId = widget.request.id;
     final canChat = (widget.request.requestStatus == RequestStatus.confirmed ||
             widget.request.requestStatus == RequestStatus.inProgress) &&
@@ -141,6 +140,9 @@ class _UpholsteryCleaningRequestState
             },
             child: Scaffold(
               appBar: AppBar(
+                leading: const BusinessBackButton(
+                  fallbackRouteName: 'requests-main-screen',
+                ),
                 title: Text(context.l10n.request_details_label),
               ),
               body: SafeArea(
@@ -197,64 +199,14 @@ class _UpholsteryCleaningRequestState
                     _title(context.l10n.address),
                     Text(details.upholsteryCleaning.fullAddress,
                         style: Theme.of(context).textTheme.bodyLarge),
-                    const SizedBox(height: 32),
-                    _title(context.l10n.request_card_schedule),
-                    details.scheduledTime == null
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(context.l10n.as_soon_as_possible,
-                                  style: Theme.of(context).textTheme.bodyLarge),
-                              const SizedBox(height: 32),
-                              Text(
-                                context.l10n.expected_time,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
-                                    ?.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 16),
-                              DateTimePickerField(
-                                label: context.l10n.date,
-                                value: _selectedDate == null
-                                    ? ''
-                                    : DateFormat(
-                                            'EEEE, MMM d, y',
-                                            Localizations.localeOf(context)
-                                                .toLanguageTag())
-                                        .format(_selectedDate!),
-                                icon: Icons.calendar_today,
-                                hintText: context.l10n.date,
-                                onTap: () async {
-                                  final now = DateTime.now();
-                                  final today =
-                                      DateTime(now.year, now.month, now.day);
-                                  final firstDate = now.hour >= 13
-                                      ? today.add(const Duration(days: 1))
-                                      : today;
-                                  final initial = (_selectedDate ?? firstDate)
-                                          .isBefore(firstDate)
-                                      ? firstDate
-                                      : (_selectedDate ?? firstDate);
-                                  final picked = await showDatePicker(
-                                    context: context,
-                                    initialDate: initial,
-                                    firstDate: firstDate,
-                                    lastDate:
-                                        firstDate.add(const Duration(days: 90)),
-                                  );
-                                  if (picked != null) {
-                                    setState(() => _selectedDate = picked);
-                                  }
-                                },
-                              ),
-                            ],
-                          )
-                        : Text(
-                            DateFormat.yMMMd().add_jm().format(
-                                  details.scheduledTime!,
-                                ),
-                            style: Theme.of(context).textTheme.bodyLarge),
+                    if (specialNotes != null) ...[
+                      const SizedBox(height: 32),
+                      _title(context.l10n.request_card_notes),
+                      Text(
+                        specialNotes,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ],
                     const SizedBox(height: 24),
                     TextField(
                       minLines: 4,
@@ -335,7 +287,7 @@ class _UpholsteryCleaningRequestState
                               : () {
                                   context.read<RequestsActionBloc>().add(
                                         SubmitUpholsteryOffer(
-                                          _composeNotes(context),
+                                          _composeNotes(),
                                           double.parse(_amountController.text),
                                           widget.request.id ?? '',
                                           _selectedTimelineHours!,
@@ -391,16 +343,5 @@ class _UpholsteryCleaningRequestState
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
       );
 
-  String _composeNotes(BuildContext context) {
-    final parts = <String>[];
-    if (_selectedDate != null) {
-      final formatted = DateFormat(
-              'EEEE, MMM d, y', Localizations.localeOf(context).toLanguageTag())
-          .format(_selectedDate!);
-      parts.add('Preferred date: $formatted');
-    }
-    final note = _descriptionController.text.trim();
-    if (note.isNotEmpty) parts.add(note);
-    return parts.join('\n');
-  }
+  String _composeNotes() => _descriptionController.text.trim();
 }

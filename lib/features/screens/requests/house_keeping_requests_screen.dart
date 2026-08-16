@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/detail_row.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
@@ -103,6 +104,9 @@ class _HouseKeepingRequestScreenState extends State<HouseKeepingRequestScreen> {
       builder: (ctx, state) {
         return Scaffold(
           appBar: AppBar(
+            leading: const BusinessBackButton(
+              fallbackRouteName: 'requests-main-screen',
+            ),
             title: Text(context.l10n.request_details_label),
           ),
           body: SafeArea(

@@ -1,12 +1,14 @@
 import 'dart:io';
 
+import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/contact_actions.dart';
 import 'package:cleaning_service_driver/components/detail_row.dart';
+import 'package:cleaning_service_driver/components/extra_invoice.dart';
 import 'package:cleaning_service_driver/components/media_carousel_viewer.dart';
-import 'package:cleaning_service_driver/components/open_map_action.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
+import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/complete_job_media_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/deep_cleaning_history.dart';
 import 'package:cleaning_service_driver/data/models/staff/team_model.dart';
@@ -77,6 +79,24 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
     }
   }
 
+  Future<void> _showExtraInvoiceDialog() async {
+    final id = _currentRequest.id;
+    if (!_currentRequest.canCreateExtraInvoice ||
+        _currentRequest.awaitingExtraPayment ||
+        id == null ||
+        id.isEmpty) {
+      return;
+    }
+
+    final request = await showExtraInvoiceDialog(context);
+    if (!mounted || request == null) return;
+    if (!_currentRequest.canCreateExtraInvoice ||
+        _currentRequest.awaitingExtraPayment) {
+      return;
+    }
+    context.read<JobActionsBloc>().add(AddExtraFeesEvent(id, request));
+  }
+
   Future<void> openMediaCarousel(BuildContext context, List<String> urls,
       {int initialIndex = 0}) {
     return showDialog(
@@ -112,13 +132,9 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
   Future<void> _shareDetails() async {
     final req = _currentRequest;
     final d = req.detail;
+    final specialNotes = req.customerSpecialNotes;
     final name = req.customer.username?.trim();
     final phone = req.customer.phone?.trim();
-    final lat = d.address?.latitude;
-    final lng = d.address?.longitude;
-    final mapUrl = (lat != null && lng != null)
-        ? 'https://www.google.com/maps/search/?api=1&query=$lat,$lng'
-        : null;
     final lines = <String>[
       '==============================',
       'Deep Cleaning / التنظيف العميق',
@@ -134,9 +150,6 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
       'Customer Name / اسم العميل: ${(name == null || name.isEmpty) ? '-' : name}',
       'Customer Phone / رقم العميل: ${(phone == null || phone.isEmpty) ? '-' : phone}',
       '',
-      '--- Location / الموقع ---',
-      'Google Maps: ${mapUrl ?? '-'}',
-      '',
       '--- Job Details / تفاصيل الطلب ---',
       'Number of floors / عدد الطوابق: ${d.numberOfFloors}',
       'Bedrooms / غرف النوم: ${d.bedrooms}',
@@ -144,6 +157,19 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
       'Kitchen / المطبخ: ${d.kitchens}',
       'Living Room / غرفة المعيشة: ${d.livingRooms}',
     ];
+    if (specialNotes != null) {
+      lines.add('Special Notes / ملاحظات خاصة: $specialNotes');
+    }
+    if ((req.extraFees ?? 0) > 0) {
+      lines.add(
+        'Extra invoice / الفاتورة الإضافية: ${RequestFmt.price(req.extraFees)}',
+      );
+    }
+    if (req.extraFeesDescription?.isNotEmpty ?? false) {
+      lines.add(
+        'Extra invoice reason / سبب الفاتورة الإضافية: ${req.extraFeesDescription}',
+      );
+    }
     await Share.share(lines.join('\n'));
   }
 
@@ -175,13 +201,11 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final d = widget.request.detail;
+    final d = _currentRequest.detail;
     final propertyType = d.propertyTypeTitle.toLowerCase();
     final isHouse =
         propertyType.contains('house') || propertyType.contains('منزل');
-    final hasNotes =
-        (widget.request.detail.additionalInformation?.trim().isNotEmpty ??
-            false);
+    final specialNotes = _currentRequest.customerSpecialNotes;
     final canChat = (_currentRequest.requestStatus == RequestStatus.confirmed ||
             _currentRequest.requestStatus == RequestStatus.inProgress) &&
         ((_currentRequest.id ?? '').isNotEmpty);
@@ -190,6 +214,21 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
       listener: (ctx, state) {
         if (state is OfferSubmitted) {
           context.goNamed('deepCleaningSuccess');
+        } else if (state is ExtraFeesAdded) {
+          setState(() {
+            _currentRequest = resolveExtraInvoiceResult<DeepCleaningHistory>(
+              currentRequest: _currentRequest,
+              submittedRequest: state.request,
+              updatedRequest: state.updatedRequest,
+            );
+          });
+          context.read<JobBloc>().add(LoadJobsEvent());
+          _maybeRefreshRequests();
+          ScaffoldMessenger.of(ctx).showSnackBar(
+            SnackBar(
+              content: Text(context.l10n.extra_invoice_created_successfully),
+            ),
+          );
         } else if (state is JobActionFailed) {
           ctx.showErrorToast();
         } else if (state is TeamsFetchedState) {
@@ -242,6 +281,9 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
       builder: (ctx, state) {
         return Scaffold(
           appBar: AppBar(
+            leading: const BusinessBackButton(
+              fallbackRouteName: 'jobs-main-screen',
+            ),
             title: Text('#${widget.request.id}'),
             actions: [
               IconButton(
@@ -327,26 +369,17 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
                     _buildSection(
                       expanded: false,
                       title: context.l10n.address,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          DetailRow(context.l10n.request_full_location,
-                              d.fullAddress),
-                          DetailWidgetRow(
-                              context.l10n.request_location,
-                              OpenMapAction(
-                                  latitude: d.address!.latitude ?? 0.0,
-                                  longitude: d.address!.longitude ?? 0.0))
-                        ],
-                      ),
+                      child: DetailRow(
+                          context.l10n.request_full_location, d.fullAddress),
                     ),
-                  if (hasNotes)
+                  if (specialNotes != null)
                     _buildSection(
                       expanded: false,
                       title: context.l10n.request_card_notes,
-                      child: Text(d.additionalInformation!,
+                      child: Text(specialNotes,
                           style: Theme.of(context).textTheme.bodyLarge),
                     ),
+                  ExtraInvoiceStatusCard(request: _currentRequest),
                   Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -552,6 +585,12 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            ExtraInvoiceActionButton(
+                              request: _currentRequest,
+                              onPressed: _showExtraInvoiceDialog,
+                            ),
+                            if (_currentRequest.canCreateExtraInvoice)
+                              const SizedBox(height: 12),
                             if (canChat) ...[
                               SizedBox(
                                 width: double.infinity,

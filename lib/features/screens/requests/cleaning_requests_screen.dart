@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/cleaning_job_card.dart';
 import 'package:cleaning_service_driver/components/deep_cleaning_request_card.dart';
 import 'package:cleaning_service_driver/components/shimmer_box.dart';
@@ -7,6 +8,7 @@ import 'package:cleaning_service_driver/components/upholstery_cleaning_request_c
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/themes/app_theme.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
+import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/deep_cleaning_history.dart';
 import 'package:cleaning_service_driver/data/models/requests/house_keeping_history.dart';
@@ -14,6 +16,7 @@ import 'package:cleaning_service_driver/data/models/requests/upholstery_cleaning
 import 'package:cleaning_service_driver/features/bloc/requests/requests_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_event.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_state.dart';
+import 'package:cleaning_service_driver/features/onboarding/business_showcase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -27,13 +30,26 @@ class RequestsScreen extends StatefulWidget {
 }
 
 class _RequestsScreenState extends State<RequestsScreen> {
+  static const _tourScope = 'business_requests_journey';
+  final _requestsTourKey = GlobalKey(debugLabel: 'requests-list-tour');
   final _scrollCtrl = ScrollController();
+  late final BusinessShowcaseTourController _tour;
   late Timer _autoRefreshTimer;
   bool _hidePriceForWorker = false;
 
   @override
   void initState() {
     super.initState();
+    _tour = BusinessShowcaseTourController(scope: _tourScope);
+    SecureStorageService().getUser().then((user) {
+      final ownerId = businessShowcaseOwnerId(user);
+      if (ownerId == null) return;
+      _tour.scheduleStartOnce(
+        ownerId: ownerId,
+        journeyId: 'requests',
+        keys: [_requestsTourKey],
+      );
+    });
     _loadRole();
     context.read<RequestsBloc>().add(FetchFirstPageRequests());
 
@@ -68,6 +84,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
 
   @override
   void dispose() {
+    _tour.dispose();
     _autoRefreshTimer.cancel();
     _scrollCtrl.dispose();
     super.dispose();
@@ -77,8 +94,12 @@ class _RequestsScreenState extends State<RequestsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: const BusinessBackButton(fallbackRouteName: 'home'),
         title: Text(context.l10n.requests_all_requests),
         actions: [
+          BusinessShowcaseHelpButton(
+            onPressed: () => _tour.start([_requestsTourKey]),
+          ),
           IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: () {
@@ -107,14 +128,22 @@ class _RequestsScreenState extends State<RequestsScreen> {
                 constraints: BoxConstraints(maxWidth: maxWidth),
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: horizontal),
-                  child: _buildPaginatedList(
-                    state.all,
-                    hasMore: state.hasMoreAll,
-                    isLoading: state.isLoadingAll,
-                    onLoadMore: () => context
-                        .read<RequestsBloc>()
-                        .add(FetchNextPageRequests()),
-                    hidePriceForWorker: _hidePriceForWorker,
+                  child: BusinessShowcaseStep(
+                    showcaseKey: _requestsTourKey,
+                    scope: _tourScope,
+                    title: context.l10n.requests_all_requests,
+                    description: context.l10n.business_inner_tour_requests,
+                    index: 0,
+                    itemCount: 1,
+                    child: _buildPaginatedList(
+                      state.all,
+                      hasMore: state.hasMoreAll,
+                      isLoading: state.isLoadingAll,
+                      onLoadMore: () => context
+                          .read<RequestsBloc>()
+                          .add(FetchNextPageRequests()),
+                      hidePriceForWorker: _hidePriceForWorker,
+                    ),
                   ),
                 ),
               ),
@@ -158,16 +187,18 @@ class _RequestsScreenState extends State<RequestsScreen> {
               request: req,
               area: _areaForRequest(req),
               summaryLabel: _summaryLabel(req, context),
-              summaryDate: req.scheduledTime == null
-                  ? context.l10n.as_soon_as_possible
-                  : req.type == 'houseCleaning'
-                      ? DateFormat.yMMMd(
-                              Localizations.localeOf(context).toLanguageTag())
-                          .add_jm()
-                          .format(req.scheduledTime!)
-                      : DateFormat.yMMMd(
-                              Localizations.localeOf(context).toLanguageTag())
-                          .format(req.scheduledTime!),
+              summaryDate: req.showsScheduleInBusinessApp
+                  ? req.scheduledTime == null
+                      ? context.l10n.as_soon_as_possible
+                      : req.type == 'houseCleaning'
+                          ? DateFormat.yMMMd(Localizations.localeOf(context)
+                                  .toLanguageTag())
+                              .add_jm()
+                              .format(req.scheduledTime!)
+                          : DateFormat.yMMMd(Localizations.localeOf(context)
+                                  .toLanguageTag())
+                              .format(req.scheduledTime!)
+                  : null,
               summaryPrice: "",
               pillColor: _pillColorFor(req),
               child: _buildRequestCard(
@@ -221,38 +252,38 @@ Widget _buildRequestCard(
   final type = req.type?.toLowerCase() ?? '';
   if (type == 'deepcleaning') {
     return InkWell(
-      onTap: () => context.goNamed('deepCleaning', extra: req),
+      onTap: () => context.pushNamed('deepCleaning', extra: req),
       child: DeepCleaningRequestCard(
         request: req as DeepCleaningHistory,
         padding: EdgeInsets.zero,
         onSubmitBid: () {
-          context.goNamed('deepCleaning', extra: req);
+          context.pushNamed('deepCleaning', extra: req);
         },
       ),
     );
   }
   if (type == 'upholsterycleaning') {
     return InkWell(
-      onTap: () => context.goNamed('upholsteryCleaning', extra: req),
+      onTap: () => context.pushNamed('upholsteryCleaning', extra: req),
       child: UpholsteryCleaningRequestCard(
         request: req as UpholsteryCleaningHistory,
         padding: EdgeInsets.zero,
         onSubmitBid: () {
-          context.goNamed('upholsteryCleaning', extra: req);
+          context.pushNamed('upholsteryCleaning', extra: req);
         },
       ),
     );
   }
   return InkWell(
     onTap: () {
-      context.goNamed('houseKeeping', extra: req);
+      context.pushNamed('houseKeeping', extra: req);
     },
     child: CleaningJobCard(
       request: req as HouseKeepingHistory,
       padding: EdgeInsets.zero,
       hidePrice: hidePriceForWorker,
       onAccept: () {
-        context.goNamed('houseKeeping', extra: req);
+        context.pushNamed('houseKeeping', extra: req);
       },
     ),
   );
@@ -354,17 +385,15 @@ class _ExpandableRequestItemState extends State<_ExpandableRequestItem> {
                         overflow: TextOverflow.ellipsis,
                         style: TextTheme.of(context).titleMedium,
                       ),
-                      SizedBox(
-                        height: 4,
-                      ),
-                      Text(
-                        textAlign: TextAlign.end,
-                        widget.summaryDate ?? context.l10n.as_soon_as_possible,
-                        style: TextTheme.of(context).titleMedium,
-                      ),
-                      SizedBox(
-                        height: 4,
-                      ),
+                      if (widget.summaryDate?.isNotEmpty == true) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          widget.summaryDate!,
+                          textAlign: TextAlign.end,
+                          style: TextTheme.of(context).titleMedium,
+                        ),
+                      ],
+                      const SizedBox(height: 4),
                       AnimatedCrossFade(
                         firstChild: const SizedBox.shrink(),
                         secondChild: Padding(

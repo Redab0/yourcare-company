@@ -6,6 +6,7 @@ import 'package:cleaning_service_driver/core/utils/locale_cubit.dart';
 import 'package:cleaning_service_driver/data/repositories/auth/auth_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/auto_bid/auto_bid_categories_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/auto_bid/auto_bid_config_repository.dart';
+import 'package:cleaning_service_driver/data/repositories/car_wash/car_wash_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/housekeeping/housekeeping_pricing_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/home/home_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/jobs/jobs_repository.dart';
@@ -17,10 +18,12 @@ import 'package:cleaning_service_driver/data/repositories/schedule/schedule_repo
 import 'package:cleaning_service_driver/data/repositories/staff/permissions_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/staff/staff_repository.dart';
 import 'package:cleaning_service_driver/data/repositories/statistics/statistics_repository.dart';
+import 'package:cleaning_service_driver/data/repositories/upholstery/upholstery_pricing_repository.dart';
 import 'package:cleaning_service_driver/data/repos/chats/chats_repository.dart';
 import 'package:cleaning_service_driver/data/services/auth/auth_service.dart';
 import 'package:cleaning_service_driver/data/services/auto_bid/auto_bid_categories_service.dart';
 import 'package:cleaning_service_driver/data/services/auto_bid/auto_bid_config_service.dart';
+import 'package:cleaning_service_driver/data/services/car_wash/car_wash_service.dart';
 import 'package:cleaning_service_driver/data/services/housekeeping/housekeeping_pricing_service.dart';
 import 'package:cleaning_service_driver/data/services/jobs/jobs_service.dart';
 import 'package:cleaning_service_driver/data/services/notifications/notifications_service.dart';
@@ -30,17 +33,27 @@ import 'package:cleaning_service_driver/data/services/requests/requests_service.
 import 'package:cleaning_service_driver/data/services/schedule/schedule_service.dart';
 import 'package:cleaning_service_driver/data/services/staff/staff_service.dart';
 import 'package:cleaning_service_driver/data/services/statistics/statistics_service.dart';
+import 'package:cleaning_service_driver/data/services/upholstery/upholstery_pricing_service.dart';
 import 'package:cleaning_service_driver/data/services/chats/chat_service.dart';
 import 'package:cleaning_service_driver/domain/usecases/auth/login_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/auth/logout_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/auto_bid/get_auto_bid_categories_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/auto_bid/get_auto_bid_config_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/auto_bid/upsert_auto_bid_config_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/car_wash/create_car_wash_package_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/car_wash/delete_car_wash_area_fee_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/car_wash/delete_car_wash_package_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/car_wash/get_car_wash_config_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/car_wash/update_car_wash_package_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/car_wash/update_car_wash_pricing_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/car_wash/update_car_wash_working_hours_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/car_wash/upsert_car_wash_area_fee_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/housekeeping/get_housekeeping_pricing_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/housekeeping/upsert_housekeeping_area_fee_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/housekeeping/upsert_housekeeping_pricing_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/home/fetch_home_data_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/assign_cleaners_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/jobs/add_extra_fees_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/assign_team_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/cancel_job_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/complete_job_usecase.dart';
@@ -80,6 +93,8 @@ import 'package:cleaning_service_driver/domain/usecases/staff/get_user_details.d
 import 'package:cleaning_service_driver/domain/usecases/staff/update_team_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/update_user_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/statistics/get_requests_statistics_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/upholstery/get_upholstery_pricing_config_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/upholstery/update_upholstery_pricing_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/chats/create_conversation_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/chats/close_conversation_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/chats/get_conversations_usecase.dart';
@@ -88,6 +103,7 @@ import 'package:cleaning_service_driver/domain/usecases/chats/open_conversation_
 import 'package:cleaning_service_driver/features/bloc/auth/auth_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/auto_bid/auto_bid_config_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/calendar/employee_calendar_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/car_wash/car_wash_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/housekeeping/housekeeping_pricing_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/home/home_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/jobs/job_actions_bloc.dart';
@@ -100,11 +116,13 @@ import 'package:cleaning_service_driver/features/bloc/schedule/employee_availabi
 import 'package:cleaning_service_driver/features/bloc/staff/staff_action_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/statistics/statistics_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/upholstery/upholstery_pricing_bloc.dart';
 import 'package:cleaning_service_driver/features/chats/bloc/chat_launcher_cubit.dart';
 import 'package:cleaning_service_driver/features/chats/bloc/chats_bloc.dart';
 import 'package:cleaning_service_driver/features/chats/data/chat_history_service.dart';
 import 'package:cleaning_service_driver/features/chats/data/chat_memory_store.dart';
 import 'package:cleaning_service_driver/features/chats/data/chat_socket_service.dart';
+import 'package:cleaning_service_driver/features/screens/home/company_profile_cubit.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -141,6 +159,14 @@ Future<void> setupServiceLocator() async {
 
   sl.registerLazySingleton<AutoBidConfigService>(
     () => AutoBidConfigService(sl<ApiClient>().dio),
+  );
+
+  sl.registerLazySingleton<CarWashService>(
+    () => CarWashService(sl<ApiClient>().dio),
+  );
+
+  sl.registerLazySingleton<UpholsteryPricingService>(
+    () => UpholsteryPricingService(sl<ApiClient>().dio),
   );
 
   sl.registerLazySingleton<NotificationsService>(
@@ -225,6 +251,14 @@ Future<void> setupServiceLocator() async {
     () => HousekeepingPricingRepository(sl<HousekeepingPricingService>()),
   );
 
+  sl.registerLazySingleton<CarWashRepository>(
+    () => CarWashRepository(sl<CarWashService>()),
+  );
+
+  sl.registerLazySingleton<UpholsteryPricingRepository>(
+    () => UpholsteryPricingRepository(sl<UpholsteryPricingService>()),
+  );
+
   sl.registerLazySingleton<PermissionsRepository>(
     () => PermissionsRepository(),
   );
@@ -267,6 +301,7 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory(() => CancelJobUseCase(sl<JobsRepository>()));
   sl.registerFactory(() => CompleteJobUseCase(sl<JobsRepository>()));
   sl.registerFactory(() => StartJobUseCase(sl<JobsRepository>()));
+  sl.registerFactory(() => AddExtraFeesUseCase(sl<JobsRepository>()));
   sl.registerFactory(
       () => AssignPermissionsForUserUseCase(sl<StaffRepository>()));
   sl.registerFactory(() => GetAllPermissionsUseCase(sl<StaffRepository>()));
@@ -295,6 +330,25 @@ Future<void> setupServiceLocator() async {
       UpsertHousekeepingPricingUseCase(sl<HousekeepingPricingRepository>()));
   sl.registerFactory(() =>
       UpsertHousekeepingAreaFeeUseCase(sl<HousekeepingPricingRepository>()));
+  sl.registerFactory(() => GetCarWashConfigUseCase(sl<CarWashRepository>()));
+  sl.registerFactory(
+      () => CreateCarWashPackageUseCase(sl<CarWashRepository>()));
+  sl.registerFactory(
+      () => UpdateCarWashPackageUseCase(sl<CarWashRepository>()));
+  sl.registerFactory(
+      () => DeleteCarWashPackageUseCase(sl<CarWashRepository>()));
+  sl.registerFactory(
+      () => UpdateCarWashPricingUseCase(sl<CarWashRepository>()));
+  sl.registerFactory(
+      () => UpsertCarWashAreaFeeUseCase(sl<CarWashRepository>()));
+  sl.registerFactory(
+      () => DeleteCarWashAreaFeeUseCase(sl<CarWashRepository>()));
+  sl.registerFactory(
+      () => UpdateCarWashWorkingHoursUseCase(sl<CarWashRepository>()));
+  sl.registerFactory(() =>
+      GetUpholsteryPricingConfigUseCase(sl<UpholsteryPricingRepository>()));
+  sl.registerFactory(
+      () => UpdateUpholsteryPricingUseCase(sl<UpholsteryPricingRepository>()));
   sl.registerFactory(
       () => CheckPermissionsUseCase(sl<PermissionsRepository>()));
   sl.registerFactory(() => UpdateUserUseCase(sl<StaffRepository>()));
@@ -341,7 +395,11 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory(() => EmployeeCalendarBloc());
   sl.registerFactory(() => EmployeeAvailabilityBloc());
   sl.registerFactory(() => HousekeepingPricingBloc());
+  sl.registerFactory(() => CarWashBloc());
+  sl.registerFactory(() => UpholsteryPricingBloc());
   sl.registerFactory(() => AutoBidConfigBloc());
+  sl.registerLazySingleton(
+      () => CompanyProfileCubit(sl<GetBusinessProfileUseCase>()));
   sl.registerLazySingleton(() => ChatLauncherCubit());
   sl.registerFactory(() => ChatsBloc(sl<ChatSocketService>(),
       sl<ChatMemoryStore>(), sl<ChatHistoryService>()));

@@ -9,7 +9,12 @@ abstract class EmployeeAvailabilityEvent extends Equatable {
 }
 
 class LoadAvailabilityData extends EmployeeAvailabilityEvent {
-  const LoadAvailabilityData();
+  final AvailabilityServiceType serviceType;
+
+  const LoadAvailabilityData(this.serviceType);
+
+  @override
+  List<Object?> get props => [serviceType];
 }
 
 class CreateAvailabilitySlot extends EmployeeAvailabilityEvent {
@@ -33,9 +38,23 @@ class UpdateAvailabilitySlot extends EmployeeAvailabilityEvent {
 
 class DeleteAvailabilitySlot extends EmployeeAvailabilityEvent {
   final String id;
+  final AvailabilityServiceType serviceType;
 
-  const DeleteAvailabilitySlot(this.id);
+  const DeleteAvailabilitySlot(this.id, this.serviceType);
 
   @override
-  List<Object?> get props => [id];
+  List<Object?> get props => [id, serviceType];
+}
+
+class ReplaceAvailabilityDays extends EmployeeAvailabilityEvent {
+  final AvailabilityServiceType serviceType;
+  final Map<int, List<CleanerAvailabilityRequest>> scheduleByDay;
+
+  const ReplaceAvailabilityDays({
+    required this.serviceType,
+    required this.scheduleByDay,
+  });
+
+  @override
+  List<Object?> get props => [serviceType, scheduleByDay];
 }

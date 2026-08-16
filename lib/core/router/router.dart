@@ -1,10 +1,14 @@
 import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
 import 'package:cleaning_service_driver/data/models/requests/deep_cleaning_history.dart';
+import 'package:cleaning_service_driver/data/models/requests/car_wash_history.dart';
 import 'package:cleaning_service_driver/data/models/requests/house_keeping_history.dart';
 import 'package:cleaning_service_driver/data/models/requests/upholstery_cleaning_history.dart';
+import 'package:cleaning_service_driver/data/models/schedule/cleaner_availability.dart';
 import 'package:cleaning_service_driver/data/models/staff/team_model.dart';
 import 'package:cleaning_service_driver/features/screens/auth/login_screen.dart';
 import 'package:cleaning_service_driver/features/screens/auto_bid/auto_bid_configuration_screen.dart';
+import 'package:cleaning_service_driver/features/screens/car_wash/car_wash_main_screen.dart';
+import 'package:cleaning_service_driver/features/screens/car_wash/car_wash_pricing_screen.dart';
 import 'package:cleaning_service_driver/features/screens/calendar/employee_calendar_screen.dart';
 import 'package:cleaning_service_driver/features/screens/home/home_screen.dart';
 import 'package:cleaning_service_driver/features/screens/home/main_layout.dart';
@@ -12,6 +16,7 @@ import 'package:cleaning_service_driver/features/screens/home/splash_screen.dart
 import 'package:cleaning_service_driver/features/screens/housekeeping/housekeeping_configuration_screen.dart';
 import 'package:cleaning_service_driver/features/screens/housekeeping/housekeeping_main_screen.dart';
 import 'package:cleaning_service_driver/features/screens/jobs/deep_cleaning_job_details_screen.dart';
+import 'package:cleaning_service_driver/features/screens/jobs/car_wash_job_details_screen.dart';
 import 'package:cleaning_service_driver/features/screens/jobs/deep_cleaning_success_screen.dart';
 import 'package:cleaning_service_driver/features/screens/jobs/house_keeping_job_details_screen.dart';
 import 'package:cleaning_service_driver/features/screens/jobs/house_keeping_success_screen.dart';
@@ -34,6 +39,7 @@ import 'package:cleaning_service_driver/features/screens/staff/staff_list_screen
 import 'package:cleaning_service_driver/features/screens/staff/staff_main_screen.dart';
 import 'package:cleaning_service_driver/features/screens/staff/teams_list_screen.dart';
 import 'package:cleaning_service_driver/features/screens/statistics/statistics_screen.dart';
+import 'package:cleaning_service_driver/features/screens/upholstery/upholstery_pricing_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -102,6 +108,28 @@ class AppRouter {
             name: 'housekeeping-configuration-screen',
             builder: (context, state) =>
                 const HousekeepingConfigurationScreen(),
+          ),
+          GoRoute(
+            path: '/car-wash',
+            name: 'car-wash-main-screen',
+            builder: (context, state) => const CarWashMainScreen(),
+          ),
+          GoRoute(
+            path: '/car-wash-pricing',
+            name: 'car-wash-pricing-screen',
+            builder: (context, state) => const CarWashPricingScreen(),
+          ),
+          GoRoute(
+            path: '/car-wash-working-hours',
+            name: 'car-wash-working-hours-screen',
+            builder: (context, state) => const EmployeeAvailabilityScreen(
+              serviceType: AvailabilityServiceType.carWash,
+            ),
+          ),
+          GoRoute(
+            path: '/upholstery-configuration',
+            name: 'upholstery-configuration-screen',
+            builder: (context, state) => const UpholsteryPricingScreen(),
           ),
           GoRoute(
             path: '/auto-bidding',
@@ -182,6 +210,13 @@ class AppRouter {
                     request: s.extra! as UpholsteryCleaningHistory),
               ),
               GoRoute(
+                name: 'carWashJobDetails',
+                path: 'car-wash-job',
+                builder: (_, state) => CarWashJobDetailsScreen(
+                  request: state.extra! as CarWashHistory,
+                ),
+              ),
+              GoRoute(
                 name: 'houseKeepingJobSuccess',
                 path: 'house-keeping-job-success',
                 builder: (_, s) => HouseKeepingJobSuccessScreen(
@@ -214,7 +249,12 @@ class AppRouter {
           GoRoute(
             name: 'employee-availability-screen',
             path: '/employee-availability',
-            builder: (_, __) => const EmployeeAvailabilityScreen(),
+            builder: (_, state) => EmployeeAvailabilityScreen(
+              serviceType: AvailabilityServiceType.fromApiValue(
+                    state.uri.queryParameters['serviceType'],
+                  ) ??
+                  AvailabilityServiceType.houseCleaning,
+            ),
           ),
 
           GoRoute(

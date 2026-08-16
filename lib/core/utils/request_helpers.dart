@@ -1,4 +1,6 @@
 import 'package:cleaning_service_driver/data/models/requests/cleaning_item.dart';
+import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
+import 'package:cleaning_service_driver/data/models/requests/car_wash_history.dart';
 import 'package:cleaning_service_driver/data/models/requests/deep_cleaning_history.dart';
 import 'package:cleaning_service_driver/data/models/requests/house_keeping_history.dart';
 import 'package:cleaning_service_driver/data/models/requests/upholstery_cleaning_history.dart';
@@ -55,6 +57,27 @@ extension CleaningItemTextX on CleaningItem {
       _localizedValue(ar: titleAr, en: titleEn) ?? title;
   String? get descriptionLocalized =>
       _localizedValue(ar: descriptionAr, en: descriptionEn) ?? description;
+}
+
+extension CleaningRequestPresentationX on CleaningRequest {
+  bool get showsScheduleInBusinessApp => this is! UpholsteryCleaningHistory;
+
+  String? get customerSpecialNotes {
+    String? value;
+    if (this is HouseKeepingHistory) {
+      value = (this as HouseKeepingHistory).detail.specialNotes;
+    } else if (this is CarWashHistory) {
+      value = (this as CarWashHistory).detail?.specialNotes;
+    } else if (this is UpholsteryCleaningHistory) {
+      value =
+          (this as UpholsteryCleaningHistory).upholsteryCleaning.specialNotes;
+    } else if (this is DeepCleaningHistory) {
+      value = (this as DeepCleaningHistory).detail.notes;
+    }
+
+    final trimmed = value?.trim();
+    return trimmed == null || trimmed.isEmpty ? null : trimmed;
+  }
 }
 
 extension UpholsteryCleaningDetailX on UpholsteryCleaningDetails {

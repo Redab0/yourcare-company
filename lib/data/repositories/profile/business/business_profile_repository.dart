@@ -59,20 +59,26 @@ class BusinessProfileRepository {
     }
   }
 
-  Future<List<CoveredServiceGroup>> getCoveredServiceItems() async {
+  Future<List<CoveredServiceGroup>> getCoveredServiceItems({
+    BusinessProfileModel? profile,
+  }) async {
     try {
       final response = await _profileService.getCoveredServiceItems();
       ApiResponse<ResponsePayload<BusinessProfileModel>>? profileResponse;
-      try {
-        profileResponse = await _profileService.getCompanyProfile();
-      } catch (e, s) {
-        _logError('getCoveredServiceItems->getCompanyProfile', e, s);
+      if (profile == null) {
+        try {
+          profileResponse = await _profileService.getCompanyProfile();
+        } catch (e, s) {
+          _logError('getCoveredServiceItems->getCompanyProfile', e, s);
+        }
       }
 
       if (response.success && response.data != null) {
         final apiGroups = response.data!.data ?? const [];
         final profileGroups =
-            profileResponse?.data?.data?.coveredServices ?? const [];
+            profile?.coveredServices ??
+                profileResponse?.data?.data?.coveredServices ??
+                const [];
         return _mergeAndDedupeCoveredGroups(
           apiGroups: apiGroups,
           profileGroups: profileGroups,

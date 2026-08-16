@@ -47,6 +47,14 @@ HouseKeepingHistory _$HouseKeepingHistoryFromJson(Map<String, dynamic> json) =>
                   ?.map((e) =>
                       FrequentRequestModel.fromJson(e as Map<String, dynamic>))
                   .toList()),
+          extraFees:
+              $checkedConvert('extraFees', (v) => (v as num?)?.toDouble()),
+          extraFeesDescription:
+              $checkedConvert('extraFeesDescription', (v) => v as String?),
+          awaitingExtraPayment: $checkedConvert(
+              'awaitingExtraPayment', (v) => v as bool? ?? false),
+          extraPaymentUrl:
+              $checkedConvert('extraPaymentUrl', (v) => v as String?),
         );
         return val;
       },
@@ -69,6 +77,10 @@ Map<String, dynamic> _$HouseKeepingHistoryToJson(
       'scheduledTime': instance.scheduledTime.toIso8601String(),
       'customer': instance.customer,
       'requestStatus': _$RequestStatusEnumMap[instance.requestStatus]!,
+      'extraFees': instance.extraFees,
+      'extraFeesDescription': instance.extraFeesDescription,
+      'awaitingExtraPayment': instance.awaitingExtraPayment,
+      'extraPaymentUrl': instance.extraPaymentUrl,
       'cleaners': instance.assignedWorker,
       'HouseCleaning': instance.detail,
       'businessId': instance.companyInformation,

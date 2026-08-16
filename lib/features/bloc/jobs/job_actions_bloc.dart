@@ -4,6 +4,7 @@ import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/utils/loading_controller.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
 import 'package:cleaning_service_driver/data/models/calendar/employee_calendar_response.dart';
+import 'package:cleaning_service_driver/domain/usecases/jobs/add_extra_fees_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/assign_cleaners_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/assign_team_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/cancel_job_usecase.dart';
@@ -29,7 +30,10 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
   final uploadMediaUseCase = sl<UploadMediaUseCase>();
   final updateRequestFrequencyUseCase = sl<UpdateFrequencyRequestUseCase>();
   final getEmployeeCalendarUseCase = sl<GetEmployeeCalendarUseCase>();
+  final addExtraFeesUseCase = sl<AddExtraFeesUseCase>();
   final _loader = sl<LoadingController>();
+
+  static const _extraFeesLoaderTag = 'extra-fees';
 
   JobActionsBloc() : super(JobActionsInitial()) {
     on<StartJobEvent>(_onStartJob);
@@ -42,6 +46,7 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
     on<FetchTeamsEvent>(_onFetchTeams);
     on<UploadMediaEvent>(_upload);
     on<UpdateFrequencyRequestEvent>(_onUpdateRequestFrequency);
+    on<AddExtraFeesEvent>(_onAddExtraFees);
   }
 
   FutureOr<void> _onStartJob(
@@ -80,7 +85,6 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
       emit(JobCompleted(response));
     } catch (e) {
       _loader.hide();
-      print("ERROR $e");
       emit(JobActionFailed("$e"));
     }
   }
@@ -207,6 +211,29 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
     } catch (e) {
       _loader.hide();
       emit(JobActionFailed("$e"));
+    }
+  }
+
+  FutureOr<void> _onAddExtraFees(
+    AddExtraFeesEvent event,
+    Emitter<JobActionsState> emit,
+  ) async {
+    _loader.show(_extraFeesLoaderTag);
+    try {
+      final updated = await addExtraFeesUseCase.call(
+        event.id,
+        event.request,
+      );
+      emit(
+        ExtraFeesAdded(
+          request: event.request,
+          updatedRequest: updated,
+        ),
+      );
+    } catch (e) {
+      emit(JobActionFailed('$e'));
+    } finally {
+      _loader.hide(_extraFeesLoaderTag);
     }
   }
 

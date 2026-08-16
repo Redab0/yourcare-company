@@ -2,17 +2,15 @@ import 'dart:async';
 
 import 'package:cleaning_service_driver/components/custome_bottom_nav.dart';
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
-import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
-import 'package:cleaning_service_driver/core/utils/permissions_helper.dart';
-import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
 import 'package:cleaning_service_driver/data/models/chats/conversation_model.dart';
-import 'package:cleaning_service_driver/data/models/staff/permission_model.dart';
 import 'package:cleaning_service_driver/domain/usecases/chats/get_conversations_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/chats/get_latest_conversation_usecase.dart';
 import 'package:cleaning_service_driver/features/chats/bloc/chat_launcher_cubit.dart';
 import 'package:cleaning_service_driver/features/chats/data/chat_socket_service.dart';
 import 'package:cleaning_service_driver/features/chats/presentation/conversations_screen.dart';
+import 'package:cleaning_service_driver/features/onboarding/business_showcase.dart';
+import 'package:cleaning_service_driver/features/screens/home/company_profile_cubit.dart';
 import 'package:cleaning_service_driver/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -44,6 +42,7 @@ class _MainLayoutState extends State<MainLayout> {
     super.initState();
     WidgetsBinding.instance.addObserver(_lifecycleObserver);
     _startChatListeners();
+    _preloadCompanyProfile();
     _bootstrapActiveChat();
   }
 
@@ -57,8 +56,15 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   late final WidgetsBindingObserver _lifecycleObserver = _MainLayoutLifecycle(
-    onResumed: () => unawaited(_bootstrapActiveChat(force: true)),
+    onResumed: () {
+      _preloadCompanyProfile(force: true);
+      unawaited(_bootstrapActiveChat(force: true));
+    },
   );
+
+  void _preloadCompanyProfile({bool force = false}) {
+    unawaited(sl<CompanyProfileCubit>().preload(force: force));
+  }
 
   void _startChatListeners() {
     final socket = sl<ChatSocketService>();
@@ -211,12 +217,8 @@ class _MainLayoutState extends State<MainLayout> {
 
     return Directionality(
       textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
-      child: FutureBuilder<User?>(
-        future: SecureStorageService().getUser(),
-        builder: (context, snap) {
-          final perms = snap.data?.permissions ?? <PermissionModel>[];
-
-          // Always include Dashboard
+      child: Builder(
+        builder: (context) {
           final items = <NavItem>[
             NavItem(
               label: context.l10n.dashboard,
@@ -232,69 +234,65 @@ class _MainLayoutState extends State<MainLayout> {
             ),
           ];
 
-          // Conditionally add Requests
-          if (perms.hasAnyPermission([
-            Permission.availableRequestsRead,
-            Permission.availableRequestsBrowse,
-          ])) {
-            items.insert(
-              0,
-              NavItem(
-                label: context.l10n.requests,
-                icon: Icons.request_page_outlined,
-                activeIcon: Icons.request_page_rounded,
-                path: '/requests',
-              ),
-            );
-          }
-
           var currentIndex =
               items.indexWhere((i) => widget.currentPath.startsWith(i.path));
           if (currentIndex < 0) currentIndex = 0;
 
-          return Scaffold(
-            body: widget.child,
-            floatingActionButton:
-                BlocBuilder<ChatLauncherCubit, ChatLauncherState>(
-              builder: (context, chatState) {
-                if (!chatState.hasActiveChat ||
-                    chatState.isChatWindowOpen ||
-                    (chatState.conversationId?.isEmpty ?? true)) {
-                  return const SizedBox.shrink();
-                }
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    FloatingActionButton.small(
-                      heroTag: 'dismiss_chat_fab',
-                      onPressed: sl<ChatLauncherCubit>().dismissFab,
-                      child: const Icon(Icons.close),
-                    ),
-                    const SizedBox(width: 8),
-                    FloatingActionButton.extended(
-                      heroTag: 'chat_fab',
-                      onPressed: () async {
-                        sl<ChatLauncherCubit>().dismissFab();
-                        await Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const ConversationsScreen(),
+          return ValueListenableBuilder<bool>(
+            valueListenable: BusinessShowcaseInteractionLock.listenable,
+            builder: (context, interactionLocked, _) => PopScope(
+              canPop: !interactionLocked,
+              child: Scaffold(
+                body: AbsorbPointer(
+                  absorbing: interactionLocked,
+                  child: widget.child,
+                ),
+                floatingActionButton: AbsorbPointer(
+                  absorbing: interactionLocked,
+                  child: BlocBuilder<ChatLauncherCubit, ChatLauncherState>(
+                    builder: (context, chatState) {
+                      if (!chatState.hasActiveChat ||
+                          chatState.isChatWindowOpen ||
+                          (chatState.conversationId?.isEmpty ?? true)) {
+                        return const SizedBox.shrink();
+                      }
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          FloatingActionButton.small(
+                            heroTag: 'dismiss_chat_fab',
+                            onPressed: sl<ChatLauncherCubit>().dismissFab,
+                            child: const Icon(Icons.close),
                           ),
-                        );
-                      },
-                      icon: const Icon(Icons.chat_bubble_outline),
-                      label: Text(context.l10n.chat_fab_title),
-                    ),
-                  ],
-                );
-              },
-            ),
-            bottomNavigationBar: items.length > 1
-                ? CustomBottomNav(
+                          const SizedBox(width: 8),
+                          FloatingActionButton.extended(
+                            heroTag: 'chat_fab',
+                            onPressed: () async {
+                              sl<ChatLauncherCubit>().dismissFab();
+                              await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const ConversationsScreen(),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.chat_bubble_outline),
+                            label: Text(context.l10n.chat_fab_title),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+                bottomNavigationBar: AbsorbPointer(
+                  absorbing: interactionLocked,
+                  child: CustomBottomNav(
                     items: items,
                     currentIndex: currentIndex,
                     onTap: (i) => context.go(items[i].path),
-                  )
-                : null,
+                  ),
+                ),
+              ),
+            ),
           );
         },
       ),
