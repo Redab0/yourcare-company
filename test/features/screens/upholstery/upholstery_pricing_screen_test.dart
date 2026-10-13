@@ -149,7 +149,7 @@ class _FakeUpdatePricing implements UpdateUpholsteryPricingUseCase {
   Future<List<UpholsteryPricingGroup>> call(
     UpholsteryPricingRequest request,
   ) async {
-    return request.pricing;
+    return request.sourcePricing;
   }
 }
 

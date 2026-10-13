@@ -108,12 +108,18 @@ CalendarWork _$CalendarWorkFromJson(Map<String, dynamic> json) =>
               (v) => v == null
                   ? RequestStatus.unknown
                   : requestStatusFromJson(v as String?)),
-          scheduledTime: $checkedConvert('scheduledTime',
-              (v) => v == null ? null : DateTime.parse(v as String)),
-          startTime: $checkedConvert('startTime',
-              (v) => v == null ? null : DateTime.parse(v as String)),
+          scheduledTime: $checkedConvert(
+              'scheduledTime',
+              (v) => _$JsonConverterFromJson<String, DateTime>(
+                  v, const KuwaitScheduleConverter().fromJson)),
+          startTime: $checkedConvert(
+              'startTime',
+              (v) => _$JsonConverterFromJson<String, DateTime>(
+                  v, const KuwaitScheduleConverter().fromJson)),
           endTime: $checkedConvert(
-              'endTime', (v) => v == null ? null : DateTime.parse(v as String)),
+              'endTime',
+              (v) => _$JsonConverterFromJson<String, DateTime>(
+                  v, const KuwaitScheduleConverter().fromJson)),
           durationHours:
               $checkedConvert('durationHours', (v) => (v as num?)?.toInt()),
           cleaningDuration: $checkedConvert(
@@ -156,9 +162,12 @@ Map<String, dynamic> _$CalendarWorkToJson(CalendarWork instance) =>
       'readableId': instance.readableId,
       'requestType': instance.requestType,
       'requestStatus': requestStatusToJson(instance.requestStatus),
-      'scheduledTime': instance.scheduledTime?.toIso8601String(),
-      'startTime': instance.startTime?.toIso8601String(),
-      'endTime': instance.endTime?.toIso8601String(),
+      'scheduledTime': _$JsonConverterToJson<String, DateTime>(
+          instance.scheduledTime, const KuwaitScheduleConverter().toJson),
+      'startTime': _$JsonConverterToJson<String, DateTime>(
+          instance.startTime, const KuwaitScheduleConverter().toJson),
+      'endTime': _$JsonConverterToJson<String, DateTime>(
+          instance.endTime, const KuwaitScheduleConverter().toJson),
       'durationHours': instance.durationHours,
       'cleaningDuration': instance.cleaningDuration,
       'numberOfCleaners': instance.numberOfCleaners,
@@ -168,6 +177,18 @@ Map<String, dynamic> _$CalendarWorkToJson(CalendarWork instance) =>
       'assignedCleaners': instance.assignedCleaners,
       'assignedTeam': instance.assignedTeam,
     };
+
+Value? _$JsonConverterFromJson<Json, Value>(
+  Object? json,
+  Value? Function(Json json) fromJson,
+) =>
+    json == null ? null : fromJson(json as Json);
+
+Json? _$JsonConverterToJson<Json, Value>(
+  Value? value,
+  Json? Function(Value value) toJson,
+) =>
+    value == null ? null : toJson(value);
 
 CalendarOption _$CalendarOptionFromJson(Map<String, dynamic> json) =>
     $checkedCreate(

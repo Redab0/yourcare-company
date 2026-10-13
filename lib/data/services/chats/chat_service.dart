@@ -2,20 +2,53 @@ import 'package:cleaning_service_driver/core/models/response.dart';
 import 'package:cleaning_service_driver/data/models/chats/create_conversation_request.dart';
 import 'package:cleaning_service_driver/data/models/chats/conversation_model.dart';
 import 'package:dio/dio.dart';
+import 'package:retrofit/retrofit.dart';
+
+part 'chat_service.g.dart';
+
+@RestApi()
+abstract class ChatApi {
+  factory ChatApi(Dio dio, {String baseUrl}) = _ChatApi;
+
+  @POST('/chat/conversations')
+  Future<dynamic> createOrGetConversation(
+    @Body() CreateConversationRequest request,
+  );
+
+  @GET('/chat/conversations/{conversationId}/messages')
+  Future<dynamic> getConversationMessages(
+    @Path('conversationId') String conversationId,
+    @Query('page') int page,
+    @Query('limit') int limit,
+  );
+
+  @GET('/chat/conversations')
+  Future<dynamic> getConversations(
+    @Query('page') int page,
+    @Query('limit') int limit,
+  );
+
+  @PATCH('/chat/conversations/{conversationId}/close')
+  Future<dynamic> closeConversation(
+    @Path('conversationId') String conversationId,
+  );
+
+  @PATCH('/chat/conversations/{conversationId}/open')
+  Future<dynamic> openConversation(
+    @Path('conversationId') String conversationId,
+  );
+}
 
 class ChatService {
-  final Dio _dio;
+  final ChatApi _api;
 
-  ChatService(this._dio);
+  ChatService(Dio dio) : _api = ChatApi(dio);
 
   Future<ApiResponse<ConversationModel>> createOrGetConversation(
     CreateConversationRequest request,
   ) async {
-    final response = await _dio.post<Map<String, dynamic>>(
-      '/chat/conversations',
-      data: request.toJson(),
-    );
-    return _conversationResponse(response.data);
+    final response = await _api.createOrGetConversation(request);
+    return _conversationResponse(_responseMap(response));
   }
 
   Future<ApiResponse<RawChatHistoryResult>> getConversationMessages(
@@ -23,12 +56,13 @@ class ChatService {
     int page = 1,
     int limit = 20,
   }) async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/chat/conversations/$conversationId/messages',
-      queryParameters: {'page': page, 'limit': limit},
+    final response = await _api.getConversationMessages(
+      conversationId,
+      page,
+      limit,
     );
 
-    final json = response.data ?? <String, dynamic>{};
+    final json = _responseMap(response);
     final rawData = json['data'];
 
     List<Map<String, dynamic>> messages = const [];
@@ -68,12 +102,9 @@ class ChatService {
     int page = 1,
     int limit = 20,
   }) async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/chat/conversations',
-      queryParameters: {'page': page, 'limit': limit},
-    );
+    final response = await _api.getConversations(page, limit);
 
-    final json = response.data ?? <String, dynamic>{};
+    final json = _responseMap(response);
     final rawData = json['data'];
     List<Map<String, dynamic>> docs = const [];
 
@@ -97,18 +128,14 @@ class ChatService {
 
   Future<ApiResponse<ConversationModel>> closeConversation(
       String conversationId) async {
-    final response = await _dio.patch<Map<String, dynamic>>(
-      '/chat/conversations/$conversationId/close',
-    );
-    return _conversationResponse(response.data);
+    final response = await _api.closeConversation(conversationId);
+    return _conversationResponse(_responseMap(response));
   }
 
   Future<ApiResponse<ConversationModel>> openConversation(
       String conversationId) async {
-    final response = await _dio.patch<Map<String, dynamic>>(
-      '/chat/conversations/$conversationId/open',
-    );
-    return _conversationResponse(response.data);
+    final response = await _api.openConversation(conversationId);
+    return _conversationResponse(_responseMap(response));
   }
 
   ApiResponse<ConversationModel> _conversationResponse(
@@ -133,6 +160,12 @@ class ChatService {
     if (value is int) return value;
     if (value is num) return value.toInt();
     return int.tryParse(value?.toString() ?? '');
+  }
+
+  Map<String, dynamic> _responseMap(Object? response) {
+    if (response is Map<String, dynamic>) return response;
+    if (response is Map) return Map<String, dynamic>.from(response);
+    return <String, dynamic>{};
   }
 }
 

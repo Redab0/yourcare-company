@@ -1,5 +1,5 @@
-import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
+import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/locale_cubit.dart';
 import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
@@ -111,6 +111,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           leading: IconButton(
             icon: const Icon(Icons.language),
@@ -218,13 +219,16 @@ class _HomePageState extends State<HomePage> {
                 return BlocBuilder<CompanyProfileCubit, CompanyProfileState>(
                   bloc: sl<CompanyProfileCubit>(),
                   builder: (context, profileState) {
-                    final companyServices = user.services == null
-                        ? profileState.companyServices
-                        : CompanyProvidedService.parseAll(user.services);
+                    final companyServices = profileState.companyServices ??
+                        (user.services == null
+                            ? null
+                            : CompanyProvidedService.parseAll(user.services));
                     final services = BusinessHomeService.values
                         .where((service) => service.canShow(
                               permissions: perms ?? const [],
                               companyServices: companyServices,
+                              isBusinessOwner: user.role == 'business_owner',
+                              role: user.role,
                             ))
                         .toList(growable: false);
                     _visibleSetupTourServices =

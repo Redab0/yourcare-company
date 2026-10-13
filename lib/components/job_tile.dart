@@ -1,3 +1,8 @@
+import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
+import 'package:cleaning_service_driver/components/laundry_same_day_badge.dart';
+import 'package:cleaning_service_driver/components/registration_gift_badge.dart';
+import 'package:cleaning_service_driver/data/models/laundry/laundry_history.dart';
+import 'package:cleaning_service_driver/features/screens/laundry/laundry_presentation.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
@@ -37,6 +42,8 @@ class JobTile extends StatelessWidget {
         return l10n.houseKeeping; // ← localized
       case 'upholsterycleaning':
         return l10n.upholstery_cleaning;
+      case 'laundry':
+        return l10n.laundry_service;
       case 'carwash':
         return l10n.car_wash_service;
       default:
@@ -46,6 +53,9 @@ class JobTile extends StatelessWidget {
 
   /// Address string (area / street …) depending on concrete request type.
   String get _address {
+    if (request is LaundryHistory) {
+      return (request as LaundryHistory).pickupAddress?.area ?? '—';
+    }
     if (request is DeepCleaningHistory) {
       return (request as DeepCleaningHistory).detail.address?.area ?? '—';
     }
@@ -77,7 +87,9 @@ class JobTile extends StatelessWidget {
 
   String? get _schedule {
     final date = request.scheduledTime;
-    return date == null ? null : DateFormat('MMM dd, yyyy, HH:mm').format(date);
+    return date == null
+        ? null
+        : DateFormat('MMM dd, yyyy, HH:mm').format(kuwaitWallTime(date));
   }
 
   @override
@@ -106,16 +118,30 @@ class JobTile extends StatelessWidget {
                     ),
                     Chip(
                       label: Text(
-                        request.requestStatus.displayText(context),
+                        request is LaundryHistory
+                            ? laundryStatusLabel(
+                                context,
+                                (request as LaundryHistory)
+                                    .displayDetail
+                                    .displayStatus)
+                            : request.requestStatus.displayText(context),
                         style:
                             const TextStyle(color: Colors.white, fontSize: 12),
                       ),
-                      backgroundColor: _statusColor(request.requestStatus),
+                      backgroundColor: _statusColor(request is LaundryHistory
+                          ? (request as LaundryHistory)
+                              .displayDetail
+                              .displayRequestStatus
+                          : request.requestStatus),
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 4),
                     )
                   ],
                 ),
+                if (request is LaundryHistory)
+                  LaundrySameDayBadge(
+                      sameDay: (request as LaundryHistory).detail.sameDay),
+                RegistrationGiftBadge(request: request),
                 const SizedBox(height: 4),
                 Text(
                   "# ${request.id}",

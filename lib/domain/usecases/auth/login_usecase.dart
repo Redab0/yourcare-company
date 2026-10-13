@@ -8,10 +8,6 @@ class LoginUseCase {
   LoginUseCase(this.authRepository);
 
   Future<User> call(LoginCredentials loginCredentials) async {
-    try {
-      return await authRepository.login(loginCredentials: loginCredentials);
-    } catch (e) {
-      throw Exception('Login failed: ${e.toString()}');
-    }
+    return await authRepository.login(loginCredentials: loginCredentials);
   }
 }

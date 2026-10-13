@@ -9,6 +9,87 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
+  String get previewLoginRequired => 'أدخل رقم الهاتف وكلمة المرور.';
+
+  @override
+  String get previewLoginInvalid => 'تعذر تسجيل الدخول. تحقق من رقم الهاتف وكلمة المرور في بيئة التطوير ومن تفعيل الحساب.';
+
+  @override
+  String get previewLoginUnavailable => 'تعذر الاتصال بخادم التطوير. يرجى المحاولة مجدداً.';
+
+  @override
+  String get previewLoginCompanyRequired => 'هذا الحساب لا يمكنه فتح معاينة الشركات. سجّل الدخول بحساب مالك أو مدير مرتبط بشركة في بيئة التطوير.';
+
+  @override
+  String get previewLoginSessionFailed => 'تعذر تحميل جلسة تسجيل الدخول. حدّث الصفحة وحاول مجدداً.';
+
+  @override
+  String get previewLoginRateLimit => 'محاولات تسجيل الدخول كثيرة. يرجى الانتظار قبل المحاولة مجدداً.';
+
+  @override
+  String get documentsCenter => 'مركز المستندات';
+
+  @override
+  String get documentPolicy => 'سياسة';
+
+  @override
+  String get documentContract => 'عقد';
+
+  @override
+  String get documentOther => 'أخرى';
+
+  @override
+  String get documentDownload => 'تنزيل';
+
+  @override
+  String get documentView => 'عرض';
+
+  @override
+  String get documentPreviewError => 'تعذر فتح هذا المستند.';
+
+  @override
+  String get documentPreviewTimeout => 'استغرق فتح هذا المستند وقتًا طويلاً. جرّب تنزيله بدلاً من ذلك.';
+
+  @override
+  String get documentPreviewUnsupported => 'المعاينة غير متاحة لهذا النوع من الملفات. يمكنك تنزيل الملف بدلاً من ذلك.';
+
+  @override
+  String get documentDownloaded => 'تم تنزيل المستند';
+
+  @override
+  String get documentRefresh => 'تحديث';
+
+  @override
+  String get documentSearch => 'البحث في المستندات';
+
+  @override
+  String get documentCategory => 'الفئة';
+
+  @override
+  String get documentAllCategories => 'جميع الفئات';
+
+  @override
+  String get documentShared => 'جميع الشركات';
+
+  @override
+  String get documentForYourBusiness => 'شركتك';
+
+  @override
+  String get documentRetry => 'إعادة المحاولة';
+
+  @override
+  String get documentsError => 'تعذر تحميل المستندات أو تنزيلها. يرجى المحاولة مجدداً.';
+
+  @override
+  String get documentsEmpty => 'لا توجد مستندات';
+
+  @override
+  String get documentPrevious => 'الصفحة السابقة';
+
+  @override
+  String get documentNext => 'الصفحة التالية';
+
+  @override
   String get appName => 'Your Care Business';
 
   @override
@@ -579,6 +660,32 @@ class AppLocalizationsAr extends AppLocalizations {
   String get request_location => 'الموقع';
 
   @override
+  String get request_status_updated => 'تم تحديث حالة الطلب';
+
+  @override
+  String get request_location_reminder => 'يرجى التأكد من موقع العميل على الخريطة قبل إرسال الفريق.';
+
+  @override
+  String get refresh_request_details => 'تحديث تفاصيل الطلب';
+
+  @override
+  String get request_visit_id_missing => 'معرّف هذه الزيارة غير متوفر. يرجى تحديث تفاصيل الطلب والمحاولة مجددًا.';
+
+  @override
+  String get request_paid => 'مدفوع';
+
+  @override
+  String get request_not_paid => 'غير مدفوع';
+
+  @override
+  String request_share_furniture_item(String item, String size, String quantity) {
+    return 'الصنف: $item\nالحجم: $size\nالكمية: $quantity';
+  }
+
+  @override
+  String get open_in_google_maps => 'فتح في خرائط Google';
+
+  @override
   String get request_full_location => 'العنوان الكامل';
 
   @override
@@ -712,6 +819,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get price_must_be_greater_than_zero => 'يجب أن يكون السعر أكبر من صفر';
+
+  @override
+  String get price_must_be_zero_or_greater => 'يجب أن يكون السعر صفراً أو أكثر';
 
   @override
   String get housekeeping_active => 'مفعل';
@@ -1206,6 +1316,81 @@ class AppLocalizationsAr extends AppLocalizations {
   String get save_weekly_schedule => 'حفظ الجدول الأسبوعي';
 
   @override
+  String get hourly_availability => 'التوفر بالساعة';
+
+  @override
+  String get availability_hourly_hint => 'فعّل الساعات التي يمكن للعملاء الحجز فيها، ثم حدد عدد العمال المتاحين خلال كل ساعة.';
+
+  @override
+  String get availability_enabled => 'مفعّل';
+
+  @override
+  String get availability_disabled => 'معطّل';
+
+  @override
+  String availability_enabled_hours(int count) {
+    return 'الساعات المفعّلة: $count';
+  }
+
+  @override
+  String get availability_no_hours_enabled => 'لا توجد ساعات مفعّلة';
+
+  @override
+  String get availability_enable_all => 'تفعيل الكل';
+
+  @override
+  String get availability_disable_all => 'تعطيل الكل';
+
+  @override
+  String get availability_apply_other_days => 'تطبيق على أيام أخرى';
+
+  @override
+  String availability_apply_schedule_title(String day) {
+    return 'تطبيق جدول $day';
+  }
+
+  @override
+  String get availability_select_days_hint => 'اختر كل الأيام التي تريد تطبيق هذا الجدول عليها.';
+
+  @override
+  String get availability_select_all => 'تحديد الكل';
+
+  @override
+  String get availability_apply_selected => 'تطبيق على الأيام المحددة';
+
+  @override
+  String get availability_copy_warning => 'سيتم استبدال التغييرات الحالية للأيام المحددة. ويمكن تعديل كل يوم بشكل مستقل بعد ذلك.';
+
+  @override
+  String get availability_schedule_copied => 'تم نسخ الجدول إلى الأيام المحددة';
+
+  @override
+  String get availability_unsaved_changes => 'لديك تغييرات غير محفوظة في التوفر.';
+
+  @override
+  String get availability_save_before_leaving => 'يرجى حفظ تغييراتك قبل مغادرة الصفحة.';
+
+  @override
+  String get availability_discard_title => 'تجاهل التغييرات؟';
+
+  @override
+  String get availability_discard => 'تجاهل';
+
+  @override
+  String get availability_saved => 'تم حفظ التوفر';
+
+  @override
+  String get availability_no_changes => 'لا توجد تغييرات لحفظها';
+
+  @override
+  String get availability_invalid_workers => 'أدخل عاملًا واحدًا على الأقل لكل ساعة مفعّلة.';
+
+  @override
+  String availability_changed_days(int count) {
+    return 'الأيام المعدّلة: $count';
+  }
+
+  @override
   String get available => 'متاح';
 
   @override
@@ -1308,7 +1493,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get car_wash_packages => 'الباقات';
 
   @override
-  String get car_wash_packages_hint => 'أنشئ كل باقة مرة واحدة وحدد مدتها وأوقات الحجز الاختيارية، ثم اربطها بكل أنواع المركبات التي تخدمها.';
+  String get car_wash_packages_hint => 'أنشئ كل باقة مرة واحدة وحدد سعرها لكل نوع مركبة، ثم اربطها بأنواع المركبات التي تخدمها.';
+
+  @override
+  String get car_wash_vehicle_pricing => 'أسعار أنواع المركبات';
+
+  @override
+  String get car_wash_vehicle_pricing_hint => 'حدد سعر هذه الباقة بشكل مستقل لكل نوع مركبة.';
+
+  @override
+  String get car_wash_vehicle_price_not_set => 'لم يتم تحديد سعر لهذا النوع من المركبات';
 
   @override
   String get car_wash_vehicle_assignments => 'أنواع المركبات';
@@ -1393,6 +1587,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get invalid_discount_percentage => 'يجب أن يكون الخصم بين 0 و100';
+
+  @override
+  String get car_wash_package_enabled => 'تفعيل الباقة';
+
+  @override
+  String get car_wash_package_enabled_hint => 'تظهر الباقات المفعّلة للعملاء، بينما تُخفى الباقات المعطّلة.';
 
   @override
   String get package_working_hours => 'توفر الباقة';
@@ -1551,5 +1751,512 @@ class AppLocalizationsAr extends AppLocalizations {
   String get extra_invoice_payment_pending_hint => 'يجب على العميل دفع هذه الفاتورة من شاشة تفاصيل الطلب قبل إنشاء فاتورة أخرى.';
 
   @override
+  String get extra_invoice_payments_successful => 'تم دفع الفواتير الإضافية بنجاح';
+
+  @override
+  String get extra_invoice_paid => 'مدفوعة';
+
+  @override
+  String get extra_invoice_pending => 'بانتظار الدفع';
+
+  @override
+  String get extra_invoice_total_paid => 'إجمالي المدفوع';
+
+  @override
   String get share => 'مشاركة';
+
+  @override
+  String get laundry_service => 'الغسيل';
+
+  @override
+  String get laundry_catalog => 'قائمة أسعار الغسيل';
+
+  @override
+  String get laundry_setup_help => 'فعّل الأصناف واختر خدماتها وحدد أسعارها. تدير الإدارة أسماء الخدمات بشكل موحد. يمكنك أيضاً إضافة أصناف خاصة بك.';
+
+  @override
+  String get laundry_add_item => 'إضافة قطعة';
+
+  @override
+  String get laundry_edit_item => 'تعديل القطعة';
+
+  @override
+  String get laundry_empty_catalog => 'أضف أول قطعة غسيل لإنشاء قائمة الأسعار.';
+
+  @override
+  String get laundry_name_en => 'اسم القطعة بالإنجليزية';
+
+  @override
+  String get laundry_name_ar => 'اسم القطعة بالعربية';
+
+  @override
+  String get laundry_unit => 'وحدة التسعير';
+
+  @override
+  String get laundry_unit_item => 'للقطعة';
+
+  @override
+  String get laundry_unit_meter => 'للمتر';
+
+  @override
+  String get laundry_unit_custom => 'وحدة مخصصة';
+
+  @override
+  String get laundry_unit_label => 'اسم الوحدة المخصصة';
+
+  @override
+  String get laundry_price => 'سعر الوحدة (د.ك)';
+
+  @override
+  String get laundry_active => 'نشط';
+
+  @override
+  String get laundry_inactive => 'غير نشط';
+
+  @override
+  String get laundry_sizes => 'أسعار حسب المقاس';
+
+  @override
+  String get laundry_add_size => 'إضافة مقاس';
+
+  @override
+  String get laundry_size_en => 'المقاس بالإنجليزية';
+
+  @override
+  String get laundry_size_ar => 'المقاس بالعربية';
+
+  @override
+  String get laundry_deactivate => 'إلغاء تفعيل القطعة';
+
+  @override
+  String get laundry_deactivate_confirm => 'هل تريد إلغاء تفعيل هذه القطعة؟ لن تظهر في قائمة أسعار العملاء. تحتفظ الطلبات الحالية بأسعارها.';
+
+  @override
+  String get laundry_required => 'هذا الحقل مطلوب';
+
+  @override
+  String get laundry_valid_number => 'أدخل قيمة من ٠ إلى ١٠٬٠٠٠ بحد أقصى ٣ منازل عشرية';
+
+  @override
+  String get laundry_valid_quantity => 'أدخل كمية من ٠٫٠٠١ إلى ١٠٬٠٠٠ بحد أقصى ٣ منازل عشرية';
+
+  @override
+  String get laundry_order => 'طلب الغسيل';
+
+  @override
+  String get laundry_pickup_first => 'الاستلام أولاً والفاتورة لاحقاً';
+
+  @override
+  String get laundry_upfront => 'الدفع المسبق للقطع';
+
+  @override
+  String get laundry_pending_pickup => 'استلام كيس الغسيل';
+
+  @override
+  String get laundry_pickup_accepted => 'تم قبول الاستلام';
+
+  @override
+  String get laundry_pickup_rejected => 'تم رفض الاستلام';
+
+  @override
+  String get laundry_picked_up => 'تم الاستلام';
+
+  @override
+  String get laundry_invoice_sent => 'بانتظار الدفع';
+
+  @override
+  String get laundry_ready_for_delivery => 'جاهز للتوصيل';
+
+  @override
+  String get laundry_out_for_delivery => 'قيد التوصيل';
+
+  @override
+  String get laundry_delivered => 'تم التوصيل';
+
+  @override
+  String get laundry_accept_pickup => 'قبول الاستلام';
+
+  @override
+  String get laundry_reject_pickup => 'رفض الاستلام';
+
+  @override
+  String get laundry_mark_picked_up => 'تأكيد الاستلام';
+
+  @override
+  String get laundry_start_work => 'بدء الغسيل';
+
+  @override
+  String get laundry_mark_ready => 'جاهز للتوصيل';
+
+  @override
+  String get laundry_start_delivery => 'بدء التوصيل';
+
+  @override
+  String get laundry_mark_delivered => 'تأكيد التوصيل';
+
+  @override
+  String get laundry_complete => 'إكمال الطلب';
+
+  @override
+  String get laundry_waiting_payment => 'بانتظار سداد العميل. حدّث الصفحة للتحقق من حالة الدفع.';
+
+  @override
+  String get laundry_payment_pending => 'الدفع قيد الانتظار';
+
+  @override
+  String get laundry_payment_unpaid => 'غير مدفوع';
+
+  @override
+  String get laundry_payment_refunded => 'تم الاسترداد';
+
+  @override
+  String get laundry_bags => 'عدد الأكياس';
+
+  @override
+  String get laundry_pickup_time => 'تاريخ ووقت الاستلام';
+
+  @override
+  String get laundry_items => 'قطع الغسيل';
+
+  @override
+  String get laundry_quantity => 'الكمية';
+
+  @override
+  String get laundry_size => 'المقاس';
+
+  @override
+  String get laundry_no_items => 'استلام دون قائمة قطع';
+
+  @override
+  String get laundry_invoice => 'فاتورة الغسيل';
+
+  @override
+  String get laundry_create_invoice => 'إنشاء فاتورة';
+
+  @override
+  String get laundry_edit_invoice => 'تعديل مسودة الفاتورة';
+
+  @override
+  String get laundry_draft => 'مسودة';
+
+  @override
+  String get laundry_sent => 'مرسلة';
+
+  @override
+  String get laundry_save_draft => 'حفظ المسودة';
+
+  @override
+  String get laundry_send_invoice => 'إرسال الفاتورة';
+
+  @override
+  String get laundry_invoice_help => 'اختر القطع من قائمة الأسعار النشطة. تُحسب الأسعار من قائمة شركتك عند الحفظ.';
+
+  @override
+  String get laundry_pickup_fee => 'رسوم الاستلام (د.ك)';
+
+  @override
+  String get laundry_delivery_fee => 'رسوم التوصيل (د.ك)';
+
+  @override
+  String get laundry_discount => 'الخصم (د.ك)';
+
+  @override
+  String get laundry_subtotal => 'المجموع الفرعي';
+
+  @override
+  String get laundry_platform_fees => 'رسوم المنصة';
+
+  @override
+  String get laundry_total => 'الإجمالي';
+
+  @override
+  String get laundry_invoice_empty => 'أضف قطعة غسيل واحدة على الأقل';
+
+  @override
+  String get laundry_invoice_unavailable_item => 'تحتوي الفاتورة على قطعة غير نشطة أو معدّلة. احذفها واختر قطعة نشطة من قائمة الأسعار.';
+
+  @override
+  String get laundry_cancel_order => 'إلغاء الطلب';
+
+  @override
+  String get laundry_confirm_action => 'هل تريد تأكيد تغيير حالة الطلب؟';
+
+  @override
+  String get laundry_refresh => 'تحديث الطلب';
+
+  @override
+  String get laundry_payment_status => 'حالة الدفع';
+
+  @override
+  String get laundry_invoice_status => 'حالة الفاتورة';
+
+  @override
+  String get laundry_customer => 'العميل';
+
+  @override
+  String get laundry_empty_orders => 'لا توجد طلبات';
+
+  @override
+  String get laundry_estimated_total => 'الإجمالي التقديري قبل رسوم المنصة';
+
+  @override
+  String get laundry_duplicate_items => 'اجمع كمية القطعة والمقاس نفسيهما في سطر واحد.';
+
+  @override
+  String get laundry_whole_quantity => 'أدخل عدداً صحيحاً من القطع.';
+
+  @override
+  String get laundry_enable_service => 'تقديم خدمة الغسيل';
+
+  @override
+  String get laundry_enable_service_help => 'فعّل خدمة غسيل الملابس واختر مناطق الخدمة ثم احفظ هذا الملف. جهّز الأصناف والأسعار أدناه قبل استقبال الطلبات.';
+
+  @override
+  String get laundry_revenue => 'إيرادات الغسيل';
+
+  @override
+  String get laundry_service_disabled_title => 'خدمة غسيل الملابس غير مفعلة للعملاء';
+
+  @override
+  String get laundry_service_disabled_help => 'جهّز الأصناف والأسعار هنا، ثم فعّل خدمة غسيل الملابس في ملف الشركة واختر مناطق الخدمة واحفظ الملف لاستقبال الطلبات.';
+
+  @override
+  String get laundry_admin_products => 'منتجات الإدارة';
+
+  @override
+  String get laundry_custom_items => 'أصنافك الخاصة';
+
+  @override
+  String get laundry_unavailable_admin => 'غير متاح — تم تعطيله من الإدارة';
+
+  @override
+  String get laundry_edit_prices => 'تعديل الأسعار';
+
+  @override
+  String get laundry_admin_product_help => 'تدير الإدارة الصنف وأسماء الخدمات. فعّل خدمات هذا الصنف وأدخل أسعارك. يجب أن يكون كل سعر أكبر من صفر.';
+
+  @override
+  String get laundry_use_default_price => 'استخدام السعر الافتراضي للإدارة';
+
+  @override
+  String get laundry_default_price => 'سعر الإدارة';
+
+  @override
+  String get laundry_company_price => 'سعرك (د.ك)';
+
+  @override
+  String get laundry_reset_prices => 'إعادة جميع الأسعار إلى أسعار الإدارة';
+
+  @override
+  String get laundry_send_invoice_confirm => 'هل تريد إرسال هذه الفاتورة للعميل؟ لا يمكن تعديل الأصناف والأسعار بعد الإرسال.';
+
+  @override
+  String get registrationGiftApplied => 'تم تطبيق هدية التسجيل • تتحمل شركتكم قيمة الخصم';
+
+  @override
+  String registrationGiftAppliedAmount(String amount) {
+    return 'تم تطبيق هدية التسجيل بقيمة $amount د.ك • تتحمل شركتكم قيمة الخصم';
+  }
+
+  @override
+  String get registrationGiftReserved => 'تم حجز هدية التسجيل • تتحمل شركتكم قيمة الخصم';
+
+  @override
+  String registrationGiftReservedAmount(String amount) {
+    return 'تم حجز هدية التسجيل بقيمة $amount د.ك • تتحمل شركتكم قيمة الخصم';
+  }
+
+  @override
+  String campaignDiscountAppliedAmount(String amount) {
+    return 'تم تطبيق خصم بقيمة $amount د.ك';
+  }
+
+  @override
+  String campaignDiscountReservedAmount(String amount) {
+    return 'تم حجز خصم بقيمة $amount د.ك';
+  }
+
+  @override
+  String campaignCashbackAppliedAmount(String amount) {
+    return 'تم تطبيق استرداد نقدي بقيمة $amount د.ك';
+  }
+
+  @override
+  String campaignCashbackReservedAmount(String amount) {
+    return 'تم حجز استرداد نقدي بقيمة $amount د.ك';
+  }
+
+  @override
+  String get laundry_same_day => 'نفس اليوم';
+
+  @override
+  String get laundry_same_day_help => 'قدّم خدمة نفس اليوم للطلبات المحجوزة قبل الموعد النهائي. الطلبات المحجوزة عند الموعد النهائي أو بعده غير مؤهلة.';
+
+  @override
+  String get laundry_same_day_enable => 'تفعيل خدمة نفس اليوم';
+
+  @override
+  String get laundry_same_day_cutoff => 'الموعد النهائي للحجز';
+
+  @override
+  String get laundry_same_day_select_cutoff => 'تحديد الموعد النهائي للحجز';
+
+  @override
+  String get laundry_same_day_kuwait_time => 'بتوقيت الكويت (نظام 24 ساعة)';
+
+  @override
+  String get laundry_same_day_cutoff_required => 'اختر الموعد النهائي للحجز قبل تفعيل خدمة نفس اليوم.';
+
+  @override
+  String get laundry_same_day_load_error => 'تعذر تحميل إعدادات خدمة نفس اليوم. حاول مرة أخرى.';
+
+  @override
+  String get laundry_same_day_save_error => 'لم يتم حفظ الإعدادات. حاول مرة أخرى.';
+
+  @override
+  String get laundry_same_day_saved => 'تم حفظ إعدادات خدمة نفس اليوم';
+
+  @override
+  String get laundry_shared_services => 'الخدمات';
+
+  @override
+  String get laundry_item_service => 'الخدمة';
+
+  @override
+  String get laundry_shared_services_help => 'فعّل الخدمات التي تقدمها لهذا الصنف وحدد سعر كل خدمة. أسماء الخدمات مشتركة وتديرها الإدارة.';
+
+  @override
+  String get laundry_no_shared_services => 'لم تضف الإدارة أي خدمات بعد.';
+
+  @override
+  String get laundry_item_needs_service => 'فعّل خدمة واحدة على الأقل وحدد سعرها ليظهر هذا الصنف للعملاء.';
+
+  @override
+  String get laundry_legacy_pricing_help => 'تبقى أسعار وخيارات الصنف الحالية متاحة للحجز عند إيقاف هذه الخدمات. أوقف الصنف لإيقاف جميع حجوزاته.';
+
+  @override
+  String get laundry_category => 'الفئة';
+
+  @override
+  String get laundry_all_categories => 'كل الفئات';
+
+  @override
+  String get laundry_uncategorized => 'بدون فئة';
+
+  @override
+  String get laundry_search_items => 'ابحث عن صنف';
+
+  @override
+  String get laundry_no_matching_items => 'لا توجد أصناف تطابق هذه الفئة أو البحث.';
+
+  @override
+  String get laundry_catalog_setup_needed => 'فعّل الأصناف وحدد أسعارها في قائمة المغسلة قبل إنشاء الفاتورة.';
+
+  @override
+  String get laundry_bag_items_help => 'استلام أكياس — افحص الملابس المستلمة، ثم أضف الأصناف والخدمات إلى الفاتورة.';
+
+  @override
+  String get laundry_invoice_category_help => 'اختر فئة للعثور على الأصناف بسهولة. تغييرها يعيد تعيين هذا السطر فقط.';
+
+  @override
+  String get laundry_invoice_invalid_discount => 'لا يمكن أن يتجاوز الخصم مجموع الأصناف ورسوم الاستلام والتوصيل.';
+
+  @override
+  String get laundry_invoice_estimate_help => 'يؤكد النظام الأسعار الحالية ورسوم المنصة عند الحفظ.';
+
+  @override
+  String get laundry_company_price_required => 'أدخل سعر الشركة';
+
+  @override
+  String get laundry_reload_invoice => 'إعادة تحميل الفاتورة المحفوظة';
+
+  @override
+  String get laundry_reload_invoice_confirm => 'هل تريد تجاهل تغييرات الفاتورة غير المحفوظة ومراجعة أحدث فاتورة محفوظة؟';
+
+  @override
+  String get laundry_manage_catalog => 'إدارة قائمة أصناف المغسلة';
+
+  @override
+  String get laundry_configuration => 'إعدادات الغسيل';
+
+  @override
+  String get laundry_working_hours => 'ساعات العمل';
+
+  @override
+  String get laundry_pricing => 'الأسعار';
+
+  @override
+  String get laundry_configuration_help => 'حدد ساعات العمل وتوفر الحجز وأسعار القطع.';
+
+  @override
+  String get laundry_working_hours_help => 'حدد الأوقات التي يمكن للعملاء حجز الاستلام فيها. تتكرر الساعات أسبوعياً بتوقيت الكويت.';
+
+  @override
+  String get laundry_available => 'متاح للحجز';
+
+  @override
+  String get laundry_availability_help => 'عند إيقاف هذا الخيار، يظهر للعملاء أن الشركة محجوزة بالكامل ولا يمكنهم الحجز لديها.';
+
+  @override
+  String get laundry_settings_saved => 'تم حفظ إعدادات الغسيل';
+
+  @override
+  String get laundry_settings_load_error => 'تعذر تحميل إعدادات الغسيل. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get laundry_hours_invalid => 'يجب أن ينتهي كل وقت بعد بدايته دون تداخل مع وقت آخر في اليوم نفسه. للساعات الليلية، أضف فترة منفصلة في اليوم التالي. استخدم 168 فترة زمنية أسبوعياً كحد أقصى.';
+
+  @override
+  String get laundry_hours_unrestricted => 'لم يتم تحديد ساعات العمل بعد. الحجز متاح حالياً طوال الأسبوع. عدّل الأيام أدناه لتحديد أوقات الاستلام.';
+
+  @override
+  String get laundry_day_open => 'متاح للاستلام';
+
+  @override
+  String get laundry_day_closed => 'مغلق للاستلام';
+
+  @override
+  String get laundry_minimum_charge => 'الحد الأدنى للطلب';
+
+  @override
+  String get laundry_minimum_charge_help => 'يجب إضافة قطع بقيمة تصل إلى هذا الحد. لا تُحتسب رسوم الاستلام والتوصيل. يمكن حجز استلام الأكياس دون تحديد القطع، لكن يجب أن تبلغ قيمة قطع الفاتورة الحد الأدنى قبل إرسالها. أدخل 0 لإلغاء الحد الأدنى.';
+
+  @override
+  String get laundry_minimum_charge_invalid => 'أدخل مبلغاً بين 0 و100000 د.ك وبحد أقصى 3 منازل عشرية.';
+
+  @override
+  String get laundry_minimum_invoice_help => 'أضف قطعاً كافية للوصول إلى الحد الأدنى قبل الإرسال. لا تُحتسب الرسوم، ويمكنك حفظ مسودة.';
+
+  @override
+  String get laundry_items_subtotal => 'مجموع أسعار القطع';
+
+  @override
+  String get laundry_catalog_loading => 'جارٍ تحميل قطع الفاتورة…';
+
+  @override
+  String get laundry_catalog_load_timeout => 'استغرق تحميل القطع وقتاً طويلاً. تحقق من اتصالك وأعد المحاولة. تم الاحتفاظ بتعديلاتك.';
+
+  @override
+  String get laundry_catalog_load_error => 'تعذر تحميل قائمة القطع. أعد المحاولة. تم الاحتفاظ بتعديلاتك.';
+
+  @override
+  String get laundry_bulk_prices => 'تحديث أسعار متعددة';
+
+  @override
+  String get laundry_bulk_prices_help => 'عدّل الأسعار وحالة تفعيل الأصناف ثم احفظ جميع التغييرات معًا. ستبقى حالة تفعيل الخدمات كما هي.';
+
+  @override
+  String get laundry_bulk_prices_save => 'حفظ جميع التغييرات';
+
+  @override
+  String get laundry_bulk_prices_error => 'تعذّر حفظ التغييرات. تم الاحتفاظ بتعديلاتك. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get laundry_bulk_prices_unsaved => 'لديك تغييرات غير محفوظة في الأسعار أو حالة تفعيل الأصناف.';
+
+  @override
+  String get laundry_bulk_prices_limit => 'يمكن تحديث ٢٠٠ صنف في المرة الواحدة. احفظ هذه التغييرات قبل تعديل المزيد من الأصناف.';
+
+  @override
+  String get laundry_bulk_prices_invalid => 'أدخل سعرًا من ٠٫٠٠١ إلى ١٠٬٠٠٠ د.ك، بحد أقصى ٣ منازل عشرية.';
 }

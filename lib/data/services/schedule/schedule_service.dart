@@ -26,7 +26,7 @@ abstract class ScheduleService {
   Future<ApiResponse<ResponsePayload<CleanerAvailabilitySlot>>>
       updateCleanerAvailability(
     @Path('id') String id,
-    @Body() Map<String, dynamic> body,
+    @Body() CleanerAvailabilityUpdateRequest body,
   );
 
   @DELETE('/company/cleaner-availability/{id}')

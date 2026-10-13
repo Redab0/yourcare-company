@@ -1,3 +1,5 @@
+import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
+import 'package:cleaning_service_driver/data/models/laundry/laundry_history.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_item.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/car_wash_history.dart';
@@ -17,10 +19,10 @@ class RequestFmt {
       '$count ${count == 1 ? singular : (pluralWord ?? '${singular}s')}';
 
   static String date(DateTime? d) =>
-      d == null ? '—' : DateFormat.yMMMMd().format(d);
+      d == null ? '—' : DateFormat.yMMMMd().format(kuwaitWallTime(d));
 
   static String time(DateTime? d) =>
-      d == null ? '—' : DateFormat.jm().format(d);
+      d == null ? '—' : DateFormat.jm().format(kuwaitWallTime(d));
 }
 
 String? _localizedValue({String? ar, String? en}) {
@@ -62,9 +64,58 @@ extension CleaningItemTextX on CleaningItem {
 extension CleaningRequestPresentationX on CleaningRequest {
   bool get showsScheduleInBusinessApp => this is! UpholsteryCleaningHistory;
 
+  double get originalServiceTotal {
+    double? originalTotal;
+    if (this is HouseKeepingHistory) {
+      originalTotal = (this as HouseKeepingHistory).detail.totalPrice;
+    } else if (this is CarWashHistory) {
+      originalTotal = (this as CarWashHistory).detail?.totalPrice;
+    } else if (this is UpholsteryCleaningHistory) {
+      originalTotal =
+          (this as UpholsteryCleaningHistory).upholsteryCleaning.totalPrice;
+    } else if (this is DeepCleaningHistory) {
+      final offerTotal = (this as DeepCleaningHistory).myBid?.totalPrice;
+      if (offerTotal != null && offerTotal > 0) originalTotal = offerTotal;
+    }
+
+    if (originalTotal != null) return originalTotal;
+
+    final returnedInvoiceTotal = invoices.isNotEmpty
+        ? invoices.fold<double>(
+            0,
+            (total, invoice) => total + invoice.amount,
+          )
+        : extraFees ?? 0;
+    final inferredOriginalTotal = totalPrice - returnedInvoiceTotal;
+    return inferredOriginalTotal >= 0 ? inferredOriginalTotal : totalPrice;
+  }
+
+  double get totalIncludingExtraInvoices {
+    final invoiceTotal = invoices.isNotEmpty
+        ? invoices.fold<double>(
+            0,
+            (total, invoice) => total + invoice.amount,
+          )
+        : extraFees ?? 0;
+    return originalServiceTotal + invoiceTotal;
+  }
+
+  double get totalPaidIncludingExtraInvoices {
+    final paidInvoiceTotal = invoices.isNotEmpty
+        ? invoices
+            .where((invoice) => invoice.isPaid)
+            .fold<double>(0, (total, invoice) => total + invoice.amount)
+        : hasPendingExtraInvoicePayment
+            ? 0
+            : extraFees ?? 0;
+    return originalServiceTotal + paidInvoiceTotal;
+  }
+
   String? get customerSpecialNotes {
     String? value;
-    if (this is HouseKeepingHistory) {
+    if (this is LaundryHistory) {
+      value = (this as LaundryHistory).detail.specialNotes;
+    } else if (this is HouseKeepingHistory) {
       value = (this as HouseKeepingHistory).detail.specialNotes;
     } else if (this is CarWashHistory) {
       value = (this as CarWashHistory).detail?.specialNotes;

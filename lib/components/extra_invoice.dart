@@ -2,6 +2,7 @@ import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/data/models/requests/add_extra_fees_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
+import 'package:cleaning_service_driver/data/models/requests/request_invoice.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -12,13 +13,58 @@ T resolveExtraInvoiceResult<T extends CleaningRequest>({
 }) {
   final serverRequest = updatedRequest is T ? updatedRequest : null;
   final baseRequest = serverRequest ?? currentRequest;
+  final invoices = _mergeCreatedInvoice(
+    currentInvoices: currentRequest.invoices,
+    serverInvoices: serverRequest?.invoices ?? const [],
+    submittedRequest: submittedRequest,
+    paymentUrl: serverRequest?.extraPaymentUrl,
+  );
   return baseRequest.copyWithExtraInvoice(
     extraFees: serverRequest?.extraFees ?? submittedRequest.extraFees,
     extraFeesDescription: serverRequest?.extraFeesDescription ??
         submittedRequest.extraFeesDescription,
-    awaitingExtraPayment: true,
+    awaitingExtraPayment: invoices.any((invoice) => !invoice.isPaid),
     extraPaymentUrl: serverRequest?.extraPaymentUrl,
+    invoices: invoices,
   ) as T;
+}
+
+List<RequestInvoice> _mergeCreatedInvoice({
+  required List<RequestInvoice> currentInvoices,
+  required List<RequestInvoice> serverInvoices,
+  required AddExtraFeesRequest submittedRequest,
+  String? paymentUrl,
+}) {
+  final merged = List<RequestInvoice>.from(currentInvoices);
+  var foundNewServerInvoice = false;
+
+  for (final invoice in serverInvoices) {
+    final id = invoice.id?.trim();
+    final existingIndex = id == null || id.isEmpty
+        ? -1
+        : merged.indexWhere((existing) => existing.id == id);
+    if (existingIndex >= 0) {
+      merged[existingIndex] = invoice;
+    } else {
+      merged.add(invoice);
+      foundNewServerInvoice = true;
+    }
+  }
+
+  if (!foundNewServerInvoice) {
+    merged.add(
+      RequestInvoice(
+        id: 'local-${DateTime.now().microsecondsSinceEpoch}',
+        type: 'extra_fees',
+        amount: submittedRequest.extraFees,
+        status: 'pending',
+        paymentUrl: paymentUrl,
+        description: submittedRequest.extraFeesDescription,
+        createdAt: DateTime.now(),
+      ),
+    );
+  }
+  return List.unmodifiable(merged);
 }
 
 Future<AddExtraFeesRequest?> showExtraInvoiceDialog(
@@ -46,10 +92,10 @@ class ExtraInvoiceActionButton extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
-        onPressed: request.awaitingExtraPayment ? null : onPressed,
+        onPressed: request.hasPendingExtraInvoicePayment ? null : onPressed,
         icon: const Icon(Icons.receipt_long_outlined),
         label: Text(
-          request.awaitingExtraPayment
+          request.hasPendingExtraInvoicePayment
               ? context.l10n.extra_invoice_payment_pending
               : context.l10n.create_extra_invoice,
         ),
@@ -69,7 +115,15 @@ class ExtraInvoiceStatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!request.hasExtraInvoice) return const SizedBox.shrink();
-    final pending = request.awaitingExtraPayment;
+    final invoices = request.invoices;
+    final pending = request.hasPendingExtraInvoicePayment;
+    final successful = request.allExtraInvoicePaymentsSuccessful;
+    final amount = invoices.isEmpty
+        ? request.extraFees
+        : invoices.fold<double>(
+            0,
+            (total, invoice) => total + invoice.amount,
+          );
     final accent = pending ? Colors.orange.shade800 : Colors.green.shade800;
 
     return Card(
@@ -95,22 +149,36 @@ class ExtraInvoiceStatusCard extends StatelessWidget {
                   child: Text(
                     pending
                         ? context.l10n.extra_invoice_payment_pending
-                        : context.l10n.extra_invoice,
+                        : successful
+                            ? context.l10n.extra_invoice_payments_successful
+                            : context.l10n.extra_invoice,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w900,
                         ),
                   ),
                 ),
-                if (request.extraFees != null)
+                if (amount != null && amount > 0)
                   Text(
-                    RequestFmt.price(request.extraFees),
+                    RequestFmt.price(amount),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w900,
                         ),
                   ),
               ],
             ),
-            if (request.extraFeesDescription?.isNotEmpty ?? false) ...[
+            if (invoices.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              ...List.generate(
+                invoices.length,
+                (index) => _InvoiceStatusRow(
+                  key: ValueKey(
+                    'extra-invoice-${invoices[index].id ?? index}',
+                  ),
+                  invoice: invoices[index],
+                  index: index,
+                ),
+              ),
+            ] else if (request.extraFeesDescription?.isNotEmpty ?? false) ...[
               const SizedBox(height: 10),
               Text(
                 request.extraFeesDescription!,
@@ -124,8 +192,104 @@ class ExtraInvoiceStatusCard extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
+            const SizedBox(height: 12),
+            const Divider(height: 1),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    context.l10n.extra_invoice_total_paid,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w900,
+                        ),
+                  ),
+                ),
+                Text(
+                  RequestFmt.price(request.totalPaidIncludingExtraInvoices),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w900,
+                      ),
+                ),
+              ],
+            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _InvoiceStatusRow extends StatelessWidget {
+  final RequestInvoice invoice;
+  final int index;
+
+  const _InvoiceStatusRow({
+    super.key,
+    required this.invoice,
+    required this.index,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final paid = invoice.isPaid;
+    final statusColor = paid ? Colors.green.shade800 : Colors.orange.shade800;
+    final description = invoice.description?.trim();
+
+    return Container(
+      margin: EdgeInsets.only(top: index == 0 ? 0 : 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: statusColor.withValues(alpha: 0.35)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '${context.l10n.extra_invoice} ${index + 1}',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
+              ),
+              Text(
+                RequestFmt.price(invoice.amount),
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+              ),
+            ],
+          ),
+          if (description?.isNotEmpty ?? false) ...[
+            const SizedBox(height: 6),
+            Text(description!),
+          ],
+          const SizedBox(height: 7),
+          Row(
+            children: [
+              Icon(
+                paid ? Icons.check_circle_rounded : Icons.hourglass_top_rounded,
+                size: 18,
+                color: statusColor,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                paid
+                    ? context.l10n.extra_invoice_paid
+                    : context.l10n.extra_invoice_pending,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: statusColor,
+                      fontWeight: FontWeight.w800,
+                    ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

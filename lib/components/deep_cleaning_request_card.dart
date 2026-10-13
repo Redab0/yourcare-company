@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/data/models/requests/deep_cleaning_history.dart';
@@ -54,7 +55,8 @@ class DeepCleaningRequestCard extends StatelessWidget {
                   Text(
                       request.scheduledTime == null
                           ? context.l10n.as_soon_as_possible
-                          : DateFormat.yMMMd().format(request.scheduledTime!),
+                          : DateFormat.yMMMd()
+                              .format(kuwaitWallTime(request.scheduledTime!)),
                       style: theme.textTheme.bodyMedium),
                 ],
               ),

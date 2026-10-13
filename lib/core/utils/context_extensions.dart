@@ -16,10 +16,18 @@ extension LocalizationX on BuildContext {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(message ?? genericErrorMessage),
+          content: Text(message?.trim().isNotEmpty == true
+              ? message!
+              : genericErrorMessage),
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
         ),
       );
+  }
+
+  void showStatusUpdatedToast() {
+    ScaffoldMessenger.of(this)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(l10n.request_status_updated)));
   }
 }

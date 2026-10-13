@@ -13,6 +13,13 @@ HouseKeepingHistory _$HouseKeepingHistoryFromJson(Map<String, dynamic> json) =>
       ($checkedConvert) {
         final val = HouseKeepingHistory(
           id: $checkedConvert('id', (v) => v as String?),
+          registrationGiftApplied: $checkedConvert(
+              'registrationGiftApplied', (v) => v as bool? ?? false),
+          campaign: $checkedConvert(
+              'campaign',
+              (v) => v == null
+                  ? null
+                  : RequestCampaign.fromJson(v as Map<String, dynamic>)),
           requestStatus: $checkedConvert(
               'requestStatus', (v) => $enumDecode(_$RequestStatusEnumMap, v)),
           totalPrice:
@@ -26,8 +33,8 @@ HouseKeepingHistory _$HouseKeepingHistoryFromJson(Map<String, dynamic> json) =>
               $checkedConvert('updatedAt', (v) => DateTime.parse(v as String)),
           detail: $checkedConvert('HouseCleaning',
               (v) => HouseKeepingDetail.fromJson(v as Map<String, dynamic>)),
-          scheduledTime: $checkedConvert(
-              'scheduledTime', (v) => DateTime.parse(v as String)),
+          scheduledTime: $checkedConvert('scheduledTime',
+              (v) => const KuwaitScheduleConverter().fromJson(v as String)),
           assignedWorker: $checkedConvert(
               'cleaners',
               (v) => (v as List<dynamic>?)
@@ -55,6 +62,14 @@ HouseKeepingHistory _$HouseKeepingHistoryFromJson(Map<String, dynamic> json) =>
               'awaitingExtraPayment', (v) => v as bool? ?? false),
           extraPaymentUrl:
               $checkedConvert('extraPaymentUrl', (v) => v as String?),
+          invoices: $checkedConvert(
+              'invoices',
+              (v) =>
+                  (v as List<dynamic>?)
+                      ?.map((e) =>
+                          RequestInvoice.fromJson(e as Map<String, dynamic>))
+                      .toList() ??
+                  []),
         );
         return val;
       },
@@ -72,15 +87,19 @@ Map<String, dynamic> _$HouseKeepingHistoryToJson(
       'id': instance.id,
       'type': instance.type,
       'totalPrice': instance.totalPrice,
+      'registrationGiftApplied': instance.registrationGiftApplied,
+      'campaign': instance.campaign,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
-      'scheduledTime': instance.scheduledTime.toIso8601String(),
+      'scheduledTime':
+          const KuwaitScheduleConverter().toJson(instance.scheduledTime),
       'customer': instance.customer,
       'requestStatus': _$RequestStatusEnumMap[instance.requestStatus]!,
       'extraFees': instance.extraFees,
       'extraFeesDescription': instance.extraFeesDescription,
       'awaitingExtraPayment': instance.awaitingExtraPayment,
       'extraPaymentUrl': instance.extraPaymentUrl,
+      'invoices': instance.invoices,
       'cleaners': instance.assignedWorker,
       'HouseCleaning': instance.detail,
       'businessId': instance.companyInformation,
@@ -126,8 +145,10 @@ HouseKeepingDetail _$HouseKeepingDetailFromJson(Map<String, dynamic> json) =>
               (v) => v == null
                   ? null
                   : Address.fromJson(v as Map<String, dynamic>)),
-          scheduledTime: $checkedConvert('scheduledTime',
-              (v) => v == null ? null : DateTime.parse(v as String)),
+          scheduledTime: $checkedConvert(
+              'scheduledTime',
+              (v) => _$JsonConverterFromJson<String, DateTime>(
+                  v, const KuwaitScheduleConverter().fromJson)),
           specialNotes: $checkedConvert('specialNotes', (v) => v as String?),
           totalPrice:
               $checkedConvert('totalPrice', (v) => (v as num?)?.toDouble()),
@@ -143,26 +164,40 @@ Map<String, dynamic> _$HouseKeepingDetailToJson(HouseKeepingDetail instance) =>
       'cleaningDurations': instance.cleaningDurations,
       'cleaningProducts': instance.cleaningProducts,
       'address': instance.address,
-      'scheduledTime': instance.scheduledTime?.toIso8601String(),
+      'scheduledTime': _$JsonConverterToJson<String, DateTime>(
+          instance.scheduledTime, const KuwaitScheduleConverter().toJson),
       'specialNotes': instance.specialNotes,
       'totalPrice': instance.totalPrice,
       'area': instance.area,
     };
+
+Value? _$JsonConverterFromJson<Json, Value>(
+  Object? json,
+  Value? Function(Json json) fromJson,
+) =>
+    json == null ? null : fromJson(json as Json);
+
+Json? _$JsonConverterToJson<Json, Value>(
+  Value? value,
+  Json? Function(Value value) toJson,
+) =>
+    value == null ? null : toJson(value);
 
 FrequentRequestModel _$FrequentRequestModelFromJson(
         Map<String, dynamic> json) =>
     FrequentRequestModel(
       status: $enumDecodeNullable(_$RequestStatusEnumMap, json['status']),
       id: json['id'] as String?,
-      date:
-          json['date'] == null ? null : DateTime.parse(json['date'] as String),
+      date: _$JsonConverterFromJson<String, DateTime>(
+          json['date'], const KuwaitScheduleConverter().fromJson),
     );
 
 Map<String, dynamic> _$FrequentRequestModelToJson(
         FrequentRequestModel instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'date': instance.date?.toIso8601String(),
+      'date': _$JsonConverterToJson<String, DateTime>(
+          instance.date, const KuwaitScheduleConverter().toJson),
       'status': _$RequestStatusEnumMap[instance.status],
     };
 

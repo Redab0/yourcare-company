@@ -1,3 +1,8 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'custom_service_item_request.g.dart';
+
+@JsonSerializable(createFactory: false)
 class CustomServiceItemRequest {
   final String serviceType;
   final String titleEn;
@@ -9,11 +14,5 @@ class CustomServiceItemRequest {
     required this.titleAr,
   });
 
-  Map<String, dynamic> toJson() {
-    return {
-      'serviceType': serviceType,
-      'titleEn': titleEn,
-      'titleAr': titleAr,
-    };
-  }
+  Map<String, dynamic> toJson() => _$CustomServiceItemRequestToJson(this);
 }

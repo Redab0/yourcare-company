@@ -104,12 +104,15 @@ class _ScheduleService implements ScheduleService {
 
   @override
   Future<ApiResponse<ResponsePayload<CleanerAvailabilitySlot>>>
-      updateCleanerAvailability(String id, Map<String, dynamic> body) async {
+      updateCleanerAvailability(
+    String id,
+    CleanerAvailabilityUpdateRequest body,
+  ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(body);
+    _data.addAll(body.toJson());
     final _options =
         _setStreamType<ApiResponse<ResponsePayload<CleanerAvailabilitySlot>>>(
       Options(method: 'PATCH', headers: _headers, extra: _extra)

@@ -82,7 +82,7 @@ class _StaffMainScreenState extends State<StaffMainScreen> {
                   description:
                       context.l10n.business_inner_tour_staff_create_user,
                   tile: HomeMenuItem(
-                    imageAsset: 'assets/images/create_user.png',
+                    imageAsset: 'assets/images/business_create_user.png',
                     title: context.l10n.create_user_title,
                     onTap: () => context.pushNamed('createUsersScreen'),
                     large: isTablet,
@@ -100,7 +100,7 @@ class _StaffMainScreenState extends State<StaffMainScreen> {
                   description:
                       context.l10n.business_inner_tour_staff_manage_users,
                   tile: HomeMenuItem(
-                    imageAsset: 'assets/images/manage_users.png',
+                    imageAsset: 'assets/images/business_manage_users.png',
                     title: context.l10n.user_management,
                     onTap: () => context.pushNamed('staffList'),
                     large: isTablet,
@@ -115,7 +115,7 @@ class _StaffMainScreenState extends State<StaffMainScreen> {
                   description:
                       context.l10n.business_inner_tour_staff_create_team,
                   tile: HomeMenuItem(
-                    imageAsset: 'assets/images/ic_create_team.png',
+                    imageAsset: 'assets/images/business_create_team.png',
                     title: context.l10n.create_team,
                     onTap: () => context.pushNamed('createEditTeamScreen'),
                     large: isTablet,
@@ -133,7 +133,7 @@ class _StaffMainScreenState extends State<StaffMainScreen> {
                   description:
                       context.l10n.business_inner_tour_staff_manage_teams,
                   tile: HomeMenuItem(
-                    imageAsset: 'assets/images/ic_manage_team.png',
+                    imageAsset: 'assets/images/business_manage_team.png',
                     title: context.l10n.team_management,
                     onTap: () => context.pushNamed('teamsListScreen'),
                     large: isTablet,
@@ -154,7 +154,7 @@ class _StaffMainScreenState extends State<StaffMainScreen> {
                   title: context.l10n.employee_calendar,
                   description: context.l10n.business_inner_tour_staff_calendar,
                   tile: HomeMenuItem(
-                    imageAsset: 'assets/images/employee_calendar.png',
+                    imageAsset: 'assets/images/business_employee_calendar.png',
                     title: context.l10n.employee_calendar,
                     onTap: () => context.pushNamed('employee-calendar-screen'),
                     large: isTablet,

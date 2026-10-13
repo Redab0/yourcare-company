@@ -1,11 +1,15 @@
+import 'package:cleaning_service_driver/components/registration_gift_badge.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/contact_actions.dart';
 import 'package:cleaning_service_driver/components/detail_row.dart';
 import 'package:cleaning_service_driver/components/extra_invoice.dart';
+import 'package:cleaning_service_driver/components/open_map_action.dart';
+import 'package:cleaning_service_driver/components/request_details_refresh_button.dart';
 import 'package:cleaning_service_driver/core/themes/app_theme.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
+import 'package:cleaning_service_driver/core/utils/share_utils.dart';
 import 'package:cleaning_service_driver/data/models/auth/address.dart';
 import 'package:cleaning_service_driver/data/models/requests/car_wash_history.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
@@ -18,7 +22,6 @@ import 'package:cleaning_service_driver/features/chats/presentation/chat_open_he
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:share_plus/share_plus.dart';
 
 class CarWashJobDetailsScreen extends StatefulWidget {
   final CarWashHistory request;
@@ -92,7 +95,7 @@ class _CarWashJobDetailsScreenState extends State<CarWashJobDetailsScreen> {
   Future<void> _showExtraInvoiceDialog() async {
     final id = _currentRequest.id;
     if (!_currentRequest.canCreateExtraInvoice ||
-        _currentRequest.awaitingExtraPayment ||
+        _currentRequest.hasPendingExtraInvoicePayment ||
         id == null ||
         id.isEmpty) {
       return;
@@ -103,7 +106,7 @@ class _CarWashJobDetailsScreenState extends State<CarWashJobDetailsScreen> {
 
     // Recheck after the dialog in case a job action changed the request status.
     if (!_currentRequest.canCreateExtraInvoice ||
-        _currentRequest.awaitingExtraPayment) {
+        _currentRequest.hasPendingExtraInvoicePayment) {
       return;
     }
     context.read<JobActionsBloc>().add(
@@ -115,8 +118,13 @@ class _CarWashJobDetailsScreenState extends State<CarWashJobDetailsScreen> {
     context.read<JobBloc>().add(LoadJobsEvent());
   }
 
-  Future<void> _shareDetails() async {
+  Future<void> _shareDetails(BuildContext shareContext) async {
     final request = _currentRequest;
+    final address = _serviceAddress;
+    final mapLink = OpenMapAction.googleMapsLink(
+      address?.latitude,
+      address?.longitude,
+    );
     final specialNotes = request.customerSpecialNotes;
     final lines = <String>[
       context.l10n.car_wash_service,
@@ -125,7 +133,8 @@ class _CarWashJobDetailsScreenState extends State<CarWashJobDetailsScreen> {
       '${context.l10n.signup_name}: ${request.customer.username ?? '-'}',
       '${context.l10n.signup_phone}: ${request.customer.phone ?? '-'}',
       '${context.l10n.request_date_time}: ${RequestFmt.date(_scheduledTime)} ${RequestFmt.time(_scheduledTime)}',
-      '${context.l10n.address}: ${_addressLabel(_serviceAddress)}',
+      '${context.l10n.address}: ${_addressLabel(address)}',
+      if (mapLink != null) 'Google Maps / خرائط Google: $mapLink',
       '${context.l10n.request_price}: ${RequestFmt.price(request.totalPrice)}',
       if (specialNotes != null)
         '${context.l10n.request_card_notes}: $specialNotes',
@@ -134,7 +143,7 @@ class _CarWashJobDetailsScreenState extends State<CarWashJobDetailsScreen> {
       if (request.extraFeesDescription?.isNotEmpty ?? false)
         '${context.l10n.extra_invoice_reason}: ${request.extraFeesDescription}',
     ];
-    await Share.share(lines.join('\n'));
+    await shareTextFrom(shareContext, lines.join('\n'));
   }
 
   @override
@@ -142,11 +151,21 @@ class _CarWashJobDetailsScreenState extends State<CarWashJobDetailsScreen> {
     final request = _currentRequest;
     final status = request.requestStatus;
     final vehicles = request.detail?.vehicles ?? const [];
+    final address = _serviceAddress;
+    final hasCustomerLocation = OpenMapAction.hasValidCoordinates(
+      address?.latitude,
+      address?.longitude,
+    );
     final specialNotes = request.customerSpecialNotes;
     final canManageJob = request.canCreateExtraInvoice;
 
     return BlocConsumer<JobActionsBloc, JobActionsState>(
       listener: (context, state) {
+        if (state is JobRefreshed &&
+            state.model is CarWashHistory &&
+            state.model.id == _currentRequest.id) {
+          setState(() => _currentRequest = state.model as CarWashHistory);
+        }
         if (state is ExtraFeesAdded) {
           setState(() {
             _currentRequest = resolveExtraInvoiceResult(
@@ -161,12 +180,18 @@ class _CarWashJobDetailsScreenState extends State<CarWashJobDetailsScreen> {
               content: Text(context.l10n.extra_invoice_created_successfully),
             ),
           );
-        } else if (state is JobStarted && state.model is CarWashHistory) {
+        } else if (state is JobStarted &&
+            state.model is CarWashHistory &&
+            state.model.id == _currentRequest.id) {
           setState(() => _currentRequest = state.model as CarWashHistory);
           _refreshJobs();
-        } else if (state is JobCompleted && state.model is CarWashHistory) {
+          context.showStatusUpdatedToast();
+        } else if (state is JobCompleted &&
+            state.model is CarWashHistory &&
+            state.model.id == _currentRequest.id) {
           setState(() => _currentRequest = state.model as CarWashHistory);
           _refreshJobs();
+          context.showStatusUpdatedToast();
           context.goNamed('jobCompletedSuccessScreen');
         } else if (state is JobActionFailed) {
           context.showErrorToast(state.message);
@@ -180,10 +205,13 @@ class _CarWashJobDetailsScreenState extends State<CarWashJobDetailsScreen> {
             ),
             title: Text('#${request.id ?? '-'}'),
             actions: [
-              IconButton(
-                onPressed: _shareDetails,
-                icon: const Icon(Icons.share_outlined),
-                tooltip: context.l10n.share,
+              RequestDetailsRefreshButton(requestId: _currentRequest.id),
+              Builder(
+                builder: (shareContext) => IconButton(
+                  onPressed: () => _shareDetails(shareContext),
+                  icon: const Icon(Icons.share_outlined),
+                  tooltip: context.l10n.share,
+                ),
               ),
             ],
           ),
@@ -191,6 +219,7 @@ class _CarWashJobDetailsScreenState extends State<CarWashJobDetailsScreen> {
             minimum: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             child: ListView(
               children: [
+                RegistrationGiftBadge(request: request),
                 Align(
                   alignment: AlignmentDirectional.centerStart,
                   child: Chip(
@@ -242,8 +271,22 @@ class _CarWashJobDetailsScreenState extends State<CarWashJobDetailsScreen> {
                       const Divider(height: 1),
                       DetailRow(
                         context.l10n.address,
-                        _addressLabel(_serviceAddress),
+                        _addressLabel(address),
                       ),
+                      if (hasCustomerLocation) ...[
+                        const Divider(height: 1),
+                        DetailWidgetRow(
+                          context.l10n.request_location,
+                          Align(
+                            alignment: AlignmentDirectional.centerEnd,
+                            child: OpenMapAction(
+                              latitude: address!.latitude!,
+                              longitude: address.longitude!,
+                            ),
+                          ),
+                        ),
+                        const CustomerLocationReminder(),
+                      ],
                     ],
                   ),
                 ),
@@ -349,8 +392,7 @@ class _CarWashJobDetailsScreenState extends State<CarWashJobDetailsScreen> {
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   ),
-                if ((request.extraFees ?? 0) > 0 ||
-                    request.awaitingExtraPayment)
+                if (request.hasExtraInvoice)
                   ExtraInvoiceStatusCard(request: request),
               ],
             ),

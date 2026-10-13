@@ -8,13 +8,6 @@ class CompleteJobUseCase {
   CompleteJobUseCase(this.jobsRepository);
 
   Future<CleaningRequest> call(String id,
-      {CompleteJobRequest? completeJobRequest}) async {
-    try {
-      return await jobsRepository.completeJob(id,
-          completeJobRequest: completeJobRequest);
-    } catch (e) {
-      print("ERROR ${e.toString()}");
-      throw (Exception('Start Job Failed ${e.toString()}'));
-    }
-  }
+          {CompleteJobRequest? completeJobRequest}) =>
+      jobsRepository.completeJob(id, completeJobRequest: completeJobRequest);
 }

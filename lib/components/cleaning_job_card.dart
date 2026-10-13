@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/data/models/requests/house_keeping_history.dart';
@@ -60,7 +61,9 @@ class CleaningJobCard extends StatelessWidget {
                       style: theme.textTheme.labelSmall!
                           .copyWith(color: Colors.grey[600])),
                   Text(
-                    DateFormat.yMMMd().add_jm().format(request.scheduledTime),
+                    DateFormat.yMMMd()
+                        .add_jm()
+                        .format(kuwaitWallTime(request.scheduledTime)),
                     style: theme.textTheme.bodyMedium,
                   ),
                 ],

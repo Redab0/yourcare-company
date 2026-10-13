@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/components/registration_gift_badge.dart';
 import 'dart:io';
 
 import 'package:cleaning_service_driver/components/business_back_button.dart';
@@ -5,9 +6,12 @@ import 'package:cleaning_service_driver/components/contact_actions.dart';
 import 'package:cleaning_service_driver/components/detail_row.dart';
 import 'package:cleaning_service_driver/components/extra_invoice.dart';
 import 'package:cleaning_service_driver/components/media_carousel_viewer.dart';
+import 'package:cleaning_service_driver/components/open_map_action.dart';
+import 'package:cleaning_service_driver/components/request_details_refresh_button.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
+import 'package:cleaning_service_driver/core/utils/share_utils.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/complete_job_media_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/deep_cleaning_history.dart';
@@ -26,7 +30,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:share_plus/share_plus.dart';
 
 enum _MediaChoice { gallery, cameraPhoto, cameraVideo }
 
@@ -82,7 +85,7 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
   Future<void> _showExtraInvoiceDialog() async {
     final id = _currentRequest.id;
     if (!_currentRequest.canCreateExtraInvoice ||
-        _currentRequest.awaitingExtraPayment ||
+        _currentRequest.hasPendingExtraInvoicePayment ||
         id == null ||
         id.isEmpty) {
       return;
@@ -91,7 +94,7 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
     final request = await showExtraInvoiceDialog(context);
     if (!mounted || request == null) return;
     if (!_currentRequest.canCreateExtraInvoice ||
-        _currentRequest.awaitingExtraPayment) {
+        _currentRequest.hasPendingExtraInvoicePayment) {
       return;
     }
     context.read<JobActionsBloc>().add(AddExtraFeesEvent(id, request));
@@ -129,9 +132,13 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
     }
   }
 
-  Future<void> _shareDetails() async {
+  Future<void> _shareDetails(BuildContext shareContext) async {
     final req = _currentRequest;
     final d = req.detail;
+    final mapLink = OpenMapAction.googleMapsLink(
+      d.address?.latitude,
+      d.address?.longitude,
+    );
     final specialNotes = req.customerSpecialNotes;
     final name = req.customer.username?.trim();
     final phone = req.customer.phone?.trim();
@@ -145,6 +152,7 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
       'Request Status / حالة الطلب: ${_statusPair(req.requestStatus)}',
       'Date and Time / الوقت والتاريخ: ${RequestFmt.date(d.scheduledTime)} ${RequestFmt.time(d.scheduledTime)}',
       'Address / العنوان: ${d.fullAddress}',
+      if (mapLink != null) 'Google Maps / خرائط Google: $mapLink',
       '',
       '--- Customer / العميل ---',
       'Customer Name / اسم العميل: ${(name == null || name.isEmpty) ? '-' : name}',
@@ -170,7 +178,7 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
         'Extra invoice reason / سبب الفاتورة الإضافية: ${req.extraFeesDescription}',
       );
     }
-    await Share.share(lines.join('\n'));
+    await shareTextFrom(shareContext, lines.join('\n'));
   }
 
   Widget _mediaThumb(String url) {
@@ -202,6 +210,11 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final d = _currentRequest.detail;
+    final address = d.address;
+    final hasCustomerLocation = OpenMapAction.hasValidCoordinates(
+      address?.latitude,
+      address?.longitude,
+    );
     final propertyType = d.propertyTypeTitle.toLowerCase();
     final isHouse =
         propertyType.contains('house') || propertyType.contains('منزل');
@@ -212,6 +225,11 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
     // final hasWorkers = (widget.request.?.isNotEmpty ?? false);
     return BlocConsumer<JobActionsBloc, JobActionsState>(
       listener: (ctx, state) {
+        if (state is JobRefreshed &&
+            state.model is DeepCleaningHistory &&
+            state.model.id == _currentRequest.id) {
+          setState(() => _currentRequest = state.model as DeepCleaningHistory);
+        }
         if (state is OfferSubmitted) {
           context.goNamed('deepCleaningSuccess');
         } else if (state is ExtraFeesAdded) {
@@ -230,7 +248,7 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
             ),
           );
         } else if (state is JobActionFailed) {
-          ctx.showErrorToast();
+          ctx.showErrorToast(state.message);
         } else if (state is TeamsFetchedState) {
           setState(() {
             _allTeams = state.teams;
@@ -263,18 +281,24 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
           ScaffoldMessenger.of(ctx).showSnackBar(
             SnackBar(content: Text('Added ${urls.length} item(s)')),
           );
-        } else if (state is JobStarted) {
+        } else if (state is JobStarted &&
+            state.model is DeepCleaningHistory &&
+            state.model.id == _currentRequest.id) {
           setState(() {
             _currentRequest = (state.model as DeepCleaningHistory);
           });
           context.read<JobBloc>().add(LoadJobsEvent());
           _maybeRefreshRequests();
-        } else if (state is JobCompleted) {
+          ctx.showStatusUpdatedToast();
+        } else if (state is JobCompleted &&
+            state.model is DeepCleaningHistory &&
+            state.model.id == _currentRequest.id) {
           setState(() {
             _currentRequest = (state.model as DeepCleaningHistory);
           });
           context.read<JobBloc>().add(LoadJobsEvent());
           _maybeRefreshRequests();
+          ctx.showStatusUpdatedToast();
           context.goNamed('jobCompletedSuccessScreen');
         }
       },
@@ -286,9 +310,12 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
             ),
             title: Text('#${widget.request.id}'),
             actions: [
-              IconButton(
-                onPressed: _shareDetails,
-                icon: const Icon(Icons.share),
+              RequestDetailsRefreshButton(requestId: _currentRequest.id),
+              Builder(
+                builder: (shareContext) => IconButton(
+                  onPressed: () => _shareDetails(shareContext),
+                  icon: const Icon(Icons.share),
+                ),
               ),
             ],
           ),
@@ -297,6 +324,7 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  RegistrationGiftBadge(request: _currentRequest),
                   if ((d.photosAndVideos?.isNotEmpty ?? false))
                     SizedBox(
                       height: 160,
@@ -365,12 +393,33 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
                               "${RequestFmt.date(d.scheduledTime)}  ${RequestFmt.time(d.scheduledTime)}"),
                         ],
                       )),
-                  if (d.address != null)
+                  if (address != null)
                     _buildSection(
                       expanded: false,
                       title: context.l10n.address,
-                      child: DetailRow(
-                          context.l10n.request_full_location, d.fullAddress),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          DetailRow(
+                            context.l10n.request_full_location,
+                            d.fullAddress,
+                          ),
+                          if (hasCustomerLocation) ...[
+                            const Divider(height: 1),
+                            DetailWidgetRow(
+                              context.l10n.request_location,
+                              Align(
+                                alignment: AlignmentDirectional.centerEnd,
+                                child: OpenMapAction(
+                                  latitude: address.latitude!,
+                                  longitude: address.longitude!,
+                                ),
+                              ),
+                            ),
+                            const CustomerLocationReminder(),
+                          ],
+                        ],
+                      ),
                     ),
                   if (specialNotes != null)
                     _buildSection(
@@ -395,10 +444,13 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                context.l10n.assigned_team,
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
+                              Expanded(
+                                child: Text(
+                                  context.l10n.assigned_team,
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
                               ),
                               IconButton(
                                 icon: Icon(
@@ -560,9 +612,7 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
               ),
             ),
           ),
-          bottomNavigationBar: (_currentRequest.requestStatus !=
-                      RequestStatus.completed &&
-                  _currentRequest.requestStatus != RequestStatus.cancelled)
+          bottomNavigationBar: _currentRequest.canCreateExtraInvoice
               ? Builder(
                   builder: (context) {
                     // Optional: also disable while uploading
@@ -574,10 +624,7 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
                     final isConfirmed = rs == RequestStatus.confirmed;
                     final isInProgress = rs == RequestStatus.inProgress;
 
-                    // Disable "Complete Job" when in-progress and no media uploaded
-                    final canCompleteNow = isInProgress &&
-                        uploadedFilesUrls.isNotEmpty &&
-                        !isUploading;
+                    final canCompleteNow = isInProgress && !isUploading;
 
                     return Padding(
                       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
@@ -619,10 +666,13 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
                                       }
                                     : (isInProgress && canCompleteNow
                                         ? () {
-                                            final body = CompleteJobRequest(
-                                              files: List<String>.from(
-                                                  uploadedFilesUrls),
-                                            );
+                                            final body = uploadedFilesUrls
+                                                    .isEmpty
+                                                ? null
+                                                : CompleteJobRequest(
+                                                    files: List<String>.from(
+                                                        uploadedFilesUrls),
+                                                  );
                                             context.read<JobActionsBloc>().add(
                                                   CompleteJobEvent(
                                                     _currentRequest.id ?? "",

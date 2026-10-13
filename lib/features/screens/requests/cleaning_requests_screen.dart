@@ -1,8 +1,10 @@
+import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
 import 'dart:async';
 
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/cleaning_job_card.dart';
 import 'package:cleaning_service_driver/components/deep_cleaning_request_card.dart';
+import 'package:cleaning_service_driver/components/job_tile.dart';
 import 'package:cleaning_service_driver/components/shimmer_box.dart';
 import 'package:cleaning_service_driver/components/upholstery_cleaning_request_card.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
@@ -10,6 +12,7 @@ import 'package:cleaning_service_driver/core/themes/app_theme.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
+import 'package:cleaning_service_driver/data/models/requests/car_wash_history.dart';
 import 'package:cleaning_service_driver/data/models/requests/deep_cleaning_history.dart';
 import 'package:cleaning_service_driver/data/models/requests/house_keeping_history.dart';
 import 'package:cleaning_service_driver/data/models/requests/upholstery_cleaning_history.dart';
@@ -194,16 +197,15 @@ class _RequestsScreenState extends State<RequestsScreen> {
                           ? DateFormat.yMMMd(Localizations.localeOf(context)
                                   .toLanguageTag())
                               .add_jm()
-                              .format(req.scheduledTime!)
+                              .format(kuwaitWallTime(req.scheduledTime!))
                           : DateFormat.yMMMd(Localizations.localeOf(context)
                                   .toLanguageTag())
-                              .format(req.scheduledTime!)
+                              .format(kuwaitWallTime(req.scheduledTime!))
                   : null,
               summaryPrice: "",
               pillColor: _pillColorFor(req),
-              child: _buildRequestCard(
-                context,
-                req,
+              child: AvailableRequestCard(
+                request: req,
                 hidePriceForWorker: hidePriceForWorker,
               ),
             );
@@ -244,17 +246,34 @@ class _RequestsScreenState extends State<RequestsScreen> {
   }
 }
 
+class AvailableRequestCard extends StatelessWidget {
+  final CleaningRequest request;
+  final bool hidePriceForWorker;
+
+  const AvailableRequestCard({
+    super.key,
+    required this.request,
+    required this.hidePriceForWorker,
+  });
+
+  @override
+  Widget build(BuildContext context) => _buildRequestCard(
+        context,
+        request,
+        hidePriceForWorker: hidePriceForWorker,
+      );
+}
+
 Widget _buildRequestCard(
   BuildContext context,
   CleaningRequest req, {
   required bool hidePriceForWorker,
 }) {
-  final type = req.type?.toLowerCase() ?? '';
-  if (type == 'deepcleaning') {
+  if (req is DeepCleaningHistory) {
     return InkWell(
       onTap: () => context.pushNamed('deepCleaning', extra: req),
       child: DeepCleaningRequestCard(
-        request: req as DeepCleaningHistory,
+        request: req,
         padding: EdgeInsets.zero,
         onSubmitBid: () {
           context.pushNamed('deepCleaning', extra: req);
@@ -262,11 +281,11 @@ Widget _buildRequestCard(
       ),
     );
   }
-  if (type == 'upholsterycleaning') {
+  if (req is UpholsteryCleaningHistory) {
     return InkWell(
       onTap: () => context.pushNamed('upholsteryCleaning', extra: req),
       child: UpholsteryCleaningRequestCard(
-        request: req as UpholsteryCleaningHistory,
+        request: req,
         padding: EdgeInsets.zero,
         onSubmitBid: () {
           context.pushNamed('upholsteryCleaning', extra: req);
@@ -274,19 +293,31 @@ Widget _buildRequestCard(
       ),
     );
   }
-  return InkWell(
-    onTap: () {
-      context.pushNamed('houseKeeping', extra: req);
-    },
-    child: CleaningJobCard(
-      request: req as HouseKeepingHistory,
-      padding: EdgeInsets.zero,
-      hidePrice: hidePriceForWorker,
-      onAccept: () {
+  if (req is HouseKeepingHistory) {
+    return InkWell(
+      onTap: () {
         context.pushNamed('houseKeeping', extra: req);
       },
-    ),
-  );
+      child: CleaningJobCard(
+        request: req,
+        padding: EdgeInsets.zero,
+        hidePrice: hidePriceForWorker,
+        onAccept: () {
+          context.pushNamed('houseKeeping', extra: req);
+        },
+      ),
+    );
+  }
+  if (req is CarWashHistory) {
+    return InkWell(
+      onTap: () => context.pushNamed('carWashJobDetails', extra: req),
+      child: JobTile(request: req),
+    );
+  }
+
+  // Keep future service types visible without forcing them into an unrelated
+  // request model. They remain read-only until a dedicated detail route exists.
+  return JobTile(request: req);
 }
 
 String _summaryLabel(CleaningRequest req, BuildContext context) {
@@ -294,6 +325,7 @@ String _summaryLabel(CleaningRequest req, BuildContext context) {
   if (t == 'deepcleaning') return context.l10n.deepCleaning;
   if (t == 'upholsterycleaning') return context.l10n.upholstery_cleaning;
   if (t == 'housecleaning') return context.l10n.houseKeeping;
+  if (t == 'carwash') return context.l10n.car_wash_service;
   return req.type ?? '';
 }
 
@@ -307,6 +339,15 @@ String _areaForRequest(CleaningRequest req) {
   if (req is HouseKeepingHistory) {
     return req.detail.address?.area ?? req.detail.area ?? '—';
   }
+  if (req is CarWashHistory) {
+    final detailArea = req.detail?.address?.area;
+    if (detailArea?.isNotEmpty == true) return detailArea!;
+    final addressId = req.detail?.addressId;
+    for (final address in req.customer.addresses ?? const []) {
+      if (address.id == addressId) return address.area ?? '—';
+    }
+    return req.customer.addresses?.firstOrNull?.area ?? '—';
+  }
   return '—';
 }
 
@@ -315,6 +356,7 @@ Color _pillColorFor(CleaningRequest req) {
   if (t == 'deepcleaning') return AppTheme.primary;
   if (t == 'upholsterycleaning') return const Color(0xFF8E44AD);
   if (t == 'housecleaning') return const Color(0xFF2E8B57);
+  if (t == 'carwash') return AppTheme.slate;
   return AppTheme.accent;
 }
 
@@ -422,7 +464,7 @@ class _ExpandableRequestItemState extends State<_ExpandableRequestItem> {
   Widget _pill(String text, Color color) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
+          color: color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(text,
@@ -433,7 +475,7 @@ class _ExpandableRequestItemState extends State<_ExpandableRequestItem> {
   Widget _bidPill(String text) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: const Color(0xFF2979FF).withOpacity(0.12),
+          color: const Color(0xFF2979FF).withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Text(

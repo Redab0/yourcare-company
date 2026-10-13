@@ -9,6 +9,87 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get previewLoginRequired => 'Enter your phone number and password.';
+
+  @override
+  String get previewLoginInvalid => 'Sign-in failed. Check your DEV phone number and password, and that your account is active.';
+
+  @override
+  String get previewLoginUnavailable => 'Cannot reach the DEV server. Please try again.';
+
+  @override
+  String get previewLoginCompanyRequired => 'This account cannot open the company preview. Sign in with a DEV business owner or manager linked to a business.';
+
+  @override
+  String get previewLoginSessionFailed => 'The login session could not be loaded. Refresh the page and try again.';
+
+  @override
+  String get previewLoginRateLimit => 'Too many sign-in attempts. Please wait before trying again.';
+
+  @override
+  String get documentsCenter => 'Documents Center';
+
+  @override
+  String get documentPolicy => 'Policy';
+
+  @override
+  String get documentContract => 'Contract';
+
+  @override
+  String get documentOther => 'Other';
+
+  @override
+  String get documentDownload => 'Download';
+
+  @override
+  String get documentView => 'View';
+
+  @override
+  String get documentPreviewError => 'Unable to open this document.';
+
+  @override
+  String get documentPreviewTimeout => 'Opening this document took too long. Try downloading it instead.';
+
+  @override
+  String get documentPreviewUnsupported => 'Preview is unavailable for this file type. You can download the file instead.';
+
+  @override
+  String get documentDownloaded => 'Document downloaded';
+
+  @override
+  String get documentRefresh => 'Refresh';
+
+  @override
+  String get documentSearch => 'Search documents';
+
+  @override
+  String get documentCategory => 'Category';
+
+  @override
+  String get documentAllCategories => 'All categories';
+
+  @override
+  String get documentShared => 'All businesses';
+
+  @override
+  String get documentForYourBusiness => 'Your business';
+
+  @override
+  String get documentRetry => 'Retry';
+
+  @override
+  String get documentsError => 'Unable to load or download documents. Please try again.';
+
+  @override
+  String get documentsEmpty => 'No documents found';
+
+  @override
+  String get documentPrevious => 'Previous page';
+
+  @override
+  String get documentNext => 'Next page';
+
+  @override
   String get appName => 'Your Care Business';
 
   @override
@@ -579,6 +660,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get request_location => 'Location';
 
   @override
+  String get request_status_updated => 'Status was updated';
+
+  @override
+  String get request_location_reminder => 'Please double-check the customer\'s map location before sending the team.';
+
+  @override
+  String get refresh_request_details => 'Refresh request details';
+
+  @override
+  String get request_visit_id_missing => 'This visit is missing its ID. Refresh the request details and try again.';
+
+  @override
+  String get request_paid => 'Paid';
+
+  @override
+  String get request_not_paid => 'Not paid';
+
+  @override
+  String request_share_furniture_item(String item, String size, String quantity) {
+    return 'Item: $item\nSize: $size\nQuantity: $quantity';
+  }
+
+  @override
+  String get open_in_google_maps => 'Open in Google Maps';
+
+  @override
   String get request_full_location => 'Full Location';
 
   @override
@@ -712,6 +819,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get price_must_be_greater_than_zero => 'Price must be greater than zero';
+
+  @override
+  String get price_must_be_zero_or_greater => 'Price must be zero or greater';
 
   @override
   String get housekeeping_active => 'Active';
@@ -1202,6 +1312,81 @@ class AppLocalizationsEn extends AppLocalizations {
   String get save_weekly_schedule => 'Save Weekly Schedule';
 
   @override
+  String get hourly_availability => 'Hourly Availability';
+
+  @override
+  String get availability_hourly_hint => 'Enable the hours when customers can book, then set how many workers are available during each hour.';
+
+  @override
+  String get availability_enabled => 'Enabled';
+
+  @override
+  String get availability_disabled => 'Disabled';
+
+  @override
+  String availability_enabled_hours(int count) {
+    return '$count hours enabled';
+  }
+
+  @override
+  String get availability_no_hours_enabled => 'No hours enabled';
+
+  @override
+  String get availability_enable_all => 'Enable all';
+
+  @override
+  String get availability_disable_all => 'Disable all';
+
+  @override
+  String get availability_apply_other_days => 'Apply to other days';
+
+  @override
+  String availability_apply_schedule_title(String day) {
+    return 'Apply $day\'s schedule';
+  }
+
+  @override
+  String get availability_select_days_hint => 'Select every day that should receive this schedule.';
+
+  @override
+  String get availability_select_all => 'Select all';
+
+  @override
+  String get availability_apply_selected => 'Apply to selected days';
+
+  @override
+  String get availability_copy_warning => 'Existing changes for selected days will be replaced. Each day can still be edited independently afterward.';
+
+  @override
+  String get availability_schedule_copied => 'Schedule copied to the selected days';
+
+  @override
+  String get availability_unsaved_changes => 'You have unsaved availability changes.';
+
+  @override
+  String get availability_save_before_leaving => 'Please save your changes before leaving.';
+
+  @override
+  String get availability_discard_title => 'Discard changes?';
+
+  @override
+  String get availability_discard => 'Discard';
+
+  @override
+  String get availability_saved => 'Availability saved';
+
+  @override
+  String get availability_no_changes => 'There are no changes to save';
+
+  @override
+  String get availability_invalid_workers => 'Enter at least 1 worker for every enabled hour.';
+
+  @override
+  String availability_changed_days(int count) {
+    return '$count days changed';
+  }
+
+  @override
   String get available => 'Available';
 
   @override
@@ -1304,7 +1489,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get car_wash_packages => 'Packages';
 
   @override
-  String get car_wash_packages_hint => 'Create each package once with its duration and optional booking hours, then assign it to every supported vehicle type.';
+  String get car_wash_packages_hint => 'Create each package once, set its price for every vehicle type, then assign it to the vehicle types you support.';
+
+  @override
+  String get car_wash_vehicle_pricing => 'Vehicle Type Pricing';
+
+  @override
+  String get car_wash_vehicle_pricing_hint => 'Set this package\'s price separately for every vehicle type.';
+
+  @override
+  String get car_wash_vehicle_price_not_set => 'No price is configured for this vehicle type';
 
   @override
   String get car_wash_vehicle_assignments => 'Vehicle Types';
@@ -1389,6 +1583,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invalid_discount_percentage => 'Discount must be between 0 and 100';
+
+  @override
+  String get car_wash_package_enabled => 'Package enabled';
+
+  @override
+  String get car_wash_package_enabled_hint => 'Enabled packages are available to customers. Disabled packages are hidden.';
 
   @override
   String get package_working_hours => 'Package Availability';
@@ -1547,5 +1747,512 @@ class AppLocalizationsEn extends AppLocalizations {
   String get extra_invoice_payment_pending_hint => 'The customer must pay this invoice from the request details screen before another one can be created.';
 
   @override
+  String get extra_invoice_payments_successful => 'Extra invoice payments successful';
+
+  @override
+  String get extra_invoice_paid => 'Paid';
+
+  @override
+  String get extra_invoice_pending => 'Pending payment';
+
+  @override
+  String get extra_invoice_total_paid => 'Total paid';
+
+  @override
   String get share => 'Share';
+
+  @override
+  String get laundry_service => 'Laundry';
+
+  @override
+  String get laundry_catalog => 'Laundry price list';
+
+  @override
+  String get laundry_setup_help => 'Enable your items, choose their services and set prices. Service names are managed globally by admin. You can also add your own items.';
+
+  @override
+  String get laundry_add_item => 'Add item';
+
+  @override
+  String get laundry_edit_item => 'Edit item';
+
+  @override
+  String get laundry_empty_catalog => 'Add your first laundry item to start building your price list.';
+
+  @override
+  String get laundry_name_en => 'Item name in English';
+
+  @override
+  String get laundry_name_ar => 'Item name in Arabic';
+
+  @override
+  String get laundry_unit => 'Pricing unit';
+
+  @override
+  String get laundry_unit_item => 'Per item';
+
+  @override
+  String get laundry_unit_meter => 'Per meter';
+
+  @override
+  String get laundry_unit_custom => 'Custom unit';
+
+  @override
+  String get laundry_unit_label => 'Custom unit label';
+
+  @override
+  String get laundry_price => 'Unit price (KWD)';
+
+  @override
+  String get laundry_active => 'Active';
+
+  @override
+  String get laundry_inactive => 'Inactive';
+
+  @override
+  String get laundry_sizes => 'Size-based prices';
+
+  @override
+  String get laundry_add_size => 'Add size';
+
+  @override
+  String get laundry_size_en => 'Size in English';
+
+  @override
+  String get laundry_size_ar => 'Size in Arabic';
+
+  @override
+  String get laundry_deactivate => 'Deactivate item';
+
+  @override
+  String get laundry_deactivate_confirm => 'Deactivate this item? It will no longer appear in the customer price list. Existing orders keep their prices.';
+
+  @override
+  String get laundry_required => 'This field is required';
+
+  @override
+  String get laundry_valid_number => 'Enter an amount from 0 to 10,000 with up to 3 decimal places';
+
+  @override
+  String get laundry_valid_quantity => 'Enter a quantity from 0.001 to 10,000 with up to 3 decimal places';
+
+  @override
+  String get laundry_order => 'Laundry order';
+
+  @override
+  String get laundry_pickup_first => 'Pickup first, invoice later';
+
+  @override
+  String get laundry_upfront => 'Items paid upfront';
+
+  @override
+  String get laundry_pending_pickup => 'Pick up bag';
+
+  @override
+  String get laundry_pickup_accepted => 'Pickup accepted';
+
+  @override
+  String get laundry_pickup_rejected => 'Pickup rejected';
+
+  @override
+  String get laundry_picked_up => 'Picked up';
+
+  @override
+  String get laundry_invoice_sent => 'Awaiting payment';
+
+  @override
+  String get laundry_ready_for_delivery => 'Ready for delivery';
+
+  @override
+  String get laundry_out_for_delivery => 'Out for delivery';
+
+  @override
+  String get laundry_delivered => 'Delivered';
+
+  @override
+  String get laundry_accept_pickup => 'Accept pickup';
+
+  @override
+  String get laundry_reject_pickup => 'Reject pickup';
+
+  @override
+  String get laundry_mark_picked_up => 'Mark as picked up';
+
+  @override
+  String get laundry_start_work => 'Start laundry';
+
+  @override
+  String get laundry_mark_ready => 'Ready for delivery';
+
+  @override
+  String get laundry_start_delivery => 'Start delivery';
+
+  @override
+  String get laundry_mark_delivered => 'Mark as delivered';
+
+  @override
+  String get laundry_complete => 'Complete order';
+
+  @override
+  String get laundry_waiting_payment => 'Waiting for customer payment. Refresh to check payment status.';
+
+  @override
+  String get laundry_payment_pending => 'Payment pending';
+
+  @override
+  String get laundry_payment_unpaid => 'Unpaid';
+
+  @override
+  String get laundry_payment_refunded => 'Refunded';
+
+  @override
+  String get laundry_bags => 'Number of bags';
+
+  @override
+  String get laundry_pickup_time => 'Pickup date and time';
+
+  @override
+  String get laundry_items => 'Laundry items';
+
+  @override
+  String get laundry_quantity => 'Quantity';
+
+  @override
+  String get laundry_size => 'Size';
+
+  @override
+  String get laundry_no_items => 'Pickup without an item list';
+
+  @override
+  String get laundry_invoice => 'Laundry invoice';
+
+  @override
+  String get laundry_create_invoice => 'Create invoice';
+
+  @override
+  String get laundry_edit_invoice => 'Edit draft invoice';
+
+  @override
+  String get laundry_draft => 'Draft';
+
+  @override
+  String get laundry_sent => 'Sent';
+
+  @override
+  String get laundry_save_draft => 'Save draft';
+
+  @override
+  String get laundry_send_invoice => 'Send invoice';
+
+  @override
+  String get laundry_invoice_help => 'Choose items from your active catalog. Prices are calculated from your company price list when you save.';
+
+  @override
+  String get laundry_pickup_fee => 'Pickup fee (KWD)';
+
+  @override
+  String get laundry_delivery_fee => 'Delivery fee (KWD)';
+
+  @override
+  String get laundry_discount => 'Discount (KWD)';
+
+  @override
+  String get laundry_subtotal => 'Subtotal';
+
+  @override
+  String get laundry_platform_fees => 'Platform fees';
+
+  @override
+  String get laundry_total => 'Total';
+
+  @override
+  String get laundry_invoice_empty => 'Add at least one laundry item';
+
+  @override
+  String get laundry_invoice_unavailable_item => 'This invoice contains an inactive or changed item. Remove it and select an active catalog item.';
+
+  @override
+  String get laundry_cancel_order => 'Cancel order';
+
+  @override
+  String get laundry_confirm_action => 'Confirm this order status change?';
+
+  @override
+  String get laundry_refresh => 'Refresh order';
+
+  @override
+  String get laundry_payment_status => 'Payment status';
+
+  @override
+  String get laundry_invoice_status => 'Invoice status';
+
+  @override
+  String get laundry_customer => 'Customer';
+
+  @override
+  String get laundry_empty_orders => 'No requests found';
+
+  @override
+  String get laundry_estimated_total => 'Estimated total before platform fees';
+
+  @override
+  String get laundry_duplicate_items => 'Combine quantities for the same item and size in one line.';
+
+  @override
+  String get laundry_whole_quantity => 'Use a whole number of items.';
+
+  @override
+  String get laundry_enable_service => 'Offer Laundry Service';
+
+  @override
+  String get laundry_enable_service_help => 'Enable Laundry, select your service areas, then save this profile. Configure items and prices below before accepting orders.';
+
+  @override
+  String get laundry_revenue => 'Laundry revenue';
+
+  @override
+  String get laundry_service_disabled_title => 'Laundry is not enabled for customers';
+
+  @override
+  String get laundry_service_disabled_help => 'Prepare your items and prices here, then enable Laundry in Company Profile, select your service areas and save the profile to receive orders.';
+
+  @override
+  String get laundry_admin_products => 'Admin products';
+
+  @override
+  String get laundry_custom_items => 'Your custom items';
+
+  @override
+  String get laundry_unavailable_admin => 'Unavailable — disabled by admin';
+
+  @override
+  String get laundry_edit_prices => 'Edit prices';
+
+  @override
+  String get laundry_admin_product_help => 'The item and service names are managed by admin. Enable services for this item and enter your prices. Each price must be greater than zero.';
+
+  @override
+  String get laundry_use_default_price => 'Use admin default price';
+
+  @override
+  String get laundry_default_price => 'Admin price';
+
+  @override
+  String get laundry_company_price => 'Your price (KWD)';
+
+  @override
+  String get laundry_reset_prices => 'Reset all prices to admin defaults';
+
+  @override
+  String get laundry_send_invoice_confirm => 'Send this invoice to the customer? Items and prices cannot be changed after sending.';
+
+  @override
+  String get registrationGiftApplied => 'Registration gift applied • Funded by your company';
+
+  @override
+  String registrationGiftAppliedAmount(String amount) {
+    return '$amount KD registration gift applied • Funded by your company';
+  }
+
+  @override
+  String get registrationGiftReserved => 'Registration gift reserved • Funded by your company';
+
+  @override
+  String registrationGiftReservedAmount(String amount) {
+    return '$amount KD registration gift reserved • Funded by your company';
+  }
+
+  @override
+  String campaignDiscountAppliedAmount(String amount) {
+    return '$amount KD discount applied';
+  }
+
+  @override
+  String campaignDiscountReservedAmount(String amount) {
+    return '$amount KD discount reserved';
+  }
+
+  @override
+  String campaignCashbackAppliedAmount(String amount) {
+    return '$amount KD cashback applied';
+  }
+
+  @override
+  String campaignCashbackReservedAmount(String amount) {
+    return '$amount KD cashback reserved';
+  }
+
+  @override
+  String get laundry_same_day => 'Same Day';
+
+  @override
+  String get laundry_same_day_help => 'Offer same-day service for orders booked before your cutoff time. Orders booked at or after the cutoff are not eligible.';
+
+  @override
+  String get laundry_same_day_enable => 'Enable same-day service';
+
+  @override
+  String get laundry_same_day_cutoff => 'Booking cutoff';
+
+  @override
+  String get laundry_same_day_select_cutoff => 'Set booking cutoff';
+
+  @override
+  String get laundry_same_day_kuwait_time => 'Kuwait time (24-hour format)';
+
+  @override
+  String get laundry_same_day_cutoff_required => 'Choose a booking cutoff before enabling same-day service.';
+
+  @override
+  String get laundry_same_day_load_error => 'Could not load same-day settings. Please try again.';
+
+  @override
+  String get laundry_same_day_save_error => 'Settings were not saved. Please try again.';
+
+  @override
+  String get laundry_same_day_saved => 'Same-day settings saved';
+
+  @override
+  String get laundry_shared_services => 'Services';
+
+  @override
+  String get laundry_item_service => 'Service';
+
+  @override
+  String get laundry_shared_services_help => 'Enable the services you offer for this item and set each price. Service names are shared and managed by admin.';
+
+  @override
+  String get laundry_no_shared_services => 'No services have been created by admin yet.';
+
+  @override
+  String get laundry_item_needs_service => 'Enable and price at least one service before this item appears to customers.';
+
+  @override
+  String get laundry_legacy_pricing_help => 'Existing item prices and options remain bookable when these services are off. Turn off the item to stop all bookings.';
+
+  @override
+  String get laundry_category => 'Category';
+
+  @override
+  String get laundry_all_categories => 'All categories';
+
+  @override
+  String get laundry_uncategorized => 'Uncategorized';
+
+  @override
+  String get laundry_search_items => 'Search items';
+
+  @override
+  String get laundry_no_matching_items => 'No items match this category or search.';
+
+  @override
+  String get laundry_catalog_setup_needed => 'Enable and price items in your Laundry catalog before creating an invoice.';
+
+  @override
+  String get laundry_bag_items_help => 'Bag pickup — inspect the collected laundry, then add its items and services to the invoice.';
+
+  @override
+  String get laundry_invoice_category_help => 'Choose a category to find items faster. Changing it only resets this invoice line.';
+
+  @override
+  String get laundry_invoice_invalid_discount => 'Discount cannot exceed the items and collection/delivery fees.';
+
+  @override
+  String get laundry_invoice_estimate_help => 'The server confirms current prices and platform fees when you save.';
+
+  @override
+  String get laundry_company_price_required => 'Enter a company price';
+
+  @override
+  String get laundry_reload_invoice => 'Reload saved invoice';
+
+  @override
+  String get laundry_reload_invoice_confirm => 'Discard your unsaved invoice changes and review the latest saved invoice?';
+
+  @override
+  String get laundry_manage_catalog => 'Manage Laundry catalog';
+
+  @override
+  String get laundry_configuration => 'Laundry Configuration';
+
+  @override
+  String get laundry_working_hours => 'Working Hours';
+
+  @override
+  String get laundry_pricing => 'Pricing';
+
+  @override
+  String get laundry_configuration_help => 'Set your working hours, booking availability and item prices.';
+
+  @override
+  String get laundry_working_hours_help => 'Choose when customers can book a pickup. Hours repeat each week in Kuwait time.';
+
+  @override
+  String get laundry_available => 'Available for bookings';
+
+  @override
+  String get laundry_availability_help => 'When switched off, customers see Fully booked and cannot book your company.';
+
+  @override
+  String get laundry_settings_saved => 'Laundry settings saved';
+
+  @override
+  String get laundry_settings_load_error => 'Could not load laundry settings. Please try again.';
+
+  @override
+  String get laundry_hours_invalid => 'Each time slot must end after it starts, without overlapping another slot on the same day. Use a separate slot on the next day for overnight hours. Use no more than 168 time slots per week.';
+
+  @override
+  String get laundry_hours_unrestricted => 'No working hours have been set yet. Bookings are currently allowed all week. Edit the days below to limit pickup times.';
+
+  @override
+  String get laundry_day_open => 'Open for pickups';
+
+  @override
+  String get laundry_day_closed => 'Closed for pickups';
+
+  @override
+  String get laundry_minimum_charge => 'Minimum order amount';
+
+  @override
+  String get laundry_minimum_charge_help => 'Customers must add enough items to reach this amount. Pickup and delivery fees do not count. Bag pickups can be booked without items, but the invoice must meet this minimum before sending. Set 0 for no minimum.';
+
+  @override
+  String get laundry_minimum_charge_invalid => 'Enter an amount from 0 to 100000 KWD with up to 3 decimal places.';
+
+  @override
+  String get laundry_minimum_invoice_help => 'Add enough items to reach the minimum before sending. Fees do not count; you can still save a draft.';
+
+  @override
+  String get laundry_items_subtotal => 'Items subtotal';
+
+  @override
+  String get laundry_catalog_loading => 'Loading invoice items…';
+
+  @override
+  String get laundry_catalog_load_timeout => 'Loading items took too long. Check your connection and try again. Your changes are kept.';
+
+  @override
+  String get laundry_catalog_load_error => 'Could not load the item list. Try again. Your changes are kept.';
+
+  @override
+  String get laundry_bulk_prices => 'Update multiple prices';
+
+  @override
+  String get laundry_bulk_prices_help => 'Edit prices and item availability, then save all your changes together. Service availability stays the same.';
+
+  @override
+  String get laundry_bulk_prices_save => 'Save all changes';
+
+  @override
+  String get laundry_bulk_prices_error => 'Could not save the changes. Your edits are kept. Please try again.';
+
+  @override
+  String get laundry_bulk_prices_unsaved => 'You have unsaved changes to prices or item availability.';
+
+  @override
+  String get laundry_bulk_prices_limit => 'Update up to 200 items at a time. Save these changes before editing more items.';
+
+  @override
+  String get laundry_bulk_prices_invalid => 'Enter a price from 0.001 to 10,000 KWD, using up to 3 decimal places.';
 }

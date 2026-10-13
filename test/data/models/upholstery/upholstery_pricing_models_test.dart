@@ -92,7 +92,7 @@ void main() {
   });
 
   test('pricing request never sends backend or local package IDs', () {
-    const request = UpholsteryPricingRequest(
+    final request = UpholsteryPricingRequest(
       pricing: [
         UpholsteryPricingGroup(
           upholsteryTypeId: 'sofa-id',

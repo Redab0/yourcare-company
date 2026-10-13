@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:cleaning_service_driver/data/viewmodels/StatsVM.dart';
+import 'package:cleaning_service_driver/data/viewmodels/stats_vm.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 

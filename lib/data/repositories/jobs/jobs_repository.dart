@@ -12,6 +12,13 @@ class JobsRepository {
 
   JobsRepository(this._jobsService);
 
+  Future<CleaningRequest> getJob(String id) async {
+    final response = await _jobsService.getJob(id);
+    final request = response.data?.data;
+    if (response.success && request != null) return request;
+    throw Exception(response.message);
+  }
+
   Future<PaginatedData<CleaningRequest>> getJobs({
     required int page,
     required int limit,

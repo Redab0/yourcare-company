@@ -1,5 +1,5 @@
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
-import 'package:cleaning_service_driver/data/viewmodels/StatsVM.dart';
+import 'package:cleaning_service_driver/data/viewmodels/stats_vm.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -58,6 +58,8 @@ class StatsOverview extends StatelessWidget {
                       style: t.textTheme.titleMedium),
                   const SizedBox(height: 12),
                   statRow(context.l10n.total_requests_label, '${vm.total}'),
+                  statRow(context.l10n.total_revenue_label,
+                      money.format(vm.totalRevenue)),
                   statRow(context.l10n.total_income_label,
                       money.format(vm.totalIncome)),
                   statRow(context.l10n.total_fees_label,
@@ -82,12 +84,20 @@ class StatsOverview extends StatelessWidget {
                     context.l10n.upholstery_cleaning,
                     vm.upholsteryCleaning,
                   ),
+                  const SizedBox(height: 8),
+                  _typeRow(context.l10n.car_wash_service, vm.carWash),
+                  const SizedBox(height: 8),
+                  _typeRow(context.l10n.laundry_service, vm.laundry),
+                  statRow(context.l10n.laundry_revenue,
+                      money.format(vm.laundryRevenue)),
                   const Divider(height: 24),
                   Text(
                     context.l10n.request_status_title,
                     style: t.textTheme.titleMedium,
                   ),
                   const SizedBox(height: 12),
+                  _typeRow(context.l10n.pending, vm.pending),
+                  const SizedBox(height: 8),
                   _typeRow(context.l10n.completed, vm.completed),
                   const SizedBox(height: 8),
                   _typeRow(context.l10n.confirmed, vm.confirmed),

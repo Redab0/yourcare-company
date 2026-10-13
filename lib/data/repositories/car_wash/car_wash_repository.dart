@@ -1,7 +1,6 @@
 import 'package:cleaning_service_driver/data/models/car_wash/car_wash_models.dart';
 import 'package:cleaning_service_driver/data/models/profile/business_profile_model.dart';
 import 'package:cleaning_service_driver/data/services/car_wash/car_wash_service.dart';
-import 'package:dio/dio.dart';
 
 class CarWashRepository {
   final CarWashService _service;
@@ -25,7 +24,7 @@ class CarWashRepository {
   }
 
   Future<void> createPackage(CarWashPackageMutationRequest request) async {
-    final response = await _service.createMyCarWashPackage(request.toJson());
+    final response = await _service.createMyCarWashPackage(request);
     if (!response.success) throw Exception(response.message);
   }
 
@@ -35,7 +34,7 @@ class CarWashRepository {
   ) async {
     final response = await _service.updateMyCarWashPackage(
       packageId,
-      request.toJson(),
+      request,
     );
     if (!response.success) throw Exception(response.message);
   }
@@ -48,18 +47,12 @@ class CarWashRepository {
   Future<void> updatePricing(
     CarWashPricingAssignmentRequest request,
   ) async {
-    try {
-      final response = await _service.updateMyCarWashPricing(request.toJson());
-      if (response.success) return;
-      await _retryLegacyPricingKey(request, response.message);
-    } on DioException catch (error) {
-      if (!_canRetryAssignment(error)) rethrow;
-      await _retryLegacyPricingKey(request, error.message ?? '');
-    }
+    final response = await _service.updateMyCarWashPricing(request);
+    if (!response.success) throw Exception(response.message);
   }
 
   Future<void> upsertAreaFee(CarWashAreaFeeRequest request) async {
-    final response = await _service.upsertMyCarWashAreaFee(request.toJson());
+    final response = await _service.upsertMyCarWashAreaFee(request);
     if (!response.success) throw Exception(response.message);
   }
 
@@ -74,24 +67,5 @@ class CarWashRepository {
     final response = await _service.updateMyCarWashWorkingHours(request);
     if (response.success) return response.data?.data;
     throw Exception(response.message);
-  }
-
-  Future<void> _retryLegacyPricingKey(
-    CarWashPricingAssignmentRequest request,
-    String originalMessage,
-  ) async {
-    final response = await _service.updateMyCarWashPricing(
-      request.toJson(useLegacyPackagesKey: true),
-    );
-    if (!response.success) {
-      throw Exception(
-        response.message.isEmpty ? originalMessage : response.message,
-      );
-    }
-  }
-
-  bool _canRetryAssignment(DioException error) {
-    final status = error.response?.statusCode;
-    return status == 400 || status == 422;
   }
 }

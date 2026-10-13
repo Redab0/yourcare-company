@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
 // house_cleaning_history.dart
 
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
@@ -6,9 +7,11 @@ import 'package:cleaning_service_driver/data/models/customer/customer.dart';
 import 'package:cleaning_service_driver/data/models/requests/assigned_worker.dart';
 import 'package:cleaning_service_driver/data/models/requests/business_offer_response.dart';
 import 'package:cleaning_service_driver/data/models/requests/company_information.dart';
+import 'package:cleaning_service_driver/data/models/requests/request_invoice.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'cleaning_request.dart';
+import 'request_campaign.dart';
 
 part 'upholstery_cleaning_history.g.dart';
 
@@ -22,6 +25,9 @@ class UpholsteryCleaningHistory implements CleaningRequest {
   final RequestStatus requestStatus;
   @override
   final double totalPrice;
+
+  final bool registrationGiftApplied;
+  final RequestCampaign? campaign;
   @override
   final DateTime createdAt;
   @override
@@ -29,6 +35,7 @@ class UpholsteryCleaningHistory implements CleaningRequest {
   @override
   final Customer customer;
   @override
+  @KuwaitScheduleConverter()
   final DateTime? scheduledTime;
   @override
   final double? extraFees;
@@ -39,6 +46,9 @@ class UpholsteryCleaningHistory implements CleaningRequest {
   final bool awaitingExtraPayment;
   @override
   final String? extraPaymentUrl;
+  @override
+  @JsonKey(defaultValue: <RequestInvoice>[])
+  final List<RequestInvoice> invoices;
 
   @JsonKey(name: 'businessId')
   final CompanyInformation? companyInformation;
@@ -54,6 +64,8 @@ class UpholsteryCleaningHistory implements CleaningRequest {
 
   UpholsteryCleaningHistory({
     this.id,
+    this.registrationGiftApplied = false,
+    this.campaign,
     required this.customer,
     required this.requestStatus,
     required this.totalPrice,
@@ -70,10 +82,13 @@ class UpholsteryCleaningHistory implements CleaningRequest {
     this.extraFeesDescription,
     this.awaitingExtraPayment = false,
     this.extraPaymentUrl,
+    this.invoices = const [],
   });
 
   factory UpholsteryCleaningHistory.fromJson(Map<String, dynamic> json) =>
-      _$UpholsteryCleaningHistoryFromJson(_normalizeUpholsteryHistory(json));
+      _$UpholsteryCleaningHistoryFromJson(
+        _normalizeUpholsteryHistory(normalizeRequestInvoiceState(json)),
+      );
   Map<String, dynamic> toJson() => _$UpholsteryCleaningHistoryToJson(this);
 
   @override
@@ -82,6 +97,7 @@ class UpholsteryCleaningHistory implements CleaningRequest {
     required String extraFeesDescription,
     required bool awaitingExtraPayment,
     String? extraPaymentUrl,
+    List<RequestInvoice>? invoices,
   }) {
     return UpholsteryCleaningHistory(
       id: id,
@@ -101,6 +117,9 @@ class UpholsteryCleaningHistory implements CleaningRequest {
       extraFeesDescription: extraFeesDescription,
       awaitingExtraPayment: awaitingExtraPayment,
       extraPaymentUrl: extraPaymentUrl ?? this.extraPaymentUrl,
+      registrationGiftApplied: registrationGiftApplied,
+      campaign: campaign,
+      invoices: invoices ?? this.invoices,
     );
   }
 }
@@ -111,7 +130,9 @@ class UpholsteryCleaningDetails {
   final String? addressId;
   final String? areaId;
   final String? specialNotes;
+  @KuwaitScheduleConverter()
   final DateTime? scheduledTime;
+  final double? totalPrice;
   final List<UpholsteryCleaningItems>? items;
 
   const UpholsteryCleaningDetails(
@@ -120,7 +141,8 @@ class UpholsteryCleaningDetails {
       this.addressId,
       this.areaId,
       this.specialNotes,
-      this.scheduledTime});
+      this.scheduledTime,
+      this.totalPrice});
 
   factory UpholsteryCleaningDetails.fromJson(Map<String, dynamic> json) =>
       _$UpholsteryCleaningDetailsFromJson(json);
@@ -167,6 +189,18 @@ class UpholsteryCleaningItems {
 
   bool get isDirectBookingItem =>
       package != null || (packageId?.isNotEmpty ?? false);
+
+  /// The API returns `price` as the complete line price for current direct
+  /// bookings. Older responses may provide `calculatedPrice`, or only a
+  /// package unit price, so those shapes remain supported as fallbacks.
+  double? get lineTotal {
+    if (calculatedPrice != null) return calculatedPrice;
+    if (price != null) return price;
+
+    final unitPrice = package?.discountedPrice;
+    if (unitPrice == null) return null;
+    return unitPrice * (quantity ?? 1);
+  }
 }
 
 @JsonSerializable(checked: true)
@@ -220,6 +254,8 @@ Map<String, dynamic> _normalizeUpholsteryHistory(Map<String, dynamic> json) {
       ) ??
       <String, dynamic>{};
   final normalizedDetails = Map<String, dynamic>.from(details);
+  normalizedDetails['totalPrice'] =
+      _upholsteryDouble(normalizedDetails['totalPrice']);
   normalizedDetails['items'] = _upholsteryList(details['items'])
       .map(_upholsteryMap)
       .whereType<Map<String, dynamic>>()
@@ -258,6 +294,10 @@ Map<String, dynamic> _normalizeUpholsteryHistory(Map<String, dynamic> json) {
 
 Map<String, dynamic> _normalizeUpholsteryItem(Map<String, dynamic> json) {
   final normalized = Map<String, dynamic>.from(json);
+  final itemPrice = _upholsteryDouble(normalized['price']);
+  final calculatedPrice = _upholsteryDouble(normalized['calculatedPrice']);
+  normalized['quantity'] = _upholsteryInt(normalized['quantity']);
+  normalized['calculatedPrice'] = calculatedPrice;
   final rawType = _upholsteryMap(
     normalized['type'] ??
         normalized['upholsteryType'] ??
@@ -297,7 +337,8 @@ Map<String, dynamic> _normalizeUpholsteryItem(Map<String, dynamic> json) {
     normalized['package'] = {
       ...rawPackage,
       'packageId': packageId,
-      'price': rawPackage['price'] ?? normalized['price'],
+      'price': _upholsteryDouble(rawPackage['price']),
+      'discountPercentage': _upholsteryDouble(rawPackage['discountPercentage']),
     };
   } else if (packageId != null) {
     normalized['package'] = {
@@ -306,16 +347,13 @@ Map<String, dynamic> _normalizeUpholsteryItem(Map<String, dynamic> json) {
       'titleAr': normalized['packageTitleAr'],
       'descriptionEn': normalized['packageDescriptionEn'],
       'descriptionAr': normalized['packageDescriptionAr'],
-      'price': normalized['price'],
-      'discountPercentage': normalized['discountPercentage'],
+      'price': _upholsteryDouble(normalized['packagePrice']) ??
+          (calculatedPrice == null ? null : itemPrice),
+      'discountPercentage': _upholsteryDouble(normalized['discountPercentage']),
     };
   }
   normalized['packageId'] = packageId;
-  normalized['price'] = _upholsteryDouble(
-    normalized['price'] ??
-        rawPackage?['price'] ??
-        normalized['calculatedPrice'],
-  );
+  normalized['price'] = itemPrice;
   return normalized;
 }
 
@@ -336,6 +374,11 @@ String? _upholsteryStringOrNull(Object? value) {
 double? _upholsteryDouble(Object? value) {
   if (value is num) return value.toDouble();
   return double.tryParse(value?.toString() ?? '');
+}
+
+int? _upholsteryInt(Object? value) {
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString() ?? '');
 }
 
 CleaningItemType? _parseCleaningItemType(dynamic v) {
@@ -371,6 +414,7 @@ CleaningItemCondition? _parseCleaningItemCondition(dynamic v) {
 @JsonSerializable()
 class FrequentRequestModel {
   String? id;
+  @KuwaitScheduleConverter()
   DateTime? date;
   RequestStatus? status;
 
@@ -408,8 +452,21 @@ class CleaningItemSize {
   final String? id;
   final String? title;
   final String? description;
+  final String? titleEn;
+  final String? titleAr;
 
-  const CleaningItemSize(this.id, this.title, this.description);
+  const CleaningItemSize(this.id, this.title, this.description,
+      {this.titleEn, this.titleAr});
+
+  String? localizedTitle({required bool isArabic}) {
+    final values =
+        isArabic ? [titleAr, title, titleEn] : [titleEn, title, titleAr];
+    return values
+        .whereType<String>()
+        .map((value) => value.trim())
+        .where((value) => value.isNotEmpty)
+        .firstOrNull;
+  }
 
   factory CleaningItemSize.fromJson(Map<String, dynamic> json) =>
       _$CleaningItemSizeFromJson(json);

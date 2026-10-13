@@ -18,6 +18,9 @@ UpdateBusinessProfileModel _$UpdateBusinessProfileModelFromJson(
       json['email'] as String?,
       json['website'] as String?,
       (json['areas'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      services: (json['services'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
     );
 
 Map<String, dynamic> _$UpdateBusinessProfileModelToJson(
@@ -32,4 +35,5 @@ Map<String, dynamic> _$UpdateBusinessProfileModelToJson(
       'email': instance.email,
       'website': instance.website,
       'areas': instance.areas,
+      if (instance.services case final value?) 'services': value,
     };

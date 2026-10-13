@@ -1,11 +1,16 @@
+import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
+import 'package:cleaning_service_driver/components/registration_gift_badge.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/contact_actions.dart';
 import 'package:cleaning_service_driver/components/detail_row.dart';
 import 'package:cleaning_service_driver/components/extra_invoice.dart';
+import 'package:cleaning_service_driver/components/open_map_action.dart';
+import 'package:cleaning_service_driver/components/request_details_refresh_button.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
+import 'package:cleaning_service_driver/core/utils/share_utils.dart';
 import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
 import 'package:cleaning_service_driver/data/models/requests/accept_house_keeping_model.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
@@ -24,7 +29,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:share_plus/share_plus.dart';
 
 class HouseKeepingJobDetails extends StatefulWidget {
   const HouseKeepingJobDetails({super.key, required this.request});
@@ -112,7 +116,7 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
   Future<void> _showExtraInvoiceDialog() async {
     final id = _currentRequest.id;
     if (!_currentRequest.canCreateExtraInvoice ||
-        _currentRequest.awaitingExtraPayment ||
+        _currentRequest.hasPendingExtraInvoicePayment ||
         id == null ||
         id.isEmpty) {
       return;
@@ -121,7 +125,7 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
     final request = await showExtraInvoiceDialog(context);
     if (!mounted || request == null) return;
     if (!_currentRequest.canCreateExtraInvoice ||
-        _currentRequest.awaitingExtraPayment) {
+        _currentRequest.hasPendingExtraInvoicePayment) {
       return;
     }
     context.read<JobActionsBloc>().add(AddExtraFeesEvent(id, request));
@@ -149,9 +153,13 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
     }
   }
 
-  Future<void> _shareDetails() async {
+  Future<void> _shareDetails(BuildContext shareContext) async {
     final req = _currentRequest;
     final detail = req.detail;
+    final mapLink = OpenMapAction.googleMapsLink(
+      detail.address?.latitude,
+      detail.address?.longitude,
+    );
     final specialNotes = req.customerSpecialNotes;
     final name = req.customer.username?.trim();
     final phone = req.customer.phone?.trim();
@@ -165,6 +173,7 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
       'Request Status / حالة الطلب: ${_statusPair(req.requestStatus)}',
       'Date and Time / الوقت والتاريخ: ${RequestFmt.date(req.scheduledTime)} ${RequestFmt.time(req.scheduledTime)}',
       'Address / العنوان: ${detail.fullAddress}',
+      if (mapLink != null) 'Google Maps / خرائط Google: $mapLink',
       '',
       '--- Customer / العميل ---',
       'Customer Name / اسم العميل: ${(name == null || name.isEmpty) ? '-' : name}',
@@ -184,7 +193,7 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
       for (var i = 0; i < subRequests.length; i++) {
         final visit = subRequests[i];
         final dateStr = (visit.date != null)
-            ? DateFormat.yMMMd().add_jm().format(visit.date!)
+            ? DateFormat.yMMMd().add_jm().format(kuwaitWallTime(visit.date!))
             : '-';
         final statusText = visit.status?.displayText(context) ?? '-';
         lines.add('${i + 1}. $dateStr - $statusText');
@@ -203,13 +212,18 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
         'Extra invoice reason / سبب الفاتورة الإضافية: ${req.extraFeesDescription}',
       );
     }
-    await Share.share(lines.join('\n'));
+    await shareTextFrom(shareContext, lines.join('\n'));
   }
 
   @override
   Widget build(BuildContext context) {
     final req = _currentRequest;
     final detail = req.detail;
+    final address = detail.address;
+    final hasCustomerLocation = OpenMapAction.hasValidCoordinates(
+      address?.latitude,
+      address?.longitude,
+    );
     final specialNotes = req.customerSpecialNotes;
     final canChat = (req.requestStatus == RequestStatus.confirmed ||
             req.requestStatus == RequestStatus.inProgress) &&
@@ -217,6 +231,11 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
 
     return BlocConsumer<JobActionsBloc, JobActionsState>(
       listener: (ctx, state) {
+        if (state is JobRefreshed &&
+            state.model is HouseKeepingHistory &&
+            state.model.id == _currentRequest.id) {
+          setState(() => _currentRequest = state.model as HouseKeepingHistory);
+        }
         if (state is WorkersFetchedState) {
           // store the list once it arrives
           setState(() {
@@ -242,7 +261,7 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
           if (mounted) {
             setState(() => _isFilteringWorkers = false);
           }
-          ctx.showErrorToast();
+          ctx.showErrorToast(state.message);
           print("ERROR ${state.message}");
         } else if (state is WorkersAssigned) {
           // they just saved successfully
@@ -251,23 +270,34 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
             // refresh the request’s assignedWorker list
             _currentRequest = (state.model as HouseKeepingHistory);
           });
-        } else if (state is JobStarted) {
+        } else if (state is JobStarted &&
+            state.model is HouseKeepingHistory &&
+            state.model.id == _currentRequest.id) {
           setState(() {
             _currentRequest = (state.model as HouseKeepingHistory);
           });
           context.read<JobBloc>().add(LoadJobsEvent());
           _maybeRefreshRequests();
-        } else if (state is JobCompleted) {
+          ctx.showStatusUpdatedToast();
+        } else if (state is JobCompleted &&
+            state.model is HouseKeepingHistory &&
+            state.model.id == _currentRequest.id) {
           setState(() {
             _currentRequest = (state.model as HouseKeepingHistory);
           });
           context.read<JobBloc>().add(LoadJobsEvent());
           _maybeRefreshRequests();
+          ctx.showStatusUpdatedToast();
           context.goNamed('jobCompletedSuccessScreen');
-        } else if (state is RequestFrequencyUpdated) {
+        } else if (state is RequestFrequencyUpdated &&
+            state.response is HouseKeepingHistory &&
+            state.response.id == _currentRequest.id) {
           setState(() {
             _currentRequest = (state.response as HouseKeepingHistory);
           });
+          context.read<JobBloc>().add(LoadJobsEvent());
+          _maybeRefreshRequests();
+          ctx.showStatusUpdatedToast();
         }
       },
       builder: (ctx, state) {
@@ -278,9 +308,12 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
             ),
             title: Text('#${_currentRequest.id}'),
             actions: [
-              IconButton(
-                onPressed: _shareDetails,
-                icon: const Icon(Icons.share),
+              RequestDetailsRefreshButton(requestId: _currentRequest.id),
+              Builder(
+                builder: (shareContext) => IconButton(
+                  onPressed: () => _shareDetails(shareContext),
+                  icon: const Icon(Icons.share),
+                ),
               ),
             ],
           ),
@@ -289,6 +322,7 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  RegistrationGiftBadge(request: _currentRequest),
                   if ((_currentRequest.subRequests?.isNotEmpty ?? false))
                     Card(
                       shape: RoundedRectangleBorder(
@@ -309,7 +343,9 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                             _currentRequest.subRequests!.length, (i) {
                           final sr = _currentRequest.subRequests![i];
                           final dateStr = (sr.date != null)
-                              ? DateFormat.yMMMd().add_jm().format(sr.date!)
+                              ? DateFormat.yMMMd()
+                                  .add_jm()
+                                  .format(kuwaitWallTime(sr.date!))
                               : "N/A";
                           final statusText =
                               sr.status?.displayText(context) ?? "N/A";
@@ -355,7 +391,7 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                                                                               frequencyDateId: sr.id,
                                                                               status: RequestStatus.inProgress,
                                                                             ),
-                                                                            widget.request.id ??
+                                                                            _currentRequest.id ??
                                                                                 "",
                                                                           ),
                                                                         )
@@ -374,7 +410,7 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                                                                               frequencyDateId: sr.id,
                                                                               status: RequestStatus.completed,
                                                                             ),
-                                                                            widget.request.id ??
+                                                                            _currentRequest.id ??
                                                                                 "",
                                                                           ),
                                                                         )
@@ -391,6 +427,19 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                                                 ),
                                               ],
                                             ),
+                                          if ((sr.status ==
+                                                      RequestStatus.confirmed ||
+                                                  sr.status ==
+                                                      RequestStatus
+                                                          .inProgress) &&
+                                              (sr.id?.isEmpty ?? true))
+                                            Text(
+                                              context.l10n
+                                                  .request_visit_id_missing,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodySmall,
+                                            ),
                                         ],
                                       ),
                                     ),
@@ -399,7 +448,8 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                                       label: Text(statusText,
                                           style: const TextStyle(
                                               color: Colors.white)),
-                                      backgroundColor: statusColor(sr.status!),
+                                      backgroundColor: statusColor(
+                                          sr.status ?? RequestStatus.unknown),
                                       materialTapTargetSize:
                                           MaterialTapTargetSize.shrinkWrap,
                                       visualDensity: VisualDensity.compact,
@@ -465,12 +515,33 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                       ],
                     ),
                   ),
-                  if (detail.address != null)
+                  if (address != null)
                     _buildSection(
                       expanded: false,
                       title: context.l10n.address,
-                      child: DetailRow(context.l10n.request_full_location,
-                          detail.fullAddress),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          DetailRow(
+                            context.l10n.request_full_location,
+                            detail.fullAddress,
+                          ),
+                          if (hasCustomerLocation) ...[
+                            const Divider(height: 1),
+                            DetailWidgetRow(
+                              context.l10n.request_location,
+                              Align(
+                                alignment: AlignmentDirectional.centerEnd,
+                                child: OpenMapAction(
+                                  latitude: address.latitude!,
+                                  longitude: address.longitude!,
+                                ),
+                              ),
+                            ),
+                            const CustomerLocationReminder(),
+                          ],
+                        ],
+                      ),
                     ),
                   if (specialNotes != null)
                     _buildSection(
@@ -495,10 +566,13 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                context.l10n.assigned_team,
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
+                              Expanded(
+                                child: Text(
+                                  context.l10n.assigned_team,
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
                               ),
                               IconButton(
                                 icon: Icon(
@@ -631,6 +705,32 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        if (req.subRequests?.isEmpty ?? true) ...[
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton(
+                              onPressed: req.id?.isNotEmpty != true
+                                  ? null
+                                  : req.requestStatus == RequestStatus.confirmed
+                                      ? () => ctx.read<JobActionsBloc>().add(
+                                            StartJobEvent(req.id!),
+                                          )
+                                      : req.requestStatus ==
+                                              RequestStatus.inProgress
+                                          ? () => ctx
+                                              .read<JobActionsBloc>()
+                                              .add(
+                                                CompleteJobEvent(req.id!, null),
+                                              )
+                                          : null,
+                              child: Text(
+                                  req.requestStatus == RequestStatus.confirmed
+                                      ? context.l10n.start_job
+                                      : context.l10n.complete_job),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
                         ExtraInvoiceActionButton(
                           request: req,
                           onPressed: _showExtraInvoiceDialog,

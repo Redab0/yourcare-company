@@ -16,6 +16,11 @@ part 'jobs_service.g.dart';
 abstract class JobsService {
   factory JobsService(Dio dio, {String baseUrl}) = _JobsService;
 
+  @GET('/company/requests/{id}')
+  Future<ApiResponse<ResponsePayload<CleaningRequest>>> getJob(
+    @Path('id') String id,
+  );
+
   @GET('/company/requests')
   Future<ApiResponse<ResponsePayload<PaginatedData<CleaningRequest>>>> getJobs({
     @Query('page') required int page,

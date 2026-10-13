@@ -42,12 +42,6 @@ Map<String, dynamic> _$CleanerAvailabilitySlotToJson(
       'employeeId': instance.employeeId,
     };
 
-const _$AvailabilityServiceTypeEnumMap = {
-  AvailabilityServiceType.houseCleaning: 'houseCleaning',
-  AvailabilityServiceType.carWash: 'carWash',
-  AvailabilityServiceType.upholsteryCleaning: 'upholsteryCleaning',
-};
-
 CleanerAvailabilityRequest _$CleanerAvailabilityRequestFromJson(
         Map<String, dynamic> json) =>
     CleanerAvailabilityRequest(
@@ -67,4 +61,19 @@ Map<String, dynamic> _$CleanerAvailabilityRequestToJson(
       'endHour': instance.endHour,
       'totalCleaners': instance.totalCleaners,
       'serviceType': _$AvailabilityServiceTypeEnumMap[instance.serviceType]!,
+    };
+
+const _$AvailabilityServiceTypeEnumMap = {
+  AvailabilityServiceType.houseCleaning: 'houseCleaning',
+  AvailabilityServiceType.carWash: 'carWash',
+  AvailabilityServiceType.upholsteryCleaning: 'upholsteryCleaning',
+};
+
+Map<String, dynamic> _$CleanerAvailabilityUpdateRequestToJson(
+        CleanerAvailabilityUpdateRequest instance) =>
+    <String, dynamic>{
+      'dayOfWeek': instance.dayOfWeek,
+      'startHour': instance.startHour,
+      'endHour': instance.endHour,
+      'totalCleaners': instance.totalCleaners,
     };

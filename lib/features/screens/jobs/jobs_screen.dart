@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/data/models/laundry/laundry_history.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/job_tile.dart';
 import 'package:cleaning_service_driver/components/shimmer_box.dart';
@@ -128,16 +129,24 @@ class _JobsScreenState extends State<JobsScreen>
 
             final all = state.all;
             final inProgress = all
-                .where((job) => job.requestStatus == RequestStatus.inProgress)
+                .where((job) => job is LaundryHistory
+                    ? job.displayDetail.jobTab == 1
+                    : job.requestStatus == RequestStatus.inProgress)
                 .toList();
             final completed = all
-                .where((job) => job.requestStatus == RequestStatus.completed)
+                .where((job) => job is LaundryHistory
+                    ? job.displayDetail.jobTab == 2
+                    : job.requestStatus == RequestStatus.completed)
                 .toList();
             final cancelled = all
-                .where((job) => job.requestStatus == RequestStatus.cancelled)
+                .where((job) => job is LaundryHistory
+                    ? job.displayDetail.jobTab == 3
+                    : job.requestStatus == RequestStatus.cancelled)
                 .toList();
             final confirmed = all
-                .where((job) => job.requestStatus == RequestStatus.confirmed)
+                .where((job) => job is LaundryHistory
+                    ? job.displayDetail.jobTab == 0
+                    : job.requestStatus == RequestStatus.confirmed)
                 .toList();
 
             return TabBarView(
@@ -163,7 +172,7 @@ class _JobsScreenState extends State<JobsScreen>
       if (state.isLoading) {
         return _buildJobsShimmer();
       }
-      return const Center(child: Text('No requests found.'));
+      return Center(child: Text(context.l10n.laundry_empty_orders));
     }
 
     final count = state.hasMore ? items.length + 1 : items.length;
@@ -182,7 +191,14 @@ class _JobsScreenState extends State<JobsScreen>
         itemBuilder: (ctx, idx) {
           if (idx < items.length) {
             final req = items[idx];
-            if (req is DeepCleaningHistory) {
+            if (req is LaundryHistory) {
+              return JobTile(
+                  request: req,
+                  onTap: () async {
+                    await context.pushNamed('laundryJobDetails', extra: req);
+                    if (mounted) context.read<JobBloc>().add(LoadJobsEvent());
+                  });
+            } else if (req is DeepCleaningHistory) {
               return InkWell(
                 onTap: () =>
                     context.pushNamed('deepCleaningJobDetails', extra: req),

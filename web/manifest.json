@@ -1,0 +1,11 @@
+{
+    "name": "YourCare Company - DEV",
+    "short_name": "YourCare DEV",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#FFFFFF",
+    "theme_color": "#FFFFFF",
+    "description": "YourCare Company Documents Center - DEV",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false
+}

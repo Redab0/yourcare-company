@@ -2,6 +2,9 @@ import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
 import 'package:cleaning_service_driver/data/models/housekeeping/housekeeping_frequency_discount.dart';
 import 'package:cleaning_service_driver/data/models/housekeeping/housekeeping_pricing_discount.dart';
 import 'package:cleaning_service_driver/data/models/housekeeping/housekeeping_service_frequency_option.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'housekeeping_pricing.g.dart';
 
 class HousekeepingAreaFee {
   final String? areaId;
@@ -213,35 +216,71 @@ class HousekeepingPricing {
   }
 }
 
+@JsonSerializable(
+  createFactory: false,
+  explicitToJson: true,
+  ignoreUnannotated: true,
+)
 class HousekeepingPricingRequest {
-  final List<HousekeepingAreaFee> areaFees;
+  @JsonKey()
+  final List<HousekeepingAreaFeeRequest> areaFees;
+  @JsonKey()
   final bool isActive;
+  @JsonKey()
   final double cleaningProductsPrice;
-  final HousekeepingSinglePricingModel singlePricingModel;
-  final HousekeepingMultiplePricingModel multiplePricingModel;
-  final List<HousekeepingPricingDiscount> frequencyDiscounts;
+  @JsonKey()
+  final HousekeepingSinglePricingRequest singlePricingModel;
+  @JsonKey()
+  final HousekeepingMultiplePricingRequest multiplePricingModel;
+  @JsonKey()
+  final List<HousekeepingFrequencyDiscountRequest> frequencyDiscounts;
+  final List<HousekeepingAreaFee> sourceAreaFees;
+  final HousekeepingSinglePricingModel sourceSinglePricingModel;
+  final HousekeepingMultiplePricingModel sourceMultiplePricingModel;
 
-  const HousekeepingPricingRequest({
+  factory HousekeepingPricingRequest({
+    required List<HousekeepingAreaFee> areaFees,
+    required bool isActive,
+    required double cleaningProductsPrice,
+    required HousekeepingSinglePricingModel singlePricingModel,
+    required HousekeepingMultiplePricingModel multiplePricingModel,
+    required List<HousekeepingPricingDiscount> frequencyDiscounts,
+  }) {
+    return HousekeepingPricingRequest._(
+      areaFees: areaFees
+          .map(HousekeepingAreaFeeRequest.fromAreaFee)
+          .toList(growable: false),
+      isActive: isActive,
+      cleaningProductsPrice: cleaningProductsPrice,
+      singlePricingModel:
+          HousekeepingSinglePricingRequest.fromModel(singlePricingModel),
+      multiplePricingModel:
+          HousekeepingMultiplePricingRequest.fromModel(multiplePricingModel),
+      frequencyDiscounts: frequencyDiscounts
+          .map(HousekeepingFrequencyDiscountRequest.fromDiscount)
+          .toList(growable: false),
+      sourceAreaFees: areaFees,
+      sourceSinglePricingModel: singlePricingModel,
+      sourceMultiplePricingModel: multiplePricingModel,
+    );
+  }
+
+  const HousekeepingPricingRequest._({
     required this.areaFees,
     required this.isActive,
     required this.cleaningProductsPrice,
     required this.singlePricingModel,
     required this.multiplePricingModel,
     required this.frequencyDiscounts,
+    required this.sourceAreaFees,
+    required this.sourceSinglePricingModel,
+    required this.sourceMultiplePricingModel,
   });
 
-  Map<String, dynamic> toJson() {
-    return {
-      'areaFees': areaFees.map((e) => e.toJson()).toList(),
-      'isActive': isActive,
-      'cleaningProductsPrice': cleaningProductsPrice,
-      'singlePricingModel': singlePricingModel.toJson(),
-      'multiplePricingModel': multiplePricingModel.toJson(),
-      'frequencyDiscounts': frequencyDiscounts.map((e) => e.toJson()).toList(),
-    };
-  }
+  Map<String, dynamic> toJson() => _$HousekeepingPricingRequestToJson(this);
 }
 
+@JsonSerializable(createFactory: false)
 class HousekeepingAreaFeeRequest {
   final String areaId;
   final double fee;
@@ -251,12 +290,108 @@ class HousekeepingAreaFeeRequest {
     required this.fee,
   });
 
-  Map<String, dynamic> toJson() {
-    return {
-      'areaId': areaId,
-      'fee': fee,
-    };
+  factory HousekeepingAreaFeeRequest.fromAreaFee(HousekeepingAreaFee fee) {
+    return HousekeepingAreaFeeRequest(
+      areaId: fee.areaId ?? fee.area?.id ?? '',
+      fee: fee.fee ?? 0,
+    );
   }
+
+  Map<String, dynamic> toJson() => _$HousekeepingAreaFeeRequestToJson(this);
+}
+
+@JsonSerializable(createFactory: false)
+class HousekeepingPricingOptionRequest {
+  final String optionId;
+  final double price;
+
+  const HousekeepingPricingOptionRequest({
+    required this.optionId,
+    required this.price,
+  });
+
+  factory HousekeepingPricingOptionRequest.fromOption(
+    HousekeepingPricingOption option,
+  ) {
+    return HousekeepingPricingOptionRequest(
+      optionId: option.optionId,
+      price: option.price,
+    );
+  }
+
+  Map<String, dynamic> toJson() =>
+      _$HousekeepingPricingOptionRequestToJson(this);
+}
+
+@JsonSerializable(createFactory: false)
+class HousekeepingSinglePricingRequest {
+  final bool isActive;
+  final double basePricePerCleanerPerHour;
+
+  const HousekeepingSinglePricingRequest({
+    required this.isActive,
+    required this.basePricePerCleanerPerHour,
+  });
+
+  factory HousekeepingSinglePricingRequest.fromModel(
+    HousekeepingSinglePricingModel model,
+  ) {
+    return HousekeepingSinglePricingRequest(
+      isActive: model.isActive,
+      basePricePerCleanerPerHour: model.basePricePerCleanerPerHour,
+    );
+  }
+
+  Map<String, dynamic> toJson() =>
+      _$HousekeepingSinglePricingRequestToJson(this);
+}
+
+@JsonSerializable(createFactory: false, explicitToJson: true)
+class HousekeepingMultiplePricingRequest {
+  final bool isActive;
+  final List<HousekeepingPricingOptionRequest> options;
+
+  const HousekeepingMultiplePricingRequest({
+    required this.isActive,
+    required this.options,
+  });
+
+  factory HousekeepingMultiplePricingRequest.fromModel(
+    HousekeepingMultiplePricingModel model,
+  ) {
+    return HousekeepingMultiplePricingRequest(
+      isActive: model.isActive,
+      options: model.options
+          .map(HousekeepingPricingOptionRequest.fromOption)
+          .toList(growable: false),
+    );
+  }
+
+  Map<String, dynamic> toJson() =>
+      _$HousekeepingMultiplePricingRequestToJson(this);
+}
+
+@JsonSerializable(createFactory: false)
+class HousekeepingFrequencyDiscountRequest {
+  final String optionId;
+  final double discountPercentage;
+
+  const HousekeepingFrequencyDiscountRequest({
+    required this.optionId,
+    required this.discountPercentage,
+  });
+
+  factory HousekeepingFrequencyDiscountRequest.fromDiscount(
+    HousekeepingPricingDiscount discount,
+  ) {
+    return HousekeepingFrequencyDiscountRequest(
+      optionId: discount.optionId,
+      discountPercentage: discount.discountPercentage,
+    );
+  }
+
+  Map<String, dynamic> toJson() =>
+      _$HousekeepingFrequencyDiscountRequestToJson(this);
 }
 
 HousekeepingSinglePricingModel? _parseSinglePricingModel(

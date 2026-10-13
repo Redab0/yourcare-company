@@ -22,6 +22,15 @@ class StartJobEvent extends JobActionsEvent {
   List<Object?> get props => [id];
 }
 
+class RefreshJobEvent extends JobActionsEvent {
+  final String id;
+
+  const RefreshJobEvent(this.id);
+
+  @override
+  List<Object?> get props => [id];
+}
+
 class CompleteJobEvent extends JobActionsEvent {
   final String id;
   final CompleteJobRequest? completeJobRequest;

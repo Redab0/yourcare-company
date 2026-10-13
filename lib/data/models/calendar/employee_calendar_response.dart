@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -78,8 +79,11 @@ class CalendarWork {
   final String? requestType;
   @JsonKey(fromJson: requestStatusFromJson, toJson: requestStatusToJson)
   final RequestStatus requestStatus;
+  @KuwaitScheduleConverter()
   final DateTime? scheduledTime;
+  @KuwaitScheduleConverter()
   final DateTime? startTime;
+  @KuwaitScheduleConverter()
   final DateTime? endTime;
   final int? durationHours;
   final CalendarOption? cleaningDuration;

@@ -167,17 +167,6 @@ class UpholsteryPricingPackage extends Equatable {
 
   Map<String, dynamic> toJson() => _$UpholsteryPricingPackageToJson(this);
 
-  Map<String, dynamic> toPricingRequestJson() => <String, dynamic>{
-        if (titleEn != null) 'titleEn': titleEn!.trim(),
-        if (titleAr != null) 'titleAr': titleAr!.trim(),
-        if (descriptionEn?.trim().isNotEmpty == true)
-          'descriptionEn': descriptionEn!.trim(),
-        if (descriptionAr?.trim().isNotEmpty == true)
-          'descriptionAr': descriptionAr!.trim(),
-        'price': price,
-        'discountPercentage': discountPercentage,
-      };
-
   String get rowKey => sizeId ?? packageId ?? localId;
 
   UpholsteryPricingPackage copyWith({
@@ -237,13 +226,6 @@ class UpholsteryPricingGroup extends Equatable {
 
   Map<String, dynamic> toJson() => _$UpholsteryPricingGroupToJson(this);
 
-  Map<String, dynamic> toPricingRequestJson() => <String, dynamic>{
-        'upholsteryTypeId': upholsteryTypeId,
-        'packages': packages
-            .map((package) => package.toPricingRequestJson())
-            .toList(growable: false),
-      };
-
   UpholsteryPricingGroup copyWith({
     String? upholsteryTypeId,
     List<UpholsteryPricingPackage>? packages,
@@ -260,27 +242,133 @@ class UpholsteryPricingGroup extends Equatable {
   List<Object?> get props => [upholsteryTypeId, packages, isEnabled];
 }
 
-@JsonSerializable(includeIfNull: false, createToJson: false)
-class UpholsteryPricingRequest extends Equatable {
-  final List<UpholsteryPricingGroup> pricing;
+@JsonSerializable(
+  createFactory: false,
+  includeIfNull: false,
+  ignoreUnannotated: true,
+)
+class UpholsteryPricingPackageRequest extends Equatable {
+  @JsonKey()
+  final String? titleEn;
+  @JsonKey()
+  final String? titleAr;
+  @JsonKey()
+  final String? descriptionEn;
+  @JsonKey()
+  final String? descriptionAr;
+  @JsonKey()
+  final double price;
+  @JsonKey()
+  final double discountPercentage;
 
-  const UpholsteryPricingRequest({required this.pricing});
+  const UpholsteryPricingPackageRequest({
+    this.titleEn,
+    this.titleAr,
+    this.descriptionEn,
+    this.descriptionAr,
+    required this.price,
+    required this.discountPercentage,
+  });
 
-  factory UpholsteryPricingRequest.fromJson(Map<String, dynamic> json) =>
-      _$UpholsteryPricingRequestFromJson(json);
+  factory UpholsteryPricingPackageRequest.fromPackage(
+    UpholsteryPricingPackage package,
+  ) {
+    return UpholsteryPricingPackageRequest(
+      titleEn: package.titleEn?.trim(),
+      titleAr: package.titleAr?.trim(),
+      descriptionEn: _trimmedOrNull(package.descriptionEn),
+      descriptionAr: _trimmedOrNull(package.descriptionAr),
+      price: package.price,
+      discountPercentage: package.discountPercentage,
+    );
+  }
 
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        'pricing': pricing
-            .map((group) => group.toPricingRequestJson())
-            .toList(growable: false),
-      };
+  Map<String, dynamic> toJson() =>
+      _$UpholsteryPricingPackageRequestToJson(this);
 
   @override
-  List<Object?> get props => [pricing];
+  List<Object?> get props => [
+        titleEn,
+        titleAr,
+        descriptionEn,
+        descriptionAr,
+        price,
+        discountPercentage,
+      ];
+}
+
+@JsonSerializable(
+  createFactory: false,
+  explicitToJson: true,
+  ignoreUnannotated: true,
+)
+class UpholsteryPricingGroupRequest extends Equatable {
+  @JsonKey()
+  final String upholsteryTypeId;
+  @JsonKey()
+  final List<UpholsteryPricingPackageRequest> packages;
+
+  const UpholsteryPricingGroupRequest({
+    required this.upholsteryTypeId,
+    required this.packages,
+  });
+
+  factory UpholsteryPricingGroupRequest.fromGroup(
+    UpholsteryPricingGroup group,
+  ) {
+    return UpholsteryPricingGroupRequest(
+      upholsteryTypeId: group.upholsteryTypeId,
+      packages: group.packages
+          .map(UpholsteryPricingPackageRequest.fromPackage)
+          .toList(growable: false),
+    );
+  }
+
+  Map<String, dynamic> toJson() => _$UpholsteryPricingGroupRequestToJson(this);
+
+  @override
+  List<Object?> get props => [upholsteryTypeId, packages];
+}
+
+@JsonSerializable(
+  createFactory: false,
+  explicitToJson: true,
+  ignoreUnannotated: true,
+)
+class UpholsteryPricingRequest extends Equatable {
+  @JsonKey()
+  final List<UpholsteryPricingGroupRequest> pricing;
+  final List<UpholsteryPricingGroup> sourcePricing;
+
+  factory UpholsteryPricingRequest({
+    required List<UpholsteryPricingGroup> pricing,
+  }) {
+    return UpholsteryPricingRequest._(
+      pricing: pricing
+          .map(UpholsteryPricingGroupRequest.fromGroup)
+          .toList(growable: false),
+      sourcePricing: pricing,
+    );
+  }
+
+  const UpholsteryPricingRequest._({
+    required this.pricing,
+    required this.sourcePricing,
+  });
+
+  Map<String, dynamic> toJson() => _$UpholsteryPricingRequestToJson(this);
+
+  @override
+  List<Object?> get props => [pricing, sourcePricing];
 }
 
 Object? _readId(Map<dynamic, dynamic> json, String key) {
   return json[key] ?? json['_id'];
+}
+
+String? _trimmedOrNull(String? value) {
+  final trimmed = value?.trim();
+  return trimmed?.isEmpty == true ? null : trimmed;
 }
 
 Object? _readPackageId(Map<dynamic, dynamic> json, String key) {

@@ -18,10 +18,45 @@ void main() {
       )
       .toList(growable: false);
 
+  test(
+      'laundry companies see their catalog and jobs without deep-cleaning bids',
+      () {
+    const services = {CompanyProvidedService.laundry};
+    expect(
+        BusinessHomeService.laundryConfiguration
+            .canShow(permissions: allPermissions, companyServices: services),
+        isTrue);
+    expect(
+        BusinessHomeService.upcomingJobs
+            .canShow(permissions: allPermissions, companyServices: services),
+        isTrue);
+    expect(
+        BusinessHomeService.cleaningRequests
+            .canShow(permissions: allPermissions, companyServices: services),
+        isFalse);
+    expect(
+        BusinessHomeService.autoBidding
+            .canShow(permissions: allPermissions, companyServices: services),
+        isFalse);
+    expect(
+        orderedBusinessSetupTourServices([
+          BusinessHomeService.upcomingJobs,
+          BusinessHomeService.laundryConfiguration
+        ]),
+        [
+          BusinessHomeService.laundryConfiguration,
+          BusinessHomeService.upcomingJobs
+        ]);
+    expect(
+        BusinessHomeService.laundryConfiguration
+            .canShow(permissions: [], companyServices: services),
+        isFalse);
+  });
+
   test('furniture configuration uses its dedicated home icon', () {
     expect(
       BusinessHomeService.upholsteryConfiguration.imageAsset,
-      'assets/images/ic_furniture_config.png',
+      'assets/images/business_upholstery_configuration.png',
     );
   });
 

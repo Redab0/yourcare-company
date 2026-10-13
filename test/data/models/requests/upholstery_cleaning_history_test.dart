@@ -71,7 +71,60 @@ void main() {
     expect(item.package?.titleEn, 'Deep sofa care');
     expect(item.package?.discountedPrice, 10.8);
     expect(item.calculatedPrice, 21.6);
+    expect(item.lineTotal, 21.6);
     expect(item.isDirectBookingItem, isTrue);
+  });
+
+  test('treats the updated furniture item price as its line total', () {
+    final request = CleaningRequest.fromJson({
+      'id': 'FC37',
+      'type': 'upholsteryCleaning',
+      'requestStatus': 'confirmed',
+      'totalPrice': '20',
+      'createdAt': '2026-08-26T07:00:00.000Z',
+      'updatedAt': '2026-08-26T07:00:00.000Z',
+      'customer': <String, dynamic>{},
+      'UpholsteryCleaning': {
+        'totalPrice': 20,
+        'items': [
+          {
+            'upholsteryTypeId': {
+              'id': 'sofa-id',
+              'titleEn': 'Sofa',
+              'titleAr': 'كنب',
+            },
+            'size': {
+              'id': 'sofa-set-id',
+              'title': 'Set of sofas up to 6 seats',
+            },
+            'quantity': '1',
+            'price': '5',
+          },
+          {
+            'upholsteryTypeId': {
+              'id': 'sofa-id',
+              'titleEn': 'Sofa',
+              'titleAr': 'كنب',
+            },
+            'size': {
+              'id': 'extra-seat-id',
+              'title': 'Additional sofa seat',
+            },
+            'quantity': 3,
+            'price': 15,
+          },
+        ],
+      },
+    }) as UpholsteryCleaningHistory;
+
+    final items = request.upholsteryCleaning.items!;
+    expect(items.map((item) => item.lineTotal), [5, 15]);
+    expect(
+      items.map((item) => item.lineTotal!).reduce((a, b) => a + b),
+      request.totalPrice,
+    );
+    expect(items.last.package, isNull);
+    expect(items.last.size?.title, 'Additional sofa seat');
   });
 
   test('accepts a direct furniture booking without a scheduled time', () {

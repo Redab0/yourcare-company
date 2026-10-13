@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/data/repositories/notifications/notifications_repository.dart';
 import 'dart:async';
 
 import 'package:cleaning_service_driver/components/custome_bottom_nav.dart';
@@ -44,6 +45,11 @@ class _MainLayoutState extends State<MainLayout> {
     _startChatListeners();
     _preloadCompanyProfile();
     _bootstrapActiveChat();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && sl.isRegistered<NotificationsRepository>()) {
+        sl<NotificationsRepository>().onCompanyNavigationReady();
+      }
+    });
   }
 
   @override

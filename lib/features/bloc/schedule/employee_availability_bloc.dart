@@ -115,6 +115,7 @@ class EmployeeAvailabilityBloc
     Emitter<EmployeeAvailabilityState> emit,
   ) async {
     if (event.scheduleByDay.isEmpty) return;
+    emit(state.copyWith(isSaving: true, error: null));
     _loader.show();
     try {
       final targetDays = event.scheduleByDay.keys.toSet();
@@ -139,10 +140,11 @@ class EmployeeAvailabilityBloc
       emit(state.copyWith(
         slots: slots,
         serviceType: event.serviceType,
+        isSaving: false,
         error: null,
       ));
     } catch (e) {
-      emit(state.copyWith(error: e.toString()));
+      emit(state.copyWith(isSaving: false, error: e.toString()));
     } finally {
       _loader.hide();
     }

@@ -6,7 +6,7 @@ class AppTheme {
 
   // ===== Palette (from screenshot) =====
   // Primary set
-  static const Color cream = Color(0xFFE0DACE); // e0dace
+  static const Color cream = Colors.white; // e0dace
   static const Color forest = Color(0xFF4B5143); // 4b5143
   static const Color navy = Color(0xFF0C2C48); // 0c2c48
   static const Color ink = Color(0xFF010101); // 010101
@@ -25,6 +25,8 @@ class AppTheme {
   static const Color surfaceDark = forest;
   static const Color textPrimary = ink;
   static const Color textSecondary = slate;
+  static const Color illustrationBlue = Color(0xFF3B7DDE);
+  static const Color illustrationBlueSurface = Color(0xFFEAF2FF);
 
   /// Slightly bump text on large screens (tablets/desktop).
   static TextScaler textScalerForWidth(double width) {

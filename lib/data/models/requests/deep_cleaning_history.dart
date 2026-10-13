@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
 // deep_cleaning_history.dart
 
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
@@ -6,10 +7,12 @@ import 'package:cleaning_service_driver/data/models/customer/customer.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_item.dart';
 import 'package:cleaning_service_driver/data/models/requests/company_information.dart';
 import 'package:cleaning_service_driver/data/models/requests/business_offer_response.dart';
+import 'package:cleaning_service_driver/data/models/requests/request_invoice.dart';
 import 'package:cleaning_service_driver/data/models/staff/team_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'cleaning_request.dart';
+import 'request_campaign.dart';
 
 part 'deep_cleaning_history.g.dart';
 
@@ -21,11 +24,15 @@ class DeepCleaningHistory implements CleaningRequest {
   final String? type;
   @override
   final double totalPrice;
+
+  final bool registrationGiftApplied;
+  final RequestCampaign? campaign;
   @override
   final DateTime createdAt;
   @override
   final DateTime updatedAt;
   @override
+  @KuwaitScheduleConverter()
   final DateTime? scheduledTime;
   @override
   final Customer customer;
@@ -60,11 +67,16 @@ class DeepCleaningHistory implements CleaningRequest {
   final bool awaitingExtraPayment;
   @override
   final String? extraPaymentUrl;
+  @override
+  @JsonKey(defaultValue: <RequestInvoice>[])
+  final List<RequestInvoice> invoices;
 
   final BusinessOfferResponse? myBid;
 
   DeepCleaningHistory({
     this.id,
+    this.registrationGiftApplied = false,
+    this.campaign,
     required this.requestStatus,
     required this.totalPrice,
     this.type,
@@ -83,6 +95,7 @@ class DeepCleaningHistory implements CleaningRequest {
     this.extraFeesDescription,
     this.awaitingExtraPayment = false,
     this.extraPaymentUrl,
+    this.invoices = const [],
   });
 
   DeepCleaningHistory copyWith({
@@ -103,6 +116,7 @@ class DeepCleaningHistory implements CleaningRequest {
     String? extraFeesDescription,
     bool? awaitingExtraPayment,
     String? extraPaymentUrl,
+    List<RequestInvoice>? invoices,
   }) {
     return DeepCleaningHistory(
         id: id ?? this.id,
@@ -124,6 +138,9 @@ class DeepCleaningHistory implements CleaningRequest {
         extraFeesDescription: extraFeesDescription ?? this.extraFeesDescription,
         awaitingExtraPayment: awaitingExtraPayment ?? this.awaitingExtraPayment,
         extraPaymentUrl: extraPaymentUrl ?? this.extraPaymentUrl,
+        registrationGiftApplied: registrationGiftApplied,
+        campaign: campaign,
+        invoices: invoices ?? this.invoices,
         type: type ?? this.type);
   }
 
@@ -133,18 +150,20 @@ class DeepCleaningHistory implements CleaningRequest {
     required String extraFeesDescription,
     required bool awaitingExtraPayment,
     String? extraPaymentUrl,
+    List<RequestInvoice>? invoices,
   }) =>
       copyWith(
         extraFees: extraFees,
         extraFeesDescription: extraFeesDescription,
         awaitingExtraPayment: awaitingExtraPayment,
         extraPaymentUrl: extraPaymentUrl,
+        invoices: invoices,
       );
 
   factory DeepCleaningHistory.fromJson(
     Map<String, dynamic> json,
   ) =>
-      _$DeepCleaningHistoryFromJson(json);
+      _$DeepCleaningHistoryFromJson(normalizeRequestInvoiceState(json));
 
   Map<String, dynamic> toJson() => _$DeepCleaningHistoryToJson(this);
 }
@@ -161,6 +180,7 @@ class DeepCleaningDetail {
   final Address? address;
   final String? additionalInformation;
   final List<String>? photosAndVideos;
+  @KuwaitScheduleConverter()
   final DateTime? scheduledTime;
   final String? area;
   final String? areaId;
@@ -225,6 +245,7 @@ class DeepCleaningDepartmentSelection {
 @JsonSerializable(checked: true)
 class FrequencyDate {
   final String? id;
+  @KuwaitScheduleConverter()
   final DateTime? date;
   final String? status;
 

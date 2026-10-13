@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/detail_row.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
@@ -171,7 +172,9 @@ class _HouseKeepingRequestScreenState extends State<HouseKeepingRequestScreen> {
                           widget.request.subRequests!.length, (i) {
                         final sr = widget.request.subRequests![i];
                         final dateStr = (sr.date != null)
-                            ? DateFormat.yMMMd().add_jm().format(sr.date!)
+                            ? DateFormat.yMMMd()
+                                .add_jm()
+                                .format(kuwaitWallTime(sr.date!))
                             : "N/A";
                         final statusText =
                             sr.status?.displayText(context) ?? "N/A";

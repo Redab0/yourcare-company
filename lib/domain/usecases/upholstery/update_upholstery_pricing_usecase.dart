@@ -10,6 +10,6 @@ class UpdateUpholsteryPricingUseCase {
     UpholsteryPricingRequest request,
   ) async {
     final profile = await _repository.updatePricing(request);
-    return profile?.upholsteryPricing ?? request.pricing;
+    return profile?.upholsteryPricing ?? request.sourcePricing;
   }
 }

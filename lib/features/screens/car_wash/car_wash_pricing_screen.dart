@@ -117,9 +117,21 @@ class _CarWashPricingScreenState extends State<CarWashPricingScreen> {
                     children: [
                       _PackagesSection(
                         packages: state.packages,
+                        vehicleTypes: state.vehicleTypes,
+                        isSavingPackage: state.isSavingPackage,
                         onCreate: () => _openPackageEditor(),
                         onEdit: _openPackageEditor,
                         onDelete: _confirmDeletePackage,
+                        onEnabledChanged: (package, enabled) {
+                          context.read<CarWashBloc>().add(
+                                UpdateCarWashPackage(
+                                  packageId: package.id,
+                                  request: package.toMutationRequest(
+                                    enabled: enabled,
+                                  ),
+                                ),
+                              );
+                        },
                       ),
                       _VehicleAssignmentsSection(
                         state: state,
@@ -191,12 +203,16 @@ class _CarWashPricingScreenState extends State<CarWashPricingScreen> {
   }
 
   Future<void> _openPackageEditor([CarWashPackage? package]) async {
+    final vehicleTypes = context.read<CarWashBloc>().state.vehicleTypes;
     final request = await showModalBottomSheet<CarWashPackageMutationRequest>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
       showDragHandle: true,
-      builder: (_) => _PackageEditorSheet(package: package),
+      builder: (_) => _PackageEditorSheet(
+        package: package,
+        vehicleTypes: vehicleTypes,
+      ),
     );
     if (!mounted || request == null) return;
     if (package == null) {
@@ -370,15 +386,21 @@ class _SectionSelector extends StatelessWidget {
 
 class _PackagesSection extends StatelessWidget {
   final List<CarWashPackage> packages;
+  final List<CarWashVehicleType> vehicleTypes;
+  final bool isSavingPackage;
   final VoidCallback onCreate;
   final ValueChanged<CarWashPackage> onEdit;
   final ValueChanged<CarWashPackage> onDelete;
+  final void Function(CarWashPackage package, bool enabled) onEnabledChanged;
 
   const _PackagesSection({
     required this.packages,
+    required this.vehicleTypes,
+    required this.isSavingPackage,
     required this.onCreate,
     required this.onEdit,
     required this.onDelete,
+    required this.onEnabledChanged,
   });
 
   @override
@@ -402,8 +424,12 @@ class _PackagesSection extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 12),
               child: _PackageCard(
                 package: package,
+                vehicleTypes: vehicleTypes,
                 onEdit: () => onEdit(package),
                 onDelete: () => onDelete(package),
+                onEnabledChanged: isSavingPackage
+                    ? null
+                    : (enabled) => onEnabledChanged(package, enabled),
               ),
             ),
           ),
@@ -414,22 +440,27 @@ class _PackagesSection extends StatelessWidget {
 
 class _PackageCard extends StatelessWidget {
   final CarWashPackage package;
+  final List<CarWashVehicleType> vehicleTypes;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final ValueChanged<bool>? onEnabledChanged;
 
   const _PackageCard({
     required this.package,
+    required this.vehicleTypes,
     required this.onEdit,
     required this.onDelete,
+    required this.onEnabledChanged,
   });
 
   @override
   Widget build(BuildContext context) {
     final description = _localizedPackageDescription(context, package);
-    final slots = [...package.workingHours]..sort((a, b) {
-        final day = a.dayOfWeek.compareTo(b.dayOfWeek);
-        return day != 0 ? day : a.startTime.compareTo(b.startTime);
-      });
+    final vehiclePrices = <(CarWashVehicleType, double)>[
+      for (final vehicle in vehicleTypes)
+        if (package.priceForVehicle(vehicle.id) case final price?)
+          (vehicle, price),
+    ];
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -475,15 +506,30 @@ class _PackageCard extends StatelessWidget {
                 ),
               ],
             ),
+            SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              value: package.enabled,
+              onChanged: onEnabledChanged,
+              secondary: Icon(
+                package.enabled
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
+                color: package.enabled
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.outline,
+              ),
+              title: Text(context.l10n.car_wash_package_enabled),
+              subtitle: Text(
+                package.enabled
+                    ? context.l10n.availability_enabled
+                    : context.l10n.availability_disabled,
+              ),
+            ),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
-                _ValueChip(
-                  icon: Icons.payments_outlined,
-                  label: '${_formatNumber(package.price)} ${context.l10n.kwd}',
-                ),
                 if (package.discountPercentage > 0)
                   _ValueChip(
                     icon: Icons.percent,
@@ -494,39 +540,30 @@ class _PackageCard extends StatelessWidget {
                     icon: Icons.timer_outlined,
                     label: '${package.duration} ${context.l10n.minutes_short}',
                   ),
-                _ValueChip(
-                  icon: Icons.schedule_outlined,
-                  label: slots.isEmpty
-                      ? context.l10n.package_availability_not_set
-                      : '${slots.length} ${context.l10n.package_time_slots}',
-                ),
               ],
             ),
-            if (slots.isNotEmpty) ...[
+            if (vehiclePrices.isNotEmpty) ...[
               const Divider(height: 24),
-              ...slots.map(
-                (slot) => Padding(
-                  padding: const EdgeInsets.only(bottom: 5),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.schedule,
-                        size: 18,
-                        color: Theme.of(context).colorScheme.primary,
+              Text(
+                context.l10n.car_wash_vehicle_pricing,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleSmall
+                    ?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: vehiclePrices
+                    .map(
+                      (entry) => _ValueChip(
+                        icon: Icons.directions_car_outlined,
+                        label: '${_localizedVehicleTitle(context, entry.$1)}: '
+                            '${_formatNumber(entry.$2)} ${context.l10n.kwd}',
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          '${_dayLabel(context, slot.dayOfWeek)}: '
-                          '${_displayTime(context, slot.startTime)} - '
-                          '${_displayTime(context, slot.endTime)}',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                    )
+                    .toList(growable: false),
               ),
             ],
           ],
@@ -619,27 +656,32 @@ class _VehicleAssignmentCard extends StatelessWidget {
         subtitle: Text(context.l10n.assign_packages_to_vehicle),
         children: [
           const Divider(height: 1),
-          ...packages.map(
-            (package) => CheckboxListTile(
+          ...packages.map((package) {
+            final mappedPrice = package.priceForVehicle(vehicle.id);
+            final priceLabel = mappedPrice == null
+                ? context.l10n.car_wash_vehicle_price_not_set
+                : '${_localizedVehicleTitle(context, vehicle)}: '
+                    '${_formatNumber(mappedPrice)} ${context.l10n.kwd}'
+                    '${package.discountPercentage > 0 ? ' | ${_formatNumber(package.discountPercentage)}%' : ''}';
+            return CheckboxListTile(
               value: assignedPackageIds.contains(package.id),
               controlAffinity: ListTileControlAffinity.leading,
               title: Text(
                 _localizedPackageTitle(context, package),
                 style: Theme.of(context).textTheme.titleSmall,
               ),
-              subtitle: Text(
-                '${_formatNumber(package.price)} ${context.l10n.kwd}'
-                '${package.discountPercentage > 0 ? ' | ${_formatNumber(package.discountPercentage)}%' : ''}',
-              ),
-              onChanged: (selected) => context.read<CarWashBloc>().add(
-                    ToggleCarWashPackageAssignment(
-                      vehicleTypeId: vehicle.id,
-                      packageId: package.id,
-                      isAssigned: selected ?? false,
-                    ),
-                  ),
-            ),
-          ),
+              subtitle: Text(priceLabel),
+              onChanged: mappedPrice == null
+                  ? null
+                  : (selected) => context.read<CarWashBloc>().add(
+                        ToggleCarWashPackageAssignment(
+                          vehicleTypeId: vehicle.id,
+                          packageId: package.id,
+                          isAssigned: selected ?? false,
+                        ),
+                      ),
+            );
+          }),
         ],
       ),
     );
@@ -767,8 +809,12 @@ class _AreaFeeTile extends StatelessWidget {
 
 class _PackageEditorSheet extends StatefulWidget {
   final CarWashPackage? package;
+  final List<CarWashVehicleType> vehicleTypes;
 
-  const _PackageEditorSheet({this.package});
+  const _PackageEditorSheet({
+    this.package,
+    required this.vehicleTypes,
+  });
 
   @override
   State<_PackageEditorSheet> createState() => _PackageEditorSheetState();
@@ -780,11 +826,11 @@ class _PackageEditorSheetState extends State<_PackageEditorSheet> {
   late final TextEditingController _titleArController;
   late final TextEditingController _descriptionEnController;
   late final TextEditingController _descriptionArController;
-  late final TextEditingController _priceController;
+  late final Map<String, TextEditingController> _priceControllers;
   late final TextEditingController _discountController;
   late final TextEditingController _durationController;
-  late List<CarWashPackageWorkingHour> _workingHours;
-  String? _workingHoursError;
+  late bool _enabled;
+  String? _pricingError;
 
   @override
   void initState() {
@@ -796,9 +842,13 @@ class _PackageEditorSheetState extends State<_PackageEditorSheet> {
         TextEditingController(text: package?.descriptionEn ?? '');
     _descriptionArController =
         TextEditingController(text: package?.descriptionAr ?? '');
-    _priceController = TextEditingController(
-      text: package == null ? '' : _formatNumber(package.price),
-    );
+    _priceControllers = {
+      for (final vehicle in widget.vehicleTypes)
+        if (vehicle.id.isNotEmpty)
+          vehicle.id: TextEditingController(
+            text: _priceEditorText(package?.priceForVehicle(vehicle.id)),
+          ),
+    };
     _discountController = TextEditingController(
       text: package == null || package.discountPercentage == 0
           ? ''
@@ -807,7 +857,7 @@ class _PackageEditorSheetState extends State<_PackageEditorSheet> {
     _durationController = TextEditingController(
       text: (package?.duration ?? 0) > 0 ? package!.duration.toString() : '30',
     );
-    _workingHours = [...?package?.workingHours]..sort(_compareWorkingHours);
+    _enabled = package?.enabled ?? true;
   }
 
   @override
@@ -816,7 +866,9 @@ class _PackageEditorSheetState extends State<_PackageEditorSheet> {
     _titleArController.dispose();
     _descriptionEnController.dispose();
     _descriptionArController.dispose();
-    _priceController.dispose();
+    for (final controller in _priceControllers.values) {
+      controller.dispose();
+    }
     _discountController.dispose();
     _durationController.dispose();
     super.dispose();
@@ -911,47 +963,126 @@ class _PackageEditorSheetState extends State<_PackageEditorSheet> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _priceController,
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            inputFormatters: [_decimalInputFormatter],
-                            decoration: InputDecoration(
-                              labelText: context.l10n.request_price,
-                              prefixIcon: const Icon(Icons.payments_outlined),
-                              suffixText: context.l10n.kwd,
-                            ),
-                            validator: (value) => _parseNumber(value) <= 0
-                                ? context.l10n.price_must_be_greater_than_zero
-                                : null,
-                          ),
+                    Card(
+                      elevation: 0,
+                      color:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
+                      child: SwitchListTile.adaptive(
+                        value: _enabled,
+                        onChanged: (enabled) {
+                          setState(() => _enabled = enabled);
+                        },
+                        secondary: Icon(
+                          _enabled
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _discountController,
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
+                        title: Text(context.l10n.car_wash_package_enabled),
+                        subtitle:
+                            Text(context.l10n.car_wash_package_enabled_hint),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      context.l10n.car_wash_vehicle_pricing,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge
+                          ?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      context.l10n.car_wash_vehicle_pricing_hint,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    if (_priceControllers.isEmpty)
+                      _InlineEmptyState(
+                        message: context.l10n.no_car_wash_options,
+                      )
+                    else
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final useTwoColumns = constraints.maxWidth >= 620;
+                          final fieldWidth = useTwoColumns
+                              ? (constraints.maxWidth - 12) / 2
+                              : constraints.maxWidth;
+                          return Wrap(
+                            spacing: 12,
+                            runSpacing: 12,
+                            children: widget.vehicleTypes
+                                .where(
+                                  (vehicle) =>
+                                      _priceControllers.containsKey(vehicle.id),
+                                )
+                                .map(
+                                  (vehicle) => SizedBox(
+                                    width: fieldWidth,
+                                    child: TextFormField(
+                                      controller: _priceControllers[vehicle.id],
+                                      keyboardType:
+                                          const TextInputType.numberWithOptions(
+                                              decimal: true),
+                                      inputFormatters: [_decimalInputFormatter],
+                                      decoration: InputDecoration(
+                                        labelText: _localizedVehicleTitle(
+                                          context,
+                                          vehicle,
+                                        ),
+                                        prefixIcon: const Icon(
+                                          Icons.directions_car_outlined,
+                                        ),
+                                        suffixText: context.l10n.kwd,
+                                      ),
+                                      validator: (value) {
+                                        final normalized =
+                                            (value ?? '').trim().replaceAll(
+                                                  ',',
+                                                  '.',
+                                                );
+                                        if (normalized.isEmpty) {
+                                          return context.l10n.form_required;
+                                        }
+                                        final price =
+                                            double.tryParse(normalized);
+                                        return price == null || price < 0
+                                            ? context.l10n
+                                                .price_must_be_zero_or_greater
+                                            : null;
+                                      },
+                                    ),
+                                  ),
+                                )
+                                .toList(growable: false),
+                          );
+                        },
+                      ),
+                    if (_pricingError != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        _pricingError!,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.error,
                             ),
-                            inputFormatters: [_decimalInputFormatter],
-                            decoration: InputDecoration(
-                              labelText: context.l10n.discount_percentage,
-                              prefixIcon: const Icon(Icons.percent),
-                            ),
-                            validator: (value) {
-                              final discount = _parseNumber(value);
-                              return discount < 0 || discount > 100
-                                  ? context.l10n.invalid_discount_percentage
-                                  : null;
-                            },
-                          ),
-                        ),
-                      ],
+                      ),
+                    ],
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _discountController,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      inputFormatters: [_decimalInputFormatter],
+                      decoration: InputDecoration(
+                        labelText: context.l10n.discount_percentage,
+                        prefixIcon: const Icon(Icons.percent),
+                      ),
+                      validator: (value) {
+                        final discount = _parseNumber(value);
+                        return discount < 0 || discount > 100
+                            ? context.l10n.invalid_discount_percentage
+                            : null;
+                      },
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
@@ -970,53 +1101,6 @@ class _PackageEditorSheetState extends State<_PackageEditorSheet> {
                             ? context.l10n.duration_must_be_positive
                             : null;
                       },
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      context.l10n.package_working_hours,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(fontWeight: FontWeight.w700),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      context.l10n.package_working_hours_hint,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 12),
-                    if (_workingHours.isEmpty)
-                      _InlineEmptyState(
-                        message: context.l10n.package_availability_not_set,
-                      )
-                    else
-                      ...List.generate(
-                        _workingHours.length,
-                        (index) => _WorkingHourEditorTile(
-                          hour: _workingHours[index],
-                          onEdit: () => _editWorkingHour(index),
-                          onDelete: () {
-                            setState(() {
-                              _workingHours.removeAt(index);
-                              _workingHoursError = null;
-                            });
-                          },
-                        ),
-                      ),
-                    if (_workingHoursError != null) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        _workingHoursError!,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                      ),
-                    ],
-                    const SizedBox(height: 12),
-                    OutlinedButton.icon(
-                      onPressed: () => _editWorkingHour(),
-                      icon: const Icon(Icons.add),
-                      label: Text(context.l10n.add_time_slot),
                     ),
                   ],
                 ),
@@ -1047,38 +1131,24 @@ class _PackageEditorSheetState extends State<_PackageEditorSheet> {
         : null;
   }
 
-  Future<void> _editWorkingHour([int? index]) async {
-    final existing = index == null ? null : _workingHours[index];
-    final result = await showDialog<CarWashPackageWorkingHour>(
-      context: context,
-      builder: (_) => _WorkingHourDialog(initial: existing),
-    );
-    if (!mounted || result == null) return;
-    final otherHours = [..._workingHours];
-    if (index != null) otherHours.removeAt(index);
-    if (_hasOverlap(result, otherHours)) {
-      setState(() => _workingHoursError = context.l10n.overlapping_time_slot);
-      return;
-    }
-    setState(() {
-      if (index == null) {
-        _workingHours.add(result);
-      } else {
-        _workingHours[index] = result;
-      }
-      _workingHours.sort(_compareWorkingHours);
-      _workingHoursError = null;
-    });
-  }
-
   void _submit() {
     final formIsValid = _formKey.currentState?.validate() ?? false;
-    String? hoursError;
-    if (_containsOverlaps(_workingHours)) {
-      hoursError = context.l10n.overlapping_time_slot;
-    }
-    setState(() => _workingHoursError = hoursError);
-    if (!formIsValid || hoursError != null) return;
+    final pricingError =
+        _priceControllers.isEmpty ? context.l10n.no_car_wash_options : null;
+    setState(() {
+      _pricingError = pricingError;
+    });
+    if (!formIsValid || pricingError != null) return;
+
+    final pricing = widget.vehicleTypes
+        .where((vehicle) => _priceControllers.containsKey(vehicle.id))
+        .map(
+          (vehicle) => CarWashPackageVehiclePrice(
+            vehicleTypeId: vehicle.id,
+            price: _parseNumber(_priceControllers[vehicle.id]?.text),
+          ),
+        )
+        .toList(growable: false);
 
     Navigator.of(context).pop(
       CarWashPackageMutationRequest(
@@ -1086,244 +1156,11 @@ class _PackageEditorSheetState extends State<_PackageEditorSheet> {
         titleAr: _titleArController.text,
         descriptionEn: _descriptionEnController.text,
         descriptionAr: _descriptionArController.text,
-        price: _parseNumber(_priceController.text),
+        pricing: pricing,
         discountPercentage: _parseNumber(_discountController.text),
         duration: int.parse(_durationController.text),
-        workingHours: List.unmodifiable(_workingHours),
-      ),
-    );
-  }
-}
-
-class _WorkingHourEditorTile extends StatelessWidget {
-  final CarWashPackageWorkingHour hour;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
-
-  const _WorkingHourEditorTile({
-    required this.hour,
-    required this.onEdit,
-    required this.onDelete,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      elevation: 0,
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      child: ListTile(
-        title: Text(
-          _dayLabel(context, hour.dayOfWeek),
-          style: Theme.of(context).textTheme.titleSmall,
-        ),
-        subtitle: Text(
-          '${_displayTime(context, hour.startTime)} - '
-          '${_displayTime(context, hour.endTime)}',
-        ),
-        trailing: Wrap(
-          spacing: 0,
-          children: [
-            IconButton(
-              tooltip: context.l10n.edit_time_slot,
-              onPressed: onEdit,
-              icon: const Icon(Icons.edit_outlined),
-            ),
-            IconButton(
-              tooltip: context.l10n.delete,
-              onPressed: onDelete,
-              icon: const Icon(Icons.delete_outline),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _WorkingHourDialog extends StatefulWidget {
-  final CarWashPackageWorkingHour? initial;
-
-  const _WorkingHourDialog({this.initial});
-
-  @override
-  State<_WorkingHourDialog> createState() => _WorkingHourDialogState();
-}
-
-class _WorkingHourDialogState extends State<_WorkingHourDialog> {
-  final _formKey = GlobalKey<FormState>();
-  late int _dayOfWeek;
-  late int _startMinutes;
-  late int _endMinutes;
-  String? _timeError;
-
-  @override
-  void initState() {
-    super.initState();
-    final initial = widget.initial;
-    _dayOfWeek = initial?.dayOfWeek ?? 0;
-    _startMinutes = _storedTimeMinutes(initial?.startTime ?? '09:00');
-    _endMinutes = _storedTimeMinutes(initial?.endTime ?? '17:00');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(
-        widget.initial == null
-            ? context.l10n.add_time_slot
-            : context.l10n.edit_time_slot,
-      ),
-      content: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DropdownButtonFormField<int>(
-                initialValue: _dayOfWeek,
-                decoration: InputDecoration(
-                  labelText: context.l10n.day_of_week_label,
-                  prefixIcon: const Icon(Icons.calendar_today_outlined),
-                ),
-                items: List.generate(
-                  7,
-                  (day) => DropdownMenuItem(
-                    value: day,
-                    child: Text(_dayLabel(context, day)),
-                  ),
-                ),
-                onChanged: (day) {
-                  if (day != null) setState(() => _dayOfWeek = day);
-                },
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<int>(
-                      initialValue: _startMinutes,
-                      isExpanded: true,
-                      decoration: InputDecoration(
-                        labelText: context.l10n.start_hour_label,
-                      ),
-                      items: _hourItems(
-                        context,
-                        minHour: 0,
-                        maxHour: 23,
-                        currentMinutes: _startMinutes,
-                      ),
-                      onChanged: (value) {
-                        if (value == null) return;
-                        setState(() {
-                          _startMinutes = value;
-                          _timeError = null;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: DropdownButtonFormField<int>(
-                      initialValue: _endMinutes,
-                      isExpanded: true,
-                      decoration: InputDecoration(
-                        labelText: context.l10n.end_hour_label,
-                      ),
-                      items: _hourItems(
-                        context,
-                        minHour: 1,
-                        maxHour: 24,
-                        currentMinutes: _endMinutes,
-                      ),
-                      onChanged: (value) {
-                        if (value == null) return;
-                        setState(() {
-                          _endMinutes = value;
-                          _timeError = null;
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              if (_timeError != null) ...[
-                const SizedBox(height: 8),
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: Text(
-                    _timeError!,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(context.l10n.cancel),
-        ),
-        FilledButton(
-          onPressed: _submit,
-          child: Text(context.l10n.save),
-        ),
-      ],
-    );
-  }
-
-  List<DropdownMenuItem<int>> _hourItems(
-    BuildContext context, {
-    required int minHour,
-    required int maxHour,
-    required int currentMinutes,
-  }) {
-    final values = <int>{
-      for (var hour = minHour; hour <= maxHour; hour++) hour * 60,
-      if (currentMinutes >= 0 && currentMinutes <= 24 * 60) currentMinutes,
-    }.toList()
-      ..sort();
-    return values
-        .map(
-          (minutes) => DropdownMenuItem<int>(
-            value: minutes,
-            child: Text(_displayMinutes(context, minutes)),
-          ),
-        )
-        .toList(growable: false);
-  }
-
-  String _displayMinutes(BuildContext context, int minutes) {
-    final normalized = minutes % (24 * 60);
-    return TimeOfDay(
-      hour: normalized ~/ 60,
-      minute: normalized % 60,
-    ).format(context);
-  }
-
-  String _storageMinutes(int minutes) {
-    final hour = minutes ~/ 60;
-    final minute = minutes % 60;
-    return '${hour.toString().padLeft(2, '0')}:'
-        '${minute.toString().padLeft(2, '0')}';
-  }
-
-  void _submit() {
-    final formIsValid = _formKey.currentState?.validate() ?? false;
-    final validRange = _endMinutes > _startMinutes;
-    setState(() {
-      _timeError = validRange ? null : context.l10n.invalid_time_range;
-    });
-    if (!formIsValid || !validRange) return;
-    Navigator.of(context).pop(
-      CarWashPackageWorkingHour(
-        dayOfWeek: _dayOfWeek,
-        startTime: _storageMinutes(_startMinutes),
-        endTime: _storageMinutes(_endMinutes),
+        workingHours: widget.package?.workingHours ?? const [],
+        enabled: _enabled,
       ),
     );
   }
@@ -1621,68 +1458,6 @@ String _areaTitle(BuildContext context, AreaModel area) {
               : '-';
 }
 
-String _dayLabel(BuildContext context, int dayOfWeek) {
-  final labels = [
-    context.l10n.sunday,
-    context.l10n.monday,
-    context.l10n.tuesday,
-    context.l10n.wednesday,
-    context.l10n.thursday,
-    context.l10n.friday,
-    context.l10n.saturday,
-  ];
-  return labels[dayOfWeek.clamp(0, 6)];
-}
-
-String _displayTime(BuildContext context, String value) {
-  final normalized = _storedTimeMinutes(value) % (24 * 60);
-  return TimeOfDay(
-    hour: normalized ~/ 60,
-    minute: normalized % 60,
-  ).format(context);
-}
-
-int _storedTimeMinutes(String value) {
-  final parts = value.split(':');
-  final hour = (int.tryParse(parts.firstOrNull ?? '') ?? 0).clamp(0, 24);
-  final minute =
-      (int.tryParse(parts.length > 1 ? parts[1] : '') ?? 0).clamp(0, 59);
-  return hour == 24 ? 24 * 60 : hour * 60 + minute;
-}
-
-int _compareWorkingHours(
-  CarWashPackageWorkingHour a,
-  CarWashPackageWorkingHour b,
-) {
-  final dayComparison = a.dayOfWeek.compareTo(b.dayOfWeek);
-  return dayComparison != 0
-      ? dayComparison
-      : _storedTimeMinutes(a.startTime)
-          .compareTo(_storedTimeMinutes(b.startTime));
-}
-
-bool _hasOverlap(
-  CarWashPackageWorkingHour candidate,
-  List<CarWashPackageWorkingHour> existing,
-) {
-  final candidateStart = _storedTimeMinutes(candidate.startTime);
-  final candidateEnd = _storedTimeMinutes(candidate.endTime);
-  return existing.any((hour) {
-    if (hour.dayOfWeek != candidate.dayOfWeek) return false;
-    final start = _storedTimeMinutes(hour.startTime);
-    final end = _storedTimeMinutes(hour.endTime);
-    return candidateStart < end && start < candidateEnd;
-  });
-}
-
-bool _containsOverlaps(List<CarWashPackageWorkingHour> hours) {
-  for (var index = 0; index < hours.length; index++) {
-    final others = [...hours]..removeAt(index);
-    if (_hasOverlap(hours[index], others)) return true;
-  }
-  return false;
-}
-
 double _parseNumber(String? value) {
   return double.tryParse((value ?? '').replaceAll(',', '.')) ?? 0;
 }
@@ -1693,4 +1468,8 @@ String _formatNumber(double value) {
       .toStringAsFixed(3)
       .replaceFirst(RegExp(r'0+$'), '')
       .replaceFirst(RegExp(r'\.$'), '');
+}
+
+String _priceEditorText(double? value) {
+  return value != null && value >= 0 ? _formatNumber(value) : '';
 }

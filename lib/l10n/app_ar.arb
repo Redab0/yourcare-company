@@ -1,4 +1,31 @@
 {
+  "previewLoginRequired": "أدخل رقم الهاتف وكلمة المرور.",
+  "previewLoginInvalid": "تعذر تسجيل الدخول. تحقق من رقم الهاتف وكلمة المرور في بيئة التطوير ومن تفعيل الحساب.",
+  "previewLoginUnavailable": "تعذر الاتصال بخادم التطوير. يرجى المحاولة مجدداً.",
+  "previewLoginCompanyRequired": "هذا الحساب لا يمكنه فتح معاينة الشركات. سجّل الدخول بحساب مالك أو مدير مرتبط بشركة في بيئة التطوير.",
+  "previewLoginSessionFailed": "تعذر تحميل جلسة تسجيل الدخول. حدّث الصفحة وحاول مجدداً.",
+  "previewLoginRateLimit": "محاولات تسجيل الدخول كثيرة. يرجى الانتظار قبل المحاولة مجدداً.",
+  "documentsCenter": "مركز المستندات",
+  "documentPolicy": "سياسة",
+  "documentContract": "عقد",
+  "documentOther": "أخرى",
+  "documentDownload": "تنزيل",
+  "documentView": "عرض",
+  "documentPreviewError": "تعذر فتح هذا المستند.",
+  "documentPreviewTimeout": "استغرق فتح هذا المستند وقتًا طويلاً. جرّب تنزيله بدلاً من ذلك.",
+  "documentPreviewUnsupported": "المعاينة غير متاحة لهذا النوع من الملفات. يمكنك تنزيل الملف بدلاً من ذلك.",
+  "documentDownloaded": "تم تنزيل المستند",
+  "documentRefresh": "تحديث",
+  "documentSearch": "البحث في المستندات",
+  "documentCategory": "الفئة",
+  "documentAllCategories": "جميع الفئات",
+  "documentShared": "جميع الشركات",
+  "documentForYourBusiness": "شركتك",
+  "documentRetry": "إعادة المحاولة",
+  "documentsError": "تعذر تحميل المستندات أو تنزيلها. يرجى المحاولة مجدداً.",
+  "documentsEmpty": "لا توجد مستندات",
+  "documentPrevious": "الصفحة السابقة",
+  "documentNext": "الصفحة التالية",
   "@@locale": "ar",
   "appName": "Your Care Business",
   "welcome": "مرحبا بعودتك!",
@@ -138,6 +165,27 @@
   "request_bids_received": "عروض الأسعار",
   "request_incoming_bids_show_here": "عروض الأسعار سوف تظهر هنا",
   "request_location": "الموقع",
+  "request_status_updated": "تم تحديث حالة الطلب",
+  "request_location_reminder": "يرجى التأكد من موقع العميل على الخريطة قبل إرسال الفريق.",
+  "refresh_request_details": "تحديث تفاصيل الطلب",
+  "request_visit_id_missing": "معرّف هذه الزيارة غير متوفر. يرجى تحديث تفاصيل الطلب والمحاولة مجددًا.",
+  "request_paid": "مدفوع",
+  "request_not_paid": "غير مدفوع",
+  "request_share_furniture_item": "الصنف: {item}\nالحجم: {size}\nالكمية: {quantity}",
+  "@request_share_furniture_item": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "open_in_google_maps": "فتح في خرائط Google",
   "view_profile": "عرض الملف الشخصي",
   "no_requests": "لا يوجد طلبات",
   "request_date_time": "الوقت و التاريخ",
@@ -185,6 +233,7 @@
   "hours": "ساعات",
   "cleaning_products_price": "سعر مواد التنظيف",
   "price_must_be_greater_than_zero": "يجب أن يكون السعر أكبر من صفر",
+  "price_must_be_zero_or_greater": "يجب أن يكون السعر صفراً أو أكثر",
   "housekeeping_active": "مفعل",
   "save_pricing": "حفظ التسعير",
   "service_frequency": "تكرار الخدمة",
@@ -401,6 +450,53 @@
   "assigned_employees": "الموظفون المعينون",
   "total_label": "الإجمالي",
   "save_weekly_schedule": "حفظ الجدول الأسبوعي",
+  "hourly_availability": "التوفر بالساعة",
+  "availability_hourly_hint": "فعّل الساعات التي يمكن للعملاء الحجز فيها، ثم حدد عدد العمال المتاحين خلال كل ساعة.",
+  "availability_enabled": "مفعّل",
+  "availability_disabled": "معطّل",
+  "availability_enabled_hours": "الساعات المفعّلة: {count}",
+  "@availability_enabled_hours": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "8"
+      }
+    }
+  },
+  "availability_no_hours_enabled": "لا توجد ساعات مفعّلة",
+  "availability_enable_all": "تفعيل الكل",
+  "availability_disable_all": "تعطيل الكل",
+  "availability_apply_other_days": "تطبيق على أيام أخرى",
+  "availability_apply_schedule_title": "تطبيق جدول {day}",
+  "@availability_apply_schedule_title": {
+    "placeholders": {
+      "day": {
+        "type": "String",
+        "example": "الأحد"
+      }
+    }
+  },
+  "availability_select_days_hint": "اختر كل الأيام التي تريد تطبيق هذا الجدول عليها.",
+  "availability_select_all": "تحديد الكل",
+  "availability_apply_selected": "تطبيق على الأيام المحددة",
+  "availability_copy_warning": "سيتم استبدال التغييرات الحالية للأيام المحددة. ويمكن تعديل كل يوم بشكل مستقل بعد ذلك.",
+  "availability_schedule_copied": "تم نسخ الجدول إلى الأيام المحددة",
+  "availability_unsaved_changes": "لديك تغييرات غير محفوظة في التوفر.",
+  "availability_save_before_leaving": "يرجى حفظ تغييراتك قبل مغادرة الصفحة.",
+  "availability_discard_title": "تجاهل التغييرات؟",
+  "availability_discard": "تجاهل",
+  "availability_saved": "تم حفظ التوفر",
+  "availability_no_changes": "لا توجد تغييرات لحفظها",
+  "availability_invalid_workers": "أدخل عاملًا واحدًا على الأقل لكل ساعة مفعّلة.",
+  "availability_changed_days": "الأيام المعدّلة: {count}",
+  "@availability_changed_days": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
   "available": "متاح",
   "morning_service": "خدمة صباحية",
   "midday_service": "خدمة منتصف اليوم",
@@ -435,7 +531,10 @@
   "car_wash_pricing": "تسعير غسيل السيارات",
   "car_wash_packages_and_pricing": "الباقات والمركبات والرسوم",
   "car_wash_packages": "الباقات",
-  "car_wash_packages_hint": "أنشئ كل باقة مرة واحدة وحدد مدتها وأوقات الحجز الاختيارية، ثم اربطها بكل أنواع المركبات التي تخدمها.",
+  "car_wash_packages_hint": "أنشئ كل باقة مرة واحدة وحدد سعرها لكل نوع مركبة، ثم اربطها بأنواع المركبات التي تخدمها.",
+  "car_wash_vehicle_pricing": "أسعار أنواع المركبات",
+  "car_wash_vehicle_pricing_hint": "حدد سعر هذه الباقة بشكل مستقل لكل نوع مركبة.",
+  "car_wash_vehicle_price_not_set": "لم يتم تحديد سعر لهذا النوع من المركبات",
   "car_wash_vehicle_assignments": "أنواع المركبات",
   "car_wash_vehicle_assignments_hint": "اختر الباقات المتاحة لكل نوع من المركبات.",
   "car_wash_area_fees": "رسوم المناطق",
@@ -464,6 +563,8 @@
   "no_car_wash_packages": "لم يتم إنشاء أي باقات بعد",
   "package_title_required": "أدخل اسم الباقة باللغتين العربية والإنجليزية",
   "invalid_discount_percentage": "يجب أن يكون الخصم بين 0 و100",
+  "car_wash_package_enabled": "تفعيل الباقة",
+  "car_wash_package_enabled_hint": "تظهر الباقات المفعّلة للعملاء، بينما تُخفى الباقات المعطّلة.",
   "package_working_hours": "توفر الباقة",
   "package_working_hours_hint": "يمكنك اختيارياً إضافة الأيام والفترات التي يمكن حجز هذه الباقة فيها.",
   "package_availability_not_set": "لم تتم إضافة فترات توفر",
@@ -516,5 +617,212 @@
   "extra_invoice_reason_required": "أدخل سبب الفاتورة الإضافية",
   "extra_invoice_payment_pending": "بانتظار دفع الفاتورة الإضافية",
   "extra_invoice_payment_pending_hint": "يجب على العميل دفع هذه الفاتورة من شاشة تفاصيل الطلب قبل إنشاء فاتورة أخرى.",
-  "share": "مشاركة"
+  "extra_invoice_payments_successful": "تم دفع الفواتير الإضافية بنجاح",
+  "extra_invoice_paid": "مدفوعة",
+  "extra_invoice_pending": "بانتظار الدفع",
+  "extra_invoice_total_paid": "إجمالي المدفوع",
+  "share": "مشاركة",
+  "laundry_service": "الغسيل",
+  "laundry_catalog": "قائمة أسعار الغسيل",
+  "laundry_setup_help": "فعّل الأصناف واختر خدماتها وحدد أسعارها. تدير الإدارة أسماء الخدمات بشكل موحد. يمكنك أيضاً إضافة أصناف خاصة بك.",
+  "laundry_add_item": "إضافة قطعة",
+  "laundry_edit_item": "تعديل القطعة",
+  "laundry_empty_catalog": "أضف أول قطعة غسيل لإنشاء قائمة الأسعار.",
+  "laundry_name_en": "اسم القطعة بالإنجليزية",
+  "laundry_name_ar": "اسم القطعة بالعربية",
+  "laundry_unit": "وحدة التسعير",
+  "laundry_unit_item": "للقطعة",
+  "laundry_unit_meter": "للمتر",
+  "laundry_unit_custom": "وحدة مخصصة",
+  "laundry_unit_label": "اسم الوحدة المخصصة",
+  "laundry_price": "سعر الوحدة (د.ك)",
+  "laundry_active": "نشط",
+  "laundry_inactive": "غير نشط",
+  "laundry_sizes": "أسعار حسب المقاس",
+  "laundry_add_size": "إضافة مقاس",
+  "laundry_size_en": "المقاس بالإنجليزية",
+  "laundry_size_ar": "المقاس بالعربية",
+  "laundry_deactivate": "إلغاء تفعيل القطعة",
+  "laundry_deactivate_confirm": "هل تريد إلغاء تفعيل هذه القطعة؟ لن تظهر في قائمة أسعار العملاء. تحتفظ الطلبات الحالية بأسعارها.",
+  "laundry_required": "هذا الحقل مطلوب",
+  "laundry_valid_number": "أدخل قيمة من ٠ إلى ١٠٬٠٠٠ بحد أقصى ٣ منازل عشرية",
+  "laundry_valid_quantity": "أدخل كمية من ٠٫٠٠١ إلى ١٠٬٠٠٠ بحد أقصى ٣ منازل عشرية",
+  "laundry_order": "طلب الغسيل",
+  "laundry_pickup_first": "الاستلام أولاً والفاتورة لاحقاً",
+  "laundry_upfront": "الدفع المسبق للقطع",
+  "laundry_pending_pickup": "استلام كيس الغسيل",
+  "laundry_pickup_accepted": "تم قبول الاستلام",
+  "laundry_pickup_rejected": "تم رفض الاستلام",
+  "laundry_picked_up": "تم الاستلام",
+  "laundry_invoice_sent": "بانتظار الدفع",
+  "laundry_ready_for_delivery": "جاهز للتوصيل",
+  "laundry_out_for_delivery": "قيد التوصيل",
+  "laundry_delivered": "تم التوصيل",
+  "laundry_accept_pickup": "قبول الاستلام",
+  "laundry_reject_pickup": "رفض الاستلام",
+  "laundry_mark_picked_up": "تأكيد الاستلام",
+  "laundry_start_work": "بدء الغسيل",
+  "laundry_mark_ready": "جاهز للتوصيل",
+  "laundry_start_delivery": "بدء التوصيل",
+  "laundry_mark_delivered": "تأكيد التوصيل",
+  "laundry_complete": "إكمال الطلب",
+  "laundry_waiting_payment": "بانتظار سداد العميل. حدّث الصفحة للتحقق من حالة الدفع.",
+  "laundry_payment_pending": "الدفع قيد الانتظار",
+  "laundry_payment_unpaid": "غير مدفوع",
+  "laundry_payment_refunded": "تم الاسترداد",
+  "laundry_bags": "عدد الأكياس",
+  "laundry_pickup_time": "تاريخ ووقت الاستلام",
+  "laundry_items": "قطع الغسيل",
+  "laundry_quantity": "الكمية",
+  "laundry_size": "المقاس",
+  "laundry_no_items": "استلام دون قائمة قطع",
+  "laundry_invoice": "فاتورة الغسيل",
+  "laundry_create_invoice": "إنشاء فاتورة",
+  "laundry_edit_invoice": "تعديل مسودة الفاتورة",
+  "laundry_draft": "مسودة",
+  "laundry_sent": "مرسلة",
+  "laundry_save_draft": "حفظ المسودة",
+  "laundry_send_invoice": "إرسال الفاتورة",
+  "laundry_invoice_help": "اختر القطع من قائمة الأسعار النشطة. تُحسب الأسعار من قائمة شركتك عند الحفظ.",
+  "laundry_pickup_fee": "رسوم الاستلام (د.ك)",
+  "laundry_delivery_fee": "رسوم التوصيل (د.ك)",
+  "laundry_discount": "الخصم (د.ك)",
+  "laundry_subtotal": "المجموع الفرعي",
+  "laundry_platform_fees": "رسوم المنصة",
+  "laundry_total": "الإجمالي",
+  "laundry_invoice_empty": "أضف قطعة غسيل واحدة على الأقل",
+  "laundry_invoice_unavailable_item": "تحتوي الفاتورة على قطعة غير نشطة أو معدّلة. احذفها واختر قطعة نشطة من قائمة الأسعار.",
+  "laundry_cancel_order": "إلغاء الطلب",
+  "laundry_confirm_action": "هل تريد تأكيد تغيير حالة الطلب؟",
+  "laundry_refresh": "تحديث الطلب",
+  "laundry_payment_status": "حالة الدفع",
+  "laundry_invoice_status": "حالة الفاتورة",
+  "laundry_customer": "العميل",
+  "laundry_empty_orders": "لا توجد طلبات",
+  "laundry_estimated_total": "الإجمالي التقديري قبل رسوم المنصة",
+  "laundry_duplicate_items": "اجمع كمية القطعة والمقاس نفسيهما في سطر واحد.",
+  "laundry_whole_quantity": "أدخل عدداً صحيحاً من القطع.",
+  "laundry_enable_service": "تقديم خدمة الغسيل",
+  "laundry_enable_service_help": "فعّل خدمة غسيل الملابس واختر مناطق الخدمة ثم احفظ هذا الملف. جهّز الأصناف والأسعار أدناه قبل استقبال الطلبات.",
+  "laundry_revenue": "إيرادات الغسيل",
+  "laundry_service_disabled_title": "خدمة غسيل الملابس غير مفعلة للعملاء",
+  "laundry_service_disabled_help": "جهّز الأصناف والأسعار هنا، ثم فعّل خدمة غسيل الملابس في ملف الشركة واختر مناطق الخدمة واحفظ الملف لاستقبال الطلبات.",
+  "laundry_admin_products": "منتجات الإدارة",
+  "laundry_custom_items": "أصنافك الخاصة",
+  "laundry_unavailable_admin": "غير متاح — تم تعطيله من الإدارة",
+  "laundry_edit_prices": "تعديل الأسعار",
+  "laundry_admin_product_help": "تدير الإدارة الصنف وأسماء الخدمات. فعّل خدمات هذا الصنف وأدخل أسعارك. يجب أن يكون كل سعر أكبر من صفر.",
+  "laundry_use_default_price": "استخدام السعر الافتراضي للإدارة",
+  "laundry_default_price": "سعر الإدارة",
+  "laundry_company_price": "سعرك (د.ك)",
+  "laundry_reset_prices": "إعادة جميع الأسعار إلى أسعار الإدارة",
+  "laundry_send_invoice_confirm": "هل تريد إرسال هذه الفاتورة للعميل؟ لا يمكن تعديل الأصناف والأسعار بعد الإرسال.",
+  "registrationGiftApplied": "تم تطبيق هدية التسجيل • تتحمل شركتكم قيمة الخصم",
+  "registrationGiftAppliedAmount": "تم تطبيق هدية التسجيل بقيمة {amount} د.ك • تتحمل شركتكم قيمة الخصم",
+  "registrationGiftReserved": "تم حجز هدية التسجيل • تتحمل شركتكم قيمة الخصم",
+  "registrationGiftReservedAmount": "تم حجز هدية التسجيل بقيمة {amount} د.ك • تتحمل شركتكم قيمة الخصم",
+  "campaignDiscountAppliedAmount": "تم تطبيق خصم بقيمة {amount} د.ك",
+  "campaignDiscountReservedAmount": "تم حجز خصم بقيمة {amount} د.ك",
+  "campaignCashbackAppliedAmount": "تم تطبيق استرداد نقدي بقيمة {amount} د.ك",
+  "campaignCashbackReservedAmount": "تم حجز استرداد نقدي بقيمة {amount} د.ك",
+  "@registrationGiftAppliedAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@registrationGiftReservedAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@campaignDiscountAppliedAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@campaignDiscountReservedAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@campaignCashbackAppliedAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@campaignCashbackReservedAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "laundry_same_day": "نفس اليوم",
+  "laundry_same_day_help": "قدّم خدمة نفس اليوم للطلبات المحجوزة قبل الموعد النهائي. الطلبات المحجوزة عند الموعد النهائي أو بعده غير مؤهلة.",
+  "laundry_same_day_enable": "تفعيل خدمة نفس اليوم",
+  "laundry_same_day_cutoff": "الموعد النهائي للحجز",
+  "laundry_same_day_select_cutoff": "تحديد الموعد النهائي للحجز",
+  "laundry_same_day_kuwait_time": "بتوقيت الكويت (نظام 24 ساعة)",
+  "laundry_same_day_cutoff_required": "اختر الموعد النهائي للحجز قبل تفعيل خدمة نفس اليوم.",
+  "laundry_same_day_load_error": "تعذر تحميل إعدادات خدمة نفس اليوم. حاول مرة أخرى.",
+  "laundry_same_day_save_error": "لم يتم حفظ الإعدادات. حاول مرة أخرى.",
+  "laundry_same_day_saved": "تم حفظ إعدادات خدمة نفس اليوم",
+  "laundry_shared_services": "الخدمات",
+  "laundry_item_service": "الخدمة",
+  "laundry_shared_services_help": "فعّل الخدمات التي تقدمها لهذا الصنف وحدد سعر كل خدمة. أسماء الخدمات مشتركة وتديرها الإدارة.",
+  "laundry_no_shared_services": "لم تضف الإدارة أي خدمات بعد.",
+  "laundry_item_needs_service": "فعّل خدمة واحدة على الأقل وحدد سعرها ليظهر هذا الصنف للعملاء.",
+  "laundry_legacy_pricing_help": "تبقى أسعار وخيارات الصنف الحالية متاحة للحجز عند إيقاف هذه الخدمات. أوقف الصنف لإيقاف جميع حجوزاته.",
+  "laundry_category": "الفئة",
+  "laundry_all_categories": "كل الفئات",
+  "laundry_uncategorized": "بدون فئة",
+  "laundry_search_items": "ابحث عن صنف",
+  "laundry_no_matching_items": "لا توجد أصناف تطابق هذه الفئة أو البحث.",
+  "laundry_catalog_setup_needed": "فعّل الأصناف وحدد أسعارها في قائمة المغسلة قبل إنشاء الفاتورة.",
+  "laundry_bag_items_help": "استلام أكياس — افحص الملابس المستلمة، ثم أضف الأصناف والخدمات إلى الفاتورة.",
+  "laundry_invoice_category_help": "اختر فئة للعثور على الأصناف بسهولة. تغييرها يعيد تعيين هذا السطر فقط.",
+  "laundry_invoice_invalid_discount": "لا يمكن أن يتجاوز الخصم مجموع الأصناف ورسوم الاستلام والتوصيل.",
+  "laundry_invoice_estimate_help": "يؤكد النظام الأسعار الحالية ورسوم المنصة عند الحفظ.",
+  "laundry_company_price_required": "أدخل سعر الشركة",
+  "laundry_reload_invoice": "إعادة تحميل الفاتورة المحفوظة",
+  "laundry_reload_invoice_confirm": "هل تريد تجاهل تغييرات الفاتورة غير المحفوظة ومراجعة أحدث فاتورة محفوظة؟",
+  "laundry_manage_catalog": "إدارة قائمة أصناف المغسلة",
+  "laundry_configuration": "إعدادات الغسيل",
+  "laundry_working_hours": "ساعات العمل",
+  "laundry_pricing": "الأسعار",
+  "laundry_configuration_help": "حدد ساعات العمل وتوفر الحجز وأسعار القطع.",
+  "laundry_working_hours_help": "حدد الأوقات التي يمكن للعملاء حجز الاستلام فيها. تتكرر الساعات أسبوعياً بتوقيت الكويت.",
+  "laundry_available": "متاح للحجز",
+  "laundry_availability_help": "عند إيقاف هذا الخيار، يظهر للعملاء أن الشركة محجوزة بالكامل ولا يمكنهم الحجز لديها.",
+  "laundry_settings_saved": "تم حفظ إعدادات الغسيل",
+  "laundry_settings_load_error": "تعذر تحميل إعدادات الغسيل. يرجى المحاولة مرة أخرى.",
+  "laundry_hours_invalid": "يجب أن ينتهي كل وقت بعد بدايته دون تداخل مع وقت آخر في اليوم نفسه. للساعات الليلية، أضف فترة منفصلة في اليوم التالي. استخدم 168 فترة زمنية أسبوعياً كحد أقصى.",
+  "laundry_hours_unrestricted": "لم يتم تحديد ساعات العمل بعد. الحجز متاح حالياً طوال الأسبوع. عدّل الأيام أدناه لتحديد أوقات الاستلام.",
+  "laundry_day_open": "متاح للاستلام",
+  "laundry_day_closed": "مغلق للاستلام",
+  "laundry_minimum_charge": "الحد الأدنى للطلب",
+  "laundry_minimum_charge_help": "يجب إضافة قطع بقيمة تصل إلى هذا الحد. لا تُحتسب رسوم الاستلام والتوصيل. يمكن حجز استلام الأكياس دون تحديد القطع، لكن يجب أن تبلغ قيمة قطع الفاتورة الحد الأدنى قبل إرسالها. أدخل 0 لإلغاء الحد الأدنى.",
+  "laundry_minimum_charge_invalid": "أدخل مبلغاً بين 0 و100000 د.ك وبحد أقصى 3 منازل عشرية.",
+  "laundry_minimum_invoice_help": "أضف قطعاً كافية للوصول إلى الحد الأدنى قبل الإرسال. لا تُحتسب الرسوم، ويمكنك حفظ مسودة.",
+  "laundry_items_subtotal": "مجموع أسعار القطع",
+  "laundry_catalog_loading": "جارٍ تحميل قطع الفاتورة…",
+  "laundry_catalog_load_timeout": "استغرق تحميل القطع وقتاً طويلاً. تحقق من اتصالك وأعد المحاولة. تم الاحتفاظ بتعديلاتك.",
+  "laundry_catalog_load_error": "تعذر تحميل قائمة القطع. أعد المحاولة. تم الاحتفاظ بتعديلاتك.",
+  "laundry_bulk_prices": "تحديث أسعار متعددة",
+  "laundry_bulk_prices_help": "عدّل الأسعار وحالة تفعيل الأصناف ثم احفظ جميع التغييرات معًا. ستبقى حالة تفعيل الخدمات كما هي.",
+  "laundry_bulk_prices_save": "حفظ جميع التغييرات",
+  "laundry_bulk_prices_error": "تعذّر حفظ التغييرات. تم الاحتفاظ بتعديلاتك. يرجى المحاولة مرة أخرى.",
+  "laundry_bulk_prices_unsaved": "لديك تغييرات غير محفوظة في الأسعار أو حالة تفعيل الأصناف.",
+  "laundry_bulk_prices_limit": "يمكن تحديث ٢٠٠ صنف في المرة الواحدة. احفظ هذه التغييرات قبل تعديل المزيد من الأصناف.",
+  "laundry_bulk_prices_invalid": "أدخل سعرًا من ٠٫٠٠١ إلى ١٠٬٠٠٠ د.ك، بحد أقصى ٣ منازل عشرية."
 }

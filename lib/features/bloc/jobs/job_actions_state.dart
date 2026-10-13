@@ -14,6 +14,14 @@ class JobActionsState extends Equatable {
 
 class JobActionsInitial extends JobActionsState {}
 
+class JobRefreshed extends JobActionsState {
+  final CleaningRequest model;
+  const JobRefreshed(this.model);
+
+  @override
+  List<Object> get props => [model];
+}
+
 class JobStarted extends JobActionsState {
   final CleaningRequest model;
   const JobStarted(this.model);

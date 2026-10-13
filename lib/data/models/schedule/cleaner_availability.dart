@@ -90,10 +90,30 @@ class CleanerAvailabilityRequest {
 
   Map<String, dynamic> toJson() => _$CleanerAvailabilityRequestToJson(this);
 
-  Map<String, dynamic> toUpdateJson() => {
-        'dayOfWeek': dayOfWeek,
-        'startHour': startHour,
-        'endHour': endHour,
-        'totalCleaners': totalCleaners,
-      };
+  CleanerAvailabilityUpdateRequest toUpdateRequest() {
+    return CleanerAvailabilityUpdateRequest(
+      dayOfWeek: dayOfWeek,
+      startHour: startHour,
+      endHour: endHour,
+      totalCleaners: totalCleaners,
+    );
+  }
+}
+
+@JsonSerializable(createFactory: false)
+class CleanerAvailabilityUpdateRequest {
+  final int dayOfWeek;
+  final int startHour;
+  final int endHour;
+  final int totalCleaners;
+
+  const CleanerAvailabilityUpdateRequest({
+    required this.dayOfWeek,
+    required this.startHour,
+    required this.endHour,
+    required this.totalCleaners,
+  });
+
+  Map<String, dynamic> toJson() =>
+      _$CleanerAvailabilityUpdateRequestToJson(this);
 }

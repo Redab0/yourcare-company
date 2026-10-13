@@ -1,12 +1,20 @@
+import 'package:cleaning_service_driver/components/registration_gift_badge.dart';
 import 'dart:io';
 
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/cleaning_item_summary_card.dart';
+import 'package:cleaning_service_driver/components/contact_actions.dart';
+import 'package:cleaning_service_driver/components/detail_row.dart';
 import 'package:cleaning_service_driver/components/extra_invoice.dart';
 import 'package:cleaning_service_driver/components/media_carousel_viewer.dart';
+import 'package:cleaning_service_driver/components/open_map_action.dart';
+import 'package:cleaning_service_driver/components/request_details_refresh_button.dart';
+import 'package:cleaning_service_driver/core/themes/app_theme.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
+import 'package:cleaning_service_driver/core/utils/share_utils.dart';
+import 'package:cleaning_service_driver/core/utils/upholstery_share.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/complete_job_media_request.dart';
 import 'package:cleaning_service_driver/data/models/requests/upholstery_cleaning_history.dart';
@@ -23,7 +31,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:share_plus/share_plus.dart';
 
 enum _MediaChoice { gallery, cameraPhoto, cameraVideo }
 
@@ -73,7 +80,7 @@ class _UpholsteryCleaningJobDetailsState
   Future<void> _showExtraInvoiceDialog() async {
     final id = _currentRequest.id;
     if (!_currentRequest.canCreateExtraInvoice ||
-        _currentRequest.awaitingExtraPayment ||
+        _currentRequest.hasPendingExtraInvoicePayment ||
         id == null ||
         id.isEmpty) {
       return;
@@ -82,7 +89,7 @@ class _UpholsteryCleaningJobDetailsState
     final request = await showExtraInvoiceDialog(context);
     if (!mounted || request == null) return;
     if (!_currentRequest.canCreateExtraInvoice ||
-        _currentRequest.awaitingExtraPayment) {
+        _currentRequest.hasPendingExtraInvoicePayment) {
       return;
     }
     context.read<JobActionsBloc>().add(AddExtraFeesEvent(id, request));
@@ -110,20 +117,17 @@ class _UpholsteryCleaningJobDetailsState
     }
   }
 
-  Future<void> _shareDetails() async {
+  Future<void> _shareDetails(BuildContext shareContext) async {
     final req = _currentRequest;
     final specialNotes = req.customerSpecialNotes;
     final name = req.customer.username?.trim();
     final phone = req.customer.phone?.trim();
     final items = req.upholsteryCleaning.items ?? const [];
-    final itemLines = items.map((it) {
-      final typeTitle =
-          it.type?.title ?? it.type?.titleEn ?? it.type?.titleAr ?? '-';
-      final qty = it.quantity ?? 0;
-      final packageTitle = it.package?.localizedTitle(isArabic: false);
-      final packageSuffix = packageTitle == null ? '' : ' - $packageTitle';
-      return '- $typeTitle x$qty$packageSuffix';
-    }).toList();
+    final address = req.upholsteryCleaning.address;
+    final mapLink = OpenMapAction.googleMapsLink(
+      address?.latitude,
+      address?.longitude,
+    );
 
     final lines = <String>[
       '==============================',
@@ -134,14 +138,14 @@ class _UpholsteryCleaningJobDetailsState
       'Request ID / رقم الطلب: ${req.id ?? '-'}',
       'Request Status / حالة الطلب: ${_statusPair(req.requestStatus)}',
       'Address / العنوان: ${req.upholsteryCleaning.fullAddress}',
+      if (mapLink != null) 'Google Maps / خرائط Google: $mapLink',
       '',
       '--- Customer / العميل ---',
       'Customer Name / اسم العميل: ${(name == null || name.isEmpty) ? '-' : name}',
       'Customer Phone / رقم العميل: ${(phone == null || phone.isEmpty) ? '-' : phone}',
       '',
       '--- Job Details / تفاصيل الطلب ---',
-      'Job Details / تفاصيل الطلب',
-      ...itemLines,
+      furnitureItemsShareText(items, context.l10n),
     ];
     if (specialNotes != null) {
       lines.add('Special Notes / ملاحظات خاصة: $specialNotes');
@@ -156,7 +160,7 @@ class _UpholsteryCleaningJobDetailsState
         'Extra invoice reason / سبب الفاتورة الإضافية: ${req.extraFeesDescription}',
       );
     }
-    await Share.share(lines.join('\n'));
+    await shareTextFrom(shareContext, lines.join('\n'));
   }
 
   Widget _mediaThumb(String url) {
@@ -188,6 +192,13 @@ class _UpholsteryCleaningJobDetailsState
   Widget build(BuildContext context) {
     final req = _currentRequest;
     final items = req.upholsteryCleaning.items ?? const [];
+    final address = req.upholsteryCleaning.address;
+    final hasCustomerLocation = OpenMapAction.hasValidCoordinates(
+      address?.latitude,
+      address?.longitude,
+    );
+    final customerName = req.customer.username?.trim();
+    final customerPhone = req.customer.phone?.trim();
     final specialNotes = req.customerSpecialNotes;
     final status = req.requestStatus;
     final isConfirmed = status == RequestStatus.confirmed;
@@ -197,6 +208,12 @@ class _UpholsteryCleaningJobDetailsState
 
     return BlocConsumer<JobActionsBloc, JobActionsState>(
       listener: (ctx, state) {
+        if (state is JobRefreshed &&
+            state.model is UpholsteryCleaningHistory &&
+            state.model.id == _currentRequest.id) {
+          setState(
+              () => _currentRequest = state.model as UpholsteryCleaningHistory);
+        }
         if (state is MediaUploaded) {
           final urls = state.media.map((r) => r.url).toList();
           setState(() {
@@ -225,17 +242,23 @@ class _UpholsteryCleaningJobDetailsState
             ),
           );
         } else if (state is JobActionFailed) {
-          ctx.showErrorToast();
-        } else if (state is JobStarted) {
+          ctx.showErrorToast(state.message);
+        } else if (state is JobStarted &&
+            state.model is UpholsteryCleaningHistory &&
+            state.model.id == _currentRequest.id) {
           setState(
               () => _currentRequest = state.model as UpholsteryCleaningHistory);
           context.read<JobBloc>().add(LoadJobsEvent());
           _maybeRefreshRequests();
-        } else if (state is JobCompleted) {
+          ctx.showStatusUpdatedToast();
+        } else if (state is JobCompleted &&
+            state.model is UpholsteryCleaningHistory &&
+            state.model.id == _currentRequest.id) {
           setState(
               () => _currentRequest = state.model as UpholsteryCleaningHistory);
           context.read<JobBloc>().add(LoadJobsEvent());
           _maybeRefreshRequests();
+          ctx.showStatusUpdatedToast();
           context.goNamed('jobCompletedSuccessScreen');
         }
       },
@@ -247,9 +270,12 @@ class _UpholsteryCleaningJobDetailsState
             ),
             title: Text('#${req.id}'),
             actions: [
-              IconButton(
-                onPressed: _shareDetails,
-                icon: const Icon(Icons.share),
+              RequestDetailsRefreshButton(requestId: _currentRequest.id),
+              Builder(
+                builder: (shareContext) => IconButton(
+                  onPressed: () => _shareDetails(shareContext),
+                  icon: const Icon(Icons.share),
+                ),
               ),
             ],
           ),
@@ -257,6 +283,7 @@ class _UpholsteryCleaningJobDetailsState
             minimum: const EdgeInsets.symmetric(horizontal: 24),
             child: ListView(
               children: [
+                RegistrationGiftBadge(request: req),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Chip(
@@ -270,6 +297,61 @@ class _UpholsteryCleaningJobDetailsState
                   ),
                 ),
                 const SizedBox(height: 12),
+                _SectionCard(
+                  title: context.l10n.bids_bottom_sheet_customer_info,
+                  child: Column(
+                    children: [
+                      DetailRow(
+                        context.l10n.signup_name,
+                        customerName == null || customerName.isEmpty
+                            ? '-'
+                            : customerName,
+                      ),
+                      const Divider(height: 1),
+                      DetailRow(
+                        context.l10n.signup_phone,
+                        customerPhone == null || customerPhone.isEmpty
+                            ? '-'
+                            : customerPhone,
+                      ),
+                      if (customerPhone != null &&
+                          customerPhone.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        ContactActions(phoneNumber: customerPhone),
+                      ],
+                    ],
+                  ),
+                ),
+                _SectionCard(
+                  title: context.l10n.request_details_label,
+                  child: Column(
+                    children: [
+                      DetailRow(
+                        context.l10n.original_order_total,
+                        RequestFmt.price(req.totalPrice),
+                      ),
+                      const Divider(height: 1),
+                      DetailRow(
+                        context.l10n.address,
+                        req.upholsteryCleaning.fullAddress,
+                      ),
+                      if (hasCustomerLocation) ...[
+                        const Divider(height: 1),
+                        DetailWidgetRow(
+                          context.l10n.request_location,
+                          Align(
+                            alignment: AlignmentDirectional.centerEnd,
+                            child: OpenMapAction(
+                              latitude: address!.latitude!,
+                              longitude: address.longitude!,
+                            ),
+                          ),
+                        ),
+                        const CustomerLocationReminder(),
+                      ],
+                    ],
+                  ),
+                ),
                 if (items.any((i) => (i.mediaUrls?.isNotEmpty ?? false)))
                   SizedBox(
                     height: 160,
@@ -312,7 +394,7 @@ class _UpholsteryCleaningJobDetailsState
                       .toList();
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
-                    child: it.isDirectBookingItem
+                    child: it.isDirectBookingItem || it.lineTotal != null
                         ? _directItemCard(context, it, typeTitle)
                         : CleaningItemSummaryCard(
                             icon: _iconForTitle(typeTitle),
@@ -320,6 +402,8 @@ class _UpholsteryCleaningJobDetailsState
                             size: size,
                             material: material,
                             condition: condition,
+                            showMaterial: false,
+                            showCondition: false,
                             mediaGallery: mediaUrls.isEmpty
                                 ? null
                                 : SizedBox(
@@ -348,10 +432,6 @@ class _UpholsteryCleaningJobDetailsState
                           ),
                   );
                 }),
-                const SizedBox(height: 24),
-                _title(context.l10n.address),
-                Text(req.upholsteryCleaning.fullAddress,
-                    style: Theme.of(context).textTheme.bodyLarge),
                 if (specialNotes != null) ...[
                   const SizedBox(height: 24),
                   _title(context.l10n.request_card_notes),
@@ -368,9 +448,7 @@ class _UpholsteryCleaningJobDetailsState
               ],
             ),
           ),
-          bottomNavigationBar: (_currentRequest.requestStatus !=
-                      RequestStatus.completed &&
-                  _currentRequest.requestStatus != RequestStatus.cancelled)
+          bottomNavigationBar: _currentRequest.canCreateExtraInvoice
               ? Builder(
                   builder: (context) {
                     // Optional: also disable while uploading
@@ -382,10 +460,7 @@ class _UpholsteryCleaningJobDetailsState
                     final isConfirmed = rs == RequestStatus.confirmed;
                     final isInProgress = rs == RequestStatus.inProgress;
 
-                    // Disable "Complete Job" when in-progress and no media uploaded
-                    final canCompleteNow = isInProgress &&
-                        uploadedFilesUrls.isNotEmpty &&
-                        !isUploading;
+                    final canCompleteNow = isInProgress && !isUploading;
 
                     return Padding(
                       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
@@ -427,10 +502,13 @@ class _UpholsteryCleaningJobDetailsState
                                       }
                                     : (isInProgress && canCompleteNow
                                         ? () {
-                                            final body = CompleteJobRequest(
-                                              files: List<String>.from(
-                                                  uploadedFilesUrls),
-                                            );
+                                            final body = uploadedFilesUrls
+                                                    .isEmpty
+                                                ? null
+                                                : CompleteJobRequest(
+                                                    files: List<String>.from(
+                                                        uploadedFilesUrls),
+                                                  );
                                             context.read<JobActionsBloc>().add(
                                                   CompleteJobEvent(
                                                     _currentRequest.id ?? "",
@@ -466,12 +544,11 @@ class _UpholsteryCleaningJobDetailsState
     String typeTitle,
   ) {
     final isArabic = Localizations.localeOf(context).languageCode == 'ar';
-    final packageTitle =
-        item.package?.localizedTitle(isArabic: isArabic) ?? '-';
+    final packageTitle = item.package?.localizedTitle(isArabic: isArabic) ??
+        item.size?.title ??
+        '-';
     final quantity = item.quantity ?? 1;
-    final unitPrice = item.price ?? item.package?.discountedPrice;
-    final total = item.calculatedPrice ??
-        (unitPrice == null ? null : unitPrice * quantity);
+    final total = item.lineTotal;
 
     return Card(
       elevation: 0,
@@ -784,6 +861,37 @@ class _UpholsteryCleaningJobDetailsState
           },
         ),
       ],
+    );
+  }
+}
+
+class _SectionCard extends StatelessWidget {
+  final String title;
+  final Widget child;
+
+  const _SectionCard({required this.title, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 14),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: AppTheme.primary,
+                    fontWeight: FontWeight.w900,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            child,
+          ],
+        ),
+      ),
     );
   }
 }

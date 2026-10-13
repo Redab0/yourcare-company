@@ -1,3 +1,9 @@
+import 'package:cleaning_service_driver/data/services/documents/documents_service.dart';
+import 'package:cleaning_service_driver/data/repositories/documents/documents_repository.dart';
+import 'package:cleaning_service_driver/domain/usecases/documents/documents_usecases.dart';
+import 'package:cleaning_service_driver/features/bloc/documents/documents_cubit.dart';
+import 'package:cleaning_service_driver/data/services/laundry/laundry_service.dart';
+import 'package:cleaning_service_driver/data/repositories/laundry/laundry_repository.dart';
 import 'package:cleaning_service_driver/components/loading_overlay.dart';
 import 'package:cleaning_service_driver/core/api/api_client.dart';
 import 'package:cleaning_service_driver/core/storage/local_storage.dart';
@@ -58,6 +64,7 @@ import 'package:cleaning_service_driver/domain/usecases/jobs/assign_team_usecase
 import 'package:cleaning_service_driver/domain/usecases/jobs/cancel_job_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/complete_job_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/get_up_coming_jobs_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/jobs/get_job_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/start_job_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/update_frequency_request_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/profile/business/get_areas_usecase.dart';
@@ -149,6 +156,10 @@ Future<void> setupServiceLocator() async {
   sl.registerSingleton<LoadingController>(LoadingOverlay(rootNavigatorKey));
 
   // Services
+  sl.registerLazySingleton(() => DocumentsService(sl<ApiClient>().dio));
+  sl.registerLazySingleton(() => DocumentsRepository(sl()));
+  sl.registerFactory(() => DocumentsUseCases(sl()));
+  sl.registerFactory(() => DocumentsCubit(sl()));
   sl.registerLazySingleton<AuthService>(
     () => AuthService(sl<ApiClient>().dio),
   );
@@ -160,6 +171,11 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<AutoBidConfigService>(
     () => AutoBidConfigService(sl<ApiClient>().dio),
   );
+
+  sl.registerLazySingleton<LaundryService>(
+      () => LaundryService(sl<ApiClient>().dio));
+  sl.registerLazySingleton<LaundryRepository>(
+      () => LaundryRepository(sl<LaundryService>()));
 
   sl.registerLazySingleton<CarWashService>(
     () => CarWashService(sl<ApiClient>().dio),
@@ -385,6 +401,7 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory(() => HomeBloc());
   sl.registerFactory(() => RequestsBloc());
   sl.registerFactory(() => JobBloc());
+  sl.registerLazySingleton(() => GetJobUseCase(sl<JobsRepository>()));
   sl.registerFactory(() => JobActionsBloc());
   sl.registerFactory(() => RequestsActionBloc());
   sl.registerFactory(() => StaffBloc());

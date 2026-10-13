@@ -7,12 +7,6 @@ class UpdateFrequencyRequestUseCase {
 
   const UpdateFrequencyRequestUseCase(this._jobsRepository);
 
-  Future<CleaningRequest> call(
-      String id, UpdateRequestFrequencyRequest body) async {
-    try {
-      return await _jobsRepository.updateFrequencyStatus(id, body);
-    } catch (e) {
-      throw Exception("Updating Request Failed $e");
-    }
-  }
+  Future<CleaningRequest> call(String id, UpdateRequestFrequencyRequest body) =>
+      _jobsRepository.updateFrequencyStatus(id, body);
 }

@@ -33,7 +33,7 @@ class ScheduleRepository {
       String id, CleanerAvailabilityRequest request) async {
     final response = await _scheduleService.updateCleanerAvailability(
       id,
-      request.toUpdateJson(),
+      request.toUpdateRequest(),
     );
     if (response.success && response.data != null) {
       return response.data!.data!;

@@ -116,11 +116,26 @@ Map<String, dynamic> _$UpholsteryPricingGroupToJson(
       'packages': instance.packages,
     };
 
-UpholsteryPricingRequest _$UpholsteryPricingRequestFromJson(
-        Map<String, dynamic> json) =>
-    UpholsteryPricingRequest(
-      pricing: (json['pricing'] as List<dynamic>)
-          .map(
-              (e) => UpholsteryPricingGroup.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
+Map<String, dynamic> _$UpholsteryPricingPackageRequestToJson(
+        UpholsteryPricingPackageRequest instance) =>
+    <String, dynamic>{
+      if (instance.titleEn case final value?) 'titleEn': value,
+      if (instance.titleAr case final value?) 'titleAr': value,
+      if (instance.descriptionEn case final value?) 'descriptionEn': value,
+      if (instance.descriptionAr case final value?) 'descriptionAr': value,
+      'price': instance.price,
+      'discountPercentage': instance.discountPercentage,
+    };
+
+Map<String, dynamic> _$UpholsteryPricingGroupRequestToJson(
+        UpholsteryPricingGroupRequest instance) =>
+    <String, dynamic>{
+      'upholsteryTypeId': instance.upholsteryTypeId,
+      'packages': instance.packages.map((e) => e.toJson()).toList(),
+    };
+
+Map<String, dynamic> _$UpholsteryPricingRequestToJson(
+        UpholsteryPricingRequest instance) =>
+    <String, dynamic>{
+      'pricing': instance.pricing.map((e) => e.toJson()).toList(),
+    };

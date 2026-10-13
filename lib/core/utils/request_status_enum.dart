@@ -66,9 +66,9 @@ extension RequestStatusX on RequestStatus {
       case RequestStatus.canceled:
         return context.l10n.cancelled;
       case RequestStatus.notPaid:
-        return context.l10n.cancelled;
+        return context.l10n.request_not_paid;
       case RequestStatus.paid:
-        return context.l10n.cancelled;
+        return context.l10n.request_paid;
       default:
         return 'Unknown';
     }

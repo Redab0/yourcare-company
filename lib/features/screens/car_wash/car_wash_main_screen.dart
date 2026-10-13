@@ -86,7 +86,7 @@ class _CarWashMainScreenState extends State<CarWashMainScreen> {
               index: 0,
               itemCount: _tourKeys.length,
               child: HomeMenuItem(
-                imageAsset: 'assets/images/ic_car_wash_pricing.png',
+                imageAsset: 'assets/images/business_car_wash_pricing.png',
                 title: context.l10n.car_wash_packages_and_pricing,
                 onTap: () => context.pushNamed('car-wash-pricing-screen'),
                 large: isTablet,
@@ -101,7 +101,7 @@ class _CarWashMainScreenState extends State<CarWashMainScreen> {
                 index: 1,
                 itemCount: _tourKeys.length,
                 child: HomeMenuItem(
-                  imageAsset: 'assets/images/ic_car_wash_availability.png',
+                  imageAsset: 'assets/images/business_availability.png',
                   title: context.l10n.car_wash_working_hours,
                   onTap: () =>
                       context.pushNamed('car-wash-working-hours-screen'),

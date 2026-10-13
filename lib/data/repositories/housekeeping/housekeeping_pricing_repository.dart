@@ -21,11 +21,11 @@ class HousekeepingPricingRepository {
     if (response.success && response.data != null) {
       return response.data!.data ??
           HousekeepingPricing(
-            areaFees: request.areaFees,
+            areaFees: request.sourceAreaFees,
             isActive: request.isActive,
             cleaningProductsPrice: request.cleaningProductsPrice,
-            singlePricingModel: request.singlePricingModel,
-            multiplePricingModel: request.multiplePricingModel,
+            singlePricingModel: request.sourceSinglePricingModel,
+            multiplePricingModel: request.sourceMultiplePricingModel,
           );
     } else {
       throw Exception(response.message);

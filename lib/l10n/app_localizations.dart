@@ -95,6 +95,168 @@ abstract class AppLocalizations {
     Locale('en')
   ];
 
+  /// No description provided for @previewLoginRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your phone number and password.'**
+  String get previewLoginRequired;
+
+  /// No description provided for @previewLoginInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in failed. Check your DEV phone number and password, and that your account is active.'**
+  String get previewLoginInvalid;
+
+  /// No description provided for @previewLoginUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot reach the DEV server. Please try again.'**
+  String get previewLoginUnavailable;
+
+  /// No description provided for @previewLoginCompanyRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'This account cannot open the company preview. Sign in with a DEV business owner or manager linked to a business.'**
+  String get previewLoginCompanyRequired;
+
+  /// No description provided for @previewLoginSessionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The login session could not be loaded. Refresh the page and try again.'**
+  String get previewLoginSessionFailed;
+
+  /// No description provided for @previewLoginRateLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many sign-in attempts. Please wait before trying again.'**
+  String get previewLoginRateLimit;
+
+  /// No description provided for @documentsCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents Center'**
+  String get documentsCenter;
+
+  /// No description provided for @documentPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Policy'**
+  String get documentPolicy;
+
+  /// No description provided for @documentContract.
+  ///
+  /// In en, this message translates to:
+  /// **'Contract'**
+  String get documentContract;
+
+  /// No description provided for @documentOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get documentOther;
+
+  /// No description provided for @documentDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get documentDownload;
+
+  /// No description provided for @documentView.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get documentView;
+
+  /// No description provided for @documentPreviewError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to open this document.'**
+  String get documentPreviewError;
+
+  /// No description provided for @documentPreviewTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening this document took too long. Try downloading it instead.'**
+  String get documentPreviewTimeout;
+
+  /// No description provided for @documentPreviewUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview is unavailable for this file type. You can download the file instead.'**
+  String get documentPreviewUnsupported;
+
+  /// No description provided for @documentDownloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Document downloaded'**
+  String get documentDownloaded;
+
+  /// No description provided for @documentRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get documentRefresh;
+
+  /// No description provided for @documentSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search documents'**
+  String get documentSearch;
+
+  /// No description provided for @documentCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get documentCategory;
+
+  /// No description provided for @documentAllCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get documentAllCategories;
+
+  /// No description provided for @documentShared.
+  ///
+  /// In en, this message translates to:
+  /// **'All businesses'**
+  String get documentShared;
+
+  /// No description provided for @documentForYourBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Your business'**
+  String get documentForYourBusiness;
+
+  /// No description provided for @documentRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get documentRetry;
+
+  /// No description provided for @documentsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load or download documents. Please try again.'**
+  String get documentsError;
+
+  /// No description provided for @documentsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No documents found'**
+  String get documentsEmpty;
+
+  /// No description provided for @documentPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous page'**
+  String get documentPrevious;
+
+  /// No description provided for @documentNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next page'**
+  String get documentNext;
+
   /// No description provided for @appName.
   ///
   /// In en, this message translates to:
@@ -1235,6 +1397,54 @@ abstract class AppLocalizations {
   /// **'Location'**
   String get request_location;
 
+  /// No description provided for @request_status_updated.
+  ///
+  /// In en, this message translates to:
+  /// **'Status was updated'**
+  String get request_status_updated;
+
+  /// No description provided for @request_location_reminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Please double-check the customer\'s map location before sending the team.'**
+  String get request_location_reminder;
+
+  /// No description provided for @refresh_request_details.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh request details'**
+  String get refresh_request_details;
+
+  /// No description provided for @request_visit_id_missing.
+  ///
+  /// In en, this message translates to:
+  /// **'This visit is missing its ID. Refresh the request details and try again.'**
+  String get request_visit_id_missing;
+
+  /// No description provided for @request_paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get request_paid;
+
+  /// No description provided for @request_not_paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Not paid'**
+  String get request_not_paid;
+
+  /// No description provided for @request_share_furniture_item.
+  ///
+  /// In en, this message translates to:
+  /// **'Item: {item}\nSize: {size}\nQuantity: {quantity}'**
+  String request_share_furniture_item(String item, String size, String quantity);
+
+  /// No description provided for @open_in_google_maps.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in Google Maps'**
+  String get open_in_google_maps;
+
   /// No description provided for @request_full_location.
   ///
   /// In en, this message translates to:
@@ -1504,6 +1714,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Price must be greater than zero'**
   String get price_must_be_greater_than_zero;
+
+  /// No description provided for @price_must_be_zero_or_greater.
+  ///
+  /// In en, this message translates to:
+  /// **'Price must be zero or greater'**
+  String get price_must_be_zero_or_greater;
 
   /// No description provided for @housekeeping_active.
   ///
@@ -2453,6 +2669,144 @@ abstract class AppLocalizations {
   /// **'Save Weekly Schedule'**
   String get save_weekly_schedule;
 
+  /// No description provided for @hourly_availability.
+  ///
+  /// In en, this message translates to:
+  /// **'Hourly Availability'**
+  String get hourly_availability;
+
+  /// No description provided for @availability_hourly_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable the hours when customers can book, then set how many workers are available during each hour.'**
+  String get availability_hourly_hint;
+
+  /// No description provided for @availability_enabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabled'**
+  String get availability_enabled;
+
+  /// No description provided for @availability_disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Disabled'**
+  String get availability_disabled;
+
+  /// No description provided for @availability_enabled_hours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} hours enabled'**
+  String availability_enabled_hours(int count);
+
+  /// No description provided for @availability_no_hours_enabled.
+  ///
+  /// In en, this message translates to:
+  /// **'No hours enabled'**
+  String get availability_no_hours_enabled;
+
+  /// No description provided for @availability_enable_all.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable all'**
+  String get availability_enable_all;
+
+  /// No description provided for @availability_disable_all.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable all'**
+  String get availability_disable_all;
+
+  /// No description provided for @availability_apply_other_days.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply to other days'**
+  String get availability_apply_other_days;
+
+  /// No description provided for @availability_apply_schedule_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply {day}\'s schedule'**
+  String availability_apply_schedule_title(String day);
+
+  /// No description provided for @availability_select_days_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select every day that should receive this schedule.'**
+  String get availability_select_days_hint;
+
+  /// No description provided for @availability_select_all.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get availability_select_all;
+
+  /// No description provided for @availability_apply_selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply to selected days'**
+  String get availability_apply_selected;
+
+  /// No description provided for @availability_copy_warning.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing changes for selected days will be replaced. Each day can still be edited independently afterward.'**
+  String get availability_copy_warning;
+
+  /// No description provided for @availability_schedule_copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule copied to the selected days'**
+  String get availability_schedule_copied;
+
+  /// No description provided for @availability_unsaved_changes.
+  ///
+  /// In en, this message translates to:
+  /// **'You have unsaved availability changes.'**
+  String get availability_unsaved_changes;
+
+  /// No description provided for @availability_save_before_leaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Please save your changes before leaving.'**
+  String get availability_save_before_leaving;
+
+  /// No description provided for @availability_discard_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes?'**
+  String get availability_discard_title;
+
+  /// No description provided for @availability_discard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get availability_discard;
+
+  /// No description provided for @availability_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Availability saved'**
+  String get availability_saved;
+
+  /// No description provided for @availability_no_changes.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no changes to save'**
+  String get availability_no_changes;
+
+  /// No description provided for @availability_invalid_workers.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at least 1 worker for every enabled hour.'**
+  String get availability_invalid_workers;
+
+  /// No description provided for @availability_changed_days.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days changed'**
+  String availability_changed_days(int count);
+
   /// No description provided for @available.
   ///
   /// In en, this message translates to:
@@ -2660,8 +3014,26 @@ abstract class AppLocalizations {
   /// No description provided for @car_wash_packages_hint.
   ///
   /// In en, this message translates to:
-  /// **'Create each package once with its duration and optional booking hours, then assign it to every supported vehicle type.'**
+  /// **'Create each package once, set its price for every vehicle type, then assign it to the vehicle types you support.'**
   String get car_wash_packages_hint;
+
+  /// No description provided for @car_wash_vehicle_pricing.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle Type Pricing'**
+  String get car_wash_vehicle_pricing;
+
+  /// No description provided for @car_wash_vehicle_pricing_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Set this package\'s price separately for every vehicle type.'**
+  String get car_wash_vehicle_pricing_hint;
+
+  /// No description provided for @car_wash_vehicle_price_not_set.
+  ///
+  /// In en, this message translates to:
+  /// **'No price is configured for this vehicle type'**
+  String get car_wash_vehicle_price_not_set;
 
   /// No description provided for @car_wash_vehicle_assignments.
   ///
@@ -2830,6 +3202,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Discount must be between 0 and 100'**
   String get invalid_discount_percentage;
+
+  /// No description provided for @car_wash_package_enabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Package enabled'**
+  String get car_wash_package_enabled;
+
+  /// No description provided for @car_wash_package_enabled_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabled packages are available to customers. Disabled packages are hidden.'**
+  String get car_wash_package_enabled_hint;
 
   /// No description provided for @package_working_hours.
   ///
@@ -3143,11 +3527,1001 @@ abstract class AppLocalizations {
   /// **'The customer must pay this invoice from the request details screen before another one can be created.'**
   String get extra_invoice_payment_pending_hint;
 
+  /// No description provided for @extra_invoice_payments_successful.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra invoice payments successful'**
+  String get extra_invoice_payments_successful;
+
+  /// No description provided for @extra_invoice_paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get extra_invoice_paid;
+
+  /// No description provided for @extra_invoice_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending payment'**
+  String get extra_invoice_pending;
+
+  /// No description provided for @extra_invoice_total_paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Total paid'**
+  String get extra_invoice_total_paid;
+
   /// No description provided for @share.
   ///
   /// In en, this message translates to:
   /// **'Share'**
   String get share;
+
+  /// No description provided for @laundry_service.
+  ///
+  /// In en, this message translates to:
+  /// **'Laundry'**
+  String get laundry_service;
+
+  /// No description provided for @laundry_catalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Laundry price list'**
+  String get laundry_catalog;
+
+  /// No description provided for @laundry_setup_help.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable your items, choose their services and set prices. Service names are managed globally by admin. You can also add your own items.'**
+  String get laundry_setup_help;
+
+  /// No description provided for @laundry_add_item.
+  ///
+  /// In en, this message translates to:
+  /// **'Add item'**
+  String get laundry_add_item;
+
+  /// No description provided for @laundry_edit_item.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit item'**
+  String get laundry_edit_item;
+
+  /// No description provided for @laundry_empty_catalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first laundry item to start building your price list.'**
+  String get laundry_empty_catalog;
+
+  /// No description provided for @laundry_name_en.
+  ///
+  /// In en, this message translates to:
+  /// **'Item name in English'**
+  String get laundry_name_en;
+
+  /// No description provided for @laundry_name_ar.
+  ///
+  /// In en, this message translates to:
+  /// **'Item name in Arabic'**
+  String get laundry_name_ar;
+
+  /// No description provided for @laundry_unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Pricing unit'**
+  String get laundry_unit;
+
+  /// No description provided for @laundry_unit_item.
+  ///
+  /// In en, this message translates to:
+  /// **'Per item'**
+  String get laundry_unit_item;
+
+  /// No description provided for @laundry_unit_meter.
+  ///
+  /// In en, this message translates to:
+  /// **'Per meter'**
+  String get laundry_unit_meter;
+
+  /// No description provided for @laundry_unit_custom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom unit'**
+  String get laundry_unit_custom;
+
+  /// No description provided for @laundry_unit_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom unit label'**
+  String get laundry_unit_label;
+
+  /// No description provided for @laundry_price.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit price (KWD)'**
+  String get laundry_price;
+
+  /// No description provided for @laundry_active.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get laundry_active;
+
+  /// No description provided for @laundry_inactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get laundry_inactive;
+
+  /// No description provided for @laundry_sizes.
+  ///
+  /// In en, this message translates to:
+  /// **'Size-based prices'**
+  String get laundry_sizes;
+
+  /// No description provided for @laundry_add_size.
+  ///
+  /// In en, this message translates to:
+  /// **'Add size'**
+  String get laundry_add_size;
+
+  /// No description provided for @laundry_size_en.
+  ///
+  /// In en, this message translates to:
+  /// **'Size in English'**
+  String get laundry_size_en;
+
+  /// No description provided for @laundry_size_ar.
+  ///
+  /// In en, this message translates to:
+  /// **'Size in Arabic'**
+  String get laundry_size_ar;
+
+  /// No description provided for @laundry_deactivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate item'**
+  String get laundry_deactivate;
+
+  /// No description provided for @laundry_deactivate_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate this item? It will no longer appear in the customer price list. Existing orders keep their prices.'**
+  String get laundry_deactivate_confirm;
+
+  /// No description provided for @laundry_required.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get laundry_required;
+
+  /// No description provided for @laundry_valid_number.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount from 0 to 10,000 with up to 3 decimal places'**
+  String get laundry_valid_number;
+
+  /// No description provided for @laundry_valid_quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a quantity from 0.001 to 10,000 with up to 3 decimal places'**
+  String get laundry_valid_quantity;
+
+  /// No description provided for @laundry_order.
+  ///
+  /// In en, this message translates to:
+  /// **'Laundry order'**
+  String get laundry_order;
+
+  /// No description provided for @laundry_pickup_first.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup first, invoice later'**
+  String get laundry_pickup_first;
+
+  /// No description provided for @laundry_upfront.
+  ///
+  /// In en, this message translates to:
+  /// **'Items paid upfront'**
+  String get laundry_upfront;
+
+  /// No description provided for @laundry_pending_pickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick up bag'**
+  String get laundry_pending_pickup;
+
+  /// No description provided for @laundry_pickup_accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup accepted'**
+  String get laundry_pickup_accepted;
+
+  /// No description provided for @laundry_pickup_rejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup rejected'**
+  String get laundry_pickup_rejected;
+
+  /// No description provided for @laundry_picked_up.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked up'**
+  String get laundry_picked_up;
+
+  /// No description provided for @laundry_invoice_sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting payment'**
+  String get laundry_invoice_sent;
+
+  /// No description provided for @laundry_ready_for_delivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready for delivery'**
+  String get laundry_ready_for_delivery;
+
+  /// No description provided for @laundry_out_for_delivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Out for delivery'**
+  String get laundry_out_for_delivery;
+
+  /// No description provided for @laundry_delivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get laundry_delivered;
+
+  /// No description provided for @laundry_accept_pickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept pickup'**
+  String get laundry_accept_pickup;
+
+  /// No description provided for @laundry_reject_pickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject pickup'**
+  String get laundry_reject_pickup;
+
+  /// No description provided for @laundry_mark_picked_up.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as picked up'**
+  String get laundry_mark_picked_up;
+
+  /// No description provided for @laundry_start_work.
+  ///
+  /// In en, this message translates to:
+  /// **'Start laundry'**
+  String get laundry_start_work;
+
+  /// No description provided for @laundry_mark_ready.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready for delivery'**
+  String get laundry_mark_ready;
+
+  /// No description provided for @laundry_start_delivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Start delivery'**
+  String get laundry_start_delivery;
+
+  /// No description provided for @laundry_mark_delivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as delivered'**
+  String get laundry_mark_delivered;
+
+  /// No description provided for @laundry_complete.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete order'**
+  String get laundry_complete;
+
+  /// No description provided for @laundry_waiting_payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for customer payment. Refresh to check payment status.'**
+  String get laundry_waiting_payment;
+
+  /// No description provided for @laundry_payment_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment pending'**
+  String get laundry_payment_pending;
+
+  /// No description provided for @laundry_payment_unpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpaid'**
+  String get laundry_payment_unpaid;
+
+  /// No description provided for @laundry_payment_refunded.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded'**
+  String get laundry_payment_refunded;
+
+  /// No description provided for @laundry_bags.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of bags'**
+  String get laundry_bags;
+
+  /// No description provided for @laundry_pickup_time.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup date and time'**
+  String get laundry_pickup_time;
+
+  /// No description provided for @laundry_items.
+  ///
+  /// In en, this message translates to:
+  /// **'Laundry items'**
+  String get laundry_items;
+
+  /// No description provided for @laundry_quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get laundry_quantity;
+
+  /// No description provided for @laundry_size.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get laundry_size;
+
+  /// No description provided for @laundry_no_items.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup without an item list'**
+  String get laundry_no_items;
+
+  /// No description provided for @laundry_invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Laundry invoice'**
+  String get laundry_invoice;
+
+  /// No description provided for @laundry_create_invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Create invoice'**
+  String get laundry_create_invoice;
+
+  /// No description provided for @laundry_edit_invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit draft invoice'**
+  String get laundry_edit_invoice;
+
+  /// No description provided for @laundry_draft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get laundry_draft;
+
+  /// No description provided for @laundry_sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get laundry_sent;
+
+  /// No description provided for @laundry_save_draft.
+  ///
+  /// In en, this message translates to:
+  /// **'Save draft'**
+  String get laundry_save_draft;
+
+  /// No description provided for @laundry_send_invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Send invoice'**
+  String get laundry_send_invoice;
+
+  /// No description provided for @laundry_invoice_help.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose items from your active catalog. Prices are calculated from your company price list when you save.'**
+  String get laundry_invoice_help;
+
+  /// No description provided for @laundry_pickup_fee.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup fee (KWD)'**
+  String get laundry_pickup_fee;
+
+  /// No description provided for @laundry_delivery_fee.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery fee (KWD)'**
+  String get laundry_delivery_fee;
+
+  /// No description provided for @laundry_discount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount (KWD)'**
+  String get laundry_discount;
+
+  /// No description provided for @laundry_subtotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get laundry_subtotal;
+
+  /// No description provided for @laundry_platform_fees.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform fees'**
+  String get laundry_platform_fees;
+
+  /// No description provided for @laundry_total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get laundry_total;
+
+  /// No description provided for @laundry_invoice_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one laundry item'**
+  String get laundry_invoice_empty;
+
+  /// No description provided for @laundry_invoice_unavailable_item.
+  ///
+  /// In en, this message translates to:
+  /// **'This invoice contains an inactive or changed item. Remove it and select an active catalog item.'**
+  String get laundry_invoice_unavailable_item;
+
+  /// No description provided for @laundry_cancel_order.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel order'**
+  String get laundry_cancel_order;
+
+  /// No description provided for @laundry_confirm_action.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm this order status change?'**
+  String get laundry_confirm_action;
+
+  /// No description provided for @laundry_refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh order'**
+  String get laundry_refresh;
+
+  /// No description provided for @laundry_payment_status.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment status'**
+  String get laundry_payment_status;
+
+  /// No description provided for @laundry_invoice_status.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice status'**
+  String get laundry_invoice_status;
+
+  /// No description provided for @laundry_customer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get laundry_customer;
+
+  /// No description provided for @laundry_empty_orders.
+  ///
+  /// In en, this message translates to:
+  /// **'No requests found'**
+  String get laundry_empty_orders;
+
+  /// No description provided for @laundry_estimated_total.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated total before platform fees'**
+  String get laundry_estimated_total;
+
+  /// No description provided for @laundry_duplicate_items.
+  ///
+  /// In en, this message translates to:
+  /// **'Combine quantities for the same item and size in one line.'**
+  String get laundry_duplicate_items;
+
+  /// No description provided for @laundry_whole_quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a whole number of items.'**
+  String get laundry_whole_quantity;
+
+  /// No description provided for @laundry_enable_service.
+  ///
+  /// In en, this message translates to:
+  /// **'Offer Laundry Service'**
+  String get laundry_enable_service;
+
+  /// No description provided for @laundry_enable_service_help.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Laundry, select your service areas, then save this profile. Configure items and prices below before accepting orders.'**
+  String get laundry_enable_service_help;
+
+  /// No description provided for @laundry_revenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Laundry revenue'**
+  String get laundry_revenue;
+
+  /// No description provided for @laundry_service_disabled_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Laundry is not enabled for customers'**
+  String get laundry_service_disabled_title;
+
+  /// No description provided for @laundry_service_disabled_help.
+  ///
+  /// In en, this message translates to:
+  /// **'Prepare your items and prices here, then enable Laundry in Company Profile, select your service areas and save the profile to receive orders.'**
+  String get laundry_service_disabled_help;
+
+  /// No description provided for @laundry_admin_products.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin products'**
+  String get laundry_admin_products;
+
+  /// No description provided for @laundry_custom_items.
+  ///
+  /// In en, this message translates to:
+  /// **'Your custom items'**
+  String get laundry_custom_items;
+
+  /// No description provided for @laundry_unavailable_admin.
+  ///
+  /// In en, this message translates to:
+  /// **'Unavailable — disabled by admin'**
+  String get laundry_unavailable_admin;
+
+  /// No description provided for @laundry_edit_prices.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit prices'**
+  String get laundry_edit_prices;
+
+  /// No description provided for @laundry_admin_product_help.
+  ///
+  /// In en, this message translates to:
+  /// **'The item and service names are managed by admin. Enable services for this item and enter your prices. Each price must be greater than zero.'**
+  String get laundry_admin_product_help;
+
+  /// No description provided for @laundry_use_default_price.
+  ///
+  /// In en, this message translates to:
+  /// **'Use admin default price'**
+  String get laundry_use_default_price;
+
+  /// No description provided for @laundry_default_price.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin price'**
+  String get laundry_default_price;
+
+  /// No description provided for @laundry_company_price.
+  ///
+  /// In en, this message translates to:
+  /// **'Your price (KWD)'**
+  String get laundry_company_price;
+
+  /// No description provided for @laundry_reset_prices.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset all prices to admin defaults'**
+  String get laundry_reset_prices;
+
+  /// No description provided for @laundry_send_invoice_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Send this invoice to the customer? Items and prices cannot be changed after sending.'**
+  String get laundry_send_invoice_confirm;
+
+  /// No description provided for @registrationGiftApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration gift applied • Funded by your company'**
+  String get registrationGiftApplied;
+
+  /// No description provided for @registrationGiftAppliedAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} KD registration gift applied • Funded by your company'**
+  String registrationGiftAppliedAmount(String amount);
+
+  /// No description provided for @registrationGiftReserved.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration gift reserved • Funded by your company'**
+  String get registrationGiftReserved;
+
+  /// No description provided for @registrationGiftReservedAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} KD registration gift reserved • Funded by your company'**
+  String registrationGiftReservedAmount(String amount);
+
+  /// No description provided for @campaignDiscountAppliedAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} KD discount applied'**
+  String campaignDiscountAppliedAmount(String amount);
+
+  /// No description provided for @campaignDiscountReservedAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} KD discount reserved'**
+  String campaignDiscountReservedAmount(String amount);
+
+  /// No description provided for @campaignCashbackAppliedAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} KD cashback applied'**
+  String campaignCashbackAppliedAmount(String amount);
+
+  /// No description provided for @campaignCashbackReservedAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} KD cashback reserved'**
+  String campaignCashbackReservedAmount(String amount);
+
+  /// No description provided for @laundry_same_day.
+  ///
+  /// In en, this message translates to:
+  /// **'Same Day'**
+  String get laundry_same_day;
+
+  /// No description provided for @laundry_same_day_help.
+  ///
+  /// In en, this message translates to:
+  /// **'Offer same-day service for orders booked before your cutoff time. Orders booked at or after the cutoff are not eligible.'**
+  String get laundry_same_day_help;
+
+  /// No description provided for @laundry_same_day_enable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable same-day service'**
+  String get laundry_same_day_enable;
+
+  /// No description provided for @laundry_same_day_cutoff.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking cutoff'**
+  String get laundry_same_day_cutoff;
+
+  /// No description provided for @laundry_same_day_select_cutoff.
+  ///
+  /// In en, this message translates to:
+  /// **'Set booking cutoff'**
+  String get laundry_same_day_select_cutoff;
+
+  /// No description provided for @laundry_same_day_kuwait_time.
+  ///
+  /// In en, this message translates to:
+  /// **'Kuwait time (24-hour format)'**
+  String get laundry_same_day_kuwait_time;
+
+  /// No description provided for @laundry_same_day_cutoff_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a booking cutoff before enabling same-day service.'**
+  String get laundry_same_day_cutoff_required;
+
+  /// No description provided for @laundry_same_day_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load same-day settings. Please try again.'**
+  String get laundry_same_day_load_error;
+
+  /// No description provided for @laundry_same_day_save_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings were not saved. Please try again.'**
+  String get laundry_same_day_save_error;
+
+  /// No description provided for @laundry_same_day_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Same-day settings saved'**
+  String get laundry_same_day_saved;
+
+  /// No description provided for @laundry_shared_services.
+  ///
+  /// In en, this message translates to:
+  /// **'Services'**
+  String get laundry_shared_services;
+
+  /// No description provided for @laundry_item_service.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get laundry_item_service;
+
+  /// No description provided for @laundry_shared_services_help.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable the services you offer for this item and set each price. Service names are shared and managed by admin.'**
+  String get laundry_shared_services_help;
+
+  /// No description provided for @laundry_no_shared_services.
+  ///
+  /// In en, this message translates to:
+  /// **'No services have been created by admin yet.'**
+  String get laundry_no_shared_services;
+
+  /// No description provided for @laundry_item_needs_service.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable and price at least one service before this item appears to customers.'**
+  String get laundry_item_needs_service;
+
+  /// No description provided for @laundry_legacy_pricing_help.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing item prices and options remain bookable when these services are off. Turn off the item to stop all bookings.'**
+  String get laundry_legacy_pricing_help;
+
+  /// No description provided for @laundry_category.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get laundry_category;
+
+  /// No description provided for @laundry_all_categories.
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get laundry_all_categories;
+
+  /// No description provided for @laundry_uncategorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Uncategorized'**
+  String get laundry_uncategorized;
+
+  /// No description provided for @laundry_search_items.
+  ///
+  /// In en, this message translates to:
+  /// **'Search items'**
+  String get laundry_search_items;
+
+  /// No description provided for @laundry_no_matching_items.
+  ///
+  /// In en, this message translates to:
+  /// **'No items match this category or search.'**
+  String get laundry_no_matching_items;
+
+  /// No description provided for @laundry_catalog_setup_needed.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable and price items in your Laundry catalog before creating an invoice.'**
+  String get laundry_catalog_setup_needed;
+
+  /// No description provided for @laundry_bag_items_help.
+  ///
+  /// In en, this message translates to:
+  /// **'Bag pickup — inspect the collected laundry, then add its items and services to the invoice.'**
+  String get laundry_bag_items_help;
+
+  /// No description provided for @laundry_invoice_category_help.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a category to find items faster. Changing it only resets this invoice line.'**
+  String get laundry_invoice_category_help;
+
+  /// No description provided for @laundry_invoice_invalid_discount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount cannot exceed the items and collection/delivery fees.'**
+  String get laundry_invoice_invalid_discount;
+
+  /// No description provided for @laundry_invoice_estimate_help.
+  ///
+  /// In en, this message translates to:
+  /// **'The server confirms current prices and platform fees when you save.'**
+  String get laundry_invoice_estimate_help;
+
+  /// No description provided for @laundry_company_price_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a company price'**
+  String get laundry_company_price_required;
+
+  /// No description provided for @laundry_reload_invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Reload saved invoice'**
+  String get laundry_reload_invoice;
+
+  /// No description provided for @laundry_reload_invoice_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard your unsaved invoice changes and review the latest saved invoice?'**
+  String get laundry_reload_invoice_confirm;
+
+  /// No description provided for @laundry_manage_catalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Laundry catalog'**
+  String get laundry_manage_catalog;
+
+  /// No description provided for @laundry_configuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Laundry Configuration'**
+  String get laundry_configuration;
+
+  /// No description provided for @laundry_working_hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Working Hours'**
+  String get laundry_working_hours;
+
+  /// No description provided for @laundry_pricing.
+  ///
+  /// In en, this message translates to:
+  /// **'Pricing'**
+  String get laundry_pricing;
+
+  /// No description provided for @laundry_configuration_help.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your working hours, booking availability and item prices.'**
+  String get laundry_configuration_help;
+
+  /// No description provided for @laundry_working_hours_help.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose when customers can book a pickup. Hours repeat each week in Kuwait time.'**
+  String get laundry_working_hours_help;
+
+  /// No description provided for @laundry_available.
+  ///
+  /// In en, this message translates to:
+  /// **'Available for bookings'**
+  String get laundry_available;
+
+  /// No description provided for @laundry_availability_help.
+  ///
+  /// In en, this message translates to:
+  /// **'When switched off, customers see Fully booked and cannot book your company.'**
+  String get laundry_availability_help;
+
+  /// No description provided for @laundry_settings_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Laundry settings saved'**
+  String get laundry_settings_saved;
+
+  /// No description provided for @laundry_settings_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load laundry settings. Please try again.'**
+  String get laundry_settings_load_error;
+
+  /// No description provided for @laundry_hours_invalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Each time slot must end after it starts, without overlapping another slot on the same day. Use a separate slot on the next day for overnight hours. Use no more than 168 time slots per week.'**
+  String get laundry_hours_invalid;
+
+  /// No description provided for @laundry_hours_unrestricted.
+  ///
+  /// In en, this message translates to:
+  /// **'No working hours have been set yet. Bookings are currently allowed all week. Edit the days below to limit pickup times.'**
+  String get laundry_hours_unrestricted;
+
+  /// No description provided for @laundry_day_open.
+  ///
+  /// In en, this message translates to:
+  /// **'Open for pickups'**
+  String get laundry_day_open;
+
+  /// No description provided for @laundry_day_closed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed for pickups'**
+  String get laundry_day_closed;
+
+  /// No description provided for @laundry_minimum_charge.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum order amount'**
+  String get laundry_minimum_charge;
+
+  /// No description provided for @laundry_minimum_charge_help.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers must add enough items to reach this amount. Pickup and delivery fees do not count. Bag pickups can be booked without items, but the invoice must meet this minimum before sending. Set 0 for no minimum.'**
+  String get laundry_minimum_charge_help;
+
+  /// No description provided for @laundry_minimum_charge_invalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount from 0 to 100000 KWD with up to 3 decimal places.'**
+  String get laundry_minimum_charge_invalid;
+
+  /// No description provided for @laundry_minimum_invoice_help.
+  ///
+  /// In en, this message translates to:
+  /// **'Add enough items to reach the minimum before sending. Fees do not count; you can still save a draft.'**
+  String get laundry_minimum_invoice_help;
+
+  /// No description provided for @laundry_items_subtotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Items subtotal'**
+  String get laundry_items_subtotal;
+
+  /// No description provided for @laundry_catalog_loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading invoice items…'**
+  String get laundry_catalog_loading;
+
+  /// No description provided for @laundry_catalog_load_timeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading items took too long. Check your connection and try again. Your changes are kept.'**
+  String get laundry_catalog_load_timeout;
+
+  /// No description provided for @laundry_catalog_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the item list. Try again. Your changes are kept.'**
+  String get laundry_catalog_load_error;
+
+  /// No description provided for @laundry_bulk_prices.
+  ///
+  /// In en, this message translates to:
+  /// **'Update multiple prices'**
+  String get laundry_bulk_prices;
+
+  /// No description provided for @laundry_bulk_prices_help.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit prices and item availability, then save all your changes together. Service availability stays the same.'**
+  String get laundry_bulk_prices_help;
+
+  /// No description provided for @laundry_bulk_prices_save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save all changes'**
+  String get laundry_bulk_prices_save;
+
+  /// No description provided for @laundry_bulk_prices_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the changes. Your edits are kept. Please try again.'**
+  String get laundry_bulk_prices_error;
+
+  /// No description provided for @laundry_bulk_prices_unsaved.
+  ///
+  /// In en, this message translates to:
+  /// **'You have unsaved changes to prices or item availability.'**
+  String get laundry_bulk_prices_unsaved;
+
+  /// No description provided for @laundry_bulk_prices_limit.
+  ///
+  /// In en, this message translates to:
+  /// **'Update up to 200 items at a time. Save these changes before editing more items.'**
+  String get laundry_bulk_prices_limit;
+
+  /// No description provided for @laundry_bulk_prices_invalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a price from 0.001 to 10,000 KWD, using up to 3 decimal places.'**
+  String get laundry_bulk_prices_invalid;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

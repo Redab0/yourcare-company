@@ -1,4 +1,31 @@
 {
+  "previewLoginRequired": "Enter your phone number and password.",
+  "previewLoginInvalid": "Sign-in failed. Check your DEV phone number and password, and that your account is active.",
+  "previewLoginUnavailable": "Cannot reach the DEV server. Please try again.",
+  "previewLoginCompanyRequired": "This account cannot open the company preview. Sign in with a DEV business owner or manager linked to a business.",
+  "previewLoginSessionFailed": "The login session could not be loaded. Refresh the page and try again.",
+  "previewLoginRateLimit": "Too many sign-in attempts. Please wait before trying again.",
+  "documentsCenter": "Documents Center",
+  "documentPolicy": "Policy",
+  "documentContract": "Contract",
+  "documentOther": "Other",
+  "documentDownload": "Download",
+  "documentView": "View",
+  "documentPreviewError": "Unable to open this document.",
+  "documentPreviewTimeout": "Opening this document took too long. Try downloading it instead.",
+  "documentPreviewUnsupported": "Preview is unavailable for this file type. You can download the file instead.",
+  "documentDownloaded": "Document downloaded",
+  "documentRefresh": "Refresh",
+  "documentSearch": "Search documents",
+  "documentCategory": "Category",
+  "documentAllCategories": "All categories",
+  "documentShared": "All businesses",
+  "documentForYourBusiness": "Your business",
+  "documentRetry": "Retry",
+  "documentsError": "Unable to load or download documents. Please try again.",
+  "documentsEmpty": "No documents found",
+  "documentPrevious": "Previous page",
+  "documentNext": "Next page",
   "@@locale": "en",
   "appName": "Your Care Business",
   "welcome": "Welcome Back!",
@@ -190,6 +217,27 @@
   "request_bids_received": "Received Bids",
   "request_incoming_bids_show_here": "received bids will show here",
   "request_location": "Location",
+  "request_status_updated": "Status was updated",
+  "request_location_reminder": "Please double-check the customer's map location before sending the team.",
+  "refresh_request_details": "Refresh request details",
+  "request_visit_id_missing": "This visit is missing its ID. Refresh the request details and try again.",
+  "request_paid": "Paid",
+  "request_not_paid": "Not paid",
+  "request_share_furniture_item": "Item: {item}\nSize: {size}\nQuantity: {quantity}",
+  "@request_share_furniture_item": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
+  "open_in_google_maps": "Open in Google Maps",
   "request_full_location": "Full Location",
   "request_date_time": "Date and Time",
   "request_property_details": "Property Details",
@@ -235,6 +283,7 @@
   "hours": "Hours",
   "cleaning_products_price": "Cleaning products price",
   "price_must_be_greater_than_zero": "Price must be greater than zero",
+  "price_must_be_zero_or_greater": "Price must be zero or greater",
   "housekeeping_active": "Active",
   "account_delete_request": "Request account deletion",
   "account_delete_request_subtitle": "Opens a secure web form",
@@ -401,6 +450,53 @@
   "assigned_employees": "Assigned Employees",
   "total_label": "TOTAL",
   "save_weekly_schedule": "Save Weekly Schedule",
+  "hourly_availability": "Hourly Availability",
+  "availability_hourly_hint": "Enable the hours when customers can book, then set how many workers are available during each hour.",
+  "availability_enabled": "Enabled",
+  "availability_disabled": "Disabled",
+  "availability_enabled_hours": "{count} hours enabled",
+  "@availability_enabled_hours": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "8"
+      }
+    }
+  },
+  "availability_no_hours_enabled": "No hours enabled",
+  "availability_enable_all": "Enable all",
+  "availability_disable_all": "Disable all",
+  "availability_apply_other_days": "Apply to other days",
+  "availability_apply_schedule_title": "Apply {day}'s schedule",
+  "@availability_apply_schedule_title": {
+    "placeholders": {
+      "day": {
+        "type": "String",
+        "example": "Sunday"
+      }
+    }
+  },
+  "availability_select_days_hint": "Select every day that should receive this schedule.",
+  "availability_select_all": "Select all",
+  "availability_apply_selected": "Apply to selected days",
+  "availability_copy_warning": "Existing changes for selected days will be replaced. Each day can still be edited independently afterward.",
+  "availability_schedule_copied": "Schedule copied to the selected days",
+  "availability_unsaved_changes": "You have unsaved availability changes.",
+  "availability_save_before_leaving": "Please save your changes before leaving.",
+  "availability_discard_title": "Discard changes?",
+  "availability_discard": "Discard",
+  "availability_saved": "Availability saved",
+  "availability_no_changes": "There are no changes to save",
+  "availability_invalid_workers": "Enter at least 1 worker for every enabled hour.",
+  "availability_changed_days": "{count} days changed",
+  "@availability_changed_days": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
   "available": "Available",
   "morning_service": "Morning Service",
   "midday_service": "Midday Service",
@@ -435,7 +531,10 @@
   "car_wash_pricing": "Car Wash Pricing",
   "car_wash_packages_and_pricing": "Packages, Vehicles & Fees",
   "car_wash_packages": "Packages",
-  "car_wash_packages_hint": "Create each package once with its duration and optional booking hours, then assign it to every supported vehicle type.",
+  "car_wash_packages_hint": "Create each package once, set its price for every vehicle type, then assign it to the vehicle types you support.",
+  "car_wash_vehicle_pricing": "Vehicle Type Pricing",
+  "car_wash_vehicle_pricing_hint": "Set this package's price separately for every vehicle type.",
+  "car_wash_vehicle_price_not_set": "No price is configured for this vehicle type",
   "car_wash_vehicle_assignments": "Vehicle Types",
   "car_wash_vehicle_assignments_hint": "Choose which reusable packages are offered for each vehicle type.",
   "car_wash_area_fees": "Area Fees",
@@ -464,6 +563,8 @@
   "no_car_wash_packages": "No packages created yet",
   "package_title_required": "Enter the package title in English and Arabic",
   "invalid_discount_percentage": "Discount must be between 0 and 100",
+  "car_wash_package_enabled": "Package enabled",
+  "car_wash_package_enabled_hint": "Enabled packages are available to customers. Disabled packages are hidden.",
   "package_working_hours": "Package Availability",
   "package_working_hours_hint": "Optionally add the days and time slots when this package can be booked.",
   "package_availability_not_set": "No availability slots added",
@@ -516,5 +617,212 @@
   "extra_invoice_reason_required": "Enter a reason for the extra invoice",
   "extra_invoice_payment_pending": "Waiting for extra payment",
   "extra_invoice_payment_pending_hint": "The customer must pay this invoice from the request details screen before another one can be created.",
-  "share": "Share"
+  "extra_invoice_payments_successful": "Extra invoice payments successful",
+  "extra_invoice_paid": "Paid",
+  "extra_invoice_pending": "Pending payment",
+  "extra_invoice_total_paid": "Total paid",
+  "share": "Share",
+  "laundry_service": "Laundry",
+  "laundry_catalog": "Laundry price list",
+  "laundry_setup_help": "Enable your items, choose their services and set prices. Service names are managed globally by admin. You can also add your own items.",
+  "laundry_add_item": "Add item",
+  "laundry_edit_item": "Edit item",
+  "laundry_empty_catalog": "Add your first laundry item to start building your price list.",
+  "laundry_name_en": "Item name in English",
+  "laundry_name_ar": "Item name in Arabic",
+  "laundry_unit": "Pricing unit",
+  "laundry_unit_item": "Per item",
+  "laundry_unit_meter": "Per meter",
+  "laundry_unit_custom": "Custom unit",
+  "laundry_unit_label": "Custom unit label",
+  "laundry_price": "Unit price (KWD)",
+  "laundry_active": "Active",
+  "laundry_inactive": "Inactive",
+  "laundry_sizes": "Size-based prices",
+  "laundry_add_size": "Add size",
+  "laundry_size_en": "Size in English",
+  "laundry_size_ar": "Size in Arabic",
+  "laundry_deactivate": "Deactivate item",
+  "laundry_deactivate_confirm": "Deactivate this item? It will no longer appear in the customer price list. Existing orders keep their prices.",
+  "laundry_required": "This field is required",
+  "laundry_valid_number": "Enter an amount from 0 to 10,000 with up to 3 decimal places",
+  "laundry_valid_quantity": "Enter a quantity from 0.001 to 10,000 with up to 3 decimal places",
+  "laundry_order": "Laundry order",
+  "laundry_pickup_first": "Pickup first, invoice later",
+  "laundry_upfront": "Items paid upfront",
+  "laundry_pending_pickup": "Pick up bag",
+  "laundry_pickup_accepted": "Pickup accepted",
+  "laundry_pickup_rejected": "Pickup rejected",
+  "laundry_picked_up": "Picked up",
+  "laundry_invoice_sent": "Awaiting payment",
+  "laundry_ready_for_delivery": "Ready for delivery",
+  "laundry_out_for_delivery": "Out for delivery",
+  "laundry_delivered": "Delivered",
+  "laundry_accept_pickup": "Accept pickup",
+  "laundry_reject_pickup": "Reject pickup",
+  "laundry_mark_picked_up": "Mark as picked up",
+  "laundry_start_work": "Start laundry",
+  "laundry_mark_ready": "Ready for delivery",
+  "laundry_start_delivery": "Start delivery",
+  "laundry_mark_delivered": "Mark as delivered",
+  "laundry_complete": "Complete order",
+  "laundry_waiting_payment": "Waiting for customer payment. Refresh to check payment status.",
+  "laundry_payment_pending": "Payment pending",
+  "laundry_payment_unpaid": "Unpaid",
+  "laundry_payment_refunded": "Refunded",
+  "laundry_bags": "Number of bags",
+  "laundry_pickup_time": "Pickup date and time",
+  "laundry_items": "Laundry items",
+  "laundry_quantity": "Quantity",
+  "laundry_size": "Size",
+  "laundry_no_items": "Pickup without an item list",
+  "laundry_invoice": "Laundry invoice",
+  "laundry_create_invoice": "Create invoice",
+  "laundry_edit_invoice": "Edit draft invoice",
+  "laundry_draft": "Draft",
+  "laundry_sent": "Sent",
+  "laundry_save_draft": "Save draft",
+  "laundry_send_invoice": "Send invoice",
+  "laundry_invoice_help": "Choose items from your active catalog. Prices are calculated from your company price list when you save.",
+  "laundry_pickup_fee": "Pickup fee (KWD)",
+  "laundry_delivery_fee": "Delivery fee (KWD)",
+  "laundry_discount": "Discount (KWD)",
+  "laundry_subtotal": "Subtotal",
+  "laundry_platform_fees": "Platform fees",
+  "laundry_total": "Total",
+  "laundry_invoice_empty": "Add at least one laundry item",
+  "laundry_invoice_unavailable_item": "This invoice contains an inactive or changed item. Remove it and select an active catalog item.",
+  "laundry_cancel_order": "Cancel order",
+  "laundry_confirm_action": "Confirm this order status change?",
+  "laundry_refresh": "Refresh order",
+  "laundry_payment_status": "Payment status",
+  "laundry_invoice_status": "Invoice status",
+  "laundry_customer": "Customer",
+  "laundry_empty_orders": "No requests found",
+  "laundry_estimated_total": "Estimated total before platform fees",
+  "laundry_duplicate_items": "Combine quantities for the same item and size in one line.",
+  "laundry_whole_quantity": "Use a whole number of items.",
+  "laundry_enable_service": "Offer Laundry Service",
+  "laundry_enable_service_help": "Enable Laundry, select your service areas, then save this profile. Configure items and prices below before accepting orders.",
+  "laundry_revenue": "Laundry revenue",
+  "laundry_service_disabled_title": "Laundry is not enabled for customers",
+  "laundry_service_disabled_help": "Prepare your items and prices here, then enable Laundry in Company Profile, select your service areas and save the profile to receive orders.",
+  "laundry_admin_products": "Admin products",
+  "laundry_custom_items": "Your custom items",
+  "laundry_unavailable_admin": "Unavailable — disabled by admin",
+  "laundry_edit_prices": "Edit prices",
+  "laundry_admin_product_help": "The item and service names are managed by admin. Enable services for this item and enter your prices. Each price must be greater than zero.",
+  "laundry_use_default_price": "Use admin default price",
+  "laundry_default_price": "Admin price",
+  "laundry_company_price": "Your price (KWD)",
+  "laundry_reset_prices": "Reset all prices to admin defaults",
+  "laundry_send_invoice_confirm": "Send this invoice to the customer? Items and prices cannot be changed after sending.",
+  "registrationGiftApplied": "Registration gift applied • Funded by your company",
+  "registrationGiftAppliedAmount": "{amount} KD registration gift applied • Funded by your company",
+  "registrationGiftReserved": "Registration gift reserved • Funded by your company",
+  "registrationGiftReservedAmount": "{amount} KD registration gift reserved • Funded by your company",
+  "campaignDiscountAppliedAmount": "{amount} KD discount applied",
+  "campaignDiscountReservedAmount": "{amount} KD discount reserved",
+  "campaignCashbackAppliedAmount": "{amount} KD cashback applied",
+  "campaignCashbackReservedAmount": "{amount} KD cashback reserved",
+  "@registrationGiftAppliedAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@registrationGiftReservedAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@campaignDiscountAppliedAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@campaignDiscountReservedAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@campaignCashbackAppliedAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@campaignCashbackReservedAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "laundry_same_day": "Same Day",
+  "laundry_same_day_help": "Offer same-day service for orders booked before your cutoff time. Orders booked at or after the cutoff are not eligible.",
+  "laundry_same_day_enable": "Enable same-day service",
+  "laundry_same_day_cutoff": "Booking cutoff",
+  "laundry_same_day_select_cutoff": "Set booking cutoff",
+  "laundry_same_day_kuwait_time": "Kuwait time (24-hour format)",
+  "laundry_same_day_cutoff_required": "Choose a booking cutoff before enabling same-day service.",
+  "laundry_same_day_load_error": "Could not load same-day settings. Please try again.",
+  "laundry_same_day_save_error": "Settings were not saved. Please try again.",
+  "laundry_same_day_saved": "Same-day settings saved",
+  "laundry_shared_services": "Services",
+  "laundry_item_service": "Service",
+  "laundry_shared_services_help": "Enable the services you offer for this item and set each price. Service names are shared and managed by admin.",
+  "laundry_no_shared_services": "No services have been created by admin yet.",
+  "laundry_item_needs_service": "Enable and price at least one service before this item appears to customers.",
+  "laundry_legacy_pricing_help": "Existing item prices and options remain bookable when these services are off. Turn off the item to stop all bookings.",
+  "laundry_category": "Category",
+  "laundry_all_categories": "All categories",
+  "laundry_uncategorized": "Uncategorized",
+  "laundry_search_items": "Search items",
+  "laundry_no_matching_items": "No items match this category or search.",
+  "laundry_catalog_setup_needed": "Enable and price items in your Laundry catalog before creating an invoice.",
+  "laundry_bag_items_help": "Bag pickup — inspect the collected laundry, then add its items and services to the invoice.",
+  "laundry_invoice_category_help": "Choose a category to find items faster. Changing it only resets this invoice line.",
+  "laundry_invoice_invalid_discount": "Discount cannot exceed the items and collection/delivery fees.",
+  "laundry_invoice_estimate_help": "The server confirms current prices and platform fees when you save.",
+  "laundry_company_price_required": "Enter a company price",
+  "laundry_reload_invoice": "Reload saved invoice",
+  "laundry_reload_invoice_confirm": "Discard your unsaved invoice changes and review the latest saved invoice?",
+  "laundry_manage_catalog": "Manage Laundry catalog",
+  "laundry_configuration": "Laundry Configuration",
+  "laundry_working_hours": "Working Hours",
+  "laundry_pricing": "Pricing",
+  "laundry_configuration_help": "Set your working hours, booking availability and item prices.",
+  "laundry_working_hours_help": "Choose when customers can book a pickup. Hours repeat each week in Kuwait time.",
+  "laundry_available": "Available for bookings",
+  "laundry_availability_help": "When switched off, customers see Fully booked and cannot book your company.",
+  "laundry_settings_saved": "Laundry settings saved",
+  "laundry_settings_load_error": "Could not load laundry settings. Please try again.",
+  "laundry_hours_invalid": "Each time slot must end after it starts, without overlapping another slot on the same day. Use a separate slot on the next day for overnight hours. Use no more than 168 time slots per week.",
+  "laundry_hours_unrestricted": "No working hours have been set yet. Bookings are currently allowed all week. Edit the days below to limit pickup times.",
+  "laundry_day_open": "Open for pickups",
+  "laundry_day_closed": "Closed for pickups",
+  "laundry_minimum_charge": "Minimum order amount",
+  "laundry_minimum_charge_help": "Customers must add enough items to reach this amount. Pickup and delivery fees do not count. Bag pickups can be booked without items, but the invoice must meet this minimum before sending. Set 0 for no minimum.",
+  "laundry_minimum_charge_invalid": "Enter an amount from 0 to 100000 KWD with up to 3 decimal places.",
+  "laundry_minimum_invoice_help": "Add enough items to reach the minimum before sending. Fees do not count; you can still save a draft.",
+  "laundry_items_subtotal": "Items subtotal",
+  "laundry_catalog_loading": "Loading invoice items…",
+  "laundry_catalog_load_timeout": "Loading items took too long. Check your connection and try again. Your changes are kept.",
+  "laundry_catalog_load_error": "Could not load the item list. Try again. Your changes are kept.",
+  "laundry_bulk_prices": "Update multiple prices",
+  "laundry_bulk_prices_help": "Edit prices and item availability, then save all your changes together. Service availability stays the same.",
+  "laundry_bulk_prices_save": "Save all changes",
+  "laundry_bulk_prices_error": "Could not save the changes. Your edits are kept. Please try again.",
+  "laundry_bulk_prices_unsaved": "You have unsaved changes to prices or item availability.",
+  "laundry_bulk_prices_limit": "Update up to 200 items at a time. Save these changes before editing more items.",
+  "laundry_bulk_prices_invalid": "Enter a price from 0.001 to 10,000 KWD, using up to 3 decimal places."
 }

@@ -1,3 +1,5 @@
+import 'package:cleaning_service_driver/data/models/laundry/laundry_notification.dart';
+import 'package:cleaning_service_driver/features/screens/laundry/laundry_order_loader_screen.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -23,6 +25,9 @@ class NotificationsRepository {
   StreamSubscription<RemoteMessage>? _messageOpenedSubscription;
   Map<String, dynamic>? _pendingChatNotificationData;
   bool _openingPendingChatNotification = false;
+  String? _pendingLaundryRequestId;
+  bool _openingLaundryNotification = false;
+  bool _companyNavigationReady = false;
   bool _initialized = false;
   bool _notificationsActive = false;
   bool _tokenRegistrationCompleted = false;
@@ -273,7 +278,7 @@ class NotificationsRepository {
       onDidReceiveNotificationResponse: (response) async {
         final data = _payloadToMap(response.payload);
         if (data == null) return;
-        _openChatFromNotificationData(data);
+        _openNotificationData(data);
       },
     );
   }
@@ -309,7 +314,7 @@ class NotificationsRepository {
   }
 
   void _handleNotificationTap(RemoteMessage message) {
-    _openChatFromNotificationData(message.data);
+    _openNotificationData(message.data);
   }
 
   Map<String, dynamic>? _payloadToMap(String? payload) {
@@ -321,6 +326,48 @@ class NotificationsRepository {
       return {'screen': payload};
     }
     return null;
+  }
+
+  void _openNotificationData(Map<String, dynamic> data) {
+    final requestId = laundryRequestIdFromNotification(data);
+    if (requestId != null) {
+      _pendingLaundryRequestId = requestId;
+      unawaited(_flushLaundryNotification());
+      return;
+    }
+    _openChatFromNotificationData(data);
+  }
+
+  /// Wait for the authenticated shell so the splash redirect cannot replace
+  /// a request opened from a terminated-state notification.
+  void onCompanyNavigationReady() {
+    _companyNavigationReady = true;
+    unawaited(_flushLaundryNotification());
+  }
+
+  Future<void> _flushLaundryNotification({int attempt = 0}) async {
+    if (!_companyNavigationReady || _openingLaundryNotification) return;
+    final requestId = _pendingLaundryRequestId;
+    if (requestId == null) return;
+    final navigator = sl<GlobalKey<NavigatorState>>().currentState;
+    if (navigator == null) {
+      if (attempt < 20) {
+        await Future<void>.delayed(const Duration(milliseconds: 250));
+        return _flushLaundryNotification(attempt: attempt + 1);
+      }
+      return;
+    }
+    _openingLaundryNotification = true;
+    _pendingLaundryRequestId = null;
+    try {
+      unawaited(navigator.push(MaterialPageRoute(
+          builder: (_) => LaundryOrderLoaderScreen(requestId: requestId))));
+    } finally {
+      _openingLaundryNotification = false;
+      if (_pendingLaundryRequestId != null) {
+        unawaited(_flushLaundryNotification());
+      }
+    }
   }
 
   void _openChatFromNotificationData(Map<String, dynamic> data) {
@@ -437,6 +484,8 @@ class NotificationsRepository {
     await _messageOpenedSubscription?.cancel();
     _messageOpenedSubscription = null;
     _pendingChatNotificationData = null;
+    _pendingLaundryRequestId = null;
+    _companyNavigationReady = false;
 
     final storedToken = await SecureStorageService().getFcmToken();
     final deviceId = await SecureStorageService().getDeviceId();

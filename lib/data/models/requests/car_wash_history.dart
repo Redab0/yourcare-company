@@ -1,9 +1,12 @@
+import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
 import 'package:cleaning_service_driver/data/models/auth/address.dart';
 import 'package:cleaning_service_driver/data/models/customer/customer.dart';
 import 'package:cleaning_service_driver/data/models/requests/company_information.dart';
+import 'package:cleaning_service_driver/data/models/requests/request_invoice.dart';
 
 import 'cleaning_request.dart';
+import 'request_campaign.dart';
 
 class CarWashHistory implements CleaningRequest {
   @override
@@ -14,6 +17,9 @@ class CarWashHistory implements CleaningRequest {
   final RequestStatus requestStatus;
   @override
   final double totalPrice;
+
+  final bool registrationGiftApplied;
+  final RequestCampaign? campaign;
   @override
   final DateTime createdAt;
   @override
@@ -33,9 +39,13 @@ class CarWashHistory implements CleaningRequest {
   final bool awaitingExtraPayment;
   @override
   final String? extraPaymentUrl;
+  @override
+  final List<RequestInvoice> invoices;
 
   const CarWashHistory({
     this.id,
+    this.registrationGiftApplied = false,
+    this.campaign,
     this.type = 'carWash',
     required this.requestStatus,
     required this.totalPrice,
@@ -49,9 +59,11 @@ class CarWashHistory implements CleaningRequest {
     this.extraFeesDescription,
     this.awaitingExtraPayment = false,
     this.extraPaymentUrl,
+    this.invoices = const [],
   });
 
   factory CarWashHistory.fromJson(Map<String, dynamic> json) {
+    json = normalizeRequestInvoiceState(json);
     final detailJson = _asMap(json['CarWash'] ?? json['carWash']);
     final detail =
         detailJson == null ? null : CarWashHistoryDetail.fromJson(detailJson);
@@ -61,6 +73,10 @@ class CarWashHistory implements CleaningRequest {
 
     return CarWashHistory(
       id: _readId(json['id'] ?? json['_id'] ?? json['readableId']),
+      registrationGiftApplied: json['registrationGiftApplied'] == true,
+      campaign: _asMap(json['campaign']) == null
+          ? null
+          : RequestCampaign.fromJson(_asMap(json['campaign'])!),
       type: (json['type'] ?? 'carWash').toString(),
       requestStatus: requestStatusFromJson(json['requestStatus']?.toString()),
       totalPrice: _asDouble(json['totalPrice']),
@@ -69,7 +85,8 @@ class CarWashHistory implements CleaningRequest {
       customer: customerJson != null
           ? Customer.fromJson(customerJson)
           : Customer(id: rawCustomer is String ? rawCustomer : null),
-      scheduledTime: _asDate(json['scheduledTime']) ?? detail?.scheduledTime,
+      scheduledTime: tryParseKuwaitSchedule(json['scheduledTime']) ??
+          detail?.scheduledTime,
       companyInformation:
           companyJson == null ? null : CompanyInformation.fromJson(companyJson),
       detail: detail,
@@ -77,6 +94,7 @@ class CarWashHistory implements CleaningRequest {
       extraFeesDescription: _nonEmptyString(json['extraFeesDescription']),
       awaitingExtraPayment: _asBool(json['awaitingExtraPayment']),
       extraPaymentUrl: _nonEmptyString(json['extraPaymentUrl']),
+      invoices: _requestInvoices(json['invoices']),
     );
   }
 
@@ -90,6 +108,7 @@ class CarWashHistory implements CleaningRequest {
     String? extraFeesDescription,
     bool? awaitingExtraPayment,
     String? extraPaymentUrl,
+    List<RequestInvoice>? invoices,
   }) {
     return CarWashHistory(
       id: id,
@@ -106,6 +125,9 @@ class CarWashHistory implements CleaningRequest {
       extraFeesDescription: extraFeesDescription ?? this.extraFeesDescription,
       awaitingExtraPayment: awaitingExtraPayment ?? this.awaitingExtraPayment,
       extraPaymentUrl: extraPaymentUrl ?? this.extraPaymentUrl,
+      registrationGiftApplied: registrationGiftApplied,
+      campaign: campaign,
+      invoices: invoices ?? this.invoices,
     );
   }
 
@@ -115,12 +137,14 @@ class CarWashHistory implements CleaningRequest {
     required String extraFeesDescription,
     required bool awaitingExtraPayment,
     String? extraPaymentUrl,
+    List<RequestInvoice>? invoices,
   }) =>
       copyWith(
         extraFees: extraFees,
         extraFeesDescription: extraFeesDescription,
         awaitingExtraPayment: awaitingExtraPayment,
         extraPaymentUrl: extraPaymentUrl,
+        invoices: invoices,
         updatedAt: DateTime.now(),
       );
 
@@ -142,7 +166,20 @@ class CarWashHistory implements CleaningRequest {
           'extraFeesDescription': extraFeesDescription,
         'awaitingExtraPayment': awaitingExtraPayment,
         if (extraPaymentUrl != null) 'extraPaymentUrl': extraPaymentUrl,
+        'registrationGiftApplied': registrationGiftApplied,
+        if (campaign != null) 'campaign': campaign!.toJson(),
+        'invoices': invoices.map((invoice) => invoice.toJson()).toList(),
       };
+}
+
+List<RequestInvoice> _requestInvoices(Object? value) {
+  if (value is! List) return const [];
+  return value
+      .whereType<Map>()
+      .map((invoice) => RequestInvoice.fromJson(
+            Map<String, dynamic>.from(invoice),
+          ))
+      .toList(growable: false);
 }
 
 class CarWashHistoryDetail {
@@ -185,7 +222,7 @@ class CarWashHistoryDetail {
           : addressIdJson != null
               ? Address.fromJson(addressIdJson)
               : null,
-      scheduledTime: _asDate(json['scheduledTime']),
+      scheduledTime: tryParseKuwaitSchedule(json['scheduledTime']),
       totalPrice: _asNullableDouble(json['totalPrice']),
       specialNotes: _nonEmptyString(
         json['specialNotes'] ?? json['additionalInformation'],

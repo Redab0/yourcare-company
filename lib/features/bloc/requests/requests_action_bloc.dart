@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
 import 'dart:async';
 
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
@@ -95,8 +96,8 @@ class RequestsActionBloc
     emit(WorkerAvailabilityChecking(event.employeeId));
     try {
       final response = await getEmployeeCalendarUseCase.call(
-        startDate: event.scheduledTime,
-        endDate: event.scheduledTime,
+        startDate: kuwaitWallTime(event.scheduledTime),
+        endDate: kuwaitWallTime(event.scheduledTime),
         employeeId: event.employeeId,
       );
       final hasConflict = _hasConflict(
@@ -117,8 +118,8 @@ class RequestsActionBloc
     emit(const WorkersAvailabilityFiltering());
     try {
       final response = await getEmployeeCalendarUseCase.call(
-        startDate: event.scheduledTime,
-        endDate: event.scheduledTime,
+        startDate: kuwaitWallTime(event.scheduledTime),
+        endDate: kuwaitWallTime(event.scheduledTime),
       );
       final busy = _busyWorkerIds(
         response,
@@ -175,12 +176,14 @@ class RequestsActionBloc
     int durationHours,
   ) {
     final calendarDays = calendarResponse.calendar ?? [];
-    final start = scheduledTime;
+    final start = kuwaitInstant(scheduledTime);
     final safeDuration = durationHours > 0 ? durationHours : 1;
     final end = start.add(Duration(hours: safeDuration));
     for (final day in calendarDays) {
       final dayDate = day.date;
-      if (dayDate == null || !_isSameDay(dayDate, start)) continue;
+      if (dayDate == null || !_isSameDay(dayDate, kuwaitWallTime(start))) {
+        continue;
+      }
       final works = day.works ?? [];
       for (final work in works) {
         final status = work.requestStatus;
@@ -215,16 +218,17 @@ class RequestsActionBloc
   }) {
     final busy = <String>{};
     final calendarDays = calendarResponse.calendar ?? [];
-    final start = scheduledTime;
+    final start = kuwaitInstant(scheduledTime);
     final safeDuration = durationHours > 0 ? durationHours : 1;
     final end = start.add(Duration(hours: safeDuration));
     for (final day in calendarDays) {
       final dayDate = day.date;
-      if (dayDate == null || !_isSameDay(dayDate, start)) continue;
+      if (dayDate == null || !_isSameDay(dayDate, kuwaitWallTime(start))) {
+        continue;
+      }
       final works = day.works ?? [];
       for (final work in works) {
-        if (ignoreRequestId != null &&
-            work.requestId == ignoreRequestId) {
+        if (ignoreRequestId != null && work.requestId == ignoreRequestId) {
           continue;
         }
         final status = work.requestStatus;
@@ -281,5 +285,4 @@ class RequestsActionBloc
   bool _isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
-
 }

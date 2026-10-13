@@ -1,8 +1,14 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'registration_request.g.dart';
+
+@JsonSerializable(createFactory: false)
 class RegistrationRequest {
   final String name;
   final String email;
   final String password;
   final String phone;
+  @JsonKey(name: 'device_id')
   final String deviceId;
 
   RegistrationRequest({
@@ -13,13 +19,5 @@ class RegistrationRequest {
     required this.deviceId,
   });
 
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'email': email,
-      'password': password,
-      'phone': phone,
-      'device_id': deviceId,
-    };
-  }
+  Map<String, dynamic> toJson() => _$RegistrationRequestToJson(this);
 }

@@ -1,9 +1,9 @@
+import 'package:cleaning_service_driver/core/api/session_request_interceptor.dart';
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/utils/locale_cubit.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 /// A simple, reusable API client using Dio.
 /// You can extend this for auth, error handling, and logging.
@@ -33,46 +33,17 @@ class ApiClient {
             headers: {'Content-Type': 'application/json', 'channel': 'MANAGER'},
           ),
         ) {
-    // Optional: Add interceptors for logging or auth
-    _dio.interceptors.add(LogInterceptor(
-      responseBody: true,
-      requestBody: true,
+    _dio.interceptors.add(SessionRequestInterceptor(
+      readAccessToken: SecureStorageService().getAccessToken,
+      languageTag: () => sl<LocaleCubit>().state.toLanguageTag(),
     ));
-
-    // Example: Auth header interceptor (you can modify this)
-    _dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) async {
-          // Language (use the SAME LocaleCubit instance you provided to the app)
-          final langTag =
-              sl<LocaleCubit>().state.toLanguageTag(); // e.g. "ar" or "ar-AE"
-          final requestLanguage =
-              options.headers['Accept-Language']?.toString().trim();
-          final effectiveLanguage =
-              requestLanguage?.isNotEmpty == true ? requestLanguage! : langTag;
-          options.headers['Accept-Language'] = effectiveLanguage;
-          options.headers['locale'] = effectiveLanguage;
-          final token = await SecureStorageService().getAccessToken();
-          if (token != null) {
-            options.headers['Authorization'] = 'Bearer $token';
-          }
-
-          return handler.next(options);
-        },
-        onError: (DioException e, handler) {
-          // Handle global errors, e.g., token expired
-          return handler.next(e);
-        },
-      ),
-    );
     if (kDebugMode) {
-      _dio.interceptors.add(
-        PrettyDioLogger(
-            requestBody: true,
-            requestHeader: true,
-            responseHeader: true,
-            compact: false),
-      );
+      _dio.interceptors.add(LogInterceptor(
+        requestHeader: false,
+        requestBody: false,
+        responseHeader: false,
+        responseBody: false,
+      ));
     }
   }
 

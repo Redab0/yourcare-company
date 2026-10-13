@@ -13,6 +13,8 @@ class UpdateBusinessProfileModel {
   final String? email;
   final String? website;
   final List<String>? areas;
+  @JsonKey(includeIfNull: false)
+  final List<String>? services;
 
   UpdateBusinessProfileModel(
     this.name,
@@ -23,8 +25,9 @@ class UpdateBusinessProfileModel {
     this.phone,
     this.email,
     this.website,
-    this.areas,
-  );
+    this.areas, {
+    this.services,
+  });
 
   factory UpdateBusinessProfileModel.fromJson(Map<String, dynamic> json) =>
       _$UpdateBusinessProfileModelFromJson(json);

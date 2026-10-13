@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/date_time_picker_field.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
@@ -39,11 +40,11 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
   @override
   void initState() {
     super.initState();
-    final now = DateTime.now();
-    _focusedMonth = DateTime(now.year, now.month, 1);
+    final now = kuwaitNow();
+    _focusedMonth = DateTime.utc(now.year, now.month, 1);
     _startDate = _focusedMonth;
-    _endDate = DateTime(now.year, now.month + 1, 0);
-    _selectedDate = DateTime(now.year, now.month, now.day);
+    _endDate = DateTime.utc(now.year, now.month + 1, 0);
+    _selectedDate = DateTime.utc(now.year, now.month, now.day);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context
@@ -307,7 +308,7 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
 
   void _changeView(CalendarViewMode mode) {
     if (_viewMode == mode) return;
-    final anchor = _selectedDate ?? DateTime.now();
+    final anchor = _selectedDate ?? kuwaitNow();
     setState(() {
       _viewMode = mode;
       _setRangeForAnchor(anchor);
@@ -318,7 +319,7 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
   void _setRangeForAnchor(DateTime anchor) {
     final range = _rangeFor(anchor);
     _selectedDate = anchor;
-    _focusedMonth = DateTime(anchor.year, anchor.month, 1);
+    _focusedMonth = DateTime.utc(anchor.year, anchor.month, 1);
     _startDate = range.start;
     _endDate = range.end;
   }
@@ -334,8 +335,8 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
         return DateTimeRange(start: date, end: date);
       case CalendarViewMode.monthly:
       default:
-        final start = DateTime(date.year, date.month, 1);
-        final end = DateTime(date.year, date.month + 1, 0);
+        final start = DateTime.utc(date.year, date.month, 1);
+        final end = DateTime.utc(date.year, date.month + 1, 0);
         return DateTimeRange(start: start, end: end);
     }
   }
@@ -348,7 +349,7 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
   }
 
   DateTime _dateOnly(DateTime date) {
-    return DateTime(date.year, date.month, date.day);
+    return DateTime.utc(date.year, date.month, date.day);
   }
 
   Widget _buildSummary(BuildContext context, CalendarSummary summary) {
@@ -639,7 +640,7 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
         final total = dayData?.totalWorksCount ?? 0;
         final isSelected =
             _selectedDate != null && _isSameDay(_selectedDate!, date);
-        final isToday = _isSameDay(DateTime.now(), date);
+        final isToday = _isSameDay(kuwaitNow(), date);
         return Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -715,7 +716,7 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
           itemCount: 24,
           separatorBuilder: (_, __) => const SizedBox(height: 8),
           itemBuilder: (ctx, hour) {
-            final slotStart = DateTime(
+            final slotStart = DateTime.utc(
               selected.year,
               selected.month,
               selected.day,
@@ -793,9 +794,9 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
     final slotEnd = slotStart.add(const Duration(hours: 1));
     final matches = <CalendarWork>[];
     for (final work in works) {
-      final workStart = _toLocal(work.startTime ?? work.scheduledTime);
+      final workStart = _toKuwait(work.startTime ?? work.scheduledTime);
       if (workStart == null) continue;
-      DateTime? workEnd = _toLocal(work.endTime);
+      DateTime? workEnd = _toKuwait(work.endTime);
       if (workEnd == null &&
           work.durationHours != null &&
           work.durationHours! > 0) {
@@ -866,7 +867,8 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
         if (day.date != null) dateKeyFormat.format(day.date!): day,
     };
 
-    final firstOfMonth = DateTime(_focusedMonth.year, _focusedMonth.month, 1);
+    final firstOfMonth =
+        DateTime.utc(_focusedMonth.year, _focusedMonth.month, 1);
     final daysInMonth =
         DateUtils.getDaysInMonth(_focusedMonth.year, _focusedMonth.month);
     final weekdayFromSunday = firstOfMonth.weekday % 7;
@@ -889,13 +891,13 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
           return const SizedBox.shrink();
         }
         final date =
-            DateTime(_focusedMonth.year, _focusedMonth.month, dayNumber);
+            DateTime.utc(_focusedMonth.year, _focusedMonth.month, dayNumber);
         final key = dateKeyFormat.format(date);
         final dayData = dayMap[key];
         final total = dayData?.totalWorksCount ?? 0;
         final isSelected =
             _selectedDate != null && _isSameDay(_selectedDate!, date);
-        final isToday = _isSameDay(DateTime.now(), date);
+        final isToday = _isSameDay(kuwaitNow(), date);
         return InkWell(
           onTap: () => setState(() => _selectedDate = date),
           borderRadius: BorderRadius.circular(12),
@@ -1003,7 +1005,7 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
   }
 
   void _goToPreviousMonth() {
-    final prev = DateTime(_focusedMonth.year, _focusedMonth.month - 1, 1);
+    final prev = DateTime.utc(_focusedMonth.year, _focusedMonth.month - 1, 1);
     setState(() {
       _setRangeForAnchor(prev);
     });
@@ -1011,7 +1013,7 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
   }
 
   void _goToNextMonth() {
-    final next = DateTime(_focusedMonth.year, _focusedMonth.month + 1, 1);
+    final next = DateTime.utc(_focusedMonth.year, _focusedMonth.month + 1, 1);
     setState(() {
       _setRangeForAnchor(next);
     });
@@ -1075,9 +1077,9 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
     return aStart.isBefore(bEnd) && bStart.isBefore(aEnd);
   }
 
-  DateTime? _toLocal(DateTime? dateTime) {
+  DateTime? _toKuwait(DateTime? dateTime) {
     if (dateTime == null) return null;
-    return dateTime.isUtc ? dateTime.toLocal() : dateTime;
+    return kuwaitWallTime(dateTime);
   }
 
   Widget _buildWorkCard(BuildContext context, CalendarWork work) {
@@ -1158,9 +1160,9 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
     DateTime? end,
     DateTime? scheduled,
   ) {
-    final localStart = _toLocal(start);
-    final localEnd = _toLocal(end);
-    final localScheduled = _toLocal(scheduled);
+    final localStart = _toKuwait(start);
+    final localEnd = _toKuwait(end);
+    final localScheduled = _toKuwait(scheduled);
     if (localStart == null && localScheduled == null) return '';
     final locale = Localizations.localeOf(context).toLanguageTag();
     final timeFormat = DateFormat('hh:mm a', locale);
@@ -1247,10 +1249,10 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
   }
 
   Future<void> _pickDate({required bool isStart}) async {
-    final now = DateTime.now();
+    final now = kuwaitNow();
     final current = isStart ? _startDate : _endDate;
-    final minDate = DateTime(2000);
-    final maxDate = DateTime(now.year + 5);
+    final minDate = DateTime.utc(2000);
+    final maxDate = DateTime.utc(now.year + 5);
     final firstDate = isStart
         ? minDate
         : (_startDate.isAfter(minDate) ? _startDate : minDate);

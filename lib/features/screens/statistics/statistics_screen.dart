@@ -2,7 +2,7 @@ import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/date_time_picker_field.dart';
 import 'package:cleaning_service_driver/components/stats_overview.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
-import 'package:cleaning_service_driver/data/viewmodels/StatsVM.dart';
+import 'package:cleaning_service_driver/data/viewmodels/stats_vm.dart';
 import 'package:cleaning_service_driver/features/bloc/statistics/statistics_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/statistics/statistics_event.dart';
 import 'package:cleaning_service_driver/features/bloc/statistics/statistics_state.dart';
@@ -19,25 +19,13 @@ class StatisticsScreen extends StatefulWidget {
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
   Map<String, String> getPeriodLabels(BuildContext context) {
-    final Map<String, String> _periodLabels = {
+    return {
       'weekly': context.l10n.weekly,
       'monthly': context.l10n.monthly,
-      'quartarly': context.l10n.quarterly,
+      'quarterly': context.l10n.quarterly,
       'annually': context.l10n.annually,
       'lifetime': context.l10n.lifetime,
     };
-    return _periodLabels;
-  }
-
-  Map<String, String> getPeriodAPILabel(BuildContext context) {
-    final Map<String, String> _periodLabels = {
-      context.l10n.weekly: 'Weekly',
-      context.l10n.monthly: 'Monthly',
-      context.l10n.quarterly: 'Quarterly',
-      context.l10n.annually: 'Annually',
-      context.l10n.lifetime: 'Lifetime',
-    };
-    return _periodLabels;
   }
 
   String _periodType = 'monthly';
@@ -169,7 +157,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             height: 8,
           ),
           DropdownButtonFormField<String>(
-            value: _periodType,
+            initialValue: _periodType,
             decoration: InputDecoration(
               labelText: context.l10n.period_type,
             ),

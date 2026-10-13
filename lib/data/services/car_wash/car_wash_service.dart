@@ -20,13 +20,13 @@ abstract class CarWashService {
 
   @POST('/business/my-business/car-wash-packages')
   Future<ApiResponse<ResponsePayload<dynamic>>> createMyCarWashPackage(
-    @Body() Map<String, dynamic> request,
+    @Body() CarWashPackageMutationRequest request,
   );
 
   @PATCH('/business/my-business/car-wash-packages/{packageId}')
   Future<ApiResponse<ResponsePayload<dynamic>>> updateMyCarWashPackage(
     @Path('packageId') String packageId,
-    @Body() Map<String, dynamic> request,
+    @Body() CarWashPackageMutationRequest request,
   );
 
   @DELETE('/business/my-business/car-wash-packages/{packageId}')
@@ -36,12 +36,12 @@ abstract class CarWashService {
 
   @PATCH('/business/my-business/car-wash-pricing')
   Future<ApiResponse<ResponsePayload<dynamic>>> updateMyCarWashPricing(
-    @Body() Map<String, dynamic> request,
+    @Body() CarWashPricingAssignmentRequest request,
   );
 
   @POST('/business/my-business/car-wash-area-fees')
   Future<ApiResponse<ResponsePayload<dynamic>>> upsertMyCarWashAreaFee(
-    @Body() Map<String, dynamic> request,
+    @Body() CarWashAreaFeeRequest request,
   );
 
   @DELETE('/business/my-business/car-wash-area-fees/{areaId}')

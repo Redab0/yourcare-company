@@ -1,5 +1,5 @@
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
-import 'package:cleaning_service_driver/data/viewmodels/StatsVM.dart';
+import 'package:cleaning_service_driver/data/viewmodels/stats_vm.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -85,7 +85,7 @@ class _Slice {
 }
 
 class _LegendDot extends StatelessWidget {
-  const _LegendDot({required this.label, required this.color, super.key});
+  const _LegendDot({required this.label, required this.color});
   final String label;
   final Color color;
 

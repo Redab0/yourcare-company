@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -392,6 +393,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
       _emailCtrl.text,
       _websiteCtrl.text,
       _selectedAreaIds,
+      services: _enabledServiceTypes.toList(),
     );
     final bloc = context.read<BusinessProfileBloc>();
     bloc.add(UpdateProfileEvent(upd));
@@ -399,6 +401,8 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
 
   String _serviceTypeTitle(String serviceType) {
     switch (serviceType) {
+      case 'laundry':
+        return context.l10n.laundry_service;
       case 'deepCleaning':
         return '${context.l10n.deepCleaning} / التنظيف العميق';
       case 'houseCleaning':
@@ -645,6 +649,33 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                         ),
                         const SizedBox(height: 24),
                       ],
+
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(context.l10n.laundry_enable_service),
+                        subtitle:
+                            Text(context.l10n.laundry_enable_service_help),
+                        value: _enabledServiceTypes.contains('laundry'),
+                        onChanged: _profile == null
+                            ? null
+                            : (enabled) => setState(() {
+                                  if (enabled) {
+                                    _enabledServiceTypes.add('laundry');
+                                  } else {
+                                    _enabledServiceTypes.remove('laundry');
+                                  }
+                                }),
+                      ),
+                      Card(
+                        child: ListTile(
+                          leading:
+                              const Icon(Icons.local_laundry_service_outlined),
+                          title: Text(context.l10n.laundry_catalog),
+                          subtitle: Text(context.l10n.laundry_setup_help),
+                          onTap: () =>
+                              context.pushNamed('laundry-catalog-screen'),
+                        ),
+                      ),
 
                       // Areas multi‐select
                       Text(context.l10n.business_service_area),

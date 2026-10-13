@@ -59,7 +59,7 @@ class HomeMenuItem extends StatelessWidget {
         child: Image.asset(
           imageAsset,
           fit: BoxFit.contain,
-          color: Theme.of(context).primaryColor,
+          filterQuality: FilterQuality.medium,
         ),
       );
 

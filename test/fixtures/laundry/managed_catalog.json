@@ -1,0 +1,33 @@
+[
+  {
+    "_id": "6ac35f39a722395fe1227d27",
+    "productId": "6ac35f394ca692ee63915d34",
+    "source": "admin",
+    "configured": true,
+    "productActive": true,
+    "companyActive": true,
+    "active": true,
+    "nameEn": "Blanket",
+    "nameAr": "بطانية",
+    "unit": "item",
+    "usesDefaultPrice": true,
+    "sizes": [
+      {
+        "_id": "6ac35f394ca692ee63915d35",
+        "nameEn": "Small",
+        "nameAr": "صغير",
+        "defaultPrice": 0.5,
+        "price": 0.5,
+        "usesDefaultPrice": true
+      },
+      {
+        "_id": "6ac35f394ca692ee63915d36",
+        "nameEn": "Large",
+        "nameAr": "كبير",
+        "defaultPrice": 1.5,
+        "price": 1.25,
+        "usesDefaultPrice": false
+      }
+    ]
+  }
+]

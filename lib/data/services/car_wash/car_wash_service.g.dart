@@ -90,13 +90,13 @@ class _CarWashService implements CarWashService {
 
   @override
   Future<ApiResponse<ResponsePayload<dynamic>>> createMyCarWashPackage(
-    Map<String, dynamic> request,
+    CarWashPackageMutationRequest request,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(request);
+    _data.addAll(request.toJson());
     final _options = _setStreamType<ApiResponse<ResponsePayload<dynamic>>>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
@@ -127,13 +127,13 @@ class _CarWashService implements CarWashService {
   @override
   Future<ApiResponse<ResponsePayload<dynamic>>> updateMyCarWashPackage(
     String packageId,
-    Map<String, dynamic> request,
+    CarWashPackageMutationRequest request,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(request);
+    _data.addAll(request.toJson());
     final _options = _setStreamType<ApiResponse<ResponsePayload<dynamic>>>(
       Options(method: 'PATCH', headers: _headers, extra: _extra)
           .compose(
@@ -198,13 +198,13 @@ class _CarWashService implements CarWashService {
 
   @override
   Future<ApiResponse<ResponsePayload<dynamic>>> updateMyCarWashPricing(
-    Map<String, dynamic> request,
+    CarWashPricingAssignmentRequest request,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(request);
+    _data.addAll(request.toJson());
     final _options = _setStreamType<ApiResponse<ResponsePayload<dynamic>>>(
       Options(method: 'PATCH', headers: _headers, extra: _extra)
           .compose(
@@ -234,13 +234,13 @@ class _CarWashService implements CarWashService {
 
   @override
   Future<ApiResponse<ResponsePayload<dynamic>>> upsertMyCarWashAreaFee(
-    Map<String, dynamic> request,
+    CarWashAreaFeeRequest request,
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(request);
+    _data.addAll(request.toJson());
     final _options = _setStreamType<ApiResponse<ResponsePayload<dynamic>>>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(

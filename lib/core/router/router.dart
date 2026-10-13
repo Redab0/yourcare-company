@@ -1,3 +1,10 @@
+import 'package:cleaning_service_driver/features/screens/documents/documents_screen.dart';
+import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
+import 'package:cleaning_service_driver/features/screens/laundry/laundry_configuration_screen.dart';
+import 'package:cleaning_service_driver/features/screens/laundry/laundry_working_hours_screen.dart';
+import 'package:cleaning_service_driver/data/models/laundry/laundry_history.dart';
+import 'package:cleaning_service_driver/features/screens/laundry/laundry_catalog_screen.dart';
+import 'package:cleaning_service_driver/features/screens/laundry/laundry_job_details_screen.dart';
 import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
 import 'package:cleaning_service_driver/data/models/requests/deep_cleaning_history.dart';
 import 'package:cleaning_service_driver/data/models/requests/car_wash_history.dart';
@@ -77,6 +84,14 @@ class AppRouter {
       ),
 
       // Shell route with bottom navigation
+      GoRoute(path: '/documents', name: 'documents-center',
+        redirect: (_, __) async {
+          final storage = SecureStorageService();
+          if (await storage.getAccessToken() == null) return '/login';
+          final user = await storage.getUser();
+          return ['business_owner', 'manager'].contains(user?.role) && user?.businessId != null ? null : '/home';
+        },
+        builder: (_, __) => const DocumentsScreen()),
       ShellRoute(
         navigatorKey: shellNavigatorKey,
         builder: (context, state, child) {
@@ -108,6 +123,21 @@ class AppRouter {
             name: 'housekeeping-configuration-screen',
             builder: (context, state) =>
                 const HousekeepingConfigurationScreen(),
+          ),
+          GoRoute(
+            path: '/laundry-configuration',
+            name: 'laundry-main-screen',
+            builder: (_, __) => const LaundryConfigurationScreen(),
+          ),
+          GoRoute(
+            path: '/laundry-working-hours',
+            name: 'laundry-working-hours-screen',
+            builder: (_, __) => const LaundryWorkingHoursScreen(),
+          ),
+          GoRoute(
+            path: '/laundry-catalog',
+            name: 'laundry-catalog-screen',
+            builder: (_, __) => const LaundryCatalogScreen(),
           ),
           GoRoute(
             path: '/car-wash',
@@ -208,6 +238,12 @@ class AppRouter {
                 path: 'upholstery-cleaning-job',
                 builder: (_, s) => UpholsteryCleaningJobDetailsScreen(
                     request: s.extra! as UpholsteryCleaningHistory),
+              ),
+              GoRoute(
+                name: 'laundryJobDetails',
+                path: 'laundry-job',
+                builder: (_, state) => LaundryJobDetailsScreen(
+                    request: state.extra! as LaundryHistory),
               ),
               GoRoute(
                 name: 'carWashJobDetails',

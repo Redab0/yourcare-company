@@ -8,7 +8,8 @@ enum CompanyProvidedService {
   deepCleaning('deepCleaning'),
   houseCleaning('houseCleaning'),
   upholsteryCleaning('upholsteryCleaning'),
-  carWash('carWash');
+  carWash('carWash'),
+  laundry('laundry');
 
   final String apiValue;
 
@@ -31,12 +32,12 @@ enum CompanyProvidedService {
 
 enum BusinessHomeService {
   upcomingJobs(
-    imageAsset: 'assets/images/jobs.png',
+    imageAsset: 'assets/images/business_upcoming_jobs.png',
     requiredPermissions: [Permission.companyRequestsRead],
     requiredCompanyServices: CompanyProvidedService.values,
   ),
   cleaningRequests(
-    imageAsset: 'assets/images/requests.png',
+    imageAsset: 'assets/images/business_cleaning_requests.png',
     requiredPermissions: [
       Permission.availableRequestsRead,
       Permission.availableRequestsBrowse,
@@ -44,7 +45,7 @@ enum BusinessHomeService {
     requiredCompanyServices: [CompanyProvidedService.deepCleaning],
   ),
   houseKeepingConfiguration(
-    imageAsset: 'assets/images/ic_house_keeping_management.png',
+    imageAsset: 'assets/images/business_housekeeping_configuration.png',
     requiredPermissions: [
       Permission.cleanerAvailabilityRead,
       Permission.cleanerAvailabilityCreate,
@@ -57,7 +58,7 @@ enum BusinessHomeService {
     requiredCompanyServices: [CompanyProvidedService.houseCleaning],
   ),
   carWashConfiguration(
-    imageAsset: 'assets/images/ic_car_wash_config.png',
+    imageAsset: 'assets/images/business_car_wash_configuration.png',
     requiredPermissions: [
       Permission.companyProfileRead,
       Permission.companyProfileUpdate,
@@ -67,7 +68,7 @@ enum BusinessHomeService {
     requiredCompanyServices: [CompanyProvidedService.carWash],
   ),
   upholsteryConfiguration(
-    imageAsset: 'assets/images/ic_furniture_config.png',
+    imageAsset: 'assets/images/business_upholstery_configuration.png',
     requiredPermissions: [
       Permission.companyProfileRead,
       Permission.companyProfileUpdate,
@@ -76,8 +77,16 @@ enum BusinessHomeService {
     ],
     requiredCompanyServices: [CompanyProvidedService.upholsteryCleaning],
   ),
+  laundryConfiguration(
+    imageAsset: 'assets/images/business_laundry_configuration.png',
+    requiredPermissions: [
+      Permission.companyProfileRead,
+      Permission.companyProfileUpdate,
+    ],
+    requiredCompanyServices: [CompanyProvidedService.laundry],
+  ),
   autoBidding(
-    imageAsset: 'assets/images/ic_requests.png',
+    imageAsset: 'assets/images/business_auto_bidding.png',
     requiredPermissions: [
       Permission.autoBidRead,
       Permission.autoBidCreate,
@@ -88,7 +97,7 @@ enum BusinessHomeService {
     ],
   ),
   staffManagement(
-    imageAsset: 'assets/images/staff.png',
+    imageAsset: 'assets/images/business_staff_management.png',
     requiredPermissions: [
       Permission.staffRead,
       Permission.staffCreate,
@@ -107,14 +116,17 @@ enum BusinessHomeService {
     ],
   ),
   companyProfile(
-    imageAsset: 'assets/images/ic_business_profile.png',
+    imageAsset: 'assets/images/business_company_profile.png',
     requiredPermissions: [
       Permission.companyProfileRead,
       Permission.companyProfileUpdate,
     ],
   ),
+  documentsCenter(
+      imageAsset: 'assets/images/business_document_center.png',
+      requiredPermissions: []),
   reports(
-    imageAsset: 'assets/images/analytics.png',
+    imageAsset: 'assets/images/business_reports.png',
     requiredPermissions: [Permission.reportsRead],
   );
 
@@ -131,8 +143,17 @@ enum BusinessHomeService {
   bool canShow({
     required List<PermissionModel> permissions,
     required Set<CompanyProvidedService>? companyServices,
+    bool isBusinessOwner = false,
+    String? role,
   }) {
-    if (!permissions.hasAnyPermission(requiredPermissions)) return false;
+    if (this == BusinessHomeService.documentsCenter) {
+      return isBusinessOwner || role == 'manager';
+    }
+    if (!permissions.hasAnyPermission(requiredPermissions) &&
+        !(this == BusinessHomeService.laundryConfiguration &&
+            isBusinessOwner)) {
+      return false;
+    }
     if (requiredCompanyServices.isEmpty) return true;
     if (companyServices == null) return false;
     return requiredCompanyServices.any(companyServices.contains);
@@ -140,6 +161,8 @@ enum BusinessHomeService {
 
   String title(BuildContext context) {
     switch (this) {
+      case BusinessHomeService.documentsCenter:
+        return context.l10n.documentsCenter;
       case BusinessHomeService.upcomingJobs:
         return context.l10n.upcoming_jobs;
       case BusinessHomeService.cleaningRequests:
@@ -150,6 +173,8 @@ enum BusinessHomeService {
         return context.l10n.car_wash_configuration;
       case BusinessHomeService.upholsteryConfiguration:
         return context.l10n.upholstery_configuration;
+      case BusinessHomeService.laundryConfiguration:
+        return context.l10n.laundry_configuration;
       case BusinessHomeService.autoBidding:
         return context.l10n.auto_bidding;
       case BusinessHomeService.staffManagement:
@@ -163,6 +188,8 @@ enum BusinessHomeService {
 
   String setupGuideDescription(BuildContext context) {
     switch (this) {
+      case BusinessHomeService.documentsCenter:
+        return '';
       case BusinessHomeService.companyProfile:
         return context.l10n.business_setup_tour_profile;
       case BusinessHomeService.houseKeepingConfiguration:
@@ -171,6 +198,8 @@ enum BusinessHomeService {
         return context.l10n.business_setup_tour_car_wash;
       case BusinessHomeService.upholsteryConfiguration:
         return context.l10n.business_setup_tour_furniture;
+      case BusinessHomeService.laundryConfiguration:
+        return context.l10n.laundry_configuration_help;
       case BusinessHomeService.autoBidding:
         return context.l10n.business_setup_tour_auto_bid;
       case BusinessHomeService.staffManagement:
@@ -186,6 +215,9 @@ enum BusinessHomeService {
 
   void open(BuildContext context) {
     switch (this) {
+      case BusinessHomeService.documentsCenter:
+        context.pushNamed('documents-center');
+        break;
       case BusinessHomeService.upcomingJobs:
         context.pushNamed('jobs-main-screen');
         break;
@@ -200,6 +232,9 @@ enum BusinessHomeService {
         break;
       case BusinessHomeService.upholsteryConfiguration:
         context.pushNamed('upholstery-configuration-screen');
+        break;
+      case BusinessHomeService.laundryConfiguration:
+        context.pushNamed('laundry-main-screen');
         break;
       case BusinessHomeService.autoBidding:
         context.pushNamed('auto-bidding-screen');
@@ -222,6 +257,7 @@ const businessSetupTourOrder = <BusinessHomeService>[
   BusinessHomeService.houseKeepingConfiguration,
   BusinessHomeService.carWashConfiguration,
   BusinessHomeService.upholsteryConfiguration,
+  BusinessHomeService.laundryConfiguration,
   BusinessHomeService.autoBidding,
   BusinessHomeService.staffManagement,
   BusinessHomeService.cleaningRequests,

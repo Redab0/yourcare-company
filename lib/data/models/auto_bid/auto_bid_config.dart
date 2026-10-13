@@ -1,8 +1,15 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'auto_bid_config.g.dart';
+
+@JsonSerializable(createFactory: false, includeIfNull: false)
 class AutoBidOption {
   final String? categoryOptionId;
   final double? price;
   final int? expectedTimeInDays;
+  @JsonKey(includeToJson: false)
   final String? titleEn;
+  @JsonKey(includeToJson: false)
   final String? titleAr;
 
   const AutoBidOption({
@@ -23,13 +30,7 @@ class AutoBidOption {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      if (categoryOptionId != null) 'categoryOptionId': categoryOptionId,
-      if (price != null) 'price': price,
-      if (expectedTimeInDays != null) 'expectedTimeInDays': expectedTimeInDays,
-    };
-  }
+  Map<String, dynamic> toJson() => _$AutoBidOptionToJson(this);
 
   AutoBidOption copyWith({
     double? price,
@@ -45,6 +46,7 @@ class AutoBidOption {
   }
 }
 
+@JsonSerializable(createFactory: false, explicitToJson: true)
 class AutoBidDeepCleaningPricing {
   final List<AutoBidOption> departmentTypes;
   final List<AutoBidOption> bedrooms;
@@ -88,17 +90,7 @@ class AutoBidDeepCleaningPricing {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'departmentTypes': departmentTypes.map((e) => e.toJson()).toList(),
-      'bedrooms': bedrooms.map((e) => e.toJson()).toList(),
-      'bathrooms': bathrooms.map((e) => e.toJson()).toList(),
-      'kitchens': kitchens.map((e) => e.toJson()).toList(),
-      'livingRooms': livingRooms.map((e) => e.toJson()).toList(),
-      'numberOfFloors': numberOfFloors.map((e) => e.toJson()).toList(),
-      'sizeOptions': sizeOptions.map((e) => e.toJson()).toList(),
-    };
-  }
+  Map<String, dynamic> toJson() => _$AutoBidDeepCleaningPricingToJson(this);
 
   AutoBidDeepCleaningPricing copyWith({
     List<AutoBidOption>? departmentTypes,
@@ -131,9 +123,16 @@ class AutoBidDeepCleaningPricing {
   }
 }
 
+@JsonSerializable(
+  createFactory: false,
+  includeIfNull: false,
+  explicitToJson: true,
+)
 class AutoBidTypeOverride {
   final String? categoryTypeId;
+  @JsonKey(includeToJson: false)
   final String? titleEn;
+  @JsonKey(includeToJson: false)
   final String? titleAr;
   final List<AutoBidOption> sizes;
   final List<AutoBidOption> materials;
@@ -168,14 +167,7 @@ class AutoBidTypeOverride {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      if (categoryTypeId != null) 'categoryTypeId': categoryTypeId,
-      'sizes': sizes.map((e) => e.toJson()).toList(),
-      'materials': materials.map((e) => e.toJson()).toList(),
-      'conditions': conditions.map((e) => e.toJson()).toList(),
-    };
-  }
+  Map<String, dynamic> toJson() => _$AutoBidTypeOverrideToJson(this);
 
   AutoBidTypeOverride copyWith({
     List<AutoBidOption>? sizes,
@@ -193,6 +185,7 @@ class AutoBidTypeOverride {
   }
 }
 
+@JsonSerializable(createFactory: false, explicitToJson: true)
 class AutoBidUpholsteryPricing {
   final List<AutoBidTypeOverride> typeOverrides;
 
@@ -217,11 +210,7 @@ class AutoBidUpholsteryPricing {
     return AutoBidUpholsteryPricing.empty();
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'typeOverrides': typeOverrides.map((e) => e.toJson()).toList(),
-    };
-  }
+  Map<String, dynamic> toJson() => _$AutoBidUpholsteryPricingToJson(this);
 
   AutoBidUpholsteryPricing copyWith({
     List<AutoBidTypeOverride>? typeOverrides,
@@ -282,6 +271,11 @@ class AutoBidConfig {
   }
 }
 
+@JsonSerializable(
+  createFactory: false,
+  includeIfNull: false,
+  explicitToJson: true,
+)
 class AutoBidConfigRequest {
   final String serviceType;
   final bool isEnabled;
@@ -295,14 +289,5 @@ class AutoBidConfigRequest {
     this.upholsteryPricing,
   });
 
-  Map<String, dynamic> toJson() {
-    return {
-      'serviceType': serviceType,
-      'isEnabled': isEnabled,
-      if (deepCleaningPricing != null)
-        'deepCleaningPricing': deepCleaningPricing!.toJson(),
-      if (upholsteryPricing != null)
-        'upholsteryPricing': upholsteryPricing!.toJson(),
-    };
-  }
+  Map<String, dynamic> toJson() => _$AutoBidConfigRequestToJson(this);
 }

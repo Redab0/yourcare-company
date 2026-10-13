@@ -13,6 +13,13 @@ DeepCleaningHistory _$DeepCleaningHistoryFromJson(Map<String, dynamic> json) =>
       ($checkedConvert) {
         final val = DeepCleaningHistory(
           id: $checkedConvert('id', (v) => v as String?),
+          registrationGiftApplied: $checkedConvert(
+              'registrationGiftApplied', (v) => v as bool? ?? false),
+          campaign: $checkedConvert(
+              'campaign',
+              (v) => v == null
+                  ? null
+                  : RequestCampaign.fromJson(v as Map<String, dynamic>)),
           requestStatus: $checkedConvert(
               'requestStatus', (v) => $enumDecode(_$RequestStatusEnumMap, v)),
           totalPrice:
@@ -24,8 +31,10 @@ DeepCleaningHistory _$DeepCleaningHistoryFromJson(Map<String, dynamic> json) =>
               $checkedConvert('updatedAt', (v) => DateTime.parse(v as String)),
           detail: $checkedConvert('DeepCleaning',
               (v) => DeepCleaningDetail.fromJson(v as Map<String, dynamic>)),
-          scheduledTime: $checkedConvert('scheduledTime',
-              (v) => v == null ? null : DateTime.parse(v as String)),
+          scheduledTime: $checkedConvert(
+              'scheduledTime',
+              (v) => _$JsonConverterFromJson<String, DateTime>(
+                  v, const KuwaitScheduleConverter().fromJson)),
           customer: $checkedConvert(
               'customer', (v) => Customer.fromJson(v as Map<String, dynamic>)),
           assignedTeam: $checkedConvert(
@@ -61,6 +70,14 @@ DeepCleaningHistory _$DeepCleaningHistoryFromJson(Map<String, dynamic> json) =>
               'awaitingExtraPayment', (v) => v as bool? ?? false),
           extraPaymentUrl:
               $checkedConvert('extraPaymentUrl', (v) => v as String?),
+          invoices: $checkedConvert(
+              'invoices',
+              (v) =>
+                  (v as List<dynamic>?)
+                      ?.map((e) =>
+                          RequestInvoice.fromJson(e as Map<String, dynamic>))
+                      .toList() ??
+                  []),
         );
         return val;
       },
@@ -77,9 +94,12 @@ Map<String, dynamic> _$DeepCleaningHistoryToJson(
       'id': instance.id,
       'type': instance.type,
       'totalPrice': instance.totalPrice,
+      'registrationGiftApplied': instance.registrationGiftApplied,
+      'campaign': instance.campaign,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
-      'scheduledTime': instance.scheduledTime?.toIso8601String(),
+      'scheduledTime': _$JsonConverterToJson<String, DateTime>(
+          instance.scheduledTime, const KuwaitScheduleConverter().toJson),
       'customer': instance.customer,
       'DeepCleaning': instance.detail,
       'team': instance.assignedTeam,
@@ -92,6 +112,7 @@ Map<String, dynamic> _$DeepCleaningHistoryToJson(
       'extraFeesDescription': instance.extraFeesDescription,
       'awaitingExtraPayment': instance.awaitingExtraPayment,
       'extraPaymentUrl': instance.extraPaymentUrl,
+      'invoices': instance.invoices,
       'myBid': instance.myBid,
     };
 
@@ -106,6 +127,18 @@ const _$RequestStatusEnumMap = {
   RequestStatus.paid: 'paid',
   RequestStatus.unknown: 'unknown',
 };
+
+Value? _$JsonConverterFromJson<Json, Value>(
+  Object? json,
+  Value? Function(Json json) fromJson,
+) =>
+    json == null ? null : fromJson(json as Json);
+
+Json? _$JsonConverterToJson<Json, Value>(
+  Value? value,
+  Json? Function(Value value) toJson,
+) =>
+    value == null ? null : toJson(value);
 
 DeepCleaningDetail _$DeepCleaningDetailFromJson(Map<String, dynamic> json) =>
     $checkedCreate(
@@ -158,8 +191,10 @@ DeepCleaningDetail _$DeepCleaningDetailFromJson(Map<String, dynamic> json) =>
               $checkedConvert('additionalInformation', (v) => v as String?),
           photosAndVideos: $checkedConvert('photosAndVideos',
               (v) => (v as List<dynamic>?)?.map((e) => e as String).toList()),
-          scheduledTime: $checkedConvert('scheduledTime',
-              (v) => v == null ? null : DateTime.parse(v as String)),
+          scheduledTime: $checkedConvert(
+              'scheduledTime',
+              (v) => _$JsonConverterFromJson<String, DateTime>(
+                  v, const KuwaitScheduleConverter().fromJson)),
           area: $checkedConvert('area', (v) => v as String?),
           areaId: $checkedConvert('areaId', (v) => v as String?),
         );
@@ -179,7 +214,8 @@ Map<String, dynamic> _$DeepCleaningDetailToJson(DeepCleaningDetail instance) =>
       'address': instance.address,
       'additionalInformation': instance.additionalInformation,
       'photosAndVideos': instance.photosAndVideos,
-      'scheduledTime': instance.scheduledTime?.toIso8601String(),
+      'scheduledTime': _$JsonConverterToJson<String, DateTime>(
+          instance.scheduledTime, const KuwaitScheduleConverter().toJson),
       'area': instance.area,
       'areaId': instance.areaId,
     };
@@ -266,7 +302,9 @@ FrequencyDate _$FrequencyDateFromJson(Map<String, dynamic> json) =>
         final val = FrequencyDate(
           id: $checkedConvert('id', (v) => v as String?),
           date: $checkedConvert(
-              'date', (v) => v == null ? null : DateTime.parse(v as String)),
+              'date',
+              (v) => _$JsonConverterFromJson<String, DateTime>(
+                  v, const KuwaitScheduleConverter().fromJson)),
           status: $checkedConvert('status', (v) => v as String?),
         );
         return val;
@@ -276,6 +314,7 @@ FrequencyDate _$FrequencyDateFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$FrequencyDateToJson(FrequencyDate instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'date': instance.date?.toIso8601String(),
+      'date': _$JsonConverterToJson<String, DateTime>(
+          instance.date, const KuwaitScheduleConverter().toJson),
       'status': instance.status,
     };

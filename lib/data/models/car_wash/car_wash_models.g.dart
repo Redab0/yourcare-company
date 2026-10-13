@@ -82,20 +82,9 @@ Map<String, dynamic> _$CarWashPricingPackageToJson(
 Map<String, dynamic> _$CarWashPricingGroupToJson(
         CarWashPricingGroup instance) =>
     <String, dynamic>{
-      if (instance.stringify case final value?) 'stringify': value,
-      'hashCode': instance.hashCode,
       'vehicleTypeId': instance.vehicleTypeId,
       'packages': instance.packages,
-      'props': instance.props,
     };
-
-CarWashPricingRequest _$CarWashPricingRequestFromJson(
-        Map<String, dynamic> json) =>
-    CarWashPricingRequest(
-      pricing: (json['pricing'] as List<dynamic>)
-          .map((e) => CarWashPricingGroup.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
 
 CarWashWorkingHour _$CarWashWorkingHourFromJson(Map<String, dynamic> json) =>
     CarWashWorkingHour(
@@ -123,4 +112,59 @@ Map<String, dynamic> _$CarWashWorkingHoursRequestToJson(
         CarWashWorkingHoursRequest instance) =>
     <String, dynamic>{
       'hours': instance.hours,
+    };
+
+Map<String, dynamic> _$CarWashPackageWorkingHourToJson(
+        CarWashPackageWorkingHour instance) =>
+    <String, dynamic>{
+      'dayOfWeek': instance.dayOfWeek,
+      'startTime': instance.startTime,
+      'endTime': instance.endTime,
+    };
+
+Map<String, dynamic> _$CarWashPackageVehiclePriceToJson(
+        CarWashPackageVehiclePrice instance) =>
+    <String, dynamic>{
+      'vehicleTypeId': instance.vehicleTypeId,
+      'price': instance.price,
+    };
+
+Map<String, dynamic> _$CarWashPackageMutationRequestToJson(
+        CarWashPackageMutationRequest instance) =>
+    <String, dynamic>{
+      'titleEn': _trimRequestText(instance.titleEn),
+      'titleAr': _trimRequestText(instance.titleAr),
+      'descriptionEn': _trimRequestText(instance.descriptionEn),
+      'descriptionAr': _trimRequestText(instance.descriptionAr),
+      'pricing': instance.pricing.map((e) => e.toJson()).toList(),
+      'discountPercentage': instance.discountPercentage,
+      'duration': instance.duration,
+      'workingHours': instance.workingHours.map((e) => e.toJson()).toList(),
+      'enabled': instance.enabled,
+    };
+
+Map<String, dynamic> _$CarWashPricingPackageReferenceRequestToJson(
+        CarWashPricingPackageReferenceRequest instance) =>
+    <String, dynamic>{
+      'packageId': instance.packageId,
+    };
+
+Map<String, dynamic> _$CarWashPricingEntryRequestToJson(
+        CarWashPricingEntryRequest instance) =>
+    <String, dynamic>{
+      'vehicleTypeId': instance.vehicleTypeId,
+      'packages': instance.packages.map((e) => e.toJson()).toList(),
+    };
+
+Map<String, dynamic> _$CarWashPricingAssignmentRequestToJson(
+        CarWashPricingAssignmentRequest instance) =>
+    <String, dynamic>{
+      'pricing': instance.pricing.map((e) => e.toJson()).toList(),
+    };
+
+Map<String, dynamic> _$CarWashAreaFeeRequestToJson(
+        CarWashAreaFeeRequest instance) =>
+    <String, dynamic>{
+      'areaId': instance.areaId,
+      'fee': instance.fee,
     };

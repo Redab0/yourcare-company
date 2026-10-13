@@ -33,6 +33,28 @@ void main() {
 
     expect(find.text('Parent screen'), findsOneWidget);
   });
+
+  testWidgets('uses a custom back handler when one is provided',
+      (tester) async {
+    var pressed = false;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(
+            leading: BusinessBackButton(
+              fallbackRouteName: 'unused',
+              onPressed: () => pressed = true,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byType(BackButton));
+
+    expect(pressed, isTrue);
+  });
 }
 
 GoRouter _router({required String initialLocation}) {

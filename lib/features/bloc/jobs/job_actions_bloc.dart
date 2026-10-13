@@ -1,8 +1,10 @@
+import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
 import 'dart:async';
 
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/utils/loading_controller.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
+import 'package:cleaning_service_driver/core/utils/request_action_error.dart';
 import 'package:cleaning_service_driver/data/models/calendar/employee_calendar_response.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/add_extra_fees_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/assign_cleaners_usecase.dart';
@@ -10,6 +12,7 @@ import 'package:cleaning_service_driver/domain/usecases/jobs/assign_team_usecase
 import 'package:cleaning_service_driver/domain/usecases/jobs/cancel_job_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/complete_job_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/start_job_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/jobs/get_job_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/jobs/update_frequency_request_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/profile/business/upload_media_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/requests/get_employee_calendar_usecase.dart';
@@ -36,6 +39,7 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
   static const _extraFeesLoaderTag = 'extra-fees';
 
   JobActionsBloc() : super(JobActionsInitial()) {
+    on<RefreshJobEvent>(_onRefreshJob);
     on<StartJobEvent>(_onStartJob);
     on<CancelJobEvent>(_onCancelJob);
     on<CompleteJobEvent>(_onCompleteJob);
@@ -49,6 +53,19 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
     on<AddExtraFeesEvent>(_onAddExtraFees);
   }
 
+  Future<void> _onRefreshJob(
+      RefreshJobEvent event, Emitter<JobActionsState> emit) async {
+    _loader.show('refresh-request');
+    try {
+      final request = await sl<GetJobUseCase>().call(event.id);
+      emit(JobRefreshed(request));
+    } catch (e) {
+      emit(JobActionFailed(requestActionErrorMessage(e)));
+    } finally {
+      _loader.hide('refresh-request');
+    }
+  }
+
   FutureOr<void> _onStartJob(
       StartJobEvent event, Emitter<JobActionsState> emit) async {
     _loader.show();
@@ -58,7 +75,7 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
       emit(JobStarted(response));
     } catch (e) {
       _loader.hide();
-      emit(JobActionFailed("$e"));
+      emit(JobActionFailed(requestActionErrorMessage(e)));
     }
   }
 
@@ -85,7 +102,7 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
       emit(JobCompleted(response));
     } catch (e) {
       _loader.hide();
-      emit(JobActionFailed("$e"));
+      emit(JobActionFailed(requestActionErrorMessage(e)));
     }
   }
 
@@ -138,8 +155,8 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
     try {
       final workers = await getUsersUseCase.call(1, 100);
       final calendar = await getEmployeeCalendarUseCase.call(
-        startDate: event.scheduledTime,
-        endDate: event.scheduledTime,
+        startDate: kuwaitWallTime(event.scheduledTime),
+        endDate: kuwaitWallTime(event.scheduledTime),
       );
       final busy = _busyWorkerIds(
         calendar,
@@ -196,7 +213,7 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
       emit(MediaUploaded(response));
     } catch (e) {
       _loader.hide();
-      emit(JobActionFailed("Request Failed $e"));
+      emit(JobActionFailed(requestActionErrorMessage(e)));
     }
   }
 
@@ -210,7 +227,7 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
       emit(RequestFrequencyUpdated(response));
     } catch (e) {
       _loader.hide();
-      emit(JobActionFailed("$e"));
+      emit(JobActionFailed(requestActionErrorMessage(e)));
     }
   }
 
@@ -245,12 +262,14 @@ class JobActionsBloc extends Bloc<JobActionsEvent, JobActionsState> {
   }) {
     final busy = <String>{};
     final calendarDays = calendarResponse.calendar ?? [];
-    final start = scheduledTime;
+    final start = kuwaitInstant(scheduledTime);
     final safeDuration = durationHours > 0 ? durationHours : 1;
     final end = start.add(Duration(hours: safeDuration));
     for (final day in calendarDays) {
       final dayDate = day.date;
-      if (dayDate == null || !_isSameDay(dayDate, start)) continue;
+      if (dayDate == null || !_isSameDay(dayDate, kuwaitWallTime(start))) {
+        continue;
+      }
       final works = day.works ?? [];
       for (final work in works) {
         if (ignoreRequestId != null && work.requestId == ignoreRequestId) {

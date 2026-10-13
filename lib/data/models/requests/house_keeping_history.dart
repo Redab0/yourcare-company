@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
 // house_cleaning_history.dart
 
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
@@ -6,9 +7,11 @@ import 'package:cleaning_service_driver/data/models/customer/customer.dart';
 import 'package:cleaning_service_driver/data/models/requests/assigned_worker.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_item.dart';
 import 'package:cleaning_service_driver/data/models/requests/company_information.dart';
+import 'package:cleaning_service_driver/data/models/requests/request_invoice.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'cleaning_request.dart';
+import 'request_campaign.dart';
 
 part 'house_keeping_history.g.dart';
 
@@ -20,11 +23,15 @@ class HouseKeepingHistory implements CleaningRequest {
   final String? type;
   @override
   final double totalPrice;
+
+  final bool registrationGiftApplied;
+  final RequestCampaign? campaign;
   @override
   final DateTime createdAt;
   @override
   final DateTime updatedAt;
   @override
+  @KuwaitScheduleConverter()
   final DateTime scheduledTime;
   @override
   final Customer customer;
@@ -41,6 +48,9 @@ class HouseKeepingHistory implements CleaningRequest {
   final bool awaitingExtraPayment;
   @override
   final String? extraPaymentUrl;
+  @override
+  @JsonKey(defaultValue: <RequestInvoice>[])
+  final List<RequestInvoice> invoices;
 
   @JsonKey(name: 'cleaners')
   final List<AssignedWorker>? assignedWorker;
@@ -58,6 +68,8 @@ class HouseKeepingHistory implements CleaningRequest {
 
   HouseKeepingHistory({
     this.id,
+    this.registrationGiftApplied = false,
+    this.campaign,
     required this.requestStatus,
     required this.totalPrice,
     this.type,
@@ -74,6 +86,7 @@ class HouseKeepingHistory implements CleaningRequest {
     this.extraFeesDescription,
     this.awaitingExtraPayment = false,
     this.extraPaymentUrl,
+    this.invoices = const [],
   });
 
   HouseKeepingHistory copyWith({
@@ -91,6 +104,7 @@ class HouseKeepingHistory implements CleaningRequest {
     String? extraFeesDescription,
     bool? awaitingExtraPayment,
     String? extraPaymentUrl,
+    List<RequestInvoice>? invoices,
   }) {
     return HouseKeepingHistory(
         id: id ?? this.id,
@@ -109,7 +123,10 @@ class HouseKeepingHistory implements CleaningRequest {
         extraFees: extraFees ?? this.extraFees,
         extraFeesDescription: extraFeesDescription ?? this.extraFeesDescription,
         awaitingExtraPayment: awaitingExtraPayment ?? this.awaitingExtraPayment,
-        extraPaymentUrl: extraPaymentUrl ?? this.extraPaymentUrl);
+        extraPaymentUrl: extraPaymentUrl ?? this.extraPaymentUrl,
+        registrationGiftApplied: registrationGiftApplied,
+        campaign: campaign,
+        invoices: invoices ?? this.invoices);
   }
 
   @override
@@ -118,16 +135,18 @@ class HouseKeepingHistory implements CleaningRequest {
     required String extraFeesDescription,
     required bool awaitingExtraPayment,
     String? extraPaymentUrl,
+    List<RequestInvoice>? invoices,
   }) =>
       copyWith(
         extraFees: extraFees,
         extraFeesDescription: extraFeesDescription,
         awaitingExtraPayment: awaitingExtraPayment,
         extraPaymentUrl: extraPaymentUrl,
+        invoices: invoices,
       );
 
   factory HouseKeepingHistory.fromJson(Map<String, dynamic> json) =>
-      _$HouseKeepingHistoryFromJson(json);
+      _$HouseKeepingHistoryFromJson(normalizeRequestInvoiceState(json));
   Map<String, dynamic> toJson() => _$HouseKeepingHistoryToJson(this);
 }
 
@@ -138,6 +157,7 @@ class HouseKeepingDetail {
   final HouseKeepingOption? cleaningProducts;
   // final CleaningItem? pricePerCleaner;
   final Address? address;
+  @KuwaitScheduleConverter()
   final DateTime? scheduledTime;
   final String? specialNotes;
   final double? totalPrice;
@@ -161,6 +181,7 @@ class HouseKeepingDetail {
 @JsonSerializable()
 class FrequentRequestModel {
   String? id;
+  @KuwaitScheduleConverter()
   DateTime? date;
   RequestStatus? status;
 
@@ -183,7 +204,12 @@ class FrequentRequestModel {
   }
 
   factory FrequentRequestModel.fromJson(Map<String, dynamic> json) =>
-      _$FrequentRequestModelFromJson(json);
+      _$FrequentRequestModelFromJson({
+        ...json,
+        'id': (json['id'] as String?)?.trim().isNotEmpty == true
+            ? (json['id'] as String).trim()
+            : (json['_id'] as String?)?.trim(),
+      });
   Map<String, dynamic> toJson() => _$FrequentRequestModelToJson(this);
 }
 

@@ -85,7 +85,8 @@ class _HouseKeepingMainScreenState extends State<HouseKeepingMainScreen> {
                   description:
                       context.l10n.business_inner_tour_housekeeping_pricing,
                   tile: HomeMenuItem(
-                    imageAsset: 'assets/images/ic_house_keeping_pricing.png',
+                    imageAsset:
+                        'assets/images/business_housekeeping_pricing.png',
                     title: context.l10n.housekeeping_configuration,
                     onTap: () =>
                         context.pushNamed('housekeeping-configuration-screen'),
@@ -106,7 +107,7 @@ class _HouseKeepingMainScreenState extends State<HouseKeepingMainScreen> {
                   description: context
                       .l10n.business_inner_tour_housekeeping_availability,
                   tile: HomeMenuItem(
-                    imageAsset: 'assets/images/ic_employee_availability.png',
+                    imageAsset: 'assets/images/business_availability.png',
                     title: context.l10n.employee_availability,
                     onTap: () => context.pushNamed(
                       'employee-availability-screen',

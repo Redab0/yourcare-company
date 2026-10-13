@@ -7,6 +7,8 @@ class CleaningItemSummaryCard extends StatelessWidget {
   final String size;
   final String material;
   final String condition;
+  final bool showMaterial;
+  final bool showCondition;
   final Widget? mediaGallery;
 
   const CleaningItemSummaryCard({
@@ -16,6 +18,8 @@ class CleaningItemSummaryCard extends StatelessWidget {
     required this.size,
     required this.material,
     required this.condition,
+    this.showMaterial = true,
+    this.showCondition = true,
     this.mediaGallery,
   });
 
@@ -63,43 +67,45 @@ class CleaningItemSummaryCard extends StatelessWidget {
               label: context.l10n.size,
               value: size,
             ),
-            const SizedBox(height: 6),
-
-            // Material row
-            _InfoRow(
-              label: context.l10n.material,
-              value: material,
-            ),
-            const SizedBox(height: 6),
-
-            // Condition row (with pill)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  context.l10n.condition,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Text(
-                    condition,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey.shade800,
+            if (showMaterial) ...[
+              const SizedBox(height: 6),
+              _InfoRow(
+                label: context.l10n.material,
+                value: material,
+              ),
+            ],
+            if (showCondition) ...[
+              const SizedBox(height: 6),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    context.l10n.condition,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey.shade600,
                     ),
                   ),
-                ),
-              ],
-            ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      condition,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
             if (mediaGallery != null) ...[
               const SizedBox(height: 12),
               Divider(color: Colors.grey.shade300, height: 1),

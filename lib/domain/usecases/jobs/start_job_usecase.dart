@@ -6,11 +6,5 @@ class StartJobUseCase {
 
   StartJobUseCase(this.jobsRepository);
 
-  Future<CleaningRequest> call(String id) async {
-    try {
-      return await jobsRepository.startJob(id);
-    } catch (e) {
-      throw (Exception('Start Job Failed ${e.toString()}'));
-    }
-  }
+  Future<CleaningRequest> call(String id) => jobsRepository.startJob(id);
 }

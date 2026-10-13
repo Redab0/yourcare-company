@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/date_time_picker_field.dart';
 import 'package:cleaning_service_driver/components/detail_row.dart';
@@ -243,7 +244,7 @@ class _DeepCleaningRequestState extends State<DeepCleaningRequestScreen> {
                                 icon: Icons.calendar_today,
                                 hintText: context.l10n.date,
                                 onTap: () async {
-                                  final now = DateTime.now();
+                                  final now = kuwaitNow();
                                   final today =
                                       DateTime(now.year, now.month, now.day);
                                   final firstDate = now.hour >= 13
@@ -269,7 +270,7 @@ class _DeepCleaningRequestState extends State<DeepCleaningRequestScreen> {
                           )
                         : Text(
                             DateFormat.yMMMd().add_jm().format(
-                                  d.scheduledTime!,
+                                  kuwaitWallTime(d.scheduledTime!),
                                 ),
                             style: Theme.of(context).textTheme.bodyLarge),
                     const SizedBox(height: 24),
