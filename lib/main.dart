@@ -1,3 +1,7 @@
+import 'package:cleaning_service_driver/core/diagnostics/mobile_telemetry.dart';
+import 'package:cleaning_service_driver/core/diagnostics/app_diagnostics.dart';
+import 'package:cleaning_service_driver/core/api/api_environment.dart';
+import 'package:cleaning_service_driver/core/widgets/environment_banner.dart';
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/providers/app_bloc_provider.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
@@ -18,13 +22,21 @@ import 'core/utils/locale_cubit.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Ensure Firebase is available in isolates handling background notifications.
+  if (!ApiEnvironment.firebaseEnabled) return;
   await Firebase.initializeApp();
+  await MobileTelemetry.initialize();
 }
 
 void main() async {
+  ApiEnvironment.validate();
   WidgetsFlutterBinding.ensureInitialized();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  await Firebase.initializeApp();
+  AppDiagnostics.installErrorHandlers();
+  if (ApiEnvironment.firebaseEnabled) {
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    await Firebase.initializeApp();
+    await MobileTelemetry.initialize();
+    await FirebaseMessaging.instance.setAutoInitEnabled(true);
+  }
   await setupServiceLocator();
 
   // If already logged in, initialize notifications and register token.
@@ -70,7 +82,8 @@ class MyApp extends StatelessWidget {
               final scaler = AppTheme.textScalerForWidth(width);
               return MediaQuery(
                 data: MediaQuery.of(context).copyWith(textScaler: scaler),
-                child: child ?? const SizedBox.shrink(),
+                child:
+                    EnvironmentBanner(child: child ?? const SizedBox.shrink()),
               );
             },
             debugShowCheckedModeBanner: false,

@@ -65,7 +65,6 @@ class _CarWashMainScreenState extends State<CarWashMainScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: const BusinessBackButton(fallbackRouteName: 'home'),
-        backgroundColor: Theme.of(context).primaryColor,
         title: Text(context.l10n.car_wash_configuration),
         actions: [
           BusinessShowcaseHelpButton(onPressed: () => _tour.start(_tourKeys)),

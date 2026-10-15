@@ -66,26 +66,29 @@ class AppTheme {
 
       scaffoldBackgroundColor: backgroundLight,
 
-      // When a widget uses the "primary" color (e.g., AppBar), use cream for text/icons.
+      // Text and icons on primary brand surfaces use cream.
       primaryTextTheme: baseTextTheme.apply(
         bodyColor: cream,
         displayColor: cream,
       ),
       primaryIconTheme: const IconThemeData(color: cream),
 
-      // APP BAR: dark background, cream foreground (title + icons) + light status bar icons.
+      // Keep headers white with dark brand text, actions and status bar icons.
       appBarTheme: AppBarTheme(
-        backgroundColor: primary, // dark brand background
-        foregroundColor: cream, // title + icons
+        backgroundColor: surfaceLight,
+        foregroundColor: primary,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         titleTextStyle: baseTextTheme.titleLarge?.copyWith(
           fontWeight: FontWeight.bold,
-          color: cream,
+          color: primary,
         ),
-        iconTheme: const IconThemeData(color: cream),
-        actionsIconTheme: const IconThemeData(color: cream),
-        systemOverlayStyle:
-            SystemUiOverlayStyle.light, // status bar icons on dark bg
+        iconTheme: const IconThemeData(color: primary),
+        actionsIconTheme: const IconThemeData(color: primary),
+        systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
+          statusBarColor: surfaceLight,
+        ),
       ),
 
       textTheme: baseTextTheme,

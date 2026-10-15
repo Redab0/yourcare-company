@@ -70,7 +70,6 @@ class _CreateEditTeamScreenState extends State<CreateEditTeamScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
         title: Text(isEdit ? context.l10n.edit_team : context.l10n.create_team),
         leading: const BusinessBackButton(
           fallbackRouteName: 'staff-main-screen',

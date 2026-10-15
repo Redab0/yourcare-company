@@ -1,403 +1,117 @@
-# Business App Agent Handoff
+# YourCare company / service-provider app
 
-Updated: 2026-08-22
+## Shared technical-lead workflow
 
-This is the operational handoff for Codex agents working on the YourCare business/company Flutter app. Read it before editing. The older `README.md` contains generic and potentially stale demo-mode information; source code, tests, this file, and the live API contract are authoritative.
+Apply this workflow to each feature. The technical lead owns the shared brief, contract decisions, repository assignments and integrated verification.
 
-## Repository
+| Repository | Root in this workspace | Primary ownership |
+| --- | --- | --- |
+| Backend | `/Users/bshaqra/IdeaProjects/you-care-backend` | API contracts, authorization, persisted business rules, payments and events. |
+| Customer | `/Users/bshaqra/IdeaProjects/cleaning/customer/cleaning_service` | Customer discovery, booking, checkout and tracking. |
+| Provider (driver folder) | `/Users/bshaqra/IdeaProjects/cleaning/driver/cleaning_service_driver` | Company pricing, availability, offers, teams and fulfillment. |
+| Corporate admin | `/Users/bshaqra/StudioProjects/yourcare_corporate` | Administrative configuration, operations, permissions and reporting. |
 
-- App: YourCare business/company app
-- Package: `cleaning_service_driver`
-- Version: `2.0.1+1`
-- Path: `/Users/bshaqra/IdeaProjects/cleaning/driver/cleaning_service_driver`
-- Git branch: `develop`
-- Remote: `git@github.com:Redab0/yourcare-company.git`
-- Customer app: `/Users/bshaqra/IdeaProjects/cleaning/customer/cleaning_service`
-- Corporate/admin portal: `/Users/bshaqra/StudioProjects/yourcare_corporate`
+These are the actual repository roots; the attached `customer` and `driver` folders are parent directories. Resolve checkout paths when working on another machine.
 
-## Non-Negotiable Working Rules
+1. **Read before coordinating.** Before coordinating any cross-project feature, explicitly open and read the root `AGENTS.md` in **all four repositories**, plus applicable nested guidance. Do not substitute an earlier summary for those reads. Inspect each repository's current status and relevant existing diffs; preserve unrelated work.
+2. **Maintain one shared brief.** Reuse the feature's existing canonical brief or create `docs/features/<feature-id>/brief.md` in the backend repository. Record the problem, actors, scope/non-goals, acceptance criteria, affected repositories, dependencies, target environment and unresolved decisions. Link the same brief from assignments and handoffs rather than maintaining competing copies.
+3. **Maintain one shared API contract.** Reuse the canonical feature contract or create adjacent `api-contract.md` in the backend repository. Specify method/path, authentication/roles/ownership, headers, request and response examples, types, required/optional/null fields, envelopes, errors, pagination and identifiers. Include service discriminators, order/visit/payment transitions, KWD versus fils, Kuwait/UTC semantics, retries/idempotency and events where applicable. Record compatibility with installed clients, rollout order and migration needs. For a feature with no API changes, explicitly identify the existing contract and state that it is unchanged.
+4. **Resolve dependencies before implementation.** Compare actual backend controllers/DTOs/guards/serialization and affected client models/services with the shared contract. Distinguish proposed changes from current behavior and deployed availability. Resolve contract mismatches before dependent implementation; keep genuinely unresolved decisions visible. The lead updates the canonical contract and communicates revisions to every affected implementer.
+5. **Assign bounded work by repository.** In the brief, give each affected repository an owner, allowed scope/files, deliverables, contract dependencies, acceptance checks and handoff requirements. Mark each unaffected repository `no change` with a reason. Parallelize independent work with non-overlapping file ownership; keep shared-contract decisions with the lead. Each handoff reports changed files, contract impact, checks and open issues.
+6. **Verify the integrated journey.** Run the repository checks relevant to the change, then trace the affected journey across customer → backend → provider → admin as applicable, using a confirmed test environment and shared fixture/order identifiers. Check success, authorization failures, validation/errors, retries, payment/status consistency and relevant localization/time/money behavior. Record expected versus actual results, commands, environment and evidence in the brief. Identify checks that were blocked, mocked or not run; local suites alone do not establish an end-to-end pass.
+7. **Report by repository.** Report changes, validation results and open issues separately for backend, customer, provider and admin, including explicit `no change` entries. Follow with the integrated-journey result, remaining dependencies and rollout requirements. Do not claim completion of an unverified journey or imply that local changes have been deployed.
 
-- The working tree has substantial intentional uncommitted work. Run `git status --short` first.
-- Never reset, revert, clean, overwrite, or discard existing changes unless the user explicitly requests it.
-- If unrelated files change unexpectedly while working, stop and ask the user how to proceed.
-- Preserve existing architecture and visual language. Use `AppTheme`; do not introduce page-local color constants when a theme token belongs in the theme.
-- Use the app's rotating-logo loader for page/API loading. Do not add a native `CircularProgressIndicator` where the branded loader is expected.
-- Keep Arabic and English localization in sync. Do not hardcode user-facing strings.
-- Do not commit API keys, Firebase files, credentials, tokens, or other secrets.
-- Verify mutable backend contracts against live Swagger before implementing API changes.
-- Do not send API request bodies as raw `Map<String, dynamic>` or other generic `Map` payloads. Create explicit request-body model classes and generate serialization with `retrofit_generator`/`json_serializable`, matching the rest of the app.
-- Do not assume old embedded car-wash pricing contracts are still valid.
-- Do not add a second API request when already-loaded/cached data is available.
+## Scope and related projects
 
-## Current Working Tree
+This Flutter app (`cleaning_service_driver`) manages company profiles, service pricing and availability, staff/teams, bids, job fulfilment, invoices, documents and reports. It is the provider/business app, including worker workflows, despite the package's driver name.
 
-At handoff, the tree is intentionally dirty across Android/iOS project settings, car-wash package models/repository/UI, all request-detail screens, company availability, maps/share, localization, pubspec, and tests.
+Related repositories available in this workspace:
 
-Important new untracked source files at handoff:
+| Project | Local checkout | Responsibility and implementation |
+| --- | --- | --- |
+| Backend | `/Users/bshaqra/IdeaProjects/you-care-backend` | Shared APIs, authorization, booking/pricing, persisted order state and payment processing; NestJS modules/controllers/services, validated DTOs and Mongoose. |
+| Customer app | `/Users/bshaqra/IdeaProjects/cleaning/customer/cleaning_service` | Discovery, booking, checkout and order history; Flutter with BLoC, GetIt, GoRouter and Dio/Retrofit. |
+| Admin portal | `/Users/bshaqra/StudioProjects/yourcare_corporate` | Platform configuration, companies/users, request administration, refunds and analytics; also Flutter with BLoC/Cubit, repositories/use cases, GetIt, GoRouter and Dio/Retrofit. |
 
-- `lib/core/utils/share_utils.dart`
-- `lib/data/models/schedule/hourly_availability_schedule.dart`
+**Cross-project work:** agree on the feature brief, API request/response contract, authorization and order status changes across affected projects **before implementing dependent screens or endpoints**. Compare backend DTOs/controllers and affected clients; verify the target environment's contract. Report mismatches instead of guessing or copying another client's assumptions.
 
-Important currently modified areas:
+## Structure and conventions
 
-- `lib/features/screens/schedule/employee_availability_screen.dart`
-- `lib/features/bloc/schedule/employee_availability_bloc.dart`
-- `lib/features/bloc/schedule/employee_availability_state.dart`
-- `lib/data/models/car_wash/car_wash_models.dart`
-- `lib/data/repositories/car_wash/car_wash_repository.dart`
-- `lib/features/screens/car_wash/car_wash_pricing_screen.dart`
-- `lib/features/screens/jobs/*_job_details_screen.dart`
-- `lib/components/open_map_action.dart`
-- `lib/l10n/app_en.arb`
-- `lib/l10n/app_ar.arb`
-- generated localization files and related tests
-
-This list is a snapshot, not permission to modify or remove anything. Re-run `git status --short` for the actual state.
-
-## Stack And Structure
-
-- Flutter/Dart SDK constraint: `^3.6.1`
-- State: `flutter_bloc`, `equatable`
-- Navigation: `go_router`
-- DI: `get_it`
-- Network: `dio`, `retrofit`, `json_serializable`
-- Persistence: `flutter_secure_storage`, `shared_preferences`
-- Localization: Flutter gen-l10n, source ARB files in `lib/l10n`
-- Font: bundled `Zain`
-- Onboarding: `showcaseview: ^5.1.0`
-
-Primary entry points:
-
-| Concern | File |
+| Location | Purpose |
 | --- | --- |
-| App startup | `lib/main.dart` |
-| Dependency registration | `lib/core/di/dependency_injection.dart` |
-| Router | `lib/core/router/router.dart` |
-| API/Dio configuration | `lib/core/api/api_client.dart` |
-| Main navigation | `lib/features/screens/home/main_layout.dart` |
-| Home service policy | `lib/features/screens/home/business_home_service.dart` |
-| Theme | `lib/core/themes` |
-| API services | `lib/data/services` |
-| Repositories | `lib/data/repositories` and legacy `lib/data/repos` |
-| Screens | `lib/features/screens` |
-| BLoCs/Cubits | `lib/features/bloc` |
-| Localization source | `lib/l10n/app_en.arb`, `lib/l10n/app_ar.arb` |
+| `lib/main.dart` | Normal Firebase, dependency and app startup. |
+| `lib/core/` | API/session handling, DI, routing, storage, themes and shared helpers. |
+| `lib/data/models`, `lib/data/services`, `lib/data/repositories` | JSON models, Retrofit APIs and concrete repositories. |
+| `lib/domain/usecases` | Operations used by presentation logic. |
+| `lib/features/bloc`, `lib/features/screens` | BLoCs/Cubits and feature screens. |
+| `lib/components`, `lib/l10n`, `assets/` | Shared UI, bilingual localization and bundled assets. |
+| `test/`, `docs/`, `android/`, `ios/`, `web/` | Regression tests, feature notes and platform projects. |
 
-## Environment And Commands
+- Follow the existing screen → BLoC/Cubit → use case → repository → service/model flow. This is pragmatic Clean Architecture: use cases import concrete data repositories/models. Laundry has local Cubits calling repositories; chats also uses `lib/features/chats` and legacy `lib/data/repos`. Follow the relevant feature rather than imposing new layers.
+- Register dependencies in `lib/core/di/dependency_injection.dart`; preserve GetIt `sl` lifetimes (services/repositories generally lazy singletons, BLoCs generally factories). Shared providers live in `lib/core/providers/app_bloc_provider.dart`.
+- Use GoRouter routes in `lib/core/router/router.dart`, existing route names and typed extras. Preserve BLoC event/state, Equatable and `copyWith` patterns.
+- Reuse `AppTheme`, `BusinessBackButton`, `LoadingOverlay`/`AppIconSpinner` and existing onboarding helpers. Use `context.l10n`; update both `lib/l10n/app_en.arb` and `lib/l10n/app_ar.arb` and check RTL.
+- Keep company-profile caching through `CompanyProfileCubit.preload`/`setProfile`. Extend service/permission visibility in `lib/features/screens/home/business_home_service.dart` and its onboarding policy.
 
-Current API selection in `lib/core/api/api_client.dart`:
+## Setup and commands
 
-- Development: `https://dev-be-cleaning.yourcarehere.com/api`
-- Production constant: `https://be-cleaning.yourcarehere.com/api`
-- Current `baseUrl`: development
-- Business requests include `channel: MANAGER`
-- Locale is sent using `Accept-Language`
+Use a Flutter/Dart SDK satisfying the lockfile: `pubspec.yaml` declares Dart `^3.6.1`, but `pubspec.lock` requires Dart `>=3.9.0 <4.0.0` and Flutter `>=3.35.1`. Also provide the target platform toolchain. Android/iOS startup uses Firebase; retain the project's platform configuration and keep credentials out of commits. Android release signing is configured in `android/app/build.gradle`; iOS dependencies are in `ios/Podfile`.
 
-Live API documentation:
+Run from the repository root:
 
-- `https://dev-be-cleaning.yourcarehere.com/api/#/`
-
-Common commands:
-
-```bash
+```sh
 flutter pub get
+flutter run
+flutter build apk --debug
 flutter analyze
 flutter test
-flutter run
-flutter gen-l10n
+```
+
+Confirm the selected device and API environment before running; do not launch on the user's connected iPad unless requested. No custom task scripts were found. Lints come from `analysis_options.yaml` and `flutter_lints`.
+
+After changing JSON models or Retrofit declarations:
+
+```sh
 dart run build_runner build --delete-conflicting-outputs
 ```
 
-Run generators after changing Retrofit declarations or JSON-serializable models. API request bodies should use dedicated model classes, not generic `Map` bodies. Edit ARB files first, then run `flutter gen-l10n`; do not hand-maintain generated localization Dart unless the existing workflow requires it.
+After editing ARB localization sources:
 
-## Product Service Model
-
-Backend service discriminators are case-sensitive:
-
-| Service | API value | Booking behavior | Business setup |
-| --- | --- | --- | --- |
-| Deep cleaning | `deepCleaning` | Quote/bid based | Auto-bid and deep-cleaning requests |
-| Housekeeping | `houseCleaning` | Direct company booking | Pricing/config and hourly availability |
-| Furniture cleaning | `upholsteryCleaning` | Direct company booking, not bids | Furniture pricing/config and hourly availability support |
-| Car wash | `carWash` | Direct company/package booking | Packages, vehicle assignment, area fees, hourly availability |
-
-Do not make furniture cleaning bid-based. Deep cleaning remains the bid-based flow.
-
-## Startup, Profile Cache, And Navigation
-
-- Bottom navigation must remain two items only: Dashboard and Profile.
-- `MainLayout` preloads `/business/my-business` through `CompanyProfileCubit` when the app launches.
-- Chat/conversation bootstrap runs in the background and must not block the visible loading state.
-- Company Profile must consume the cached profile and must not call `/business/my-business` again when the cached value exists.
-- `CompanyProfileCubit.preload(force: false)` is the cache-aware path.
-- Profile updates must call `setProfile` so home visibility updates without a redundant fetch.
-
-## Home Service Visibility
-
-`CompanyProvidedService` contains:
-
-- `deepCleaning`
-- `houseCleaning`
-- `upholsteryCleaning`
-- `carWash`
-
-`BusinessHomeService` combines the company profile's `services` list with permissions. Preserve these rules:
-
-| Home item | Required company service |
-| --- | --- |
-| New requests / cleaning requests | `deepCleaning` |
-| Auto bidding | `deepCleaning` |
-| Housekeeping configuration | `houseCleaning` |
-| Furniture configuration | `upholsteryCleaning` |
-| Car-wash configuration | `carWash` |
-| Upcoming jobs | Any known provided service |
-
-If a company has only housekeeping, car-wash and furniture configuration entries must not appear. The New Requests entry is a deep-cleaning feature and must be hidden without deep cleaning.
-
-Furniture configuration uses `assets/images/ic_furniture_config.png`.
-
-## Showcase Onboarding
-
-- Core helper: `lib/features/onboarding/business_showcase.dart`
-- The setup tour must highlight only home entries already visible from the service/permission policy.
-- Inner setup journeys also contain showcase steps.
-- While a showcase is running, user interaction and back navigation are intentionally blocked using `BusinessShowcaseInteractionLock`, `AbsorbPointer`, and `PopScope` behavior.
-- Preserve the help/replay affordance.
-- New service setup entry points should be added to the same visibility policy and tour policy, not hardcoded separately.
-
-## Shared Hourly Availability
-
-Housekeeping and car wash now use the shared hourly availability screen:
-
-- UI: `lib/features/screens/schedule/employee_availability_screen.dart`
-- Mapper: `lib/data/models/schedule/hourly_availability_schedule.dart`
-- BLoC: `lib/features/bloc/schedule/employee_availability_bloc.dart`
-- Models: `lib/data/models/schedule/cleaner_availability.dart`
-
-Supported service values include `houseCleaning`, `carWash`, and `upholsteryCleaning`. Deep cleaning is intentionally excluded.
-
-API contract:
-
-```text
-GET    /company/cleaner-availability?serviceType={serviceType}
-POST   /company/cleaner-availability
-PATCH  /company/cleaner-availability/{id}
-DELETE /company/cleaner-availability/{id}
-```
-
-Create body:
-
-```json
-{
-  "dayOfWeek": 4,
-  "startHour": 8,
-  "endHour": 17,
-  "totalCleaners": 5,
-  "serviceType": "houseCleaning"
-}
-```
-
-Critical contract detail:
-
-- GET must include `serviceType` as a query parameter.
-- POST must include `serviceType` in the body.
-- PATCH of an existing slot must omit `serviceType`.
-
-Current UI behavior:
-
-- Seven selectable day chips.
-- Twenty-four compact one-line hourly rows per day.
-- Each row contains the hour, enabled switch, and worker-count field.
-- The day summary uses one compact toggle that enables or disables the entire day.
-- Disabling a day keeps a local backup; re-enabling before saving restores its previous hours and worker counts.
-- Enabling an empty day enables all hourly rows.
-- A compact copy/apply card opens a multi-day selector.
-- Copying applies the selected day independently to the chosen target days.
-- The screen keeps a local dirty draft and saves explicitly.
-- Only dirty days are replaced.
-- The mapper expands API ranges into hourly cells and compresses adjacent enabled cells with equal worker counts back into API ranges.
-
-Do not return to a separate house/car-wash availability implementation. The latest requested design is the compact single-toggle day summary.
-
-## Car-Wash Package Configuration
-
-Relevant API surface:
-
-```text
-GET    /business-categories/car-wash
-GET    /business/my-business/car-wash-packages
-POST   /business/my-business/car-wash-packages
-PATCH  /business/my-business/car-wash-packages/{packageId}
-DELETE /business/my-business/car-wash-packages/{packageId}
-PATCH  /business/my-business/car-wash-pricing
-POST   /business/my-business/car-wash-area-fees
-DELETE /business/my-business/car-wash-area-fees/{areaId}
-```
-
-Vehicle types come from the business-categories response. Show the localized vehicle name beside every package price field.
-
-Create/update package shape:
-
-```json
-{
-  "titleEn": "Exterior Wash",
-  "titleAr": "Localized title",
-  "descriptionEn": "Full exterior wash and dry",
-  "descriptionAr": "Localized description",
-  "pricing": [
-    {
-      "vehicleTypeId": "vehicle-id",
-      "price": 0
-    }
-  ],
-  "discountPercentage": 10,
-  "duration": 30,
-  "workingHours": [
-    {
-      "dayOfWeek": 0,
-      "startTime": "09:00",
-      "endTime": "21:00"
-    }
-  ]
-}
-```
-
-Rules:
-
-- A package has shared content and working hours but separate prices per vehicle type.
-- Vehicle price `0` is valid and must not fail validation.
-- Package working-hour selection uses dropdowns like company availability, not a clock picker.
-- Display the resolved/mapped price returned on package objects.
-
-Vehicle-package assignment body:
-
-```json
-{
-  "pricing": [
-    {
-      "vehicleTypeId": "vehicle-id",
-      "packages": [
-        {
-          "packageId": "package-id"
-        }
-      ]
-    }
-  ]
-}
-```
-
-Do not send `price` in `/business/my-business/car-wash-pricing`; assignment sends package IDs only.
-
-## Furniture Configuration
-
-Relevant APIs include:
-
-```text
-GET   /business-categories/active
-GET   /business/my-business/upholstery-packages
-PATCH /business/my-business/upholstery-pricing
-```
-
-Preserve the current UX:
-
-- Furniture config is a single page, not a page embedded inside another page.
-- Use `assets/images/ic_furniture_config.png`.
-- Use only the branded rotating-logo loader; do not stack two loaders.
-- All item sections start collapsed.
-- Expanding an item is separate from activating/enabling it.
-- A company can set prices for each item size.
-
-The direct furniture customer journey currently hides schedule selection. Business furniture request details should not present date/time as a customer-selected appointment while that policy is disabled.
-
-## Requests And Request Details
-
-Company list endpoint:
-
-```text
-GET /company/requests
-```
-
-Generic request actions live in `lib/data/services/jobs/jobs_service.dart`.
-
-Generic extra invoice endpoint:
-
-```text
-PATCH /requests/{id}/extra-fees
-```
-
-Use it for every request type. The action should appear only when a request is `confirmed` or `inProgress`. Do not restore type-specific extra-fee endpoints.
-
-Request-detail requirements:
-
-- Show special notes for all service types when present.
-- Car-wash details show localized vehicle type and package title from each `CarWash.vehicles` item.
-- Do not replace returned package/vehicle values with fixed labels.
-- Car-wash details may include package description, duration, mapped price, delivery fee, and extra fees.
-- Total displayed price must use the top-level request total where appropriate; do not silently show only `CarWash.totalPrice` when top-level extra fees make the request total larger.
-- Customer address and map location are currently restored in business request details.
-- Shared request text should include the Google Maps URL when coordinates are valid.
-
-## Maps And Sharing
-
-- Map action: `lib/components/open_map_action.dart`
-- iOS-safe share helper: `lib/core/utils/share_utils.dart`
-- Use `shareTextFrom(context, text)` so `share_plus` receives a non-null `sharePositionOrigin`, which is required for iPad/iOS popovers.
-- `OpenMapAction.googleMapsLink` rejects null, non-finite, out-of-range, and `(0, 0)` coordinates.
-- Use `https://www.google.com/maps/search/?api=1&query=lat,lng` in shared request text.
-- Do not build/run on the user's connected iPad unless explicitly requested; the user tests iOS sharing themselves.
-
-## Back Navigation
-
-Inner journeys must always expose a working back button. Prefer the shared `BusinessBackButton` with an appropriate fallback route. The user previously found that a back button disappeared after navigating config -> pricing -> back, so do not rely solely on an imperative navigator stack being present.
-
-## UI And Localization Conventions
-
-- Use `AppTheme` and existing components.
-- Use bundled assets for release-critical custom icons; unsupported runtime glyphs can become gray squares in signed builds.
-- Respect phone, foldable, and tablet widths. Prefer constraints/layout calculations over per-asset hardcoded offsets.
-- Keep text readable and avoid undersized labels.
-- Use direction-aware icons such as `Icons.arrow_forward_ios` only with explicit RTL handling or use directional back components.
-- The standard page loader is `AppIconSpinner` from `lib/components/loading_overlay.dart`.
-- Source localization changes go into both ARB files.
-
-## Verification
-
-Minimum validation after relevant changes:
-
-```bash
-dart format <changed-dart-files>
+```sh
 flutter gen-l10n
-flutter analyze
-flutter test
 ```
 
-For focused availability work:
+Use `dart format` with the changed Dart file paths. Regenerate generated Dart files instead of editing them manually. The README's older demo-mode claims are not a setup contract for normal authenticated startup.
 
-```bash
-flutter test test/data/models/schedule/cleaner_availability_test.dart
-flutter analyze lib/features/screens/schedule/employee_availability_screen.dart lib/data/models/schedule/hourly_availability_schedule.dart lib/features/bloc/schedule/employee_availability_bloc.dart
-```
+## Extending services
 
-At the last availability checkpoint, the focused analyzer was clean and the schedule tests passed. A prior full test run passed 62 tests. Full analysis has existing informational/warning debt, so distinguish pre-existing diagnostics from regressions and report both accurately.
+Trace the closest existing feature through all layers and its tests before adding a service. Preserve API discriminator spelling, typed request bodies, service/permission gates, localized configuration and request-detail routing.
 
-## Cross-App Coordination
+| Reference | API discriminator | Pattern to reuse |
+| --- | --- | --- |
+| Housekeeping | `houseCleaning` | `lib/data/services/housekeeping`: pricing, area fees and shared availability; recurring visits use their own `frequencyDateId`. |
+| Car Wash | `carWash` | `lib/data/services/car_wash`: standalone packages with vehicle-specific prices; vehicle assignments send package IDs without prices. Zero package prices are valid. |
+| Furniture Cleaning | `upholsteryCleaning` | `lib/data/services/upholstery`: category/item-size pricing; preserve existing request presentation helpers. |
+| Deep Cleaning | `deepCleaning` | `lib/data/services/requests` and `lib/data/services/auto_bid`: offers and auto-bidding; New Requests and auto-bid home entries require this service. |
 
-When a backend request/response model changes, inspect all three clients where relevant:
+Shared hourly availability in `lib/data/services/schedule` supports housekeeping, car wash and furniture: GET includes `serviceType` in the query, create includes it in the body, update omits it. Laundry already exists under `lib/data/services/laundry`; preserve its separate invoice/payment/status flow described in `docs/laundry-status-flow-dev.md`.
 
-| Client | Path |
-| --- | --- |
-| Business app | `/Users/bshaqra/IdeaProjects/cleaning/driver/cleaning_service_driver` |
-| Customer app | `/Users/bshaqra/IdeaProjects/cleaning/customer/cleaning_service` |
-| Corporate/admin | `/Users/bshaqra/StudioProjects/yourcare_corporate` |
+## API, authentication, payments and status
 
-Do not copy implementation blindly. Preserve each app's role, authorization channel, route structure, and UI components.
+- Reuse `lib/core/api/api_client.dart` and `lib/core/api/session_request_interceptor.dart`: `channel: MANAGER`, secure-storage Bearer access token, `Accept-Language` and `locale`. Keep bounded credential lookup, cancellation and error handling. Do not assume automatic token refresh exists.
+- Check API selection before any network work: the current `ApiClient.baseUrl` selects production. It does not read `API_ENV`; a build define alone does not switch this client's environment.
+- `lib/main_documents_preview.dart` and `lib/main_laundry_preview.dart` require the API constant to select development. The preview command in `docs/laundry-status-flow-dev.md` that supplies only `API_ENV=development` does not switch this checkout.
+- Use dedicated JSON-serializable request models with Retrofit, not raw map bodies. Follow existing response wrappers and preserve server errors. Keep HTTP logging metadata-only and debug-only.
+- Use `lib/data/services/jobs/jobs_service.dart` and server-returned state for order actions. Normal start/completion follows confirmed → inProgress → completed; recurring housekeeping actions target the visit ID and must not fall back to the whole order when it is missing.
+- Reuse `lib/core/utils/request_status_enum.dart` and `lib/core/utils/request_helpers.dart` for presentation. Display aliases and unknown values do not establish valid outgoing transitions; confirm accepted values and permissions against backend DTOs before changing status actions.
+- Payment success comes from backend payment/invoice state. This app manages/displays invoices; checkout belongs to the customer flow and payment processing to the backend. Extra invoices are available for confirmed/inProgress requests and blocked by an unpaid prior invoice. Reuse total/invoice helpers and three-decimal KWD formatting.
+- Laundry completion requires both payment and invoice to be paid; shared terminal order status overrides stale laundry detail state. Do not apply generic job transitions to laundry.
+- Use `lib/core/utils/kuwait_schedule.dart`: store appointment instants in UTC and display Kuwait time; legacy offsetless timestamps mean Kuwait wall time. Do not serialize a display projection as a UTC instant.
 
-## Recommended First Steps For The Next Agent
+## Before reporting completion
 
-1. Read this file and the user's latest request.
-2. Run `git status --short` and inspect diffs in every file you need to touch.
-3. Trace the existing model -> service -> repository/use case -> BLoC -> screen flow before editing.
-4. Check live Swagger for any API request involving current backend work.
-5. Reuse existing theme, localization, branded loader, back button, and showcase helpers.
-6. Format and run focused tests/analyzer first, then broader checks when feasible.
-7. Summarize changed files, behavioral result, and any unrun validation without hiding pre-existing warnings.
+- Start with `git status --short`; preserve existing user changes and keep the diff scoped.
+- For code changes, format changed Dart files, run applicable generators, focused regression tests, then `flutter analyze` and `flutter test`. Build the affected platform when runtime/platform changes warrant it.
+- API changes must cover serialization/auth/status behavior; service UI changes must cover visibility, error/loading states and English/Arabic layouts. Existing coverage includes `test/data/services/api_request_body_typing_test.dart`, `test/data/services/request_status_actions_test.dart` and `test/features/screens/jobs/request_details_actions_test.dart`.
+- Review `git diff --check` and `git diff`. For documentation-only changes, verify named paths/commands and factual claims; app builds/tests are unnecessary unless behavior changed.
+- Report changed files, checks actually run, failures or unrun checks, and unresolved contract questions. Do not present old test counts or unverified deployment behavior as current evidence.

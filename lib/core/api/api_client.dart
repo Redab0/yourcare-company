@@ -1,9 +1,10 @@
+import 'package:cleaning_service_driver/core/api/api_diagnostics_interceptor.dart';
+import 'package:cleaning_service_driver/core/api/api_environment.dart';
 import 'package:cleaning_service_driver/core/api/session_request_interceptor.dart';
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/utils/locale_cubit.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 
 /// A simple, reusable API client using Dio.
 /// You can extend this for auth, error handling, and logging.
@@ -15,7 +16,7 @@ class ApiClient {
   static const String prod_baseUrl = 'https://be-cleaning.yourcarehere.com/api';
   static const String dev_baseUrl =
       'https://dev-be-cleaning.yourcarehere.com/api';
-  static const String baseUrl = dev_baseUrl;
+  static const String baseUrl = ApiEnvironment.apiUrl;
 
   /// Singleton instance
   static final ApiClient _instance = ApiClient._internal();
@@ -33,18 +34,12 @@ class ApiClient {
             headers: {'Content-Type': 'application/json', 'channel': 'MANAGER'},
           ),
         ) {
+    ApiEnvironment.validate();
+    _dio.interceptors.add(ApiDiagnosticsInterceptor());
     _dio.interceptors.add(SessionRequestInterceptor(
       readAccessToken: SecureStorageService().getAccessToken,
       languageTag: () => sl<LocaleCubit>().state.toLanguageTag(),
     ));
-    if (kDebugMode) {
-      _dio.interceptors.add(LogInterceptor(
-        requestHeader: false,
-        requestBody: false,
-        responseHeader: false,
-        responseBody: false,
-      ));
-    }
   }
 
   /// Expose Dio if you need full access

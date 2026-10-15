@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/api/stack_contract.dart';
 // 1) Define your enum and (de)serializer
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:flutter/material.dart';
@@ -78,18 +79,18 @@ extension RequestStatusX on RequestStatus {
   String toJson() {
     switch (this) {
       case RequestStatus.confirmed:
-        return 'confirmed';
+        return OrderStatus.confirmed.wireValue;
       case RequestStatus.pending:
-        return 'pending';
+        return OrderStatus.pending.wireValue;
       case RequestStatus.inProgress:
-        return 'inProgress';
+        return OrderStatus.inProgress.wireValue;
       case RequestStatus.completed:
-        return 'completed';
+        return OrderStatus.completed.wireValue;
       case RequestStatus.cancelled:
       case RequestStatus.canceled:
         return 'cancelled';
       case RequestStatus.notPaid:
-        return 'notPaid';
+        return OrderStatus.notPaid.wireValue;
       case RequestStatus.paid:
         return 'paid';
       case RequestStatus.unknown:

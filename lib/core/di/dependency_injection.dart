@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/api/api_environment.dart';
 import 'package:cleaning_service_driver/data/services/documents/documents_service.dart';
 import 'package:cleaning_service_driver/data/repositories/documents/documents_repository.dart';
 import 'package:cleaning_service_driver/domain/usecases/documents/documents_usecases.dart';
@@ -240,7 +241,7 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<NotificationsRepository>(
     () => NotificationsRepository(
       sl<NotificationsService>(),
-      FirebaseMessaging.instance,
+      ApiEnvironment.firebaseEnabled ? FirebaseMessaging.instance : null,
     ),
   );
 

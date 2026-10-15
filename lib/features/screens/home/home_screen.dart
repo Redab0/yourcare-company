@@ -16,7 +16,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../components/home_menu_item.dart';
 import '../../bloc/auth/auth_bloc.dart';
-import '../../bloc/auth/auth_event.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -165,17 +164,12 @@ class _HomePageState extends State<HomePage> {
               );
             },
           ),
-          backgroundColor: Theme.of(context).primaryColor,
           title: Text(context.l10n.your_care_business),
           actions: [
             IconButton(
               tooltip: context.l10n.business_setup_tour_restart,
               icon: const Icon(Icons.help_outline_rounded),
               onPressed: _startSetupTour,
-            ),
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () => context.read<AuthBloc>().add(LogoutEvent()),
             ),
           ],
         ),

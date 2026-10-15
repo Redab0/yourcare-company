@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/api/api_environment.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BusinessSetupTourStorage {
@@ -25,6 +26,7 @@ class BusinessSetupTourStorage {
 
   static String _key(String companyId, String journeyId) {
     final base = '${_keyPrefix}_v$currentVersion:$companyId';
-    return journeyId == dashboardJourney ? base : '$base:$journeyId';
+    return ApiEnvironment.storageKey(
+        journeyId == dashboardJourney ? base : '$base:$journeyId');
   }
 }

@@ -249,14 +249,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.0"
-  dartz:
-    dependency: "direct main"
-    description:
-      name: dartz
-      sha256: e6acf34ad2e31b1eb00948692468c30ab48ac8250e0f0df661e29f12dd252168
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.10.1"
   dbus:
     dependency: transitive
     description:
@@ -289,14 +281,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.8.0+1"
-  dio_cache_interceptor:
-    dependency: "direct main"
-    description:
-      name: dio_cache_interceptor
-      sha256: "1346705a2057c265014d7696e3e2318b560bfb00b484dac7f9b01e2ceaebb07d"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.5.1"
   dio_web_adapter:
     dependency: transitive
     description:
@@ -1133,14 +1117,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.3"
-  pretty_dio_logger:
-    dependency: "direct main"
-    description:
-      name: pretty_dio_logger
-      sha256: "36f2101299786d567869493e2f5731de61ce130faa14679473b26905a92b6407"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.4.0"
   protobuf:
     dependency: transitive
     description:

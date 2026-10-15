@@ -91,19 +91,13 @@ class _JobsScreenState extends State<JobsScreen>
             targetBorderRadius: BorderRadius.zero,
             child: TabBar(
               controller: _tabs,
+              labelColor: AppTheme.primary,
+              unselectedLabelColor: AppTheme.textSecondary,
               tabs: [
-                Tab(
-                    child: Text(context.l10n.confirmed,
-                        style: TextStyle(color: AppTheme.cream))),
-                Tab(
-                    child: Text(context.l10n.inprogress,
-                        style: TextStyle(color: AppTheme.cream))),
-                Tab(
-                    child: Text(context.l10n.completed,
-                        style: TextStyle(color: AppTheme.cream))),
-                Tab(
-                    child: Text(context.l10n.cancelled,
-                        style: TextStyle(color: AppTheme.cream))),
+                Tab(text: context.l10n.confirmed),
+                Tab(text: context.l10n.inprogress),
+                Tab(text: context.l10n.completed),
+                Tab(text: context.l10n.cancelled),
               ],
             ),
           ),

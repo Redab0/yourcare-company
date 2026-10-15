@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/api/upload_limits.dart';
 import 'dart:io';
 import 'dart:developer' as developer;
 
@@ -75,10 +76,9 @@ class BusinessProfileRepository {
 
       if (response.success && response.data != null) {
         final apiGroups = response.data!.data ?? const [];
-        final profileGroups =
-            profile?.coveredServices ??
-                profileResponse?.data?.data?.coveredServices ??
-                const [];
+        final profileGroups = profile?.coveredServices ??
+            profileResponse?.data?.data?.coveredServices ??
+            const [];
         return _mergeAndDedupeCoveredGroups(
           apiGroups: apiGroups,
           profileGroups: profileGroups,
@@ -289,6 +289,8 @@ class BusinessProfileRepository {
 
   Future<List<MediaUploadResponse>> uploadMedia(List<File> files) async {
     try {
+      UploadLimits.validate(await Future.wait(
+          files.map((file) async => UploadFileSize(await file.length()))));
       final parts = files
           .map((f) => MultipartFile.fromFileSync(
                 f.path,

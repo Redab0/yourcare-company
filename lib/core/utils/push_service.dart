@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/api/api_environment.dart';
 // push_service.dart
 import 'dart:convert';
 
@@ -21,6 +22,7 @@ class PushService {
     String androidChannelName = 'General',
     String? appLabelForLogging,
   }) async {
+    if (!ApiEnvironment.firebaseEnabled) return;
     await Firebase.initializeApp();
 
     FirebaseMessaging.onBackgroundMessage(_bgHandler);

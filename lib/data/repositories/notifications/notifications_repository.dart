@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/api/api_environment.dart';
 import 'package:cleaning_service_driver/data/models/laundry/laundry_notification.dart';
 import 'package:cleaning_service_driver/features/screens/laundry/laundry_order_loader_screen.dart';
 import 'dart:async';
@@ -18,7 +19,8 @@ import 'package:uuid/uuid.dart';
 
 class NotificationsRepository {
   final NotificationsService _notificationsService;
-  final FirebaseMessaging _messaging;
+  final FirebaseMessaging? _firebaseMessaging;
+  FirebaseMessaging get _messaging => _firebaseMessaging!;
   final FlutterLocalNotificationsPlugin _localNotifications;
   StreamSubscription<String>? _tokenRefreshSubscription;
   StreamSubscription<RemoteMessage>? _foregroundMessageSubscription;
@@ -36,7 +38,7 @@ class NotificationsRepository {
 
   NotificationsRepository(
     this._notificationsService,
-    this._messaging, {
+    this._firebaseMessaging, {
     FlutterLocalNotificationsPlugin? localNotifications,
   }) : _localNotifications =
             localNotifications ?? FlutterLocalNotificationsPlugin();
@@ -54,6 +56,7 @@ class NotificationsRepository {
   static const String _apnsTokenNotSetCode = 'apns-token-not-set';
 
   Future<void> initializeAndRegister() async {
+    if (!ApiEnvironment.firebaseEnabled) return;
     if (_initialized) return;
     _notificationsActive = true;
     _tokenRegistrationCompleted = false;
@@ -76,8 +79,6 @@ class NotificationsRepository {
       if (savedDeviceId == null) {
         await SecureStorageService().saveDeviceId(deviceId);
       }
-      debugPrint('Prev saved FCM token: $prev');
-      debugPrint('Using deviceId: $deviceId');
 
       // Try immediate registration once, then keep retrying in background.
       final registered = await _tryRegisterCurrentToken(
@@ -92,7 +93,6 @@ class NotificationsRepository {
       await _tokenRefreshSubscription?.cancel();
       _tokenRefreshSubscription = _messaging.onTokenRefresh.listen((t) async {
         if (!_notificationsActive) return;
-        debugPrint('FCM token refreshed: $t');
         try {
           await _notificationsService.registerDeviceToken(
             RegisterToken(
@@ -105,7 +105,7 @@ class NotificationsRepository {
           _tokenRegistrationCompleted = true;
         } catch (e) {
           _tokenRegistrationCompleted = false;
-          debugPrint('Failed to register refreshed FCM token: $e');
+          debugPrint('Failed to register refreshed FCM token');
           _startTokenRegistrationRetryLoop(deviceId);
         }
       });
@@ -129,7 +129,7 @@ class NotificationsRepository {
     } catch (e) {
       _initialized = false;
       _notificationsActive = false;
-      debugPrint('Failed to initialize notifications: $e');
+      debugPrint('Failed to initialize notifications');
       rethrow;
     }
   }
@@ -163,7 +163,6 @@ class NotificationsRepository {
     if (!_notificationsActive) return false;
     try {
       final token = await _safeGetFcmToken();
-      debugPrint('DEVICE TOKEN: $token');
       final prev = previousToken ?? await SecureStorageService().getFcmToken();
       final tokenChanged = token != null && token != prev;
       debugPrint('FCM token changed locally? $tokenChanged');
@@ -186,7 +185,7 @@ class NotificationsRepository {
       return true;
     } catch (e) {
       _tokenRegistrationCompleted = false;
-      debugPrint('Failed to register current FCM token: $e');
+      debugPrint('Failed to register current FCM token');
       return false;
     }
   }
@@ -472,6 +471,7 @@ class NotificationsRepository {
   }
 
   Future<void> onLogoutCleanup() async {
+    if (!ApiEnvironment.firebaseEnabled) return;
     _notificationsActive = false;
     _tokenRegistrationCompleted = false;
     _tokenRetryLoopRunning = false;
@@ -503,7 +503,7 @@ class NotificationsRepository {
           ),
         );
       } catch (e) {
-        debugPrint('Failed to deactivate device token: $e');
+        debugPrint('Failed to deactivate device token');
       }
     }
 

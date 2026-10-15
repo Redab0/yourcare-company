@@ -41,7 +41,6 @@ class _HouseKeepingMainScreenState extends State<HouseKeepingMainScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: const BusinessBackButton(fallbackRouteName: 'home'),
-        backgroundColor: Theme.of(context).primaryColor,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             bottom: Radius.circular(10),

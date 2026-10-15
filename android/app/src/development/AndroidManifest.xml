@@ -1,0 +1,7 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+    <application>
+        <!-- No production Firebase project is initialized by development builds. -->
+        <provider android:name="com.google.firebase.provider.FirebaseInitProvider" tools:node="remove" />
+        <meta-data android:name="firebase_analytics_collection_deactivated" android:value="true" />
+    </application>
+</manifest>

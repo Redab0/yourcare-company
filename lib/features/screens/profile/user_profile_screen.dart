@@ -4,12 +4,14 @@ import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/data/models/auth/auth_user.dart';
 import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
 import 'package:cleaning_service_driver/features/bloc/auth/auth_bloc.dart';
+import 'package:cleaning_service_driver/features/bloc/auth/auth_event.dart';
 import 'package:cleaning_service_driver/features/bloc/auth/auth_state.dart';
 import 'package:cleaning_service_driver/features/bloc/profile/user/user_profile_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/profile/user/user_profile_event.dart';
 import 'package:cleaning_service_driver/features/chats/presentation/conversations_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../components/app_button.dart';
@@ -27,7 +29,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   late AuthUser user;
-  bool _showDeactivateAccount = true;
+  bool _showDeactivateAccount = false;
   static const _accountDeletionUrl =
       'https://yourcarehere.com/#/account-deletion';
 
@@ -68,7 +70,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       appBar: AppBar(
         title: Text(context.l10n.personal_information_title),
       ),
-      body: BlocBuilder<AuthBloc, AuthState>(
+      body: BlocConsumer<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is Unauthenticated) context.go('/login');
+        },
         builder: (context, authState) {
           context.read<UserProfileBloc>().add(GetUserEvent());
 
@@ -151,6 +156,18 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 onTap: _openAccountDeletion,
               ),
             ),
+          Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            child: ListTile(
+              leading: Icon(Icons.logout_rounded,
+                  color: Theme.of(context).colorScheme.error),
+              title: Text(
+                context.l10n.logout,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+              onTap: () => context.read<AuthBloc>().add(LogoutEvent()),
+            ),
+          ),
         ],
       ),
     );

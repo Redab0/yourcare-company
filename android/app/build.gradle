@@ -1,4 +1,5 @@
 plugins {
+    id "com.google.firebase.crashlytics"
     id "com.android.application"
     id "kotlin-android"
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -23,7 +24,25 @@ def googleMapsApiKey =
                 System.getenv('GOOGLE_MAPS_API_KEY') ?:
                 ""
 
+// Flutter passes --dart-define values to Gradle as base64 entries.
+def stackDartDefines = (project.findProperty('dart-defines') ?: '').toString().split(',')
+def stackApiEnvironment = 'production'
+stackDartDefines.findAll { !it.isEmpty() }.each { encoded ->
+    def decoded = new String(encoded.decodeBase64(), 'UTF-8')
+    if (decoded.startsWith('API_ENV=')) stackApiEnvironment = decoded.substring(8)
+}
+if (!(stackApiEnvironment in ['production', 'development'])) {
+    throw new GradleException('API_ENV must be production or development')
+}
+
 android {
+    if (stackApiEnvironment == 'development') {
+        sourceSets {
+            debug.manifest.srcFile 'src/development/AndroidManifest.xml'
+            release.manifest.srcFile 'src/development/AndroidManifest.xml'
+            profile.manifest.srcFile 'src/development/AndroidManifest.xml'
+        }
+    }
     namespace = "com.yourcarehere.partner"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
@@ -54,8 +73,8 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 26
         targetSdk = 36
-        versionCode = 25
-        versionName = "2.0.2"
+        versionCode = 27
+        versionName = "3.0.0"
         multiDexEnabled true
         manifestPlaceholders += [
                 GOOGLE_MAPS_API_KEY: googleMapsApiKey
@@ -91,5 +110,15 @@ configurations.all {
         // This stops old plugins from sneaking the broken library back in
         exclude group: 'com.google.android.play', module: 'core'
         exclude group: 'com.google.android.play', module: 'core-common'
+    }
+}
+
+// Symbol uploads are an explicit production release action, never part of dev validation.
+tasks.configureEach { task ->
+    if (task.name.startsWith('uploadCrashlytics')) {
+        task.onlyIf {
+            stackApiEnvironment == 'production' &&
+                project.findProperty('CRASHLYTICS_UPLOAD_SYMBOLS') == 'true'
+        }
     }
 }

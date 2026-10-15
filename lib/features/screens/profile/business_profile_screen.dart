@@ -383,6 +383,8 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
 
   void _onSave() {
     if (!_formKey.currentState!.validate()) return;
+    // Service activation belongs to configuration; omit it from this PATCH
+    // so saving profile details also preserves newer activation changes.
     final upd = UpdateBusinessProfileModel(
       _nameCtrl.text,
       _descCtrl.text,
@@ -393,7 +395,6 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
       _emailCtrl.text,
       _websiteCtrl.text,
       _selectedAreaIds,
-      services: _enabledServiceTypes.toList(),
     );
     final bloc = context.read<BusinessProfileBloc>();
     bloc.add(UpdateProfileEvent(upd));
@@ -650,22 +651,6 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                         const SizedBox(height: 24),
                       ],
 
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(context.l10n.laundry_enable_service),
-                        subtitle:
-                            Text(context.l10n.laundry_enable_service_help),
-                        value: _enabledServiceTypes.contains('laundry'),
-                        onChanged: _profile == null
-                            ? null
-                            : (enabled) => setState(() {
-                                  if (enabled) {
-                                    _enabledServiceTypes.add('laundry');
-                                  } else {
-                                    _enabledServiceTypes.remove('laundry');
-                                  }
-                                }),
-                      ),
                       Card(
                         child: ListTile(
                           leading:

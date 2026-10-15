@@ -749,7 +749,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get general_close => 'اغلق';
 
   @override
-  String get logout => 'تسحيل الخروج';
+  String get logout => 'تسجيل الخروج';
 
   @override
   String get change_language => 'غير اللغة';
@@ -884,7 +884,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get role => 'الدور: ';
 
   @override
-  String get your_care_business => 'Your Care شركات';
+  String get your_care_business => 'يوركير شركات';
 
   @override
   String get upcoming_jobs => 'عقود العمل';

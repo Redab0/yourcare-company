@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:developer' as developer;
 
-import 'package:cleaning_service_driver/core/api/api_client.dart';
+import 'package:cleaning_service_driver/core/api/api_environment.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/data/models/chats/chat_message_model.dart';
 import 'package:cleaning_service_driver/data/models/chats/conversation_model.dart';
@@ -29,7 +29,7 @@ class ChatSocketService {
   Stream<String> get statusStream => _statusController.stream;
 
   ChatSocketService({String? chatUrl})
-      : _chatUrl = chatUrl ?? _chatUrlFromApiBase(ApiClient.baseUrl);
+      : _chatUrl = chatUrl ?? ApiEnvironment.chatUrl;
 
   Future<void> connect() async {
     final token = await SecureStorageService().getAccessToken();
@@ -276,17 +276,5 @@ class ChatSocketService {
     return normalizedAck == null
         ? 'received'
         : normalizedAck.runtimeType.toString();
-  }
-
-  static String _chatUrlFromApiBase(String apiBaseUrl) {
-    final uri = Uri.parse(apiBaseUrl);
-    final segments = List<String>.from(uri.pathSegments);
-    if (segments.isNotEmpty && segments.last == 'api') {
-      segments.removeLast();
-    }
-    segments.add('chat');
-    return uri
-        .replace(pathSegments: segments, query: '', fragment: '')
-        .toString();
   }
 }
