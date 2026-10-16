@@ -19,7 +19,6 @@ Future<void> main() async {
   if (ApiClient.baseUrl != ApiClient.dev_baseUrl) {
     throw StateError('The laundry preview must use DEV');
   }
-  await SecureStorageService().upgradeProtection();
   await setupServiceLocator();
   runApp(_LaundryPreviewApp());
 }

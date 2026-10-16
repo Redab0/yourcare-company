@@ -247,16 +247,21 @@ void main() {
         data: {'phone': ' ٩٩٩٩٩٩٩٩ ', 'password': ' secret '},
         options: Options(
             followRedirects: true, headers: {'authorization': 'injected'}));
-    expect(valid.requestOptions.headers['Authorization'], 'Bearer secret');
+    expect(valid.requestOptions.headers['Authorization'], isNull);
     expect(
         valid.requestOptions.headers.keys
             .where((key) => key.toLowerCase() == 'authorization'),
-        hasLength(1));
+        isEmpty);
     expect(valid.requestOptions.followRedirects, isFalse);
     expect(valid.requestOptions.maxRedirects, 0);
     expect(valid.requestOptions.data['password'], ' secret ');
-    expect(reads, 1);
+    expect(reads, 0);
     expect(dispatches, 1);
+    final authenticated = await dio.get('/users');
+    expect(
+        authenticated.requestOptions.headers['Authorization'], 'Bearer secret');
+    expect(reads, 1);
+    expect(dispatches, 2);
   });
 
   test(
@@ -347,14 +352,16 @@ void main() {
   });
 
   test(
-      'secure-storage upgrade rewrites existing account entries once without changing credentials',
+      'secure-storage upgrade copies to a new envelope without rewriting legacy credentials',
       () async {
     FlutterSecureStorage.setMockInitialValues(
         {'access_token': 'exact-token', 'auth_user': '{}'});
     final storage = SecureStorageService();
     await storage.upgradeProtection();
     expect(await storage.getAccessToken(), 'exact-token');
-    expect(await storage.getString('secure_storage_policy_version'), '1');
+    expect(await storage.getString(SecureStorageService.sessionEnvelopeKey),
+        isNotNull);
+    expect(await storage.getString('access_token'), 'exact-token');
     await storage.upgradeProtection();
     expect(await storage.getAccessToken(), 'exact-token');
   });

@@ -1,0 +1,48 @@
+{
+  "provenance": "Disposable local backend HTTP fixtures. Signed with a fake fixture key; never production credentials.",
+  "legacyBearer": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YWQyNzNiZjY2YzFkYjRiNzI0NmZhODUiLCJpYXQiOjE3OTIxNzcwODgsIm5vbmNlIjoiNDBmYjYzZGYtNWU2ZS00ZWJhLWIwZmItNTgyYzA5NjY2YWE1In0.PSA-BA-xBiiOWl-yo4kHnGh3flPyCclBoO5q8B772bM",
+  "migration": {
+    "success": true,
+    "message": "Success",
+    "data": {
+      "user": {
+        "id": "6ad273bf66c1db4b7246fa85",
+        "username": "FIXTURE",
+        "phone": "60002222",
+        "role": "manager",
+        "enabled": true,
+        "businessId": "aaaaaaaaaaaaaaaaaaaaaaaa",
+        "addresses": [],
+        "permissions": [],
+        "createdAt": "2026-10-16T18:58:07.985Z",
+        "updatedAt": "2026-10-16T18:58:07.985Z"
+      },
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YWQyNzNiZjY2YzFkYjRiNzI0NmZhODUiLCJzdWIiOiI2YWQyNzNiZjY2YzFkYjRiNzI0NmZhODUiLCJqdGkiOiI4YmQ0ZjY1ZS0xMzUxLTQ1ODMtYTRkMC1hMzE5OTlkZTZhN2IiLCJpYXQiOjE3OTIxNzcwODgsImV4cCI6MTc5MjE3Nzk4OCwidiI6MiwicnYiOjEsImF1ZCI6InlvdXJjYXJlLWFwaSIsImlzcyI6InlvdXJjYXJlIn0.8HqGIzLGv5QWhZfqVH72sbxL_FiLOODdfx2jvKOu-SU",
+      "refreshToken": "8bd4f65e-1351-4583-a4d0-a31999de6a7b.1.A9tMqh17Hlrn7cI3wD-hoS53zgxHCFfdDCoTP1X3FQ4",
+      "accessExpiresAt": "2026-10-16T19:13:08.000Z",
+      "sessionId": "8bd4f65e-1351-4583-a4d0-a31999de6a7b"
+    }
+  },
+  "renewal": {
+    "success": true,
+    "message": "Success",
+    "data": {
+      "user": {
+        "id": "6ad273bf66c1db4b7246fa85",
+        "username": "FIXTURE",
+        "phone": "60002222",
+        "role": "manager",
+        "enabled": true,
+        "businessId": "aaaaaaaaaaaaaaaaaaaaaaaa",
+        "addresses": [],
+        "permissions": [],
+        "createdAt": "2026-10-16T18:58:07.985Z",
+        "updatedAt": "2026-10-16T18:58:07.985Z"
+      },
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YWQyNzNiZjY2YzFkYjRiNzI0NmZhODUiLCJzdWIiOiI2YWQyNzNiZjY2YzFkYjRiNzI0NmZhODUiLCJqdGkiOiI4YmQ0ZjY1ZS0xMzUxLTQ1ODMtYTRkMC1hMzE5OTlkZTZhN2IiLCJpYXQiOjE3OTIxNzcwODgsImV4cCI6MTc5MjE3Nzk4OCwidiI6MiwicnYiOjIsImF1ZCI6InlvdXJjYXJlLWFwaSIsImlzcyI6InlvdXJjYXJlIn0.eUgPLcM6hiLv0eiPW61euG68_S9_gUwZ4Lwf9O2kVks",
+      "refreshToken": "8bd4f65e-1351-4583-a4d0-a31999de6a7b.2.bofQYNcPWqt8WRXgQSZ4SMTNYgWX8JDuI3S-V2gvGrU",
+      "accessExpiresAt": "2026-10-16T19:13:08.000Z",
+      "sessionId": "8bd4f65e-1351-4583-a4d0-a31999de6a7b"
+    }
+  }
+}

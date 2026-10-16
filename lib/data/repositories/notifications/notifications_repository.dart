@@ -517,4 +517,16 @@ class NotificationsRepository {
       });
     }
   }
+
+  /// HTTP deactivation uses the captured credential on the dedicated session
+  /// transport after the durable tombstone. Native cleanup is account-scoped.
+  Future<void> onSignedOut({required int generation}) async {
+    await SecureStorageService().whileGenerationMatches(generation, () async {
+      try {
+        await _localNotifications
+            .cancelAll()
+            .timeout(const Duration(seconds: 1));
+      } catch (_) {/* Native tray cleanup remains best effort. */}
+    });
+  }
 }

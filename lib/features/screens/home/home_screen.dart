@@ -188,7 +188,6 @@ class _HomePageState extends State<HomePage> {
               }),
               BlocListener<AuthBloc, AuthState>(listener: (ctx, state) {
                 if (state is Unauthenticated) {
-                  SecureStorageService().clearAuthData();
                   context.go('/login');
                 }
               })

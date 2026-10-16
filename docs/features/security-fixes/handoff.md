@@ -11,13 +11,13 @@ Canonical scope/contract: [shared brief](/Users/bshaqra/IdeaProjects/you-care-ba
 - Exact configured HTTPS API origin and `/api` scope are enforced independently in both request and session interceptors. Original raw paths are validated before URI normalization and recursively decoded to reject traversal/path injection. Authenticated redirects are disabled; standard certificate validation remains intact. Socket origin and native WSS upgrade are restricted; a custom HTTP client prevents credentialed WebSocket redirect following. Incoming documents are capped at 10MiB while streaming before Dio buffers them.
 - Profile uploads use local count/size/total safeguards, filename checks, a bounded image signature probe and accurate MIME metadata. These local ceilings do **not** establish deployed backend upload validation. Safe store/contact/map/media link sinks avoid arbitrary schemes and credential-bearing URLs.
 - All application-authored console logging is removed. Diagnostics never retain records or execute sinks. Analytics and Crashlytics Flutter dependencies, direct native dependencies, Gradle plugins and symbol-upload hooks are removed, preventing older persisted SDK preferences from enabling startup collection. Firebase push/Remote Config remain. Native defensive disable flags remain in place. This does not promise silence from OS/framework/other third-party internals.
-- Android forbids cleartext and cloud/device-transfer backup. iOS removes arbitrary-load ATS allowance and uses `unlocked_this_device` keychain protection. A one-time migration rewrites existing known secure entries; changing constructor options alone would leave older accessibility attributes unchanged.
-- Session saves and clearing are serialized; token/user socket reads are atomic. Matching-token 401 cleanup cannot clear a newer login. Profile preload and external BLoC setters reject stale generations before cache/UI mutation. Socket generations prevent in-flight connects from reopening after logout. Account/user/FCM cache state is cleared while device identity, locale and permission preference remain.
+- Android forbids cleartext and cloud/device-transfer backup. iOS removes arbitrary-load ATS allowance and uses `unlocked_this_device` protection for new session records. Silent migration copies legacy credentials into new complete records, preserving the original until durable commit; it does not rewrite the only legacy key in place. Android encrypted storage has `resetOnError:false` to retain credentials on transient native errors.
+- Session saves and clearing are serialized; token/user socket reads are atomic. Only confirmed terminal auth codes clear a matching account/token; ordinary expiry renews silently and temporary/unclassified errors retain credentials. Profile preload and external BLoC setters reject stale generations before cache/UI mutation. Socket generations prevent in-flight connects from reopening after logout. Account/user/FCM cache state is cleared while device identity, locale and permission preference remain.
 - Manual logout captures its credential, deactivates cached device push registration while the bearer is valid, then calls typed `POST /auth/logout` with cancellation/timeout, and finally clears only that matching local session. Older/offline servers cannot block local cleanup. A token-read failure still attempts generation-matched local cleanup. Auth events are serialized. Notification handlers and tray cleanup are matched to the old account; non-cancellable native FCM token deletion is deliberately omitted to avoid late deletion of a new account's token.
 
 ## Contract/rollout
 
-Existing payloads/envelopes/status/payment/time/money semantics are unchanged. The coordinator-approved addition is authenticated `POST /api/auth/logout`, no body, 204 response; token-pinned notification deactivation uses the existing body plus Authorization header and cancellation. No remote logout occurs inside the session mutex or from 401 handling. The new backend session contract must be deployed coherently; legacy non-session tokens require a one-time re-login. Until then offline/404 revocation falls back to local cleanup. Client validation never establishes server authorization or trustworthy prices/payment state.
+Existing payloads/envelopes/status/payment/time/money semantics are unchanged. The agreed [persistent sign-in contract](/Users/bshaqra/IdeaProjects/you-care-backend/docs/features/security-fixes/session-renewal-contract.md) adds idempotent enrollment, rotating persistent refresh and refresh-proof revocation. Valid legacy bearers remain compatible while updated clients enroll silently; this upgrade has no forced re-login or routine seven-day/idle cutoff. Explicit logout durably tombstones locally before bounded captured-credential push deactivation/revocation. No remote call occurs inside the storage mutex. Offline/unsupported/transient responses retain login except for explicit local logout or confirmed terminal auth. Client validation never establishes server authorization or trustworthy prices/payment state.
 
 ## Verification
 
@@ -111,7 +111,7 @@ All original store-CI files were compared with `/private/tmp/yourcare-security-o
 - `test/core/security/numeric_draft_test.dart`
 
 
-## Follow-up: fail-closed session persistence after `f6d39a9`
+## Historical follow-up: fail-closed persistence after `f6d39a9` (superseded by silent renewal below)
 
 This follow-up is prepared separately for coordinator review. No native dependencies or API payloads changed.
 
@@ -124,3 +124,48 @@ Eight MethodChannel-level regressions exercise user-write failure, token-persist
 Evidence: `/private/tmp/provider-security-persistence-focused-final.log`, `/private/tmp/provider-security-persistence-full-final.log`, `/private/tmp/provider-security-persistence-analyze-final.log`. The final full pass includes the microtask queue publication fix and its synchronous callback regression. No further code changes followed this verification.
 
 Follow-up files: `lib/core/storage/secure_storage_service.dart`, `lib/core/router/router.dart`, `lib/main_documents_preview.dart`, `lib/main_laundry_preview.dart`, `test/core/security/session_persistence_test.dart`, and this handoff.
+
+
+## Persistent sign-in and silent renewal follow-up
+
+Implements the canonical [renewal contract](/Users/bshaqra/IdeaProjects/you-care-backend/docs/features/security-fixes/session-renewal-contract.md). Local source only; no deployment, production calls, store operations, staging or commits by the provider implementer. Prior counts above are historical; new verification is recorded separately below.
+
+- One shared coordinator performs single-flight legacy enrollment/refresh before API and socket use and on startup/foreground resume. Renewed access is proactive within 60 seconds of expiry; refresh credentials have no client inactivity or seven-day cutoff. A persistent operation UUID and exact input credential are committed before sending, retained through network loss/malformed replies/failed native commit, and reused after reconstruction. Temporary 400/403/404/429/5xx, timeouts and unclassified401 preserve committed credentials; unsupported404 uses a five-minute cooldown and other retry failures use 30 seconds.
+- Two complete device-only secure records are selected by monotonic persisted revision. Writes target the inactive record, so native DELETE+failed ADD cannot destroy the only current credential/recovery operation. Migration preserves legacy entries until durable replacement. Explicit logout cancels renewal at start, advances account generation, writes a signed-out tombstone before remote work, best-effort scrubs the other slot and deletes legacy keys with accessibility-independent queries. A tombstone prevents fallback even if cleanup fails. Physical keystore failure can still prevent a durable write/erase; it is surfaced without inventing successful persistence.
+- Same-account credential rotation preserves account generation, profile/chat caches and push state, while advancing credential revision. Conditional commits validate token/generation/recovery proof, identity, allowed provider role/enabled state, refresh session continuity, JWT syntax and expiry future <=1 hour plus 60 seconds tolerance. Client syntax checks do not verify signatures or establish authority. Password login remains its existing typed envelope and silently enrolls; a delayed login cannot undo logout or replace another account.
+- The first synchronous security interceptor pins account generation before later asynchronous gates. Credential preparation and confirmed-expiry retries verify that pin. At most one pre-handler `AUTH_ACCESS_EXPIRED` retry is allowed for recursively reusable JSON; streams and FormData are not automatically replayed. Unknown execution after network/5xx failure is never replayed. Only terminal machine codes clear captured matching account state.
+- A separate exact-origin HTTPS Dio transport has no session interceptors, disables redirects, bounds deadlines and streamed responses to1MiB, preserves locale, and requires an adapter provider. The production provider follows the main client's configured adapter, so injected local fakes also cover renewal. Explicit logout uses public refresh-proof family revocation where available, otherwise captured legacy Bearer logout; push deactivation uses the captured old bearer. No native noncancelable FCM deletion is started.
+- Socket startup renews first; explicit expiry renews/reconnects with the new bearer and stale callbacks are ignored. Temporary disconnect/auth-unavailable does not clear chats or login. Foreground/startup work does not require online renewal before opening cached signed-in state.
+
+Verification covers native MethodChannel failures (including DELETE+failed ADD), operation recovery/reconstruction, account switching and delayed password login, durable logout races, concurrency, temporary/terminal HTTP errors, proactive/lifecycle/socket behavior, malformed renewal data, exact-origin transport headers and chunked-response limits. The checked-in fixture `test/fixtures/session_renewal_provider.json` contains actual disposable local backend HTTP payloads and credentials signed by a fake fixture key; no production data. Tests use the fixture expiry as their clock reference.
+
+Final verification: focused security/session suite **90 passed**; DEV credential-isolation/telemetry suite **14 passed** with `API_ENV=development` and `TELEMETRY_ENABLED=true`. Full serial suite **406 passed / 13 failed**, with the exact same 13 failure names as the immediately preceding reviewed provider source (**359 passed / 13 failed**) and the original baseline (**319 passed / 13 failed**). This follow-up adds 47 passing tests. Analysis **61 findings**, the identical diagnostic set to the reviewed provider source, with zero added diagnostics/errors (original baseline68). `git diff --check` passes.
+
+Evidence: `/private/tmp/provider-renewal-focused-final.log`, `/private/tmp/provider-renewal-dev-final.log`, `/private/tmp/provider-renewal-full-final.log`, `/private/tmp/provider-renewal-analyze-final.log`. No generated model/service inputs changed, so no generator was required. No native build was run for this Dart-only follow-up; prior native evidence is not presented as a new build. No source changes followed these final checks.
+
+
+Follow-up changed files (pre-existing CI/version files excluded):
+
+- `docs/features/security-fixes/handoff.md`
+- `lib/core/api/api_client.dart`
+- `lib/core/api/session_error_interceptor.dart`
+- `lib/core/api/session_request_interceptor.dart`
+- `lib/core/di/dependency_injection.dart`
+- `lib/core/security/request_security_interceptor.dart`
+- `lib/core/security/session_credentials.dart`
+- `lib/core/security/session_lifecycle.dart`
+- `lib/core/security/session_renewal_coordinator.dart`
+- `lib/core/security/session_renewal_transport.dart`
+- `lib/core/storage/secure_storage_service.dart`
+- `lib/data/repositories/auth/auth_repository.dart`
+- `lib/data/repositories/notifications/notifications_repository.dart`
+- `lib/features/chats/data/chat_socket_service.dart`
+- `lib/features/screens/home/home_screen.dart`
+- `lib/main.dart`
+- `lib/main_documents_preview.dart`
+- `lib/main_laundry_preview.dart`
+- `test/core/security/logout_test.dart`
+- `test/core/security/request_security_test.dart`
+- `test/core/security/session_persistence_test.dart`
+- `test/core/security/session_renewal_test.dart`
+- `test/fixtures/session_renewal_provider.json`

@@ -3,6 +3,10 @@ import 'package:cleaning_service_driver/core/api/api_environment.dart';
 import '../security/request_security_interceptor.dart';
 import '../security/bounded_response_adapter.dart';
 import '../security/session_state.dart';
+import '../security/session_renewal_coordinator.dart';
+import '../security/session_renewal_transport.dart';
+import 'session_error_interceptor.dart';
+import '../../features/chats/data/chat_socket_service.dart';
 import 'package:cleaning_service_driver/core/api/session_request_interceptor.dart';
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
@@ -13,6 +17,7 @@ import 'package:dio/dio.dart';
 /// You can extend this for auth and error handling.
 class ApiClient {
   final Dio _dio;
+  late final SessionRenewalCoordinator sessions;
 
   /// Base URL for your API (change as needed)
   // static const String baseUrl = 'https://be-cleaning.yourcarehere.com/api';
@@ -42,27 +47,28 @@ class ApiClient {
         ) {
     ApiEnvironment.validate();
     _dio.httpClientAdapter = BoundedResponseAdapter(_dio.httpClientAdapter);
-    _dio.interceptors.add(RequestSecurityInterceptor());
+    sessions = SessionRenewalCoordinator(
+      storage: SecureStorageService(),
+      onTerminal: clearSessionState,
+      onRotated: () async {
+        if (sl.isRegistered<ChatSocketService>()) {
+          await sl<ChatSocketService>().refreshCredentials();
+        }
+      },
+      transport: DioSessionRenewalTransport(
+        adapter: () => _dio.httpClientAdapter,
+        languageTag: () => sl<LocaleCubit>().state.toLanguageTag(),
+      ),
+    );
+    _dio.interceptors.add(RequestSecurityInterceptor(
+        accountGeneration: () => sessions.storage.authGeneration));
     _dio.interceptors.add(ApiDiagnosticsInterceptor());
     _dio.interceptors.add(SessionRequestInterceptor(
-      readAccessToken: SecureStorageService().getAccessToken,
+      readAccessToken: () async => (await sessions.ensureSession())?.token,
+      accountGeneration: () => sessions.storage.authGeneration,
       languageTag: () => sl<LocaleCubit>().state.toLanguageTag(),
     ));
-    _dio.interceptors.add(InterceptorsWrapper(onError: (error, handler) async {
-      if (error.response?.statusCode == 401) {
-        final sent = error.requestOptions.headers['Authorization'];
-        if (sent is String && sent.startsWith('Bearer ')) {
-          try {
-            await SecureStorageService().clearAuthDataIfTokenMatches(
-                sent.substring(7),
-                onCleared: clearSessionState);
-          } catch (_) {
-            // Preserve the original API error if secure storage is unavailable.
-          }
-        }
-      }
-      handler.next(error);
-    }));
+    _dio.interceptors.add(SessionErrorInterceptor(sessions, _dio));
   }
 
   /// Expose Dio if you need full access

@@ -227,7 +227,7 @@ Future<void> setupServiceLocator() async {
 
   // Repos
   sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepository(sl<AuthService>()),
+    () => AuthRepository(sl<AuthService>(), sessions: sl<ApiClient>().sessions),
   );
 
   sl.registerLazySingleton<AutoBidCategoriesRepository>(

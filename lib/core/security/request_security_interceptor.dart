@@ -2,15 +2,23 @@ import 'package:dio/dio.dart';
 import '../api/api_environment.dart';
 import '../api/upload_limits.dart';
 import 'request_security.dart';
+import '../api/session_request_interceptor.dart';
 
 /// Runs before session credentials are read or attached.
 class RequestSecurityInterceptor extends Interceptor {
-  RequestSecurityInterceptor({this.trustedApiUrl = ApiEnvironment.apiUrl});
+  RequestSecurityInterceptor(
+      {this.trustedApiUrl = ApiEnvironment.apiUrl, this.accountGeneration});
   final String trustedApiUrl;
+  final int Function()? accountGeneration;
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     try {
+      if (accountGeneration != null) {
+        options.extra.putIfAbsent(
+            SessionRequestInterceptor.expectedGenerationKey,
+            () => accountGeneration!());
+      }
       RequestSecurity.destination(options, trustedApiUrl);
       final endpoint =
           options.uri.path.substring(Uri.parse(trustedApiUrl).path.length);

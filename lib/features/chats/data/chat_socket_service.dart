@@ -1,9 +1,10 @@
 import 'dart:async';
 import '../../../core/security/request_security.dart';
 import '../../../core/security/socket_transport.dart';
+import '../../../core/security/session_renewal_coordinator.dart';
+import '../../../core/api/api_client.dart';
 
 import 'package:cleaning_service_driver/core/api/api_environment.dart';
-import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/data/models/chats/chat_message_model.dart';
 import 'package:cleaning_service_driver/data/models/chats/conversation_model.dart';
 import 'package:cleaning_service_driver/data/models/chats/send_chat_message_request.dart';
@@ -18,6 +19,8 @@ class ChatSocketService {
   String? _currentUserId;
   String? _authHeader;
   int _generation = 0;
+  final SessionRenewalCoordinator? _sessions;
+  final io.Socket Function(String, Map<String, dynamic>) _socketFactory;
 
   final _messagesController = StreamController<ChatMessageModel>.broadcast();
   final _conversationController =
@@ -29,17 +32,28 @@ class ChatSocketService {
       _conversationController.stream;
   Stream<String> get statusStream => _statusController.stream;
 
-  ChatSocketService({String? chatUrl})
-      : _chatUrl = chatUrl ?? ApiEnvironment.chatUrl;
+  ChatSocketService(
+      {String? chatUrl,
+      SessionRenewalCoordinator? sessions,
+      io.Socket Function(String, Map<String, dynamic>)? socketFactory})
+      : _chatUrl = chatUrl ?? ApiEnvironment.chatUrl,
+        _sessions = sessions,
+        _socketFactory = socketFactory ?? io.io;
+
+  SessionRenewalCoordinator get _renewal => _sessions ?? ApiClient().sessions;
+
+  Future<void> refreshCredentials() async {
+    if (_socket == null) return;
+    await disconnect(keepStreams: true);
+    await connect();
+  }
 
   Future<void> connect() async {
     RequestSecurity.socketDestination(_chatUrl, ApiEnvironment.chatUrl);
     final generation = _generation;
-    final snapshot = await SecureStorageService()
-        .sessionSnapshot()
-        .timeout(_connectionTimeout);
-    final token = snapshot.token;
-    final user = snapshot.user;
+    final snapshot = await _renewal.ensureSession().timeout(_connectionTimeout);
+    final token = snapshot?.token;
+    final user = snapshot?.user;
     if (generation != _generation) return;
     _currentUserId = user?.id;
 
@@ -74,7 +88,7 @@ class ChatSocketService {
 
     _statusController.add('connecting');
 
-    final socket = io.io(
+    final socket = _socketFactory(
       _chatUrl,
       io.OptionBuilder()
           .setTransports(['websocket'])
@@ -92,22 +106,27 @@ class ChatSocketService {
     );
 
     socket.onConnect((_) {
+      if (generation != _generation || _socket != socket) return;
       _statusController.add('connected');
     });
 
     socket.onDisconnect((_) {
+      if (generation != _generation || _socket != socket) return;
       _statusController.add('disconnected');
     });
 
     socket.onConnectError((e) {
+      if (generation != _generation || _socket != socket) return;
       _statusController.add('error');
     });
 
     socket.onError((e) {
+      if (generation != _generation || _socket != socket) return;
       _statusController.add('error');
     });
 
     void handleIncoming(dynamic payload, String eventName) {
+      if (generation != _generation || _socket != socket) return;
       if (payload is! Map) return;
       final map = Map<String, dynamic>.from(payload);
 
@@ -121,6 +140,7 @@ class ChatSocketService {
     }
 
     void handleConversation(dynamic payload, String eventName) {
+      if (generation != _generation || _socket != socket) return;
       if (payload is! Map) return;
       final map = Map<String, dynamic>.from(payload);
 
@@ -137,6 +157,23 @@ class ChatSocketService {
         (p) => handleConversation(p, 'conversationUpdated'));
     socket.on('conversationClosed',
         (p) => handleConversation(p, 'conversationClosed'));
+    socket.on('auth_error', (payload) async {
+      if (generation != _generation || _socket != socket || payload is! Map) {
+        return;
+      }
+      final code = payload['code'];
+      if (code == 'AUTH_ACCESS_EXPIRED') {
+        final replacement =
+            await _renewal.ensureSession(force: true, expiredToken: token);
+        if (generation == _generation &&
+            replacement != null &&
+            replacement.token != token) {
+          await refreshCredentials();
+        }
+      } else if (SessionRenewalCoordinator.terminalCodes.contains(code)) {
+        await _renewal.rejectCapturedToken(token);
+      }
+    });
 
     _socket = socket;
     socket.connect();

@@ -1,13 +1,18 @@
 import 'package:cleaning_service_driver/core/api/api_environment.dart';
 import 'dart:convert';
+import '../security/session_credentials.dart';
 
 import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
 import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorageService {
+  static const androidOptions =
+      AndroidOptions(encryptedSharedPreferences: true, resetOnError: false);
   static int _authGeneration = 0;
   int get authGeneration => _authGeneration;
+  static int _credentialRevision = 0;
+  int get credentialRevision => _credentialRevision;
   static int _pendingAuthOperations = 0;
   static Future<void> _authOperations = Future<void>.value();
   static Future<T> _withAuthLock<T>(Future<T> Function() operation) {
@@ -35,6 +40,8 @@ class SecureStorageService {
   static const String deviceIdKey = 'device_id';
   static const String _userKey = 'auth_user';
   static const String _pendingSessionKey = 'auth_session_pending';
+  static const String sessionEnvelopeKey = 'auth_session_v2';
+  static const String alternateEnvelopeKey = 'auth_session_v2_backup';
   static const _kTokenKey = 'fcm_token';
   static const _kAskedPermKey = 'notif_perm_prompted';
 
@@ -48,40 +55,131 @@ class SecureStorageService {
     FlutterSecureStorage? secureStorage,
   }) : _secureStorage = secureStorage ??
             const FlutterSecureStorage(
-              aOptions: AndroidOptions(
-                encryptedSharedPreferences: true,
-              ),
+              aOptions: androidOptions,
               iOptions: IOSOptions(
+                accessibility: KeychainAccessibility.unlocked_this_device,
+              ),
+              mOptions: MacOsOptions(
                 accessibility: KeychainAccessibility.unlocked_this_device,
               ),
             );
 
-  /// Rewrites existing known entries once so older iOS keychain items also
-  /// receive the device-only, unlocked protection (constructor options alone do
-  /// not migrate previously stored accessibility attributes).
+  /// Copy into a new device-only key; never rewrite the only legacy key.
+  /// The iOS plugin can DELETE+ADD when accessibility changes.
   Future<void> upgradeProtection() => _withAuthLock(() async {
-        const marker = 'secure_storage_policy_version';
-        if (await _read(marker) == '1') return;
-        for (final key in [
-          accessTokenKey,
-          refreshTokenKey,
-          tokenExpiryKey,
-          refreshTokenExpiryKey,
-          userIdKey,
-          _userKey,
-          _kTokenKey,
-          deviceIdKey,
-          _kAskedPermKey,
-          isLoggedInKey,
-          userEmailKey,
-          'areas'
-        ]) {
-          final value = await _read(key);
-          if (value != null) {
-            await _secureStorage.write(key: _key(key), value: value);
-          }
+        if (await _readRecord() != null) return;
+        final session = await _loadCredentials();
+        if (session != null) await _writeCredentials(session);
+      });
+
+  Future<({String key, Map<String, dynamic> data})?> _readRecord() async {
+    ({String key, Map<String, dynamic> data})? selected;
+    var malformed = false;
+    for (final key in [sessionEnvelopeKey, alternateEnvelopeKey]) {
+      final encoded = await _read(key);
+      if (encoded == null) continue;
+      try {
+        final data = jsonDecode(encoded) as Map<String, dynamic>;
+        if (data['version'] != 2 ||
+            (data['revision'] != null && data['revision'] is! int)) {
+          throw const FormatException('Invalid stored session.');
         }
-        await _secureStorage.write(key: _key(marker), value: '1');
+        final revision = data['revision'] as int? ?? 0;
+        if (revision < 0) {
+          throw const FormatException('Invalid stored revision.');
+        }
+        if (selected == null ||
+            revision > (selected.data['revision'] as int? ?? 0)) {
+          selected = (key: key, data: data);
+        }
+      } catch (_) {
+        malformed = true;
+      }
+    }
+    if (selected == null && malformed) {
+      throw const FormatException('Unreadable stored session.');
+    }
+    return selected;
+  }
+
+  Future<void> _writeRecord(Map<String, dynamic> data) async {
+    final current = await _readRecord();
+    final target = current?.key == sessionEnvelopeKey
+        ? alternateEnvelopeKey
+        : sessionEnvelopeKey;
+    final revision = (current?.data['revision'] as int? ?? 0) + 1;
+    // Never write over the newest record. The native plugin can delete an
+    // existing item after an unsuccessful update, even without changing policy.
+    await _secureStorage.write(
+        key: _key(target), value: jsonEncode({...data, 'revision': revision}));
+  }
+
+  Future<void> _writeCredentials(SessionCredentials session) =>
+      _writeRecord(session.toJson());
+
+  Future<SessionCredentials?> _loadCredentials() async {
+    final record = await _readRecord();
+    if (record != null) {
+      if (record.data['signedOut'] == true) return null;
+      return SessionCredentials.fromJson(record.data);
+    }
+    if (await _read(_pendingSessionKey) != null) return null;
+    final token = await _read(accessTokenKey);
+    if (token == null) return null;
+    final userJson = await _read(_userKey);
+    User? user;
+    if (userJson != null) {
+      try {
+        user = User.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
+      } catch (_) {/* An unreadable cache does not revoke a valid bearer. */}
+    }
+    return SessionCredentials(token: token, user: user);
+  }
+
+  Future<SessionCredentials?> credentials() => _withAuthLock(
+      () => _loadCredentials().timeout(const Duration(seconds: 4)));
+
+  Future<SessionCredentials?> prepareRenewal(
+          {required String expectedToken,
+          required int generation,
+          required String requestId}) =>
+      _withAuthLock(() async {
+        final current = await _loadCredentials();
+        if (_authGeneration != generation || current?.token != expectedToken) {
+          return null;
+        }
+        if (current!.requestId != null) return current;
+        final pending = current.withRecovery(requestId);
+        // Failure means no request is sent; legacy credentials remain intact.
+        await _writeCredentials(pending);
+        return pending;
+      });
+
+  Future<bool> commitRenewal(SessionCredentials replacement,
+          {required SessionCredentials expected,
+          required int generation,
+          DateTime? now}) =>
+      _withAuthLock(() async {
+        final current = await _loadCredentials();
+        if (_authGeneration != generation ||
+            current?.token != expected.token ||
+            current?.requestId != expected.requestId ||
+            current?.requestCredential != expected.requestCredential) {
+          return false;
+        }
+        if (current!.user?.id != null &&
+            current.user!.id != replacement.user?.id) {
+          throw const FormatException('Session identity changed.');
+        }
+        replacement.validateReplacement(current, now ?? DateTime.now());
+        final newerProfile = current.user != null &&
+            jsonEncode(current.user!.toJson()) !=
+                jsonEncode(expected.user?.toJson());
+        await _writeCredentials(
+            newerProfile ? replacement.withUser(current.user!) : replacement);
+        _credentialRevision++;
+        await _deleteLegacyCredentials();
+        return true;
       });
 
   Future<String?> getAskedForNotificationsPermission() async {
@@ -118,38 +216,26 @@ class SecureStorageService {
     await _secureStorage.delete(key: _key(_kTokenKey));
   }
 
-  // Save access token
-  Future<void> saveAccessToken(String token) async {
-    await _withAuthLock(() async {
-      _authGeneration++;
-      await _secureStorage.write(key: _key(accessTokenKey), value: token);
-    });
-  }
-
-  Future<void> saveUser(User user) => _withAuthLock(() async {
-        if (await _read(_pendingSessionKey) != null ||
-            await _read(accessTokenKey) == null) {
-          return;
-        }
-        final currentJson = await _read(_userKey);
-        if (currentJson == null || user.id == null) return;
-        final currentUser =
-            User.fromJson(jsonDecode(currentJson) as Map<String, dynamic>);
-        // An old profile request must not replace a newer account's cache.
-        if (currentUser.id != user.id) return;
-        await _secureStorage.write(
-            key: _key(_userKey), value: jsonEncode(user.toJson()));
+  // Compatibility helper; normal login writes the complete envelope.
+  Future<void> saveAccessToken(String token) => _withAuthLock(() async {
+        _authGeneration++;
+        final current = await _loadCredentials();
+        await _writeCredentials(
+            SessionCredentials(token: token, user: current?.user));
+        _credentialRevision++;
       });
 
-  Future<String?> _readCommittedToken() async {
-    if (await _read(_pendingSessionKey).timeout(const Duration(seconds: 2)) !=
-        null) {
-      return null;
-    }
-    return _read(accessTokenKey).timeout(const Duration(seconds: 2));
-  }
+  Future<void> saveUser(User user) => _withAuthLock(() async {
+        final current = await _loadCredentials();
+        if (current == null || user.id == null || current.user?.id != user.id) {
+          return;
+        }
+        await _writeCredentials(current.withUser(user));
+      });
 
-  // Get access token
+  Future<String?> _readCommittedToken() async =>
+      (await _loadCredentials().timeout(const Duration(seconds: 4)))?.token;
+
   Future<String?> getAccessToken() => _withAuthLock(_readCommittedToken);
 
   // Save refresh token
@@ -220,31 +306,31 @@ class SecureStorageService {
   }
 
   Future<User?> getUser() async {
-    // Optional profile reads must not hold the session mutex while waiting for
-    // the platform. Retry if any serialized operation overtakes this read.
+    // Optional probes do not hold the mutex while the native platform waits.
     while (true) {
       final barrier = _authOperations;
-      // An idle completed barrier may belong to a previous async zone. Only
-      // wait on live operations; this also keeps optional probes independent.
       if (_pendingAuthOperations != 0) await barrier;
       final generation = _authGeneration;
-      final pending = await _read(_pendingSessionKey);
-      final userJson = pending == null ? await _read(_userKey) : null;
-      if (!identical(barrier, _authOperations) || generation != _authGeneration) {
+      final record = await _readRecord();
+      User? user;
+      if (record != null) {
+        final json = record.data;
+        if (json['signedOut'] != true) {
+          user = SessionCredentials.fromJson(json).user;
+        }
+      } else if (await _read(_pendingSessionKey) == null) {
+        final json = await _read(_userKey);
+        if (json != null) {
+          try {
+            user = User.fromJson(jsonDecode(json) as Map<String, dynamic>);
+          } catch (_) {/* Leave invalid optional cache out of the UI. */}
+        }
+      }
+      if (!identical(barrier, _authOperations) ||
+          generation != _authGeneration) {
         continue;
       }
-      if (userJson == null) return null;
-      try {
-        return User.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
-      } catch (_) {
-        await _withAuthLock(() async {
-          if (generation == _authGeneration &&
-              await _read(_userKey) == userJson) {
-            await _secureStorage.delete(key: _key(_userKey));
-          }
-        });
-        return null;
-      }
+      return user;
     }
   }
 
@@ -279,70 +365,79 @@ class SecureStorageService {
     return await _read(key);
   }
 
-  // Clear all auth related data
-  /// A persistent pending marker makes partially written sessions unusable,
-  /// including when rollback deletion fails or the process exits mid-write.
   Future<void> saveSession(String token, User user,
-          {Future<void> Function()? beforeSave}) =>
+          {Future<void> Function()? beforeSave, int? expectedGeneration}) =>
       _withAuthLock(() async {
-        _authGeneration++;
-        try {
-          await beforeSave?.call();
-          await _secureStorage.write(key: _key(_pendingSessionKey), value: '1');
-          await _deleteAccountData(keepPendingMarker: true);
-          await _secureStorage.write(
-              key: _key(_userKey), value: jsonEncode(user.toJson()));
-          await _secureStorage.write(key: _key(accessTokenKey), value: token);
-          // Only a complete token/user pair may become visible to readers.
-          await _secureStorage.delete(key: _key(_pendingSessionKey));
-        } catch (_) {
-          try {
-            // A platform may report failure after physically clearing a key.
-            // Reassert the marker before attempting rollback.
-            await _secureStorage.write(
-                key: _key(_pendingSessionKey), value: '1');
-          } catch (_) {
-            // The original pending marker remains when the commit did not clear it.
-          }
-          try {
-            await _deleteAccountData(keepPendingMarker: true);
-          } catch (_) {
-            // Keep the durable marker: guarded reads remain signed out even
-            // when the platform cannot physically erase the partial session.
-          }
-          rethrow;
+        if (expectedGeneration != null &&
+            _authGeneration != expectedGeneration) {
+          throw StateError('The account changed during sign-in.');
         }
+        // Invalidate old work even if native storage persists before returning
+        // an error; the newly selected record must never keep account A's epoch.
+        _authGeneration++;
+        await beforeSave?.call();
+        // A complete record commits the pair. A failed write can expose only a
+        // complete old or new pair, never token B plus user A.
+        await _writeCredentials(SessionCredentials(token: token, user: user));
+        _credentialRevision++;
+        await _deleteLegacyAccountData();
       });
 
   Future<({String? token, User? user})> sessionSnapshot() =>
       _withAuthLock(() async {
-        if (await _read(_pendingSessionKey)
-                .timeout(const Duration(seconds: 2)) !=
-            null) {
-          return (token: null, user: null);
+        final session =
+            await _loadCredentials().timeout(const Duration(seconds: 4));
+        return (token: session?.token, user: session?.user);
+      });
+
+  /// Invalidates renewal before remote logout, then durably prevents fallback.
+  Future<
+      ({
+        SessionCredentials? session,
+        String? fcmToken,
+        String? deviceId,
+        int generation
+      })> beginLogout(
+          {Future<void> Function()? onCleared}) =>
+      _withAuthLock(() async {
+        _authGeneration++;
+        _credentialRevision++;
+        SessionCredentials? session;
+        String? fcmToken;
+        String? deviceId;
+        try {
+          session = await _loadCredentials();
+        } catch (_) {}
+        try {
+          fcmToken = await _read(_kTokenKey);
+        } catch (_) {}
+        try {
+          deviceId = await _read(deviceIdKey);
+        } catch (_) {}
+        try {
+          await _signedOut();
+        } finally {
+          await onCleared?.call();
         }
-        final token =
-            await _read(accessTokenKey).timeout(const Duration(seconds: 2));
-        final userJson =
-            await _read(_userKey).timeout(const Duration(seconds: 2));
-        User? user;
-        if (userJson != null) {
-          try {
-            user = User.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
-          } catch (_) {
-            await _secureStorage.delete(key: _key(_userKey));
-          }
-        }
-        return (token: token, user: user);
+        return (
+          session: session,
+          fcmToken: fcmToken,
+          deviceId: deviceId,
+          generation: _authGeneration
+        );
       });
 
   Future<bool> clearAuthDataIfTokenMatches(String? sentToken,
-          {Future<void> Function()? onCleared}) =>
+          {Future<void> Function()? onCleared, int? expectedGeneration}) =>
       _withAuthLock(() async {
-        if (await _readCommittedToken() != sentToken) {
+        if (expectedGeneration != null &&
+            _authGeneration != expectedGeneration) {
           return false;
         }
-        await _deleteAccountData();
+        if (await _readCommittedToken() != sentToken) return false;
+        _authGeneration++;
+        _credentialRevision++;
+        await _signedOut();
         await onCleared?.call();
         return true;
       });
@@ -350,13 +445,15 @@ class SecureStorageService {
   Future<bool> whileSessionMatches(
           String? token, Future<void> Function() action) =>
       _withAuthLock(() async {
-        if (await _read(_pendingSessionKey)
-                    .timeout(const Duration(seconds: 2)) !=
-                null ||
-            await _read(accessTokenKey).timeout(const Duration(seconds: 2)) !=
-                token) {
-          return false;
-        }
+        if (await _readCommittedToken() != token) return false;
+        await action();
+        return true;
+      });
+
+  Future<bool> whileGenerationMatches(
+          int generation, Future<void> Function() action) =>
+      _withAuthLock(() async {
+        if (_authGeneration != generation) return false;
         await action();
         return true;
       });
@@ -365,19 +462,36 @@ class SecureStorageService {
           {Future<void> Function()? onCleared}) =>
       _withAuthLock(() async {
         if (_authGeneration != generation) return false;
-        await _deleteAccountData();
+        _authGeneration++;
+        _credentialRevision++;
+        await _signedOut();
         await onCleared?.call();
         return true;
       });
 
   Future<void> clearAuthData({Future<void> Function()? onCleared}) =>
       _withAuthLock(() async {
-        await _deleteAccountData();
+        _authGeneration++;
+        _credentialRevision++;
+        await _signedOut();
         await onCleared?.call();
       });
 
-  Future<void> _deleteAccountData({bool keepPendingMarker = false}) async {
-    _authGeneration++;
+  Future<void> _signedOut() async {
+    try {
+      await _writeRecord({'version': 2, 'signedOut': true});
+      try {
+        // Erase the other record only after a durable tombstone exists.
+        await _writeRecord({'version': 2, 'signedOut': true});
+      } catch (_) {
+        /* The first committed tombstone still wins revision selection. */
+      }
+    } finally {
+      await _deleteLegacyAccountData();
+    }
+  }
+
+  Future<void> _deleteLegacyAccountData() async {
     for (final key in [
       accessTokenKey,
       refreshTokenKey,
@@ -385,17 +499,41 @@ class SecureStorageService {
       refreshTokenExpiryKey,
       userIdKey,
       _userKey,
+      _pendingSessionKey,
       _kTokenKey,
       isLoggedInKey,
       userEmailKey,
       'areas'
     ]) {
-      await _secureStorage.delete(key: _key(key));
+      try {
+        // A nil accessibility query removes all legacy accessibility variants.
+        await _secureStorage.delete(
+            key: _key(key),
+            iOptions: const IOSOptions(accessibility: null),
+            mOptions: const MacOsOptions(accessibility: null));
+      } catch (_) {
+        /* The committed envelope/tombstone remains authoritative. */
+      }
     }
-    if (!keepPendingMarker) {
-      await _secureStorage.delete(key: _key(_pendingSessionKey));
+  }
+
+  Future<void> _deleteLegacyCredentials() async {
+    for (final key in [
+      accessTokenKey,
+      refreshTokenKey,
+      tokenExpiryKey,
+      refreshTokenExpiryKey,
+      userIdKey,
+      _userKey,
+      _pendingSessionKey
+    ]) {
+      try {
+        await _secureStorage.delete(
+            key: _key(key),
+            iOptions: const IOSOptions(accessibility: null),
+            mOptions: const MacOsOptions(accessibility: null));
+      } catch (_) {/* Canonical envelope prevents legacy fallback. */}
     }
-    // Keep device identity, locale and the notification-permission preference.
   }
 
   // Clear everything
