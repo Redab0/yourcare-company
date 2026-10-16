@@ -8,12 +8,20 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class SecureStorageService {
   static int _authGeneration = 0;
   int get authGeneration => _authGeneration;
+  static int _pendingAuthOperations = 0;
   static Future<void> _authOperations = Future<void>.value();
   static Future<T> _withAuthLock<T>(Future<T> Function() operation) {
-    final next = _authOperations.then((_) => operation());
+    final idle = _pendingAuthOperations == 0;
+    _pendingAuthOperations++;
+    final next = idle
+        ? Future<T>.microtask(operation)
+        : _authOperations.then((_) => operation());
+    final settled = next.whenComplete(() {
+      _pendingAuthOperations--;
+    });
     _authOperations =
-        next.then<void>((_) {}, onError: (Object _, StackTrace __) {});
-    return next;
+        settled.then<void>((_) {}, onError: (Object _, StackTrace __) {});
+    return settled;
   }
 
   Future<String?> _read(String key) => _secureStorage.read(key: _key(key));
@@ -26,6 +34,7 @@ class SecureStorageService {
   static const String userIdKey = 'user_id';
   static const String deviceIdKey = 'device_id';
   static const String _userKey = 'auth_user';
+  static const String _pendingSessionKey = 'auth_session_pending';
   static const _kTokenKey = 'fcm_token';
   static const _kAskedPermKey = 'notif_perm_prompted';
 
@@ -117,17 +126,31 @@ class SecureStorageService {
     });
   }
 
-  Future<void> saveUser(User user) async {
-    final String userJson = jsonEncode(user.toJson());
-    await _withAuthLock(
-        () => _secureStorage.write(key: _key(_userKey), value: userJson));
+  Future<void> saveUser(User user) => _withAuthLock(() async {
+        if (await _read(_pendingSessionKey) != null ||
+            await _read(accessTokenKey) == null) {
+          return;
+        }
+        final currentJson = await _read(_userKey);
+        if (currentJson == null || user.id == null) return;
+        final currentUser =
+            User.fromJson(jsonDecode(currentJson) as Map<String, dynamic>);
+        // An old profile request must not replace a newer account's cache.
+        if (currentUser.id != user.id) return;
+        await _secureStorage.write(
+            key: _key(_userKey), value: jsonEncode(user.toJson()));
+      });
+
+  Future<String?> _readCommittedToken() async {
+    if (await _read(_pendingSessionKey).timeout(const Duration(seconds: 2)) !=
+        null) {
+      return null;
+    }
+    return _read(accessTokenKey).timeout(const Duration(seconds: 2));
   }
 
   // Get access token
-  Future<String?> getAccessToken() async {
-    return await _withAuthLock(
-        () => _read(accessTokenKey).timeout(const Duration(seconds: 2)));
-  }
+  Future<String?> getAccessToken() => _withAuthLock(_readCommittedToken);
 
   // Save refresh token
   Future<void> saveRefreshToken(String token) async {
@@ -197,16 +220,31 @@ class SecureStorageService {
   }
 
   Future<User?> getUser() async {
-    final String? userJson = await _read(_userKey);
-    if (userJson == null) return null;
-
-    try {
-      final Map<String, dynamic> userMap = jsonDecode(userJson);
-      return User.fromJson(userMap);
-    } catch (e) {
-      // If parsing fails, clear the invalid data
-      await _secureStorage.delete(key: _key(_userKey));
-      return null;
+    // Optional profile reads must not hold the session mutex while waiting for
+    // the platform. Retry if any serialized operation overtakes this read.
+    while (true) {
+      final barrier = _authOperations;
+      // An idle completed barrier may belong to a previous async zone. Only
+      // wait on live operations; this also keeps optional probes independent.
+      if (_pendingAuthOperations != 0) await barrier;
+      final generation = _authGeneration;
+      final pending = await _read(_pendingSessionKey);
+      final userJson = pending == null ? await _read(_userKey) : null;
+      if (!identical(barrier, _authOperations) || generation != _authGeneration) {
+        continue;
+      }
+      if (userJson == null) return null;
+      try {
+        return User.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
+      } catch (_) {
+        await _withAuthLock(() async {
+          if (generation == _authGeneration &&
+              await _read(_userKey) == userJson) {
+            await _secureStorage.delete(key: _key(_userKey));
+          }
+        });
+        return null;
+      }
     }
   }
 
@@ -242,18 +280,47 @@ class SecureStorageService {
   }
 
   // Clear all auth related data
+  /// A persistent pending marker makes partially written sessions unusable,
+  /// including when rollback deletion fails or the process exits mid-write.
   Future<void> saveSession(String token, User user,
           {Future<void> Function()? beforeSave}) =>
       _withAuthLock(() async {
         _authGeneration++;
-        await beforeSave?.call();
-        await _secureStorage.write(key: _key(accessTokenKey), value: token);
-        await _secureStorage.write(
-            key: _key(_userKey), value: jsonEncode(user.toJson()));
+        try {
+          await beforeSave?.call();
+          await _secureStorage.write(key: _key(_pendingSessionKey), value: '1');
+          await _deleteAccountData(keepPendingMarker: true);
+          await _secureStorage.write(
+              key: _key(_userKey), value: jsonEncode(user.toJson()));
+          await _secureStorage.write(key: _key(accessTokenKey), value: token);
+          // Only a complete token/user pair may become visible to readers.
+          await _secureStorage.delete(key: _key(_pendingSessionKey));
+        } catch (_) {
+          try {
+            // A platform may report failure after physically clearing a key.
+            // Reassert the marker before attempting rollback.
+            await _secureStorage.write(
+                key: _key(_pendingSessionKey), value: '1');
+          } catch (_) {
+            // The original pending marker remains when the commit did not clear it.
+          }
+          try {
+            await _deleteAccountData(keepPendingMarker: true);
+          } catch (_) {
+            // Keep the durable marker: guarded reads remain signed out even
+            // when the platform cannot physically erase the partial session.
+          }
+          rethrow;
+        }
       });
 
   Future<({String? token, User? user})> sessionSnapshot() =>
       _withAuthLock(() async {
+        if (await _read(_pendingSessionKey)
+                .timeout(const Duration(seconds: 2)) !=
+            null) {
+          return (token: null, user: null);
+        }
         final token =
             await _read(accessTokenKey).timeout(const Duration(seconds: 2));
         final userJson =
@@ -272,8 +339,7 @@ class SecureStorageService {
   Future<bool> clearAuthDataIfTokenMatches(String? sentToken,
           {Future<void> Function()? onCleared}) =>
       _withAuthLock(() async {
-        if (await _read(accessTokenKey).timeout(const Duration(seconds: 2)) !=
-            sentToken) {
+        if (await _readCommittedToken() != sentToken) {
           return false;
         }
         await _deleteAccountData();
@@ -284,8 +350,11 @@ class SecureStorageService {
   Future<bool> whileSessionMatches(
           String? token, Future<void> Function() action) =>
       _withAuthLock(() async {
-        if (await _read(accessTokenKey).timeout(const Duration(seconds: 2)) !=
-            token) {
+        if (await _read(_pendingSessionKey)
+                    .timeout(const Duration(seconds: 2)) !=
+                null ||
+            await _read(accessTokenKey).timeout(const Duration(seconds: 2)) !=
+                token) {
           return false;
         }
         await action();
@@ -307,7 +376,7 @@ class SecureStorageService {
         await onCleared?.call();
       });
 
-  Future<void> _deleteAccountData() async {
+  Future<void> _deleteAccountData({bool keepPendingMarker = false}) async {
     _authGeneration++;
     for (final key in [
       accessTokenKey,
@@ -322,6 +391,9 @@ class SecureStorageService {
       'areas'
     ]) {
       await _secureStorage.delete(key: _key(key));
+    }
+    if (!keepPendingMarker) {
+      await _secureStorage.delete(key: _key(_pendingSessionKey));
     }
     // Keep device identity, locale and the notification-permission preference.
   }

@@ -109,3 +109,18 @@ All original store-CI files were compared with `/private/tmp/yourcare-security-o
 - `test/core/security/service_boundary_test.dart`
 - `test/core/security/session_cache_test.dart`
 - `test/core/security/numeric_draft_test.dart`
+
+
+## Follow-up: fail-closed session persistence after `f6d39a9`
+
+This follow-up is prepared separately for coordinator review. No native dependencies or API payloads changed.
+
+`saveSession` now writes a durable `auth_session_pending` marker before changing account keys, removes the previous account's credentials/cache, writes the new user before the new token, and removes the marker only after both writes succeed. A platform-write/commit failure reasserts the marker and attempts rollback. If rollback deletion also fails, guarded token/user/snapshot reads still return signed-out state; the marker survives process interruption/reconstruction. A subsequent complete sign-in or successful local cleanup can remove the pending state. Physical deletion still depends on a functioning platform keystore.
+
+Direct `getUser` reads wait for live serialized operations and retry if their barrier/generation changes. They cannot expose an intermediate user with an old token, and an unresolved optional profile probe does not hold the session mutex. Idle queue operations start in a microtask after publishing their tail, preserving ordering for synchronous callbacks while avoiding stale completed futures from a previous asynchronous zone. The three paired token/user document/DEV route guards use one `sessionSnapshot`. Asynchronous `saveUser` refreshes only update the current committed matching user ID, so a stale response cannot overwrite a newer account's profile.
+
+Eight MethodChannel-level regressions exercise user-write failure, token-persist-then-error combined with rollback-delete failure, failure clearing the commit marker, interrupted-process pending state, direct concurrent reads during a paused write, a stalled optional user read overtaken by a successful sign-in, a stale account profile refresh, and a synchronous `beforeSave` callback queuing a token read behind the full replacement. Affected focused suite: **22 passed**. Final full suite: **359 passed / 13 failed**, with the exact same 13 failure names as the recorded baseline (319 passed / 13 failed), and 8 additional passing tests compared with the reviewed security implementation (351 passed / 13 failed). Final analysis: **61 findings**, the identical diagnostic set to the reviewed security implementation, compared with 68 baseline findings. `git diff --check` passes. No native rebuild was needed for these Dart-only changes.
+
+Evidence: `/private/tmp/provider-security-persistence-focused-final.log`, `/private/tmp/provider-security-persistence-full-final.log`, `/private/tmp/provider-security-persistence-analyze-final.log`. The final full pass includes the microtask queue publication fix and its synchronous callback regression. No further code changes followed this verification.
+
+Follow-up files: `lib/core/storage/secure_storage_service.dart`, `lib/core/router/router.dart`, `lib/main_documents_preview.dart`, `lib/main_laundry_preview.dart`, `test/core/security/session_persistence_test.dart`, and this handoff.

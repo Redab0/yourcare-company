@@ -41,8 +41,9 @@ class _PreviewApp extends StatelessWidget {
         builder: (_, __) => const DocumentsScreen(),
         redirect: (_, __) async {
           final storage = SecureStorageService();
-          final user = await storage.getUser();
-          return await storage.getAccessToken() != null &&
+          final session = await storage.sessionSnapshot();
+          final user = session.user;
+          return session.token != null &&
                   ['business_owner', 'manager'].contains(user?.role) &&
                   user?.businessId != null
               ? null

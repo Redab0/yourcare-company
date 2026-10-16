@@ -87,8 +87,9 @@ class AppRouter {
       GoRoute(path: '/documents', name: 'documents-center',
         redirect: (_, __) async {
           final storage = SecureStorageService();
-          if (await storage.getAccessToken() == null) return '/login';
-          final user = await storage.getUser();
+          final session = await storage.sessionSnapshot();
+          if (session.token == null) return '/login';
+          final user = session.user;
           return ['business_owner', 'manager'].contains(user?.role) && user?.businessId != null ? null : '/home';
         },
         builder: (_, __) => const DocumentsScreen()),
