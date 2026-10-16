@@ -1,4 +1,5 @@
 import 'dart:io';
+import '../security/request_security.dart';
 
 import 'package:cleaning_service_driver/core/utils/app_remote_config.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
@@ -69,7 +70,13 @@ class AppUpdateService {
   }
 
   Future<void> _launchStore(String url) async {
-    final uri = Uri.parse(url);
+    Uri uri;
+    try {
+      uri = RequestSecurity.webUri(url, httpsOnly: true);
+      if (!{'apps.apple.com', 'play.google.com'}.contains(uri.host)) return;
+    } on FormatException {
+      return;
+    }
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }

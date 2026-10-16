@@ -7,10 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('keychain errors reject the request instead of leaving it pending',
       () async {
-    final dio = Dio();
+    final dio = Dio(BaseOptions(baseUrl: 'https://fixture.invalid/api'));
     addTearDown(dio.close);
     var dispatched = 0;
     dio.interceptors.add(SessionRequestInterceptor(
+        trustedApiUrl: 'https://fixture.invalid/api',
         readAccessToken: () async =>
             throw PlatformException(code: 'keychain-unavailable'),
         languageTag: () => 'en'));
@@ -27,11 +28,12 @@ void main() {
   test(
       'an unresolved keychain read expires and never dispatches when its token arrives late',
       () async {
-    final dio = Dio();
+    final dio = Dio(BaseOptions(baseUrl: 'https://fixture.invalid/api'));
     addTearDown(dio.close);
     final token = Completer<String?>();
     var dispatched = 0;
     dio.interceptors.add(SessionRequestInterceptor(
+        trustedApiUrl: 'https://fixture.invalid/api',
         readAccessToken: () => token.future,
         languageTag: () => 'en',
         credentialsTimeout: const Duration(milliseconds: 20)));
@@ -49,11 +51,12 @@ void main() {
   });
   test('locale preparation errors reject and a subsequent retry can succeed',
       () async {
-    final dio = Dio();
+    final dio = Dio(BaseOptions(baseUrl: 'https://fixture.invalid/api'));
     addTearDown(dio.close);
     var available = false;
     var dispatched = 0;
     dio.interceptors.add(SessionRequestInterceptor(
+        trustedApiUrl: 'https://fixture.invalid/api',
         readAccessToken: () async => 'test-token',
         languageTag: () {
           if (!available) throw StateError('Locale unavailable');
@@ -74,9 +77,10 @@ void main() {
   test(
       'explicit language overrides are kept and absent tokens remain unauthenticated',
       () async {
-    final dio = Dio();
+    final dio = Dio(BaseOptions(baseUrl: 'https://fixture.invalid/api'));
     addTearDown(dio.close);
     dio.interceptors.add(SessionRequestInterceptor(
+        trustedApiUrl: 'https://fixture.invalid/api',
         readAccessToken: () async => null,
         languageTag: () => throw StateError('Should use explicit language')));
     dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
@@ -91,13 +95,15 @@ void main() {
   });
   test('cancelling during keychain lookup prevents transport dispatch',
       () async {
-    final dio = Dio();
+    final dio = Dio(BaseOptions(baseUrl: 'https://fixture.invalid/api'));
     addTearDown(dio.close);
     final token = Completer<String?>();
     final cancel = CancelToken();
     var dispatched = 0;
     dio.interceptors.add(SessionRequestInterceptor(
-        readAccessToken: () => token.future, languageTag: () => 'en'));
+        trustedApiUrl: 'https://fixture.invalid/api',
+        readAccessToken: () => token.future,
+        languageTag: () => 'en'));
     dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
       dispatched++;
       handler.resolve(Response(requestOptions: options, statusCode: 200));

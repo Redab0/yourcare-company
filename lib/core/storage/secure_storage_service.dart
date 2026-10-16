@@ -6,6 +6,17 @@ import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorageService {
+  static int _authGeneration = 0;
+  int get authGeneration => _authGeneration;
+  static Future<void> _authOperations = Future<void>.value();
+  static Future<T> _withAuthLock<T>(Future<T> Function() operation) {
+    final next = _authOperations.then((_) => operation());
+    _authOperations =
+        next.then<void>((_) {}, onError: (Object _, StackTrace __) {});
+    return next;
+  }
+
+  Future<String?> _read(String key) => _secureStorage.read(key: _key(key));
   String _key(String key) => ApiEnvironment.storageKey(key);
   // Authentication tokens
   static const String accessTokenKey = 'access_token';
@@ -32,12 +43,40 @@ class SecureStorageService {
                 encryptedSharedPreferences: true,
               ),
               iOptions: IOSOptions(
-                accessibility: KeychainAccessibility.first_unlock,
+                accessibility: KeychainAccessibility.unlocked_this_device,
               ),
             );
 
+  /// Rewrites existing known entries once so older iOS keychain items also
+  /// receive the device-only, unlocked protection (constructor options alone do
+  /// not migrate previously stored accessibility attributes).
+  Future<void> upgradeProtection() => _withAuthLock(() async {
+        const marker = 'secure_storage_policy_version';
+        if (await _read(marker) == '1') return;
+        for (final key in [
+          accessTokenKey,
+          refreshTokenKey,
+          tokenExpiryKey,
+          refreshTokenExpiryKey,
+          userIdKey,
+          _userKey,
+          _kTokenKey,
+          deviceIdKey,
+          _kAskedPermKey,
+          isLoggedInKey,
+          userEmailKey,
+          'areas'
+        ]) {
+          final value = await _read(key);
+          if (value != null) {
+            await _secureStorage.write(key: _key(key), value: value);
+          }
+        }
+        await _secureStorage.write(key: _key(marker), value: '1');
+      });
+
   Future<String?> getAskedForNotificationsPermission() async {
-    final String? asked = await _secureStorage.read(key: _key(_kAskedPermKey));
+    final String? asked = await _read(_kAskedPermKey);
     if (asked == null) return null;
     try {
       return asked;
@@ -52,7 +91,7 @@ class SecureStorageService {
   }
 
   Future<String?> getFcmToken() async {
-    final String? fcmToken = await _secureStorage.read(key: _key(_kTokenKey));
+    final String? fcmToken = await _read(_kTokenKey);
     if (fcmToken == null) return null;
     try {
       return fcmToken;
@@ -72,17 +111,22 @@ class SecureStorageService {
 
   // Save access token
   Future<void> saveAccessToken(String token) async {
-    await _secureStorage.write(key: _key(accessTokenKey), value: token);
+    await _withAuthLock(() async {
+      _authGeneration++;
+      await _secureStorage.write(key: _key(accessTokenKey), value: token);
+    });
   }
 
   Future<void> saveUser(User user) async {
     final String userJson = jsonEncode(user.toJson());
-    await _secureStorage.write(key: _key(_userKey), value: userJson);
+    await _withAuthLock(
+        () => _secureStorage.write(key: _key(_userKey), value: userJson));
   }
 
   // Get access token
   Future<String?> getAccessToken() async {
-    return await _secureStorage.read(key: _key(accessTokenKey));
+    return await _withAuthLock(
+        () => _read(accessTokenKey).timeout(const Duration(seconds: 2)));
   }
 
   // Save refresh token
@@ -92,7 +136,7 @@ class SecureStorageService {
 
   // Get refresh token
   Future<String?> getRefreshToken() async {
-    return await _secureStorage.read(key: _key(refreshTokenKey));
+    return await _read(refreshTokenKey);
   }
 
   // Save token expiry time
@@ -105,7 +149,7 @@ class SecureStorageService {
 
   // Get token expiry time
   Future<DateTime?> getTokenExpiry() async {
-    final expiry = await _secureStorage.read(key: _key(tokenExpiryKey));
+    final expiry = await _read(tokenExpiryKey);
     if (expiry != null) {
       return DateTime.fromMillisecondsSinceEpoch(int.parse(expiry));
     }
@@ -126,7 +170,7 @@ class SecureStorageService {
   }
 
   Future<List<AreaResponse>> getAreas() async {
-    final areasJson = await _secureStorage.read(key: _key('areas'));
+    final areasJson = await _read('areas');
     if (areasJson == null) return [];
 
     final List<dynamic> decoded = jsonDecode(areasJson);
@@ -135,7 +179,7 @@ class SecureStorageService {
 
   // Get refresh token expiry time
   Future<DateTime?> getRefreshTokenExpiry() async {
-    final expiry = await _secureStorage.read(key: _key(refreshTokenExpiryKey));
+    final expiry = await _read(refreshTokenExpiryKey);
     if (expiry != null) {
       return DateTime.fromMillisecondsSinceEpoch(int.parse(expiry));
     }
@@ -149,11 +193,11 @@ class SecureStorageService {
 
   // Get user ID
   Future<String?> getUserId() async {
-    return await _secureStorage.read(key: _key(userIdKey));
+    return await _read(userIdKey);
   }
 
   Future<User?> getUser() async {
-    final String? userJson = await _secureStorage.read(key: _key(_userKey));
+    final String? userJson = await _read(_userKey);
     if (userJson == null) return null;
 
     try {
@@ -173,7 +217,7 @@ class SecureStorageService {
 
   // Get device ID
   Future<String?> getDeviceId() async {
-    return await _secureStorage.read(key: _key(deviceIdKey));
+    return await _read(deviceIdKey);
   }
 
   // Demo mode methods
@@ -182,7 +226,7 @@ class SecureStorageService {
   }
 
   Future<bool?> getBool(String key) async {
-    final value = await _secureStorage.read(key: _key(key));
+    final value = await _read(key);
     if (value != null) {
       return value.toLowerCase() == 'true';
     }
@@ -194,17 +238,92 @@ class SecureStorageService {
   }
 
   Future<String?> getString(String key) async {
-    return await _secureStorage.read(key: _key(key));
+    return await _read(key);
   }
 
   // Clear all auth related data
-  Future<void> clearAuthData() async {
-    await _secureStorage.delete(key: _key(accessTokenKey));
-    await _secureStorage.delete(key: _key(refreshTokenKey));
-    await _secureStorage.delete(key: _key(tokenExpiryKey));
-    await _secureStorage.delete(key: _key(refreshTokenExpiryKey));
-    await _secureStorage.delete(key: _key(userIdKey));
-    // Note: We don't clear device ID as it should persist between sessions
+  Future<void> saveSession(String token, User user,
+          {Future<void> Function()? beforeSave}) =>
+      _withAuthLock(() async {
+        _authGeneration++;
+        await beforeSave?.call();
+        await _secureStorage.write(key: _key(accessTokenKey), value: token);
+        await _secureStorage.write(
+            key: _key(_userKey), value: jsonEncode(user.toJson()));
+      });
+
+  Future<({String? token, User? user})> sessionSnapshot() =>
+      _withAuthLock(() async {
+        final token =
+            await _read(accessTokenKey).timeout(const Duration(seconds: 2));
+        final userJson =
+            await _read(_userKey).timeout(const Duration(seconds: 2));
+        User? user;
+        if (userJson != null) {
+          try {
+            user = User.fromJson(jsonDecode(userJson) as Map<String, dynamic>);
+          } catch (_) {
+            await _secureStorage.delete(key: _key(_userKey));
+          }
+        }
+        return (token: token, user: user);
+      });
+
+  Future<bool> clearAuthDataIfTokenMatches(String? sentToken,
+          {Future<void> Function()? onCleared}) =>
+      _withAuthLock(() async {
+        if (await _read(accessTokenKey).timeout(const Duration(seconds: 2)) !=
+            sentToken) {
+          return false;
+        }
+        await _deleteAccountData();
+        await onCleared?.call();
+        return true;
+      });
+
+  Future<bool> whileSessionMatches(
+          String? token, Future<void> Function() action) =>
+      _withAuthLock(() async {
+        if (await _read(accessTokenKey).timeout(const Duration(seconds: 2)) !=
+            token) {
+          return false;
+        }
+        await action();
+        return true;
+      });
+
+  Future<bool> clearAuthDataIfGenerationMatches(int generation,
+          {Future<void> Function()? onCleared}) =>
+      _withAuthLock(() async {
+        if (_authGeneration != generation) return false;
+        await _deleteAccountData();
+        await onCleared?.call();
+        return true;
+      });
+
+  Future<void> clearAuthData({Future<void> Function()? onCleared}) =>
+      _withAuthLock(() async {
+        await _deleteAccountData();
+        await onCleared?.call();
+      });
+
+  Future<void> _deleteAccountData() async {
+    _authGeneration++;
+    for (final key in [
+      accessTokenKey,
+      refreshTokenKey,
+      tokenExpiryKey,
+      refreshTokenExpiryKey,
+      userIdKey,
+      _userKey,
+      _kTokenKey,
+      isLoggedInKey,
+      userEmailKey,
+      'areas'
+    ]) {
+      await _secureStorage.delete(key: _key(key));
+    }
+    // Keep device identity, locale and the notification-permission preference.
   }
 
   // Clear everything

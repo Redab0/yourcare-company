@@ -1,3 +1,4 @@
+import '../../../core/validators/validators.dart';
 import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/date_time_picker_field.dart';
@@ -345,6 +346,12 @@ class _DeepCleaningRequestState extends State<DeepCleaningRequestScreen> {
                                   _selectedTimelineDays == null
                               ? null
                               : () {
+                                  if (!Validators.validAmount(
+                                      _amountController.text,
+                                      minimum: 0.001)) {
+                                    context.showErrorToast();
+                                    return;
+                                  }
                                   context.read<RequestsActionBloc>().add(
                                         SubmitOffer(
                                           _composeNotes(context),

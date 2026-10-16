@@ -1,4 +1,5 @@
 import 'dart:io';
+import '../../../core/validators/validators.dart';
 
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
@@ -169,8 +170,9 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
                     controller: _usernameCtl,
                     decoration:
                         InputDecoration(labelText: context.l10n.signup_name),
-                    validator: (v) =>
-                        v!.isEmpty ? context.l10n.signup_name : null,
+                    validator: (v) => Validators.validStaffUsername(v ?? '')
+                        ? null
+                        : context.l10n.signup_name,
                   ),
                   const SizedBox(height: 16),
 
@@ -190,9 +192,11 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
                     ),
                     obscureText: !_showPassword,
                     validator: (v) {
-                      final value = v?.trim() ?? '';
+                      final value = v ?? '';
                       if (_isCleanerRole && value.isEmpty) return null;
-                      if (value.length < 6) return 'At least 6 characters';
+                      if (!Validators.validStaffPassword(value, creating: true)) {
+                        return context.l10n.signup_password;
+                      }
                       return null;
                     },
                   ),
@@ -207,7 +211,7 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
                     validator: (v) {
                       final value = (v ?? '').trim();
                       if (_isCleanerRole && value.isEmpty) return null;
-                      return value.contains('@')
+                      return Validators.validateEmail(value) == null
                           ? null
                           : context.l10n.signup_email;
                     },
@@ -224,7 +228,9 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
                     validator: (v) {
                       final value = (v ?? '').trim();
                       if (_isCleanerRole && value.isEmpty) return null;
-                      return value.isEmpty ? context.l10n.signup_phone : null;
+                      return Validators.validatePhone(value) == null
+                          ? null
+                          : context.l10n.signup_phone;
                     },
                   ),
                   const SizedBox(height: 24),
@@ -297,18 +303,17 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
                               final model = CreateUserModel(
                                 role: selectedRole.value,
                                 username: _usernameCtl.text.trim(),
-                                password: isCleaner &&
-                                        _passwordCtl.text.trim().isEmpty
+                                password: isCleaner && _passwordCtl.text.isEmpty
                                     ? null
                                     : _passwordCtl.text,
                                 email:
                                     isCleaner && _emailCtl.text.trim().isEmpty
                                         ? null
                                         : _emailCtl.text.trim(),
-                                phone:
-                                    isCleaner && _phoneCtl.text.trim().isEmpty
-                                        ? null
-                                        : _phoneCtl.text.trim(),
+                                phone: isCleaner &&
+                                        _phoneCtl.text.trim().isEmpty
+                                    ? null
+                                    : Validators.normalizePhone(_phoneCtl.text),
                                 image: _uploadedPhotoUrl ?? "",
                               );
                               context

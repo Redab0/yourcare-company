@@ -1,3 +1,4 @@
+import '../../../core/validators/validators.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/utils/app_remote_config.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
@@ -213,7 +214,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 prefixIcon: Icon(Icons.person),
               ),
               validator: (value) {
-                if (value == null || value.isEmpty) {
+                if (Validators.validateName(value) != null) {
                   return context.l10n.signup_name;
                 }
                 return null;
@@ -230,7 +231,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               ),
               keyboardType: TextInputType.phone,
               validator: (value) {
-                if (value == null || value.isEmpty) {
+                if (Validators.validatePhone(value) != null) {
                   return context.l10n.signup_phone;
                 }
                 return null;

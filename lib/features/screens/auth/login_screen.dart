@@ -43,8 +43,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
       final loginCredentials = LoginCredentials(
-        phone: _usernameController.text.trim(),
-        password: _passwordController.text.trim(),
+        phone: Validators.normalizePhone(_usernameController.text),
+        password: _passwordController.text,
       );
       final authBloc = context.read<AuthBloc>();
       authBloc.add(

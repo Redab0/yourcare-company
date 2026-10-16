@@ -1,3 +1,5 @@
+import 'core/validators/validators.dart';
+import 'core/diagnostics/app_diagnostics.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,9 +19,11 @@ import 'package:cleaning_service_driver/l10n/app_localizations.dart';
 // Standalone DEV preview: real authentication and APIs, no mobile push bootstrap.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  AppDiagnostics.installErrorHandlers();
   if (ApiClient.baseUrl != ApiClient.dev_baseUrl) {
     throw StateError('The documents preview must use DEV');
   }
+  await SecureStorageService().upgradeProtection();
   await setupServiceLocator();
   runApp(_PreviewApp());
 }
@@ -98,7 +102,8 @@ class _PreviewLoginState extends State<DocumentsPreviewLogin> {
 
   Future<void> _login() async {
     if (_busy) return;
-    if (_phone.text.trim().isEmpty || _password.text.trim().isEmpty) {
+    if (Validators.validatePhone(_phone.text) != null ||
+        _password.text.isEmpty) {
       setState(() => _error = _LoginError.required);
       return;
     }
@@ -109,7 +114,8 @@ class _PreviewLoginState extends State<DocumentsPreviewLogin> {
     try {
       final user = await (widget.signIn ?? sl<LoginUseCase>().call)(
           LoginCredentials(
-              phone: _phone.text.trim(), password: _password.text.trim()));
+              phone: Validators.normalizePhone(_phone.text),
+              password: _password.text));
       if (!['business_owner', 'manager'].contains(user.role) ||
           user.businessId == null) {
         if (mounted) setState(() => _error = _LoginError.company);

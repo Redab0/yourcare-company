@@ -1,3 +1,4 @@
+import '../../../core/validators/validators.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/media_carousel_viewer.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
@@ -285,6 +286,12 @@ class _UpholsteryCleaningRequestState
                                   _selectedTimelineHours == null
                               ? null
                               : () {
+                                  if (!Validators.validAmount(
+                                      _amountController.text,
+                                      minimum: 0.001)) {
+                                    context.showErrorToast();
+                                    return;
+                                  }
                                   context.read<RequestsActionBloc>().add(
                                         SubmitUpholsteryOffer(
                                           _composeNotes(),

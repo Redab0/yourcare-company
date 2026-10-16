@@ -1,5 +1,8 @@
 import 'package:cleaning_service_driver/core/api/api_diagnostics_interceptor.dart';
 import 'package:cleaning_service_driver/core/api/api_environment.dart';
+import '../security/request_security_interceptor.dart';
+import '../security/bounded_response_adapter.dart';
+import '../security/session_state.dart';
 import 'package:cleaning_service_driver/core/api/session_request_interceptor.dart';
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
@@ -7,7 +10,7 @@ import 'package:cleaning_service_driver/core/utils/locale_cubit.dart';
 import 'package:dio/dio.dart';
 
 /// A simple, reusable API client using Dio.
-/// You can extend this for auth, error handling, and logging.
+/// You can extend this for auth and error handling.
 class ApiClient {
   final Dio _dio;
 
@@ -30,16 +33,36 @@ class ApiClient {
           BaseOptions(
             baseUrl: baseUrl,
             connectTimeout: const Duration(seconds: 30),
+            sendTimeout: const Duration(seconds: 30),
+            followRedirects: false,
+            maxRedirects: 0,
             receiveTimeout: const Duration(seconds: 30),
             headers: {'Content-Type': 'application/json', 'channel': 'MANAGER'},
           ),
         ) {
     ApiEnvironment.validate();
+    _dio.httpClientAdapter = BoundedResponseAdapter(_dio.httpClientAdapter);
+    _dio.interceptors.add(RequestSecurityInterceptor());
     _dio.interceptors.add(ApiDiagnosticsInterceptor());
     _dio.interceptors.add(SessionRequestInterceptor(
       readAccessToken: SecureStorageService().getAccessToken,
       languageTag: () => sl<LocaleCubit>().state.toLanguageTag(),
     ));
+    _dio.interceptors.add(InterceptorsWrapper(onError: (error, handler) async {
+      if (error.response?.statusCode == 401) {
+        final sent = error.requestOptions.headers['Authorization'];
+        if (sent is String && sent.startsWith('Bearer ')) {
+          try {
+            await SecureStorageService().clearAuthDataIfTokenMatches(
+                sent.substring(7),
+                onCleared: clearSessionState);
+          } catch (_) {
+            // Preserve the original API error if secure storage is unavailable.
+          }
+        }
+      }
+      handler.next(error);
+    }));
   }
 
   /// Expose Dio if you need full access

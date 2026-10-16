@@ -1,5 +1,4 @@
 plugins {
-    id "com.google.firebase.crashlytics"
     id "com.android.application"
     id "kotlin-android"
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -100,7 +99,6 @@ dependencies {
     implementation "com.google.android.play:review:2.0.1"
     implementation "com.google.android.play:app-update:2.1.0"
     implementation(platform("com.google.firebase:firebase-bom:34.1.0"))
-    implementation("com.google.firebase:firebase-analytics")
     implementation ("com.google.firebase:firebase-messaging")
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
 }
@@ -110,15 +108,5 @@ configurations.all {
         // This stops old plugins from sneaking the broken library back in
         exclude group: 'com.google.android.play', module: 'core'
         exclude group: 'com.google.android.play', module: 'core-common'
-    }
-}
-
-// Symbol uploads are an explicit production release action, never part of dev validation.
-tasks.configureEach { task ->
-    if (task.name.startsWith('uploadCrashlytics')) {
-        task.onlyIf {
-            stackApiEnvironment == 'production' &&
-                project.findProperty('CRASHLYTICS_UPLOAD_SYMBOLS') == 'true'
-        }
     }
 }

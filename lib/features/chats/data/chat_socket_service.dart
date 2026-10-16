@@ -1,12 +1,12 @@
 import 'dart:async';
-import 'dart:developer' as developer;
+import '../../../core/security/request_security.dart';
+import '../../../core/security/socket_transport.dart';
 
 import 'package:cleaning_service_driver/core/api/api_environment.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/data/models/chats/chat_message_model.dart';
 import 'package:cleaning_service_driver/data/models/chats/conversation_model.dart';
 import 'package:cleaning_service_driver/data/models/chats/send_chat_message_request.dart';
-import 'package:flutter/foundation.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class ChatSocketService {
@@ -17,6 +17,7 @@ class ChatSocketService {
   io.Socket? _socket;
   String? _currentUserId;
   String? _authHeader;
+  int _generation = 0;
 
   final _messagesController = StreamController<ChatMessageModel>.broadcast();
   final _conversationController =
@@ -32,13 +33,24 @@ class ChatSocketService {
       : _chatUrl = chatUrl ?? ApiEnvironment.chatUrl;
 
   Future<void> connect() async {
-    final token = await SecureStorageService().getAccessToken();
-    final user = await SecureStorageService().getUser();
+    RequestSecurity.socketDestination(_chatUrl, ApiEnvironment.chatUrl);
+    final generation = _generation;
+    final snapshot = await SecureStorageService()
+        .sessionSnapshot()
+        .timeout(_connectionTimeout);
+    final token = snapshot.token;
+    final user = snapshot.user;
+    if (generation != _generation) return;
     _currentUserId = user?.id;
 
     if (token == null || token.isEmpty) {
+      await disconnect();
       _statusController.add('error');
       return;
+    }
+    if (token.length > 16384 || token.contains(RegExp(r'[\x00-\x20\x7f]'))) {
+      await disconnect();
+      throw const FormatException('Invalid session credential.');
     }
     final authHeader = 'Bearer $token';
 
@@ -67,39 +79,38 @@ class ChatSocketService {
       io.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()
+          .disableMultiplex()
+          .enableForceNew()
           .setExtraHeaders({'Authorization': authHeader})
           .setTransportOptions({
             'websocket': {
               'extraHeaders': {'Authorization': authHeader}
             }
           })
-          .build(),
+          .build()
+        ..['httpClientAdapter'] = createSecureSocketAdapter(),
     );
 
     socket.onConnect((_) {
-      if (kDebugMode) developer.log('[ChatSocket] connected');
       _statusController.add('connected');
     });
 
     socket.onDisconnect((_) {
-      if (kDebugMode) developer.log('[ChatSocket] disconnected');
       _statusController.add('disconnected');
     });
 
     socket.onConnectError((e) {
-      if (kDebugMode) developer.log('[ChatSocket] connect error: $e');
       _statusController.add('error');
     });
 
     socket.onError((e) {
-      if (kDebugMode) developer.log('[ChatSocket] error: $e');
       _statusController.add('error');
     });
 
     void handleIncoming(dynamic payload, String eventName) {
       if (payload is! Map) return;
       final map = Map<String, dynamic>.from(payload);
-      _logSocketEvent(eventName, map);
+
       final message = ChatMessageModel.fromJson(
         map,
         currentUserId: _currentUserId,
@@ -112,7 +123,7 @@ class ChatSocketService {
     void handleConversation(dynamic payload, String eventName) {
       if (payload is! Map) return;
       final map = Map<String, dynamic>.from(payload);
-      _logSocketEvent(eventName, map);
+
       final conversation = ConversationModel.fromJson(map);
       if (conversation.id.isEmpty) return;
       _conversationController.add(conversation);
@@ -132,18 +143,14 @@ class ChatSocketService {
   }
 
   Future<void> sendMessage(SendChatMessageRequest request) async {
+    final payload = RequestSecurity.prepare(request.toJson(),
+        endpoint: '/chat/sendMessage');
     await _ensureConnected();
     final socket = _socket;
     if (socket == null || !socket.connected) {
       throw StateError('Chat socket is not connected.');
     }
 
-    final payload = request.toJson();
-    if (kDebugMode) {
-      developer.log(
-        '[ChatSocket] sendMessage conversationId=${request.conversationId}',
-      );
-    }
     final completer = Completer<void>();
     late final Timer timer;
 
@@ -157,9 +164,6 @@ class ChatSocketService {
     socket.emitWithAck('sendMessage', payload, ack: (ack) {
       if (completer.isCompleted) return;
       final normalizedAck = _normalizeAck(ack);
-      if (kDebugMode) {
-        developer.log('[ChatSocket] sendMessage ack=${_ackStatus(ack)}');
-      }
       if (_ackFailed(normalizedAck)) {
         completer.completeError(
           Exception(_ackErrorMessage(normalizedAck)),
@@ -173,6 +177,7 @@ class ChatSocketService {
   }
 
   Future<void> disconnect({bool keepStreams = false}) async {
+    _generation++;
     final socket = _socket;
     if (socket != null) {
       socket.dispose();
@@ -230,17 +235,6 @@ class ChatSocketService {
     });
   }
 
-  void _logSocketEvent(String eventName, Map<String, dynamic> payload) {
-    if (!kDebugMode) return;
-    final id = payload['_id'] ?? payload['id'] ?? '';
-    final conversationId = payload['conversationId'] ?? payload['_id'] ?? '';
-    final senderType = payload['senderType'] ?? '';
-    final status = payload['status'] ?? '';
-    developer.log(
-      '[ChatSocket] $eventName id=$id conversationId=$conversationId senderType=$senderType status=$status',
-    );
-  }
-
   dynamic _normalizeAck(dynamic ack) {
     if (ack is List && ack.length == 1) return ack.first;
     return ack;
@@ -263,18 +257,5 @@ class ChatSocketService {
           .toString();
     }
     return 'Failed to send message';
-  }
-
-  String _ackStatus(dynamic ack) {
-    final normalizedAck = _normalizeAck(ack);
-    if (normalizedAck is Map) {
-      final map = Map<String, dynamic>.from(normalizedAck);
-      if (map.containsKey('success')) return 'success=${map['success']}';
-      if (map.containsKey('status')) return 'status=${map['status']}';
-      if (map.containsKey('error')) return 'error';
-    }
-    return normalizedAck == null
-        ? 'received'
-        : normalizedAck.runtimeType.toString();
   }
 }

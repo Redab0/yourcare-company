@@ -21,6 +21,8 @@ abstract class NotificationsService {
   @POST("/notifications/deactivate-token")
   Future<ApiResponse<ResponsePayload<RegisterTokenResponse>>>
       deactivateDeviceToken(
-    @Body() RegisterToken registerToken,
-  );
+    @Body() RegisterToken registerToken, {
+    @Header('Authorization') String? authorization,
+    @CancelRequest() CancelToken? cancelToken,
+  });
 }

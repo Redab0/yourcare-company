@@ -37,6 +37,7 @@ void main() async {
     await MobileTelemetry.initialize();
     await FirebaseMessaging.instance.setAutoInitEnabled(true);
   }
+  await SecureStorageService().upgradeProtection();
   await setupServiceLocator();
 
   // If already logged in, initialize notifications and register token.

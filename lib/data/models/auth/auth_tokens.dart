@@ -18,45 +18,44 @@ class AuthTokens {
     // Handle both formats - seconds-based expiry or direct ISO datetime strings
     DateTime accessTokenExpiry;
     DateTime refreshTokenExpiry;
-    
+
     // Get tokens with fallbacks for missing values
     final accessToken = json['access_token'] ?? '';
-    if (accessToken.isEmpty) {
-      print('Warning: Empty access token received');
-    }
-    
+    if (accessToken.isEmpty) {}
+
     final refreshToken = json['refresh_token'] ?? '';
-    if (refreshToken.isEmpty) {
-      print('Warning: Empty refresh token received');
-    }
-    
+    if (refreshToken.isEmpty) {}
+
     // For mock tokens, use long expiry times
     if (accessToken.toString().startsWith('mock_')) {
       final now = DateTime.now();
       return AuthTokens(
         accessToken: accessToken,
         refreshToken: refreshToken,
-        accessTokenExpiry: now.add(const Duration(days: 30)), // Long expiry for mock
-        refreshTokenExpiry: now.add(const Duration(days: 60)), // Long expiry for mock
+        accessTokenExpiry:
+            now.add(const Duration(days: 30)), // Long expiry for mock
+        refreshTokenExpiry:
+            now.add(const Duration(days: 60)), // Long expiry for mock
         tokenType: json['token_type'] ?? 'Bearer',
       );
     }
-    
+
     if (json.containsKey('expires_in')) {
       // Backend sends token information in seconds
-      final int expiresIn = json['expires_in'] is String 
-          ? int.parse(json['expires_in']) 
+      final int expiresIn = json['expires_in'] is String
+          ? int.parse(json['expires_in'])
           : json['expires_in'];
-          
-      final int refreshExpiresIn = json['refresh_expires_in'] is String 
+
+      final int refreshExpiresIn = json['refresh_expires_in'] is String
           ? int.parse(json['refresh_expires_in'])
           : json['refresh_expires_in'];
-      
+
       // Calculate expiry dates from seconds
       accessTokenExpiry = DateTime.now().add(Duration(seconds: expiresIn));
-      refreshTokenExpiry = DateTime.now().add(Duration(seconds: refreshExpiresIn));
-    } 
-    else if (json.containsKey('access_token_expiry') && json.containsKey('refresh_token_expiry')) {
+      refreshTokenExpiry =
+          DateTime.now().add(Duration(seconds: refreshExpiresIn));
+    } else if (json.containsKey('access_token_expiry') &&
+        json.containsKey('refresh_token_expiry')) {
       // Direct date format (stored format)
       try {
         accessTokenExpiry = DateTime.parse(json['access_token_expiry']);
@@ -65,16 +64,13 @@ class AuthTokens {
         // Fallback to defaults if parsing fails
         accessTokenExpiry = DateTime.now().add(const Duration(minutes: 30));
         refreshTokenExpiry = DateTime.now().add(const Duration(days: 7));
-        print('Error parsing token expiry dates: $e');
       }
-    }
-    else {
+    } else {
       // No expiry information available, set reasonable defaults
       accessTokenExpiry = DateTime.now().add(const Duration(minutes: 30));
       refreshTokenExpiry = DateTime.now().add(const Duration(days: 7));
-      print('Warning: No token expiry information in response, using defaults');
     }
-    
+
     return AuthTokens(
       accessToken: accessToken,
       refreshToken: refreshToken,

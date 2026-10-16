@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:cleaning_service_driver/core/api/api_environment.dart';
 import 'package:cleaning_service_driver/data/models/laundry/laundry_notification.dart';
 import 'package:cleaning_service_driver/features/screens/laundry/laundry_order_loader_screen.dart';
@@ -73,7 +74,6 @@ class NotificationsRepository {
       );
 
       // Get current saved token and deviceId (persist deviceId).
-      final prev = await SecureStorageService().getFcmToken();
       final savedDeviceId = await SecureStorageService().getDeviceId();
       final deviceId = savedDeviceId ?? const Uuid().v4();
       if (savedDeviceId == null) {
@@ -83,7 +83,6 @@ class NotificationsRepository {
       // Try immediate registration once, then keep retrying in background.
       final registered = await _tryRegisterCurrentToken(
         deviceId: deviceId,
-        previousToken: prev,
       );
       if (!registered) {
         _startTokenRegistrationRetryLoop(deviceId);
@@ -105,7 +104,7 @@ class NotificationsRepository {
           _tokenRegistrationCompleted = true;
         } catch (e) {
           _tokenRegistrationCompleted = false;
-          debugPrint('Failed to register refreshed FCM token');
+
           _startTokenRegistrationRetryLoop(deviceId);
         }
       });
@@ -129,17 +128,13 @@ class NotificationsRepository {
     } catch (e) {
       _initialized = false;
       _notificationsActive = false;
-      debugPrint('Failed to initialize notifications');
+
       rethrow;
     }
   }
 
   Future<void> _ensureNotificationPermission() async {
     var settings = await _messaging.getNotificationSettings();
-    debugPrint(
-      'Notification authorization status before request: '
-      '${settings.authorizationStatus}',
-    );
 
     if (settings.authorizationStatus == AuthorizationStatus.notDetermined) {
       settings = await _messaging.requestPermission(
@@ -149,23 +144,14 @@ class NotificationsRepository {
       );
       await SecureStorageService().askedForNotificationsPermission();
     }
-
-    debugPrint(
-      'Notification authorization status after request: '
-      '${settings.authorizationStatus}',
-    );
   }
 
   Future<bool> _tryRegisterCurrentToken({
     required String deviceId,
-    String? previousToken,
   }) async {
     if (!_notificationsActive) return false;
     try {
       final token = await _safeGetFcmToken();
-      final prev = previousToken ?? await SecureStorageService().getFcmToken();
-      final tokenChanged = token != null && token != prev;
-      debugPrint('FCM token changed locally? $tokenChanged');
 
       if (token == null) {
         _tokenRegistrationCompleted = false;
@@ -181,11 +167,11 @@ class NotificationsRepository {
       );
       await SecureStorageService().saveFcmToken(token);
       _tokenRegistrationCompleted = true;
-      debugPrint('Device token registered and saved.');
+
       return true;
     } catch (e) {
       _tokenRegistrationCompleted = false;
-      debugPrint('Failed to register current FCM token');
+
       return false;
     }
   }
@@ -231,7 +217,6 @@ class NotificationsRepository {
 
     final apns = await _messaging.getAPNSToken();
     if (apns == null) {
-      debugPrint('APNs token not ready yet on iOS; skipping FCM token fetch.');
       return null;
     }
 
@@ -239,7 +224,6 @@ class NotificationsRepository {
       return await _getTokenWithRetry();
     } on FirebaseException catch (e) {
       if (e.code == _apnsTokenNotSetCode) {
-        debugPrint('APNs token not set yet; will retry later.');
         return null;
       }
       rethrow;
@@ -283,8 +267,6 @@ class NotificationsRepository {
   }
 
   void _handleMessage(RemoteMessage message) {
-    debugPrint('Notification received');
-
     // iOS handles foreground presentation via system when enabled.
     if (Platform.isIOS) {
       return;
@@ -470,44 +452,69 @@ class NotificationsRepository {
     return null;
   }
 
-  Future<void> onLogoutCleanup() async {
-    if (!ApiEnvironment.firebaseEnabled) return;
+  void invalidateLocalSession() {
     _notificationsActive = false;
     _tokenRegistrationCompleted = false;
     _tokenRetryLoopRunning = false;
-    _tokenRetryEpoch += 1;
+    _tokenRetryEpoch++;
     _initialized = false;
-    await _tokenRefreshSubscription?.cancel();
+    if (_tokenRefreshSubscription != null) {
+      unawaited(_tokenRefreshSubscription!.cancel());
+    }
+    if (_foregroundMessageSubscription != null) {
+      unawaited(_foregroundMessageSubscription!.cancel());
+    }
+    if (_messageOpenedSubscription != null) {
+      unawaited(_messageOpenedSubscription!.cancel());
+    }
     _tokenRefreshSubscription = null;
-    await _foregroundMessageSubscription?.cancel();
     _foregroundMessageSubscription = null;
-    await _messageOpenedSubscription?.cancel();
     _messageOpenedSubscription = null;
     _pendingChatNotificationData = null;
     _pendingLaundryRequestId = null;
     _companyNavigationReady = false;
+  }
 
-    final storedToken = await SecureStorageService().getFcmToken();
-    final deviceId = await SecureStorageService().getDeviceId();
-
-    // Fetch latest token if not cached
-    final token = storedToken ?? await _messaging.getToken();
-
-    if (token != null && deviceId != null) {
-      try {
-        await _notificationsService.deactivateDeviceToken(
-          RegisterToken(
-            fcmToken: token,
-            deviceId: deviceId,
-            platform: Platform.isAndroid ? "android" : "ios",
-          ),
-        );
-      } catch (e) {
-        debugPrint('Failed to deactivate device token');
+  /// Deactivate only the captured account while its token is still valid.
+  /// Native FCM deletion is deliberately omitted: it cannot be cancelled and
+  /// could finish after a different account logs in on the same installation.
+  Future<void> onLogoutCleanup({required String expectedToken}) async {
+    if (!ApiEnvironment.firebaseEnabled) return;
+    final storage = SecureStorageService();
+    final matched = await storage.whileSessionMatches(expectedToken, () async {
+      invalidateLocalSession();
+    });
+    if (!matched) return;
+    final cancellation = CancelToken();
+    try {
+      final token =
+          await storage.getFcmToken().timeout(const Duration(seconds: 2));
+      final deviceId =
+          await storage.getDeviceId().timeout(const Duration(seconds: 2));
+      if (token != null && deviceId != null) {
+        await _notificationsService
+            .deactivateDeviceToken(
+              RegisterToken(
+                  fcmToken: token,
+                  deviceId: deviceId,
+                  platform: Platform.isAndroid ? 'android' : 'ios'),
+              authorization: 'Bearer $expectedToken',
+              cancelToken: cancellation,
+            )
+            .timeout(const Duration(seconds: 3));
       }
+    } catch (_) {
+      // Offline deactivation must not prevent local sign-out.
+    } finally {
+      cancellation.cancel();
+      await storage.whileSessionMatches(expectedToken, () async {
+        await storage.deleteFcmToken();
+        try {
+          await _localNotifications
+              .cancelAll()
+              .timeout(const Duration(seconds: 1));
+        } catch (_) {/* Native tray cleanup is best effort. */}
+      });
     }
-
-    await _messaging.deleteToken();
-    await SecureStorageService().deleteFcmToken();
   }
 }

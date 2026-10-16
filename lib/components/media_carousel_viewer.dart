@@ -1,3 +1,4 @@
+import '../core/security/request_security.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
@@ -80,6 +81,11 @@ class _MediaPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    try {
+      RequestSecurity.webUri(url, httpsOnly: true);
+    } on FormatException {
+      return const Center(child: Icon(Icons.broken_image_outlined));
+    }
     if (_isVideo) {
       return _VideoView(url: url);
     }

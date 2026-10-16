@@ -262,7 +262,6 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
             setState(() => _isFilteringWorkers = false);
           }
           ctx.showErrorToast(state.message);
-          print("ERROR ${state.message}");
         } else if (state is WorkersAssigned) {
           // they just saved successfully
           setState(() {

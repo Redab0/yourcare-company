@@ -1,3 +1,4 @@
+import '../../../core/validators/validators.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
@@ -1045,7 +1046,9 @@ class _PackageEditorSheetState extends State<_PackageEditorSheet> {
                                         }
                                         final price =
                                             double.tryParse(normalized);
-                                        return price == null || price < 0
+                                        return price == null ||
+                                                !Validators.validAmount(
+                                                    normalized)
                                             ? context.l10n
                                                 .price_must_be_zero_or_greater
                                             : null;
@@ -1078,8 +1081,8 @@ class _PackageEditorSheetState extends State<_PackageEditorSheet> {
                         prefixIcon: const Icon(Icons.percent),
                       ),
                       validator: (value) {
-                        final discount = _parseNumber(value);
-                        return discount < 0 || discount > 100
+                        return !Validators.validAmount(value ?? '',
+                                maximum: 100)
                             ? context.l10n.invalid_discount_percentage
                             : null;
                       },
@@ -1224,7 +1227,7 @@ class _AreaFeeDialogState extends State<_AreaFeeDialog> {
                 prefixIcon: const Icon(Icons.payments_outlined),
                 suffixText: context.l10n.kwd,
               ),
-              validator: (value) => _parseNumber(value) < 0
+              validator: (value) => !Validators.validAmount(value ?? '')
                   ? context.l10n.fee_cannot_be_negative
                   : null,
             ),

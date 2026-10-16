@@ -1,4 +1,5 @@
 import 'dart:io';
+import '../../../core/validators/validators.dart';
 
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
@@ -227,7 +228,9 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
                               labelText: context.l10n.username,
                               suffixIcon: Icon(Icons.edit)),
                           validator: (v) =>
-                              v!.isEmpty ? context.l10n.username : null,
+                              Validators.validStaffUsername(v ?? '')
+                                  ? null
+                                  : context.l10n.username,
                         ),
                         const SizedBox(height: 12),
                         // Password
@@ -238,7 +241,9 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
                               suffixIcon: Icon(Icons.edit)),
                           obscureText: true,
                           validator: (v) {
-                            if (v != null && v.isNotEmpty && v.length < 6) {
+                            if (v != null &&
+                                v.isNotEmpty &&
+                                !Validators.validStaffPassword(v)) {
                               return context.l10n.signup_password;
                             }
                             return null;
@@ -252,9 +257,10 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
                               labelText: context.l10n.signup_email,
                               suffixIcon: Icon(Icons.edit)),
                           keyboardType: TextInputType.emailAddress,
-                          validator: (v) => v!.contains('@')
-                              ? null
-                              : context.l10n.signup_email,
+                          validator: (v) =>
+                              Validators.validateOptionalEmail(v) == null
+                                  ? null
+                                  : context.l10n.signup_email,
                         ),
                         const SizedBox(height: 12),
                         // Phone
@@ -265,7 +271,9 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
                               suffixIcon: Icon(Icons.edit)),
                           keyboardType: TextInputType.phone,
                           validator: (v) =>
-                              v!.isEmpty ? context.l10n.signup_phone : null,
+                              Validators.validateOptionalPhone(v) == null
+                                  ? null
+                                  : context.l10n.signup_phone,
                         ),
                         const SizedBox(height: 20),
                         ElevatedButton.icon(
@@ -383,7 +391,9 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
           _usernameCtl.text.trim().isEmpty ? null : _usernameCtl.text.trim(),
       password: _passwordCtl.text.isEmpty ? null : _passwordCtl.text,
       email: _emailCtl.text.trim().isEmpty ? null : _emailCtl.text.trim(),
-      phone: _phoneCtl.text.trim().isEmpty ? null : _phoneCtl.text.trim(),
+      phone: _phoneCtl.text.trim().isEmpty
+          ? null
+          : Validators.normalizePhone(_phoneCtl.text),
       image: _uploadedPhotoUrl,
       role: selectedRole.value,
     );

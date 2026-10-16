@@ -1,3 +1,4 @@
+import '../../../core/validators/validators.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
@@ -161,6 +162,16 @@ class _UpholsteryPricingScreenState extends State<UpholsteryPricingScreen> {
   }
 
   bool _cannotSave(UpholsteryPricingState state) {
+    for (final entry in _controllers.entries) {
+      if (entry.key.endsWith(':price') &&
+          !Validators.validAmount(entry.value.text)) {
+        return true;
+      }
+      if (entry.key.endsWith(':discount') &&
+          !Validators.validAmount(entry.value.text, maximum: 100)) {
+        return true;
+      }
+    }
     for (final group in state.pricing) {
       if (!group.isEnabled) continue;
       if (group.packages.isEmpty) return true;
@@ -323,9 +334,15 @@ class _UpholsteryPricingScreenState extends State<UpholsteryPricingScreen> {
                   onPressed:
                       state.isLoading || state.isSaving || _cannotSave(state)
                           ? null
-                          : () => context
-                              .read<UpholsteryPricingBloc>()
-                              .add(const SaveUpholsteryPricing()),
+                          : () {
+                              if (_cannotSave(state)) {
+                                context.showErrorToast();
+                                return;
+                              }
+                              context
+                                  .read<UpholsteryPricingBloc>()
+                                  .add(const SaveUpholsteryPricing());
+                            },
                   icon: const Icon(Icons.save),
                   label: Text(context.l10n.save_pricing),
                 ),

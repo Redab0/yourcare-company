@@ -9,6 +9,10 @@ part 'auth_service.g.dart';
 abstract class AuthService {
   factory AuthService(Dio dio, {String baseUrl}) = _AuthService;
 
+  @POST('/auth/logout')
+  Future<void> logout(@Header('Authorization') String authorization,
+      @CancelRequest() CancelToken cancelToken);
+
   @POST("/auth/login")
   Future<LoginResponse> login(
     @Body() LoginCredentials body,
