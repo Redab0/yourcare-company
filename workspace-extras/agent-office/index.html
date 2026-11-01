@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="A living robot office for your Codex agents. Watch real work, real handoffs, and little moments of collaboration.">
+  <title>The Robot Office — live agent activity</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='3' y='9' width='34' height='27' rx='9' fill='%23168879'/%3E%3Cpath d='M20 9V3' stroke='%23168879' stroke-width='3'/%3E%3Ccircle cx='13' cy='21' r='3' fill='white'/%3E%3Ccircle cx='27' cy='21' r='3' fill='white'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="The Robot Office home"><span class="brand-bot"><i></i><b>••</b></span> the robot office<span class="brand-period">.</span></a>
+    <span class="header-note">A small world for big ideas</span>
+    <div class="connection" id="connection"><span class="dot"></span><span id="connectionText">Connecting</span></div>
+  </header>
+  <main>
+    <section class="intro">
+      <div><p class="eyebrow"><span class="tiny-square"></span> YOUR WORKSPACE, ALIVE</p><h1>Good work happens<br>in good company<span>.</span></h1><p class="subtitle">Your agents at work. Their world, in real time.</p></div>
+      <div class="stats" aria-label="Agent activity totals">
+        <div><span id="workCount">—</span><p><i class="dot green"></i> At work</p></div>
+        <div><span id="meetCount">—</span><p><i class="dot orange"></i> In meetings</p></div>
+        <div><span id="idleCount">—</span><p><i class="dot gray"></i> On standby</p></div>
+        <div><span id="attentionCount">—</span><p><i class="dot orange"></i> Need attention</p></div>
+      </div>
+    </section>
+    <section class="workspace">
+      <div class="office-panel">
+        <div class="panel-toolbar"><div class="view-name"><span class="floor-icon">▧</span> Office floor <span class="floor-badge">01</span></div><div class="view-actions"><button id="motion" aria-pressed="false" title="Pause visual animation">Ⅱ<span> Pause</span></button><button id="expand" title="Expand office" aria-label="Expand office">⤢</button></div></div>
+        <div class="scene-wrap" id="sceneWrap">
+          <div class="scene-caption"><span class="mini-live"></span><span id="sceneCaption">Getting everyone settled in…</span></div>
+          <svg id="office" viewBox="0 0 1200 790" role="img" aria-label="Isometric robot office showing agent activity at workstations, a meeting room, a research lab, and a lounge">
+            <defs>
+              <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#d8d9cf"/></pattern>
+              <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="12"/></filter>
+              <linearGradient id="glass" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#a4d6ce" stop-opacity=".32"/><stop offset="1" stop-color="#d3e9df" stop-opacity=".09"/></linearGradient>
+            </defs>
+            <rect width="1200" height="790" fill="url(#grid)" opacity=".45"/>
+            <g id="world"></g>
+          </svg>
+          <div id="sceneEmpty" class="scene-empty" hidden><span class="brand-bot"><i></i><b>••</b></span><h3>The office is quiet</h3><p id="emptyText">Agents will appear here when activity is available.</p></div>
+          <div class="scene-bottom"><div class="legend"><span><i class="dot green"></i> Working</span><span><i class="dot orange"></i> Talking</span><span><i class="dot gray"></i> Resting</span></div><div class="zoom"><button id="zoomOut" aria-label="Zoom out">−</button><button id="zoomReset" title="Reset view">100%</button><button id="zoomIn" aria-label="Zoom in">+</button></div></div>
+        </div>
+        <div class="office-footnote"><span class="sparkle">✳</span><span id="officeNote">A real activity feed. A very human little office.</span><button id="about">How it works ↗</button></div>
+      </div>
+      <aside class="team-panel">
+        <div class="team-heading"><h2>The crew <span id="crewCount">0</span></h2><span class="small-mono">AGENTS</span></div>
+        <div class="scope"><button class="selected" data-scope="recent">Recent</button><button data-scope="active">Working</button><button data-scope="all">All</button></div>
+        <label class="search"><span>⌕</span><input id="search" type="search" placeholder="Find an agent…" aria-label="Find an agent"></label>
+        <div class="roster" id="roster"><p class="empty-list">Connecting to your workspace…</p></div>
+        <div class="team-footer"><span class="dot green"></span><span id="syncText">Waiting for the first update</span><button id="refresh" aria-label="Refresh activity" title="Refresh activity">↻</button></div>
+      </aside>
+    </section>
+    <section class="lower-grid">
+      <div class="activity-panel"><div class="section-heading"><h2>Happening around the office</h2><span class="small-mono">ACTIVITY FEED</span></div><div id="activityFeed" class="activity-feed"><p class="empty-list">The kettle is on. Waiting for activity.</p></div></div>
+      <div class="meeting-panel"><div class="section-heading"><h2>A meeting of minds</h2><span class="meeting-icon">⌘</span></div><p id="meetingSummary">When agents exchange messages, they meet here.</p><div id="meetingDetails" class="meeting-details"><span class="room-available"><i class="dot green"></i> Room available</span><span class="small-mono">COLLABORATION ROOM</span></div></div>
+    </section>
+    <footer class="page-footer"><span>Built for the way your agents work.</span><span id="sourceNote">Local Codex activity · read only · refreshes every 2s</span></footer>
+  </main>
+  <dialog id="details"><button class="dialog-close" aria-label="Close agent details">×</button><div id="detailContent"></div></dialog>
+  <dialog id="aboutDialog"><button class="dialog-close" aria-label="Close how it works">×</button><p class="eyebrow">BEHIND THE LITTLE WORLD</p><h2>Real work. Robot coworkers.</h2><p>The office reads your local Codex activity every two seconds. Each robot represents a task agent or a child agent.</p><ul><li><b>Workstations:</b> commands, file edits, and thinking.</li><li><b>Research lab:</b> reading files and web research.</li><li><b>Meeting room:</b> agents with a recorded message exchange within the last 45 seconds. This is a visual window around a message, not the duration of a call.</li><li><b>Lounge:</b> completed or interrupted tasks.</li><li><b>Waiting area:</b> agents needing input, or whose status is uncertain.</li></ul><p>“Recent” shows the last 24 hours plus every active agent. The crew list includes every agent in the selected view; use the floor controls to browse large teams. Archived tasks and internal approval reviewers are excluded.</p><p>This is a read-only local view of Codex’s activity records. Private reasoning, command output, and message bodies are never displayed. Cloud-only activity is not available through this local connection.</p><button class="primary" id="tryDemo">Preview a busy office</button><p class="fine-print">The preview is clearly labeled and uses fictional agents.</p></dialog>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
