@@ -46,17 +46,17 @@ class _UpholsteryPricingScreenState extends State<UpholsteryPricingScreen> {
       final permissions = user?.permissions ?? const [];
       setState(() {
         _tourOwnerId = businessShowcaseOwnerId(user);
-        _canManageAvailability = permissions.hasAnyPermission([
-          Permission.cleanerAvailabilityRead,
-          Permission.cleanerAvailabilityCreate,
-          Permission.cleanerAvailabilityUpdate,
-          Permission.cleanerAvailabilityDelete,
-        ]);
+        _canManageAvailability = user?.role == 'business_owner' ||
+            (user?.role == 'manager' &&
+                permissions.hasPermission(Permission.businessUpdate));
       });
     });
     context
         .read<UpholsteryPricingBloc>()
         .add(const LoadUpholsteryPricingConfig());
+    context
+        .read<UpholsteryPricingBloc>()
+        .add(const LoadUpholsteryAvailability());
   }
 
   @override
@@ -95,14 +95,12 @@ class _UpholsteryPricingScreenState extends State<UpholsteryPricingScreen> {
         _syncController(
           activeKeys,
           _key(group.upholsteryTypeId, package.rowKey, 'price'),
-          package.price == 0 ? '' : _formatNumber(package.price),
+          _formatNumber(package.price),
         );
         _syncController(
           activeKeys,
           _key(group.upholsteryTypeId, package.rowKey, 'discount'),
-          package.discountPercentage == 0
-              ? ''
-              : _formatNumber(package.discountPercentage),
+          _formatNumber(package.discountPercentage),
         );
       }
     }
@@ -162,6 +160,7 @@ class _UpholsteryPricingScreenState extends State<UpholsteryPricingScreen> {
   }
 
   bool _cannotSave(UpholsteryPricingState state) {
+    if (state.pricing.isEmpty) return true;
     for (final entry in _controllers.entries) {
       if (entry.key.endsWith(':price') &&
           !Validators.validAmount(entry.value.text)) {
@@ -173,10 +172,9 @@ class _UpholsteryPricingScreenState extends State<UpholsteryPricingScreen> {
       }
     }
     for (final group in state.pricing) {
-      if (!group.isEnabled) continue;
-      if (group.packages.isEmpty) return true;
+      if (group.isEnabled && group.packages.isEmpty) return true;
       for (final package in group.packages) {
-        if (package.price <= 0) return true;
+        if (!package.price.isFinite || package.price < 0) return true;
         if (package.discountPercentage < 0 ||
             package.discountPercentage > 100) {
           return true;
@@ -197,18 +195,6 @@ class _UpholsteryPricingScreenState extends State<UpholsteryPricingScreen> {
         leading: const BusinessBackButton(fallbackRouteName: 'home'),
         title: Text(context.l10n.upholstery_configuration),
         actions: [
-          // if (_canManageAvailability)
-          //   IconButton(
-          //     tooltip: context.l10n.employee_availability,
-          //     onPressed: () => context.pushNamed(
-          //       'employee-availability-screen',
-          //       queryParameters: {
-          //         'serviceType':
-          //             AvailabilityServiceType.upholsteryCleaning.apiValue,
-          //       },
-          //     ),
-          //     icon: const Icon(Icons.calendar_month_outlined),
-          //   ),
           BusinessShowcaseHelpButton(onPressed: () => _tour.start(_tourKeys)),
         ],
       ),
@@ -232,9 +218,6 @@ class _UpholsteryPricingScreenState extends State<UpholsteryPricingScreen> {
             // The BLoC already presents the app-logo loading overlay.
             return const SizedBox.expand();
           }
-          if (state.pricing.isEmpty) {
-            return Center(child: Text(context.l10n.no_upholstery_types));
-          }
           final ownerId = _tourOwnerId;
           if (ownerId != null) {
             _tour.scheduleStartOnce(
@@ -249,6 +232,13 @@ class _UpholsteryPricingScreenState extends State<UpholsteryPricingScreen> {
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
               children: [
+                _AvailabilityCard(
+                  state: state,
+                  canManage: _canManageAvailability,
+                ),
+                const SizedBox(height: 16),
+                if (state.pricing.isEmpty)
+                  Text(context.l10n.no_upholstery_types),
                 BusinessShowcaseStep(
                   showcaseKey: _hintTourKey,
                   scope: _tourScope,
@@ -331,18 +321,21 @@ class _UpholsteryPricingScreenState extends State<UpholsteryPricingScreen> {
                 index: 2,
                 itemCount: 3,
                 child: FilledButton.icon(
-                  onPressed:
-                      state.isLoading || state.isSaving || _cannotSave(state)
-                          ? null
-                          : () {
-                              if (_cannotSave(state)) {
-                                context.showErrorToast();
-                                return;
-                              }
-                              context
-                                  .read<UpholsteryPricingBloc>()
-                                  .add(const SaveUpholsteryPricing());
-                            },
+                  key: const ValueKey('upholstery-save-pricing'),
+                  onPressed: state.isLoading ||
+                          state.isSaving ||
+                          state.available == null ||
+                          _cannotSave(state)
+                      ? null
+                      : () {
+                          if (_cannotSave(state)) {
+                            context.showErrorToast();
+                            return;
+                          }
+                          context
+                              .read<UpholsteryPricingBloc>()
+                              .add(const SaveUpholsteryPricing());
+                        },
                   icon: const Icon(Icons.save),
                   label: Text(context.l10n.save_pricing),
                 ),
@@ -483,6 +476,73 @@ class _UpholsteryPricingScreenState extends State<UpholsteryPricingScreen> {
                   ),
                 ),
               ],
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AvailabilityCard extends StatelessWidget {
+  final UpholsteryPricingState state;
+  final bool canManage;
+
+  const _AvailabilityCard({required this.state, required this.canManage});
+
+  @override
+  Widget build(BuildContext context) {
+    final busy = state.isAvailabilityLoading || state.isAvailabilitySaving;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    context.l10n.upholstery_availability,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Switch.adaptive(
+                  key: const ValueKey('upholstery-availability'),
+                  value: state.available == true,
+                  onChanged: canManage && !busy && state.available != null
+                      ? (value) => context
+                          .read<UpholsteryPricingBloc>()
+                          .add(ChangeUpholsteryAvailability(value))
+                      : null,
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(context.l10n.upholstery_availability_hint),
+            if (busy) ...[
+              const SizedBox(height: 12),
+              const LinearProgressIndicator(
+                key: ValueKey('upholstery-availability-progress'),
+              ),
+            ],
+            if (state.availabilityError != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                context.l10n.upholstery_availability_failed,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+              TextButton.icon(
+                key: const ValueKey('upholstery-availability-retry'),
+                onPressed: busy
+                    ? null
+                    : () => context
+                        .read<UpholsteryPricingBloc>()
+                        .add(const LoadUpholsteryAvailability()),
+                icon: const Icon(Icons.refresh),
+                label: Text(context.l10n.retry),
+              ),
             ],
           ],
         ),

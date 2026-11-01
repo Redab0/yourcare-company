@@ -184,22 +184,27 @@ class FrequentRequestModel {
   @KuwaitScheduleConverter()
   DateTime? date;
   RequestStatus? status;
+  @JsonKey(fromJson: _validVisitDuration, includeIfNull: false)
+  final double? durationHours;
 
   FrequentRequestModel({
     this.status,
     this.id,
     this.date,
-  });
+    double? durationHours,
+  }) : durationHours = _validVisitDuration(durationHours);
 
   FrequentRequestModel copyWith({
     String? id,
     DateTime? date,
     RequestStatus? status,
+    double? durationHours,
   }) {
     return FrequentRequestModel(
       status: status ?? this.status,
       id: id ?? this.id,
       date: date ?? this.date,
+      durationHours: durationHours ?? this.durationHours,
     );
   }
 
@@ -211,6 +216,12 @@ class FrequentRequestModel {
             : (json['_id'] as String?)?.trim(),
       });
   Map<String, dynamic> toJson() => _$FrequentRequestModelToJson(this);
+}
+
+double? _validVisitDuration(Object? value) {
+  if (value is! num) return null;
+  final hours = value.toDouble();
+  return hours.isFinite && hours > 0 && hours <= 24 ? hours : null;
 }
 
 @JsonSerializable(checked: true)

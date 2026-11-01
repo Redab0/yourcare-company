@@ -192,37 +192,35 @@ void main() {
     });
   }
 
-  testWidgets('quick enabling a managed item validates prices before saving',
+  testWidgets(
+      'quick enabling a managed item changes only availability and preserves prices',
       (tester) async {
     final repo = _Repository([_item(configured: false)]);
     sl.registerSingleton<LaundryRepository>(repo);
-    addTearDown(() => sl.unregister<LaundryRepository>());
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+      await sl.unregister<LaundryRepository>();
+    });
     await tester.pumpWidget(_app(const LaundryCatalogScreen()));
     await tester.pumpAndSettle();
     await tester.tap(find.byType(SwitchListTile).first);
     await tester.pumpAndSettle();
-    expect(repo.configs, isEmpty);
-    expect(find.byType(LaundryProductEditor), findsOneWidget);
-    final l10n = AppLocalizations.of(tester.element(find.byType(AlertDialog)))!;
-    await tester.enterText(find.byType(TextFormField).last, '0');
-    await tester.tap(find.text(l10n.save));
-    await tester.pumpAndSettle();
-    expect(repo.configs, isEmpty);
-    expect(find.text(l10n.price_must_be_greater_than_zero), findsOneWidget);
-    await tester.enterText(find.byType(TextFormField).last, '4.5');
-    await tester.tap(find.text(l10n.save));
-    await tester.pumpAndSettle();
-    expect(repo.configs.single.active, isTrue);
-    expect(repo.configs.single.sizes.map((size) => size.price), [2.5, 4.5]);
-    expect(find.text('Blanket'), findsOneWidget);
-    expect(find.byType(SwitchListTile), findsOneWidget);
+    expect(repo.configs.single.toJson(), {'active': true});
+    expect(repo.catalog.single.sizes.map((size) => size.price), [2.5, 4]);
+    expect(find.byType(LaundryProductEditor), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('disabling an item preserves prices without opening an editor',
       (tester) async {
     final repo = _Repository([_item()]);
     sl.registerSingleton<LaundryRepository>(repo);
-    addTearDown(() => sl.unregister<LaundryRepository>());
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+      await sl.unregister<LaundryRepository>();
+    });
     await tester.pumpWidget(_app(const LaundryCatalogScreen()));
     await tester.pumpAndSettle();
     await tester.tap(find.byType(SwitchListTile).first);
@@ -235,7 +233,11 @@ void main() {
       (tester) async {
     final repo = _Repository([_item(unavailable: true)]);
     sl.registerSingleton<LaundryRepository>(repo);
-    addTearDown(() => sl.unregister<LaundryRepository>());
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+      await sl.unregister<LaundryRepository>();
+    });
     await tester.pumpWidget(_app(const LaundryCatalogScreen()));
     await tester.pumpAndSettle();
     expect(find.text('Unavailable — disabled by admin'), findsOneWidget);

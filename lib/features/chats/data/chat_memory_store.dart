@@ -2,44 +2,52 @@ import 'package:cleaning_service_driver/data/models/chats/chat_message_model.dar
 
 class ChatMemoryStore {
   final Map<String, List<ChatMessageModel>> _messagesByConversation = {};
-  final Map<String, Set<String>> _seenIdsByConversation = {};
 
   List<ChatMessageModel> getMessages(String conversationId) =>
-      List.unmodifiable(_messagesByConversation[conversationId] ?? const []);
+      List.unmodifiable(_messagesByConversation[conversationId] ??
+          const <ChatMessageModel>[]);
 
+  // History and sockets may renew a signed URL under the same message ID.
   bool addMessage(String conversationId, ChatMessageModel message) {
     final id = message.id.trim();
-    if (id.isEmpty) return false;
-    final seen = _seenIdsByConversation.putIfAbsent(conversationId, () => {});
-    if (seen.contains(id)) return false;
-    seen.add(id);
+    if (id.isEmpty ||
+        (message.conversationId != null &&
+            message.conversationId!.isNotEmpty &&
+            message.conversationId != conversationId)) {
+      return false;
+    }
     final list = _messagesByConversation.putIfAbsent(
         conversationId, () => <ChatMessageModel>[]);
-    list.add(message);
-    list.sort((a, b) => a.sentAt.compareTo(b.sentAt));
+    final index = list.indexWhere((item) => item.id.trim() == id);
+    if (index >= 0) {
+      final previous = list[index];
+      list[index] = message;
+      if (previous.text == message.text &&
+          previous.senderId == message.senderId &&
+          previous.isMine == message.isMine &&
+          previous.sentAt == message.sentAt &&
+          previous.conversationId == message.conversationId) {
+        return false;
+      }
+    } else {
+      list.add(message);
+    }
+    list.sort((a, b) => (a.sentAt.millisecondsSinceEpoch)
+        .compareTo(b.sentAt.millisecondsSinceEpoch));
     return true;
   }
 
   void mergeMessages(String conversationId, List<ChatMessageModel> messages) {
-    final seen = _seenIdsByConversation.putIfAbsent(conversationId, () => {});
-    final list = _messagesByConversation.putIfAbsent(
-        conversationId, () => <ChatMessageModel>[]);
-    for (final m in messages) {
-      final id = m.id.trim();
-      if (id.isEmpty || seen.contains(id)) continue;
-      seen.add(id);
-      list.add(m);
+    for (final message in messages) {
+      addMessage(conversationId, message);
     }
-    list.sort((a, b) => a.sentAt.compareTo(b.sentAt));
   }
 
   void clearConversation(String conversationId) {
     _messagesByConversation.remove(conversationId);
-    _seenIdsByConversation.remove(conversationId);
   }
 
   void clearAll() {
     _messagesByConversation.clear();
-    _seenIdsByConversation.clear();
   }
 }

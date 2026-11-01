@@ -20,11 +20,24 @@ abstract class UpholsteryPricingService {
 
   @GET('/business/my-business/upholstery-packages')
   Future<ApiResponse<ResponsePayload<List<UpholsteryPricingGroup>>>>
-      getMyUpholsteryPackages();
+      getMyUpholsteryPackages({
+    @Query('includeDisabled') bool includeDisabled = false,
+  });
+
+  @GET('/business/my-business/upholstery-availability')
+  Future<ApiResponse<ResponsePayload<UpholsteryAvailability>>>
+      getMyUpholsteryAvailability();
+
+  @PATCH('/business/my-business/upholstery-availability')
+  Future<ApiResponse<ResponsePayload<UpholsteryAvailability>>>
+      updateMyUpholsteryAvailability(
+    @Body() UpdateUpholsteryAvailabilityRequest request,
+  );
 
   @PATCH('/business/my-business/upholstery-pricing')
   Future<ApiResponse<ResponsePayload<BusinessProfileModel>>>
       updateMyUpholsteryPricing(
-    @Body() UpholsteryPricingRequest request,
-  );
+    @Body() UpholsteryPricingRequest request, {
+    @Query('includeDisabled') bool includeDisabled = false,
+  });
 }

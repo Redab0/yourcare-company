@@ -6,6 +6,7 @@ import 'package:cleaning_service_driver/data/models/schedule/cleaner_availabilit
 import 'package:cleaning_service_driver/domain/usecases/schedule/create_cleaner_availability_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/schedule/delete_cleaner_availability_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/schedule/get_cleaner_availability_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/schedule/replace_dated_availability_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/schedule/update_cleaner_availability_usecase.dart';
 import 'package:cleaning_service_driver/features/bloc/schedule/employee_availability_event.dart';
 import 'package:cleaning_service_driver/features/bloc/schedule/employee_availability_state.dart';
@@ -17,6 +18,7 @@ class EmployeeAvailabilityBloc
   final createAvailabilityUseCase = sl<CreateCleanerAvailabilityUseCase>();
   final updateAvailabilityUseCase = sl<UpdateCleanerAvailabilityUseCase>();
   final deleteAvailabilityUseCase = sl<DeleteCleanerAvailabilityUseCase>();
+  final replaceDatedAvailabilityUseCase = sl<ReplaceDatedAvailabilityUseCase>();
   final _loader = sl<LoadingController>();
 
   EmployeeAvailabilityBloc() : super(EmployeeAvailabilityInitial()) {
@@ -25,6 +27,7 @@ class EmployeeAvailabilityBloc
     on<UpdateAvailabilitySlot>(_onUpdateAvailability);
     on<DeleteAvailabilitySlot>(_onDeleteAvailability);
     on<ReplaceAvailabilityDays>(_onReplaceAvailabilityDays);
+    on<ReplaceAvailabilityDates>(_onReplaceAvailabilityDates);
   }
 
   FutureOr<void> _onLoadAvailabilityData(
@@ -114,7 +117,8 @@ class EmployeeAvailabilityBloc
     ReplaceAvailabilityDays event,
     Emitter<EmployeeAvailabilityState> emit,
   ) async {
-    if (event.scheduleByDay.isEmpty) return;
+    if (event.scheduleByDay.isEmpty || state.isSaving) return;
+    if (event.serviceType.usesDatedAvailability) return;
     emit(state.copyWith(isSaving: true, error: null));
     _loader.show();
     try {
@@ -140,6 +144,28 @@ class EmployeeAvailabilityBloc
       emit(state.copyWith(
         slots: slots,
         serviceType: event.serviceType,
+        isSaving: false,
+        error: null,
+      ));
+    } catch (e) {
+      emit(state.copyWith(isSaving: false, error: e.toString()));
+    } finally {
+      _loader.hide();
+    }
+  }
+
+  Future<void> _onReplaceAvailabilityDates(
+    ReplaceAvailabilityDates event,
+    Emitter<EmployeeAvailabilityState> emit,
+  ) async {
+    if (event.request.days.isEmpty || state.isSaving) return;
+    emit(state.copyWith(isSaving: true, error: null));
+    _loader.show();
+    try {
+      final slots = await replaceDatedAvailabilityUseCase.call(event.request);
+      emit(state.copyWith(
+        slots: slots,
+        serviceType: event.request.serviceType,
         isSaving: false,
         error: null,
       ));

@@ -488,12 +488,14 @@ void main() {
     await tester.tap(find.text('open hours'));
     await tester.pumpAndSettle();
     final fields = tester
-        .widgetList<DropdownButtonFormField<String>>(
-            find.byType(DropdownButtonFormField<String>))
+        .widgetList<DropdownButtonFormField<String>>(find.byWidgetPredicate(
+            (widget) =>
+                widget is DropdownButtonFormField<String> &&
+                widget.key.toString().contains('laundry-hour-')))
         .toList();
     expect(fields.length, 2);
     // Dropdown's current value verifies midnight remains an explicit end boundary.
-    expect(find.text('24:00'), findsWidgets);
+    expect(fields.last.initialValue, '24:00');
     await tester.tap(find.byKey(const ValueKey('laundry-available')));
     await tester.pumpAndSettle();
     final card = tester.widget<LaundrySameDaySettingsCard>(

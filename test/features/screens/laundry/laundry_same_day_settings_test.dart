@@ -238,11 +238,10 @@ void main() {
                   find.byKey(const ValueKey('laundry-same-day-save')))
               .onPressed,
           isNull);
-      await tester.tap(find.byKey(const ValueKey('laundry-same-day-cutoff')));
-      await tester.pumpAndSettle();
-      final material = MaterialLocalizations.of(
-          tester.element(find.byType(TimePickerDialog)));
-      await tester.tap(find.text(material.okButtonLabel));
+      final cutoff = tester.widget<DropdownButtonFormField<String>>(
+          find.byType(DropdownButtonFormField<String>));
+      expect(cutoff.onChanged, isNotNull);
+      cutoff.onChanged!('12:00');
       await tester.pumpAndSettle();
       expect(cubit.state.cutoff, '12:00');
       final pending = Completer<LaundrySettings>();
@@ -301,9 +300,9 @@ void main() {
         isNull);
     expect(
         tester
-            .widget<OutlinedButton>(
-                find.byKey(const ValueKey('laundry-same-day-cutoff')))
-            .onPressed,
+            .widget<DropdownButtonFormField<String>>(
+                find.byType(DropdownButtonFormField<String>))
+            .onChanged,
         isNull);
     expect(find.byKey(const ValueKey('laundry-same-day-save')), findsNothing);
   });

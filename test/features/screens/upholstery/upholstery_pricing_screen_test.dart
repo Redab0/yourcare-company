@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:cleaning_service_driver/core/utils/loading_controller.dart';
 import 'package:cleaning_service_driver/data/models/upholstery/upholstery_pricing_models.dart';
 import 'package:cleaning_service_driver/domain/usecases/upholstery/get_upholstery_pricing_config_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/upholstery/get_upholstery_availability_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/upholstery/update_upholstery_availability_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/upholstery/update_upholstery_pricing_usecase.dart';
 import 'package:cleaning_service_driver/features/bloc/upholstery/upholstery_pricing_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/upholstery/upholstery_pricing_event.dart';
@@ -116,6 +118,8 @@ UpholsteryPricingBloc _createBloc({
     loader: loader,
     getConfigUseCase: getConfig,
     updatePricingUseCase: _FakeUpdatePricing(),
+    getAvailabilityUseCase: _FakeGetAvailability(),
+    updateAvailabilityUseCase: _FakeUpdateAvailability(),
   );
 }
 
@@ -151,6 +155,19 @@ class _FakeUpdatePricing implements UpdateUpholsteryPricingUseCase {
   ) async {
     return request.sourcePricing;
   }
+}
+
+class _FakeGetAvailability implements GetUpholsteryAvailabilityUseCase {
+  @override
+  Future<UpholsteryAvailability> call() async =>
+      const UpholsteryAvailability(available: true);
+}
+
+class _FakeUpdateAvailability implements UpdateUpholsteryAvailabilityUseCase {
+  @override
+  Future<UpholsteryAvailability> call(
+          UpdateUpholsteryAvailabilityRequest request) async =>
+      UpholsteryAvailability(available: request.available);
 }
 
 class _FakeLoadingController implements LoadingController {

@@ -29,6 +29,16 @@ class ScheduleRepository {
     }
   }
 
+  Future<List<CleanerAvailabilitySlot>> replaceDatedAvailability(
+    DatedAvailabilityRequest request,
+  ) async {
+    final response = await _scheduleService.replaceDatedAvailability(request);
+    if (response.success && response.data != null) {
+      return response.data!.data ?? [];
+    }
+    throw Exception(response.message);
+  }
+
   Future<CleanerAvailabilitySlot> updateCleanerAvailability(
       String id, CleanerAvailabilityRequest request) async {
     final response = await _scheduleService.updateCleanerAvailability(

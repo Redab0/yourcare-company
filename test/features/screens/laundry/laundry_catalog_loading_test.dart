@@ -215,14 +215,15 @@ void main() {
           tester.element(find.byType(LaundryJobDetailsScreen)))!;
       final create = find.ancestor(
           of: find.text(l10n.laundry_create_invoice),
-          matching: find.byWidgetPredicate((widget) => widget is FilledButton));
+          matching:
+              find.byWidgetPredicate((widget) => widget is OutlinedButton));
       await tester.ensureVisible(create);
       await tester.tap(create);
       await tester.pump();
       expect(find.text(l10n.laundry_catalog_loading), findsOneWidget);
       expect(find.text(l10n.laundry_customer), findsWidgets);
       expect(find.byType(LaundryInvoiceEditor), findsNothing);
-      expect(tester.widget<FilledButton>(create).onPressed, isNull);
+      expect(tester.widget<OutlinedButton>(create).onPressed, isNull);
       pending.completeError(TimeoutException('Timed out'));
       await tester.pumpAndSettle();
       expect(find.byType(AppIconSpinner), findsNothing);
@@ -246,9 +247,10 @@ void main() {
     repo.replies.add(pending.future);
     await tester.pumpWidget(_app(LaundryJobDetailsScreen(request: _order())));
     await tester.pumpAndSettle();
-    final button = tester.widget<FilledButton>(find.ancestor(
+    final button = tester.widget<OutlinedButton>(find.ancestor(
         of: find.text('Create invoice'),
-        matching: find.byWidgetPredicate((widget) => widget is FilledButton)));
+        matching:
+            find.byWidgetPredicate((widget) => widget is OutlinedButton)));
     button.onPressed!();
     button.onPressed!();
     await tester.pump();

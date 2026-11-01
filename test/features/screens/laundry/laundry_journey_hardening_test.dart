@@ -539,9 +539,16 @@ void main() {
     await tester.tap(find.text(l10n.laundry_save_draft));
     await tester.pumpAndSettle();
     expect(find.text(l10n.laundry_whole_quantity), findsOneWidget);
-    await tester.enterText(find.byType(TextFormField).first, '2');
-    await tester.enterText(
-        find.widgetWithText(TextFormField, l10n.laundry_discount), '100');
+    // Fees/discounts are retained from the draft; current editor no longer
+    // exposes a discount text field. Preserve the excessive-discount guard.
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpWidget(_app(const LaundryInvoiceEditor(
+        catalog: _catalog,
+        draft: LaundryInvoiceRequest(items: [
+          LaundryInvoiceSelection(
+              itemId: 'shirt', sizeId: 'cleaning', quantity: 2)
+        ], discount: 100, send: false))));
+    await tester.pumpAndSettle();
     await tester.tap(find.text(l10n.laundry_save_draft));
     await tester.pumpAndSettle();
     expect(find.text(l10n.laundry_invoice_invalid_discount), findsOneWidget);

@@ -103,6 +103,53 @@ class _ScheduleService implements ScheduleService {
   }
 
   @override
+  Future<ApiResponse<ResponsePayload<List<CleanerAvailabilitySlot>>>>
+      replaceDatedAvailability(DatedAvailabilityRequest body) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(body.toJson());
+    final _options = _setStreamType<
+        ApiResponse<ResponsePayload<List<CleanerAvailabilitySlot>>>>(
+      Options(method: 'PUT', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/company/cleaner-availability/dates',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(
+            baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+          ),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<ResponsePayload<List<CleanerAvailabilitySlot>>> _value;
+    try {
+      _value =
+          ApiResponse<ResponsePayload<List<CleanerAvailabilitySlot>>>.fromJson(
+        _result.data!,
+        (json) => ResponsePayload<List<CleanerAvailabilitySlot>>.fromJson(
+          json as Map<String, dynamic>,
+          (json) => json is List<dynamic>
+              ? json
+                  .map<CleanerAvailabilitySlot>(
+                    (i) => CleanerAvailabilitySlot.fromJson(
+                      i as Map<String, dynamic>,
+                    ),
+                  )
+                  .toList()
+              : List.empty(),
+        ),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<ApiResponse<ResponsePayload<CleanerAvailabilitySlot>>>
       updateCleanerAvailability(
     String id,

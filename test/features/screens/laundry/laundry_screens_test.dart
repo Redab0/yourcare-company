@@ -7,6 +7,7 @@ import 'package:cleaning_service_driver/data/models/laundry/laundry_models.dart'
 import 'package:cleaning_service_driver/data/repositories/laundry/laundry_repository.dart';
 import 'package:cleaning_service_driver/data/services/laundry/laundry_service.dart';
 import 'package:cleaning_service_driver/features/screens/laundry/laundry_catalog_screen.dart';
+import 'package:cleaning_service_driver/features/screens/laundry/laundry_bulk_prices_screen.dart';
 import 'package:cleaning_service_driver/features/screens/laundry/laundry_invoice_editor.dart';
 import 'package:cleaning_service_driver/features/screens/laundry/laundry_job_details_screen.dart';
 import 'package:cleaning_service_driver/l10n/app_localizations.dart';
@@ -260,9 +261,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  for (final sized in [false, true]) {
+  for (final price in [0.0, 2.125]) {
     testWidgets(
-        'quick enabling a custom ${sized ? 'sized' : 'base-priced'} item rejects zero',
+        'existing size metadata retains exact legacy price $price and size order',
         (tester) async {
       tester.view.physicalSize = const Size(900, 1800);
       tester.view.devicePixelRatio = 1;
@@ -274,35 +275,119 @@ void main() {
             nameEn: 'Blanket',
             nameAr: 'بطانية',
             active: false,
-            price: sized ? null : 0,
-            sizes: sized
-                ? const [
-                    LaundrySize(
-                        id: 'large', nameEn: 'Large', nameAr: 'كبير', price: 0)
-                  ]
-                : const []),
+            sizes: [
+              LaundrySize(
+                  id: 'large', nameEn: 'Large', nameAr: 'كبير', price: price),
+              const LaundrySize(
+                  id: 'small', nameEn: 'Small', nameAr: 'صغير', price: 1.25)
+            ])
       ];
       await tester.pumpWidget(_app(const LaundryCatalogScreen()));
       await tester.pumpAndSettle();
       await tester.tap(find.byType(SwitchListTile).first);
       await tester.pumpAndSettle();
-      expect(repository.savedItem, isNull);
-      expect(find.byType(AlertDialog), findsOneWidget);
-      await tester.tap(find.text('Save'));
-      await tester.pumpAndSettle();
-      expect(repository.savedItem, isNull);
-      expect(find.text('Price must be greater than zero'), findsOneWidget);
-      final l10n =
-          AppLocalizations.of(tester.element(find.byType(AlertDialog)))!;
-      await tester.enterText(
-          find.widgetWithText(TextFormField, l10n.laundry_price), '2.5');
       await tester.tap(find.text('Save'));
       await tester.pumpAndSettle();
       expect(repository.savedItem?.active, isTrue);
+      expect(repository.savedItem?.sizes.map((size) => size.id),
+          ['large', 'small']);
+      expect(
+          repository.savedItem?.sizes.map((size) => size.price), [price, 1.25]);
+      expect(tester.takeException(), isNull);
+    });
+  }
+  testWidgets(
+      'invalid existing size price is refused without mutation or null assertion',
+      (tester) async {
+    repository.catalog = [
+      const LaundryCatalogItem(
+          id: 'old-item',
+          nameEn: 'Blanket',
+          nameAr: 'بطانية',
+          active: false,
+          sizes: [
+            LaundrySize(
+                id: 'large', nameEn: 'Large', nameAr: 'كبير', price: double.nan)
+          ])
+    ];
+    await tester.pumpWidget(_app(const LaundryCatalogScreen()));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(SwitchListTile).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(repository.savedItem, isNull);
+    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.text('Price must be greater than zero'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets(
+      'legacy zero base is retained by metadata editing without price mutation',
+      (tester) async {
+    repository.catalog = [
+      const LaundryCatalogItem(
+          id: 'old-item',
+          nameEn: 'Blanket',
+          nameAr: 'بطانية',
+          active: false,
+          price: 0)
+    ];
+    await tester.pumpWidget(_app(const LaundryCatalogScreen()));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(SwitchListTile).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(repository.savedItem?.price, 0);
+    expect(repository.savedItem?.active, isTrue);
+    expect(tester.takeException(), isNull);
+  });
+  for (final sized in [false, true]) {
+    testWidgets(
+        'explicit custom ${sized ? 'size' : 'base'} price editor still refuses zero',
+        (tester) async {
+      LaundryBulkPricesRequest? saved;
+      final item = LaundryCatalogItem(
+          id: 'old-item',
+          nameEn: 'Blanket',
+          nameAr: 'بطانية',
+          price: sized ? null : 1,
+          sizes: sized
+              ? const [
+                  LaundrySize(
+                      id: 'large', nameEn: 'Large', nameAr: 'كبير', price: 1)
+                ]
+              : const []);
+      await tester.pumpWidget(_app(Builder(
+          builder: (context) => Scaffold(
+              body: TextButton(
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => LaundryBulkPricesScreen(
+                          catalog: [item],
+                          save: (body) async {
+                            saved = body;
+                            return [item];
+                          }))),
+                  child: const Text('open prices'))))));
+      await tester.tap(find.text('open prices'));
+      await tester.pumpAndSettle();
+      final field = find.byType(TextFormField).last;
+      await tester.enterText(field, '0');
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('laundry-bulk-save')));
+      await tester.pumpAndSettle();
+      expect(saved, isNull);
+      final l10n = AppLocalizations.of(
+          tester.element(find.byType(LaundryBulkPricesScreen)))!;
+      expect(find.text(l10n.laundry_bulk_prices_invalid), findsWidgets);
+      await tester.enterText(field, '2.5');
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('laundry-bulk-save')));
+      await tester.pumpAndSettle();
       expect(
           sized
-              ? repository.savedItem?.sizes.single.price
-              : repository.savedItem?.price,
+              ? saved?.items.single.sizes?.single.price
+              : saved?.items.single.price,
           2.5);
       expect(tester.takeException(), isNull);
     });

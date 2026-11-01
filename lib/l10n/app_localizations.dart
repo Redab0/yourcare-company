@@ -953,6 +953,30 @@ abstract class AppLocalizations {
   /// **'Cleaners'**
   String get request_card_cleaners;
 
+  /// Duration of one housekeeping visit, or the shared duration when all visits match.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours, plural, =1{1 hour} other{{hours} hours}}'**
+  String housekeeping_duration_hours(num hours);
+
+  /// No description provided for @housekeeping_duration_varies.
+  ///
+  /// In en, this message translates to:
+  /// **'Varies by visit'**
+  String get housekeeping_duration_varies;
+
+  /// No description provided for @housekeeping_visit_next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next visit'**
+  String get housekeeping_visit_next;
+
+  /// No description provided for @housekeeping_visit_current.
+  ///
+  /// In en, this message translates to:
+  /// **'Current visit'**
+  String get housekeeping_visit_current;
+
   /// No description provided for @request_card_duration.
   ///
   /// In en, this message translates to:
@@ -1988,7 +2012,7 @@ abstract class AppLocalizations {
   /// No description provided for @business_inner_tour_car_wash_hours.
   ///
   /// In en, this message translates to:
-  /// **'Define the weekly days and time slots when customers can book car washing.'**
+  /// **'Set dated time slots for the next 14 days when customers can book car washing.'**
   String get business_inner_tour_car_wash_hours;
 
   /// No description provided for @business_inner_tour_staff_create_user.
@@ -2602,6 +2626,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Visits'**
   String get number_of_visits;
+
+  /// No description provided for @dated_availability_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Next 14 Days'**
+  String get dated_availability_title;
+
+  /// No description provided for @save_dated_availability.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Availability'**
+  String get save_dated_availability;
+
+  /// No description provided for @availability_dated_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Set availability for each date in Kuwait time. New dates stay unavailable until you set them; schedules do not repeat automatically.'**
+  String get availability_dated_hint;
+
+  /// No description provided for @availability_window_expired.
+  ///
+  /// In en, this message translates to:
+  /// **'The date window has changed. Refresh to load the next 14 days before saving. Your unsaved changes will stay here until you refresh.'**
+  String get availability_window_expired;
+
+  /// No description provided for @availability_load_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load availability'**
+  String get availability_load_failed;
+
+  /// No description provided for @availability_dated_copy_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy this date’s hours to selected dates within these 14 days. Each date remains independent.'**
+  String get availability_dated_copy_hint;
+
+  /// No description provided for @availability_dated_save_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Save your changed dates together after reviewing their hours and worker counts.'**
+  String get availability_dated_save_hint;
 
   /// No description provided for @weekly_availability_title.
   ///
@@ -3370,6 +3436,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Refresh'**
   String get refresh;
+
+  /// No description provided for @upholstery_availability.
+  ///
+  /// In en, this message translates to:
+  /// **'Furniture cleaning availability'**
+  String get upholstery_availability;
+
+  /// No description provided for @upholstery_availability_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept new furniture cleaning bookings. Turning this off keeps your saved prices and existing requests.'**
+  String get upholstery_availability_hint;
+
+  /// No description provided for @upholstery_availability_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update availability. Retry to confirm the current status.'**
+  String get upholstery_availability_failed;
 
   /// No description provided for @upholstery_configuration.
   ///

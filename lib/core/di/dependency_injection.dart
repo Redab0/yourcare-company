@@ -88,6 +88,7 @@ import 'package:cleaning_service_driver/domain/usecases/requests/submit_upholste
 import 'package:cleaning_service_driver/domain/usecases/schedule/create_cleaner_availability_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/schedule/delete_cleaner_availability_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/schedule/get_cleaner_availability_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/schedule/replace_dated_availability_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/schedule/update_cleaner_availability_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/assign_permissions_for_user.dart';
 import 'package:cleaning_service_driver/domain/usecases/staff/check_permissions_usecase.dart';
@@ -102,6 +103,8 @@ import 'package:cleaning_service_driver/domain/usecases/staff/update_team_usecas
 import 'package:cleaning_service_driver/domain/usecases/staff/update_user_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/statistics/get_requests_statistics_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/upholstery/get_upholstery_pricing_config_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/upholstery/get_upholstery_availability_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/upholstery/update_upholstery_availability_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/upholstery/update_upholstery_pricing_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/chats/create_conversation_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/chats/close_conversation_usecase.dart';
@@ -241,7 +244,9 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<NotificationsRepository>(
     () => NotificationsRepository(
       sl<NotificationsService>(),
-      ApiEnvironment.firebaseEnabled ? FirebaseMessaging.instance : null,
+      ApiEnvironment.firebaseMessagingEnabled
+          ? FirebaseMessaging.instance
+          : null,
     ),
   );
 
@@ -367,6 +372,10 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory(
       () => UpdateUpholsteryPricingUseCase(sl<UpholsteryPricingRepository>()));
   sl.registerFactory(
+      () => GetUpholsteryAvailabilityUseCase(sl<UpholsteryPricingRepository>()));
+  sl.registerFactory(
+      () => UpdateUpholsteryAvailabilityUseCase(sl<UpholsteryPricingRepository>()));
+  sl.registerFactory(
       () => CheckPermissionsUseCase(sl<PermissionsRepository>()));
   sl.registerFactory(() => UpdateUserUseCase(sl<StaffRepository>()));
   sl.registerFactory(() => CreateTeamUseCase(sl<StaffRepository>()));
@@ -391,6 +400,8 @@ Future<void> setupServiceLocator() async {
       () => UpdateCleanerAvailabilityUseCase(sl<ScheduleRepository>()));
   sl.registerFactory(
       () => DeleteCleanerAvailabilityUseCase(sl<ScheduleRepository>()));
+  sl.registerFactory(
+      () => ReplaceDatedAvailabilityUseCase(sl<ScheduleRepository>()));
   sl.registerFactory(() => CreateConversationUseCase(sl<ChatsRepository>()));
   sl.registerFactory(() => CloseConversationUseCase(sl<ChatsRepository>()));
   sl.registerFactory(() => GetConversationsUseCase(sl<ChatsRepository>()));

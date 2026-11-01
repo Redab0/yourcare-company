@@ -25,19 +25,19 @@ import 'core/utils/locale_cubit.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Ensure Firebase is available in isolates handling background notifications.
-  if (!ApiEnvironment.firebaseEnabled) return;
+  if (!ApiEnvironment.firebaseMessagingEnabled) return;
   await Firebase.initializeApp();
-  await MobileTelemetry.initialize();
+  if (ApiEnvironment.firebaseEnabled) await MobileTelemetry.initialize();
 }
 
 void main() async {
   ApiEnvironment.validate();
   WidgetsFlutterBinding.ensureInitialized();
   AppDiagnostics.installErrorHandlers();
-  if (ApiEnvironment.firebaseEnabled) {
+  if (ApiEnvironment.firebaseMessagingEnabled) {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     await Firebase.initializeApp();
-    await MobileTelemetry.initialize();
+    if (ApiEnvironment.firebaseEnabled) await MobileTelemetry.initialize();
     await FirebaseMessaging.instance.setAutoInitEnabled(true);
   }
   await setupServiceLocator();

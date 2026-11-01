@@ -10,6 +10,10 @@ class UpdateUpholsteryPricingUseCase {
     UpholsteryPricingRequest request,
   ) async {
     final profile = await _repository.updatePricing(request);
-    return profile?.upholsteryPricing ?? request.sourcePricing;
+    final pricing = profile?.upholsteryPricing;
+    if (pricing == null) {
+      throw const FormatException('Missing saved furniture pricing');
+    }
+    return pricing;
   }
 }

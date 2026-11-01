@@ -190,6 +190,7 @@ FrequentRequestModel _$FrequentRequestModelFromJson(
       id: json['id'] as String?,
       date: _$JsonConverterFromJson<String, DateTime>(
           json['date'], const KuwaitScheduleConverter().fromJson),
+      durationHours: _validVisitDuration(json['durationHours']),
     );
 
 Map<String, dynamic> _$FrequentRequestModelToJson(
@@ -199,6 +200,7 @@ Map<String, dynamic> _$FrequentRequestModelToJson(
       'date': _$JsonConverterToJson<String, DateTime>(
           instance.date, const KuwaitScheduleConverter().toJson),
       'status': _$RequestStatusEnumMap[instance.status],
+      if (instance.durationHours case final value?) 'durationHours': value,
     };
 
 HouseKeepingOption _$HouseKeepingOptionFromJson(Map<String, dynamic> json) =>

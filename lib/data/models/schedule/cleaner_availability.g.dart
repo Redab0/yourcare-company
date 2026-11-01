@@ -20,6 +20,7 @@ CleanerAvailabilitySlot _$CleanerAvailabilitySlotFromJson(
           totalCleaners:
               $checkedConvert('totalCleaners', (v) => (v as num?)?.toInt()),
           serviceType: $checkedConvert('serviceType', (v) => v as String?),
+          date: $checkedConvert('date', (v) => v as String?),
           employeeId: $checkedConvert(
             'employeeId',
             (v) => v as String?,
@@ -39,6 +40,7 @@ Map<String, dynamic> _$CleanerAvailabilitySlotToJson(
       'endHour': instance.endHour,
       'totalCleaners': instance.totalCleaners,
       'serviceType': instance.serviceType,
+      'date': instance.date,
       'employeeId': instance.employeeId,
     };
 
@@ -73,6 +75,28 @@ Map<String, dynamic> _$CleanerAvailabilityUpdateRequestToJson(
         CleanerAvailabilityUpdateRequest instance) =>
     <String, dynamic>{
       'dayOfWeek': instance.dayOfWeek,
+      'startHour': instance.startHour,
+      'endHour': instance.endHour,
+      'totalCleaners': instance.totalCleaners,
+    };
+
+Map<String, dynamic> _$DatedAvailabilityRequestToJson(
+        DatedAvailabilityRequest instance) =>
+    <String, dynamic>{
+      'serviceType': _$AvailabilityServiceTypeEnumMap[instance.serviceType]!,
+      'days': instance.days.map((e) => e.toJson()).toList(),
+    };
+
+Map<String, dynamic> _$DatedAvailabilityDayToJson(
+        DatedAvailabilityDay instance) =>
+    <String, dynamic>{
+      'date': instance.date,
+      'slots': instance.slots.map((e) => e.toJson()).toList(),
+    };
+
+Map<String, dynamic> _$DatedAvailabilityRangeToJson(
+        DatedAvailabilityRange instance) =>
+    <String, dynamic>{
       'startHour': instance.startHour,
       'endHour': instance.endHour,
       'totalCleaners': instance.totalCleaners,

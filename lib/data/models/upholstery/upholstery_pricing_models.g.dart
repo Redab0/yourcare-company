@@ -107,6 +107,7 @@ UpholsteryPricingGroup _$UpholsteryPricingGroupFromJson(
                   UpholsteryPricingPackage.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      isEnabled: json['enabled'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$UpholsteryPricingGroupToJson(
@@ -114,6 +115,7 @@ Map<String, dynamic> _$UpholsteryPricingGroupToJson(
     <String, dynamic>{
       'upholsteryTypeId': instance.upholsteryTypeId,
       'packages': instance.packages,
+      'enabled': instance.isEnabled,
     };
 
 Map<String, dynamic> _$UpholsteryPricingPackageRequestToJson(
@@ -132,6 +134,25 @@ Map<String, dynamic> _$UpholsteryPricingGroupRequestToJson(
     <String, dynamic>{
       'upholsteryTypeId': instance.upholsteryTypeId,
       'packages': instance.packages.map((e) => e.toJson()).toList(),
+      'enabled': instance.enabled,
+    };
+
+UpholsteryAvailability _$UpholsteryAvailabilityFromJson(
+        Map<String, dynamic> json) =>
+    UpholsteryAvailability(
+      available: json['available'] as bool,
+    );
+
+Map<String, dynamic> _$UpholsteryAvailabilityToJson(
+        UpholsteryAvailability instance) =>
+    <String, dynamic>{
+      'available': instance.available,
+    };
+
+Map<String, dynamic> _$UpdateUpholsteryAvailabilityRequestToJson(
+        UpdateUpholsteryAvailabilityRequest instance) =>
+    <String, dynamic>{
+      'available': instance.available,
     };
 
 Map<String, dynamic> _$UpholsteryPricingRequestToJson(

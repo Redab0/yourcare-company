@@ -57,7 +57,7 @@ class NotificationsRepository {
   static const String _apnsTokenNotSetCode = 'apns-token-not-set';
 
   Future<void> initializeAndRegister() async {
-    if (!ApiEnvironment.firebaseEnabled) return;
+    if (!ApiEnvironment.firebaseMessagingEnabled) return;
     if (_initialized) return;
     _notificationsActive = true;
     _tokenRegistrationCompleted = false;
@@ -479,7 +479,7 @@ class NotificationsRepository {
   /// Native FCM deletion is deliberately omitted: it cannot be cancelled and
   /// could finish after a different account logs in on the same installation.
   Future<void> onLogoutCleanup({required String expectedToken}) async {
-    if (!ApiEnvironment.firebaseEnabled) return;
+    if (!ApiEnvironment.firebaseMessagingEnabled) return;
     final storage = SecureStorageService();
     final matched = await storage.whileSessionMatches(expectedToken, () async {
       invalidateLocalSession();

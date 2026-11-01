@@ -510,11 +510,13 @@ class _LaundryCatalogScreenState extends State<LaundryCatalogScreen> {
 
 class _SizeDraft {
   final String? id;
+  final double? originalPrice;
   final TextEditingController en;
   final TextEditingController ar;
   final TextEditingController price;
   _SizeDraft([LaundrySize? size])
       : id = size?.id,
+        originalPrice = size?.price,
         en = TextEditingController(text: size?.nameEn),
         ar = TextEditingController(text: size?.nameAr),
         price = TextEditingController(text: size?.price.toStringAsFixed(3));
@@ -588,6 +590,20 @@ class _CatalogEditorState extends State<_CatalogEditor> {
 
   void _save() {
     if (!_form.currentState!.validate()) return;
+    final sizes = <LaundrySize>[];
+    for (final size in _sizes) {
+      final price =
+          size.originalPrice ?? laundryNumber(size.price.text, positive: true);
+      if (price == null || !price.isFinite || price < 0 || price > 10000) {
+        context.showErrorToast(context.l10n.price_must_be_greater_than_zero);
+        return;
+      }
+      sizes.add(LaundrySize(
+          id: size.id,
+          nameEn: size.en.text.trim(),
+          nameAr: size.ar.text.trim(),
+          price: price));
+    }
     Navigator.pop(
         context,
         LaundryCatalogMutation(
@@ -603,13 +619,7 @@ class _CatalogEditorState extends State<_CatalogEditor> {
                 ? null
                 : _services.map((draft) => draft.toConfig()).toList(),
             active: _active,
-            sizes: _sizes
-                .map((size) => LaundrySize(
-                    id: size.id,
-                    nameEn: size.en.text.trim(),
-                    nameAr: size.ar.text.trim(),
-                    price: laundryNumber(size.price.text, positive: true)!))
-                .toList()));
+            sizes: sizes));
   }
 
   @override
@@ -705,7 +715,7 @@ class _CatalogEditorState extends State<_CatalogEditor> {
                                           context.l10n.laundry_size_en),
                                       _field(size.ar,
                                           context.l10n.laundry_size_ar),
-                                      if (widget.item == null)
+                                      if (size.originalPrice == null)
                                         _field(size.price,
                                             context.l10n.laundry_price,
                                             price: true),

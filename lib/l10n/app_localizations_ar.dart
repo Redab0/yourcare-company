@@ -438,6 +438,32 @@ class AppLocalizationsAr extends AppLocalizations {
   String get request_card_cleaners => 'العاملات';
 
   @override
+  String housekeeping_duration_hours(num hours) {
+    final intl.NumberFormat hoursNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String hoursString = hoursNumberFormat.format(hours);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hoursString ساعة',
+      many: '$hoursString ساعة',
+      few: '$hoursString ساعات',
+      two: 'ساعتان',
+      one: 'ساعة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get housekeeping_duration_varies => 'المدة تختلف حسب الزيارة';
+
+  @override
+  String get housekeeping_visit_next => 'الزيارة القادمة';
+
+  @override
+  String get housekeeping_visit_current => 'الزيارة الحالية';
+
+  @override
   String get request_card_duration => 'المدة';
 
   @override
@@ -956,7 +982,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get business_inner_tour_car_wash_packages => 'أنشئ باقات غسيل قابلة لإعادة الاستخدام ثم اربط كل باقة بأنواع المركبات التي تدعمها.';
 
   @override
-  String get business_inner_tour_car_wash_hours => 'حدد أيام وفترات العمل الأسبوعية التي يمكن للعملاء حجز غسيل السيارات خلالها.';
+  String get business_inner_tour_car_wash_hours => 'حدد التواريخ والفترات المتاحة لحجز غسيل السيارات خلال الأيام الـ 14 القادمة.';
 
   @override
   String get business_inner_tour_staff_create_user => 'أنشئ حساب موظف وامنحه فقط الصلاحيات اللازمة لدوره.';
@@ -1275,6 +1301,27 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get number_of_visits => 'الزيارات';
+
+  @override
+  String get dated_availability_title => 'التوفر للأيام الـ 14 القادمة';
+
+  @override
+  String get save_dated_availability => 'حفظ التوفر';
+
+  @override
+  String get availability_dated_hint => 'حدد التوفر لكل تاريخ بتوقيت الكويت. تبقى التواريخ الجديدة غير متاحة حتى تحددها، ولا يتكرر الجدول تلقائيًا.';
+
+  @override
+  String get availability_window_expired => 'تغيرت فترة التواريخ. حدّث الصفحة لتحميل الأيام الـ 14 القادمة قبل الحفظ. تبقى تغييراتك غير المحفوظة هنا حتى تحدّث الصفحة.';
+
+  @override
+  String get availability_load_failed => 'تعذر تحميل التوفر';
+
+  @override
+  String get availability_dated_copy_hint => 'انسخ ساعات هذا التاريخ إلى التواريخ المحددة ضمن هذه الأيام الـ 14. يبقى كل تاريخ مستقلًا.';
+
+  @override
+  String get availability_dated_save_hint => 'احفظ التواريخ التي عدّلتها معًا بعد مراجعة ساعاتها وعدد العمال.';
 
   @override
   String get weekly_availability_title => 'التوفر الأسبوعي';
@@ -1671,6 +1718,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get refresh => 'تحديث';
+
+  @override
+  String get upholstery_availability => 'توفر تنظيف الأثاث';
+
+  @override
+  String get upholstery_availability_hint => 'استقبل حجوزات جديدة لتنظيف الأثاث. عند إيقاف التوفر، تبقى الأسعار المحفوظة والطلبات الحالية كما هي.';
+
+  @override
+  String get upholstery_availability_failed => 'تعذر تحديث التوفر. أعد المحاولة لتأكيد الحالة الحالية.';
 
   @override
   String get upholstery_configuration => 'إعدادات تنظيف الأثاث';

@@ -202,11 +202,13 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
         event.message.conversationId != conversationId) {
       return;
     }
-    final added = _memoryStore.addMessage(conversationId, event.message);
-    if (!added) return;
+    final existed = state.messages
+        .any((message) => message.id.trim() == event.message.id.trim());
+    final changed = _memoryStore.addMessage(conversationId, event.message);
+    if (!changed) return;
     emit(state.copyWith(
       messages: _memoryStore.getMessages(conversationId),
-      shouldScrollToBottom: true,
+      shouldScrollToBottom: !existed,
     ));
   }
 

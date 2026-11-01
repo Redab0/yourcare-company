@@ -438,6 +438,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get request_card_cleaners => 'Cleaners';
 
   @override
+  String housekeeping_duration_hours(num hours) {
+    final intl.NumberFormat hoursNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String hoursString = hoursNumberFormat.format(hours);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hoursString hours',
+      one: '1 hour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get housekeeping_duration_varies => 'Varies by visit';
+
+  @override
+  String get housekeeping_visit_next => 'Next visit';
+
+  @override
+  String get housekeeping_visit_current => 'Current visit';
+
+  @override
   String get request_card_duration => 'Duration';
 
   @override
@@ -956,7 +979,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get business_inner_tour_car_wash_packages => 'Create reusable wash packages, then assign each package to the vehicle types you support.';
 
   @override
-  String get business_inner_tour_car_wash_hours => 'Define the weekly days and time slots when customers can book car washing.';
+  String get business_inner_tour_car_wash_hours => 'Set dated time slots for the next 14 days when customers can book car washing.';
 
   @override
   String get business_inner_tour_staff_create_user => 'Create a staff account and grant only the permissions needed for that role.';
@@ -1271,6 +1294,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get number_of_visits => 'Visits';
+
+  @override
+  String get dated_availability_title => 'Next 14 Days';
+
+  @override
+  String get save_dated_availability => 'Save Availability';
+
+  @override
+  String get availability_dated_hint => 'Set availability for each date in Kuwait time. New dates stay unavailable until you set them; schedules do not repeat automatically.';
+
+  @override
+  String get availability_window_expired => 'The date window has changed. Refresh to load the next 14 days before saving. Your unsaved changes will stay here until you refresh.';
+
+  @override
+  String get availability_load_failed => 'Could not load availability';
+
+  @override
+  String get availability_dated_copy_hint => 'Copy this date’s hours to selected dates within these 14 days. Each date remains independent.';
+
+  @override
+  String get availability_dated_save_hint => 'Save your changed dates together after reviewing their hours and worker counts.';
 
   @override
   String get weekly_availability_title => 'Weekly Availability';
@@ -1667,6 +1711,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get refresh => 'Refresh';
+
+  @override
+  String get upholstery_availability => 'Furniture cleaning availability';
+
+  @override
+  String get upholstery_availability_hint => 'Accept new furniture cleaning bookings. Turning this off keeps your saved prices and existing requests.';
+
+  @override
+  String get upholstery_availability_failed => 'Could not update availability. Retry to confirm the current status.';
 
   @override
   String get upholstery_configuration => 'Furniture Cleaning Configuration';
