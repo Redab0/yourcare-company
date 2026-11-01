@@ -57,3 +57,12 @@ from new commits. Adjacent `agent-office`, `technology-stack` and parent-folder 
 files are outside this repository and remain untouched. Local checks and synthetic
 fixtures do not establish a live end-to-end journey. This work does not deploy the
 backend, install mobile apps, or upload to Google Play/TestFlight.
+
+## 1 November 2026 — Additional historical source backups
+
+Older worktree source was saved separately on GitHub without changing those working checkouts or merging it into the current application baseline. These backup branches preserve unfinished/historical work and do not imply current validation or deployment.
+
+- [codex/preserved-provider-offline-20261101](https://github.com/Redab0/yourcare-company/tree/codex/preserved-provider-offline-20261101) — b9f3cfea.
+- [codex/preserved-workspace-tools-20261101](https://github.com/Redab0/yourcare-company/tree/codex/preserved-workspace-tools-20261101) — 93aa4b43.
+
+Private credential/account/receipt evidence, local exports, dependency/build products and caches remain local. The canonical [preservation manifest](https://github.com/Redab0/you-care-backend/blob/production-env/docs/features/repository-consolidation-20261101/preservation-manifest.json) records the backup refs and scope. No live deployment or app-store publishing occurred.
