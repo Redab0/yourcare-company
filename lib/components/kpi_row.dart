@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:flutter/material.dart';
 
@@ -15,6 +16,7 @@ class KpiRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!context.canSeePrices) return const SizedBox.shrink();
     final t = Theme.of(context);
 
     Widget chip(String label, String value) => Expanded(

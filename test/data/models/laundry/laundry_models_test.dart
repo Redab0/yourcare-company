@@ -30,6 +30,7 @@ Map<String, dynamic> laundryFixture(
         'longitude': 47.9
       },
       'Laundry': {
+        'minimumCharge': 0,
         'pricingMode': mode,
         'status': status,
         'paymentStatus': payment,

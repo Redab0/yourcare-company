@@ -12,6 +12,8 @@ enum AvailabilityServiceType {
 
   const AvailabilityServiceType(this.apiValue);
 
+  bool get usesDatedAvailability => this == houseCleaning || this == carWash;
+
   static AvailabilityServiceType? fromApiValue(String? value) {
     final normalized = value?.trim().toLowerCase();
     if (normalized == null || normalized.isEmpty) return null;
@@ -40,6 +42,7 @@ class CleanerAvailabilitySlot {
   final int? endHour;
   final int? totalCleaners;
   final String? serviceType;
+  final String? date;
   @JsonKey(readValue: _readEmployeeId)
   final String? employeeId;
 
@@ -50,6 +53,7 @@ class CleanerAvailabilitySlot {
     this.endHour,
     this.totalCleaners,
     this.serviceType,
+    this.date,
     this.employeeId,
   });
 
@@ -116,4 +120,42 @@ class CleanerAvailabilityUpdateRequest {
 
   Map<String, dynamic> toJson() =>
       _$CleanerAvailabilityUpdateRequestToJson(this);
+}
+
+@JsonSerializable(createFactory: false, explicitToJson: true)
+class DatedAvailabilityRequest {
+  final AvailabilityServiceType serviceType;
+  final List<DatedAvailabilityDay> days;
+
+  const DatedAvailabilityRequest({
+    required this.serviceType,
+    required this.days,
+  });
+
+  Map<String, dynamic> toJson() => _$DatedAvailabilityRequestToJson(this);
+}
+
+@JsonSerializable(createFactory: false, explicitToJson: true)
+class DatedAvailabilityDay {
+  final String date;
+  final List<DatedAvailabilityRange> slots;
+
+  const DatedAvailabilityDay({required this.date, required this.slots});
+
+  Map<String, dynamic> toJson() => _$DatedAvailabilityDayToJson(this);
+}
+
+@JsonSerializable(createFactory: false)
+class DatedAvailabilityRange {
+  final int startHour;
+  final int endHour;
+  final int totalCleaners;
+
+  const DatedAvailabilityRange({
+    required this.startHour,
+    required this.endHour,
+    required this.totalCleaners,
+  });
+
+  Map<String, dynamic> toJson() => _$DatedAvailabilityRangeToJson(this);
 }

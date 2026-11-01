@@ -6,9 +6,6 @@ import 'package:cleaning_service_driver/data/models/auth/auth_user.dart';
 import 'package:cleaning_service_driver/data/repositories/notifications/notifications_repository.dart';
 import 'package:cleaning_service_driver/domain/usecases/auth/login_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/auth/logout_usecase.dart';
-import 'package:cleaning_service_driver/features/chats/bloc/chat_launcher_cubit.dart';
-import 'package:cleaning_service_driver/features/chats/data/chat_memory_store.dart';
-import 'package:cleaning_service_driver/features/chats/data/chat_socket_service.dart';
 import 'package:cleaning_service_driver/features/bloc/auth/auth_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -19,8 +16,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final logoutUseCase = sl<LogoutUseCase>();
   final _loader = sl<LoadingController>();
   AuthBloc() : super(AuthInitial()) {
-    on<LoginEvent>(_onLogin);
-    on<LogoutEvent>(_logOut);
+    on<AuthEvent>((event, emit) async {
+      if (event is LoginEvent) await _onLogin(event, emit);
+      if (event is LogoutEvent) await _logOut(event, emit);
+    }, transformer: (events, mapper) => events.asyncExpand(mapper));
   }
 
   Future<void> _onLogin(LoginEvent event, Emitter<AuthState> emit) async {
@@ -47,14 +46,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   FutureOr<void> _logOut(LogoutEvent event, Emitter<AuthState> emit) async {
     _loader.show();
     try {
-      try {
-        await sl<NotificationsRepository>().onLogoutCleanup();
-      } catch (_) {}
-      try {
-        await sl<ChatSocketService>().disconnect();
-        sl<ChatMemoryStore>().clearAll();
-        sl<ChatLauncherCubit>().clear();
-      } catch (_) {}
       await logoutUseCase.call();
       _loader.hide();
       emit(Unauthenticated());

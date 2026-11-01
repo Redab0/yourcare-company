@@ -34,15 +34,16 @@ enum BusinessHomeService {
   upcomingJobs(
     imageAsset: 'assets/images/business_upcoming_jobs.png',
     requiredPermissions: [Permission.companyRequestsRead],
-    requiredCompanyServices: CompanyProvidedService.values,
   ),
   cleaningRequests(
     imageAsset: 'assets/images/business_cleaning_requests.png',
     requiredPermissions: [
       Permission.availableRequestsRead,
-      Permission.availableRequestsBrowse,
     ],
-    requiredCompanyServices: [CompanyProvidedService.deepCleaning],
+    requiredCompanyServices: [
+      CompanyProvidedService.deepCleaning,
+      CompanyProvidedService.upholsteryCleaning
+    ],
   ),
   houseKeepingConfiguration(
     imageAsset: 'assets/images/business_housekeeping_configuration.png',
@@ -105,14 +106,7 @@ enum BusinessHomeService {
       Permission.teamsRead,
       Permission.teamsCreate,
       Permission.teamsUpdate,
-      Permission.permissionsRead,
-      Permission.permissionsUpdate,
-      Permission.requestsRead,
       Permission.companyRequestsRead,
-      Permission.companyRequestsStatistics,
-      Permission.availableRequestsRead,
-      Permission.availableRequestsBrowse,
-      Permission.browsAvailableRequests,
     ],
   ),
   companyProfile(
@@ -145,13 +139,22 @@ enum BusinessHomeService {
     required Set<CompanyProvidedService>? companyServices,
     bool isBusinessOwner = false,
     String? role,
+    bool canSeePrices = true,
   }) {
+    if (!canSeePrices &&
+        [
+          BusinessHomeService.reports,
+          BusinessHomeService.autoBidding,
+          BusinessHomeService.documentsCenter
+        ].contains(this)) {
+      return false;
+    }
     if (this == BusinessHomeService.documentsCenter) {
       return isBusinessOwner || role == 'manager';
     }
-    if (!permissions.hasAnyPermission(requiredPermissions) &&
-        !(this == BusinessHomeService.laundryConfiguration &&
-            isBusinessOwner)) {
+    final ownerAllowed =
+        isBusinessOwner && this != BusinessHomeService.cleaningRequests;
+    if (!ownerAllowed && !permissions.hasAnyPermission(requiredPermissions)) {
       return false;
     }
     if (requiredCompanyServices.isEmpty) return true;

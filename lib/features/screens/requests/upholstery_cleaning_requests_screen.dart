@@ -1,3 +1,5 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
+import '../../../core/validators/validators.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/media_carousel_viewer.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
@@ -112,6 +114,7 @@ class _UpholsteryCleaningRequestState
 
   @override
   Widget build(BuildContext context) {
+    if (!context.canSeePrices) return const SizedBox.shrink();
     final details = widget.request;
     final items = widget.request.upholsteryCleaning.items;
     final specialNotes = widget.request.customerSpecialNotes;
@@ -285,6 +288,12 @@ class _UpholsteryCleaningRequestState
                                   _selectedTimelineHours == null
                               ? null
                               : () {
+                                  if (!Validators.validAmount(
+                                      _amountController.text,
+                                      minimum: 0.001)) {
+                                    context.showErrorToast();
+                                    return;
+                                  }
                                   context.read<RequestsActionBloc>().add(
                                         SubmitUpholsteryOffer(
                                           _composeNotes(),

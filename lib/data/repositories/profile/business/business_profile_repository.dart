@@ -1,11 +1,11 @@
 import 'package:cleaning_service_driver/core/api/upload_limits.dart';
 import 'dart:io';
-import 'dart:developer' as developer;
 
 import 'package:cleaning_service_driver/core/models/response.dart';
 import 'package:cleaning_service_driver/core/models/response_payload.dart';
 import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
 import 'package:cleaning_service_driver/data/models/profile/business_profile_model.dart';
+import 'package:cleaning_service_driver/data/models/profile/company_services.dart';
 import 'package:cleaning_service_driver/data/models/profile/covered_service_item_model.dart';
 import 'package:cleaning_service_driver/data/models/profile/custom_service_item_request.dart';
 import 'package:cleaning_service_driver/data/models/profile/media_upload_response.dart';
@@ -22,13 +22,29 @@ class BusinessProfileRepository {
 
   BusinessProfileRepository(this._profileService);
 
-  void _logError(String action, Object error, [StackTrace? stackTrace]) {
-    developer.log(
-      '[BusinessProfileRepository] $action failed: $error',
-      name: 'BusinessProfileRepository',
-      error: error,
-      stackTrace: stackTrace,
-    );
+  Future<CompanyServices> getCompanyServices() async {
+    try {
+      final response = await _profileService.getCompanyServices();
+      final context = response.data?.data;
+      if (!response.success || context == null) {
+        throw Exception(response.message);
+      }
+      return context;
+    } on DioException catch (error) {
+      final body = error.response?.data;
+      final unsupported = error.response?.statusCode == 404 ||
+          (error.response?.statusCode == 400 &&
+              body is Map &&
+              body['message'] == 'Invalid resource ID');
+      if (!unsupported) rethrow;
+      // Old backends match this literal as business/:id. The existing profile
+      // route still enforces its own authorization; never fall back on403.
+      final profile = await getBusinessProfile();
+      return CompanyServices.fromJson({
+        'businessId': profile.id,
+        'services': profile.services,
+      });
+    }
   }
 
   Future<BusinessProfileModel> getBusinessProfile() async {
@@ -39,8 +55,7 @@ class BusinessProfileRepository {
       } else {
         throw Exception(response.message);
       }
-    } catch (e, s) {
-      _logError('getBusinessProfile', e, s);
+    } catch (e) {
       rethrow;
     }
   }
@@ -54,8 +69,7 @@ class BusinessProfileRepository {
       } else {
         throw Exception(response.message);
       }
-    } catch (e, s) {
-      _logError('updateBusinessProfile', e, s);
+    } catch (e) {
       rethrow;
     }
   }
@@ -69,8 +83,8 @@ class BusinessProfileRepository {
       if (profile == null) {
         try {
           profileResponse = await _profileService.getCompanyProfile();
-        } catch (e, s) {
-          _logError('getCoveredServiceItems->getCompanyProfile', e, s);
+        } catch (_) {
+          // The covered-service response can be used without a refreshed profile.
         }
       }
 
@@ -86,8 +100,7 @@ class BusinessProfileRepository {
       } else {
         throw Exception(response.message);
       }
-    } catch (e, s) {
-      _logError('getCoveredServiceItems', e, s);
+    } catch (e) {
       rethrow;
     }
   }
@@ -110,8 +123,7 @@ class BusinessProfileRepository {
       } else {
         throw Exception(response.message);
       }
-    } catch (e, s) {
-      _logError('updateCoveredServiceItems', e, s);
+    } catch (e) {
       rethrow;
     }
   }
@@ -140,8 +152,7 @@ class BusinessProfileRepository {
         );
       }
       throw Exception(response.message);
-    } catch (e, s) {
-      _logError('createCustomServiceItem', e, s);
+    } catch (e) {
       rethrow;
     }
   }
@@ -170,8 +181,7 @@ class BusinessProfileRepository {
         );
       }
       throw Exception(response.message);
-    } catch (e, s) {
-      _logError('updateCustomServiceItem', e, s);
+    } catch (e) {
       rethrow;
     }
   }
@@ -192,8 +202,7 @@ class BusinessProfileRepository {
         );
       }
       throw Exception(response.message);
-    } catch (e, s) {
-      _logError('deleteCustomServiceItem', e, s);
+    } catch (e) {
       rethrow;
     }
   }
@@ -281,8 +290,7 @@ class BusinessProfileRepository {
         throw Exception(response.message);
       }
       return areas;
-    } catch (e, s) {
-      _logError('getAreas', e, s);
+    } catch (e) {
       rethrow;
     }
   }
@@ -291,13 +299,20 @@ class BusinessProfileRepository {
     try {
       UploadLimits.validate(await Future.wait(
           files.map((file) async => UploadFileSize(await file.length()))));
-      final parts = files
-          .map((f) => MultipartFile.fromFileSync(
-                f.path,
-                filename: p.basename(f.path),
-                contentType: MediaType('image', 'jpeg'),
-              ))
-          .toList();
+      final parts = <MultipartFile>[];
+      for (final file in files) {
+        final name = p.basename(file.path);
+        UploadLimits.validateFilename(name);
+        final handle = await file.open();
+        late final String mime;
+        try {
+          mime = UploadLimits.imageMime(await handle.read(64));
+        } finally {
+          await handle.close();
+        }
+        parts.add(await MultipartFile.fromFile(file.path,
+            filename: name, contentType: MediaType.parse(mime)));
+      }
       final response = await _profileService.uploadMedia(parts);
 
       if (response.success && response.data != null) {
@@ -305,8 +320,7 @@ class BusinessProfileRepository {
       } else {
         throw Exception('Upload failed: ${response.message}');
       }
-    } catch (e, s) {
-      _logError('uploadMedia', e, s);
+    } catch (e) {
       rethrow;
     }
   }

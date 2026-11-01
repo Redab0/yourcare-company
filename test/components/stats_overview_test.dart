@@ -1,3 +1,4 @@
+import '../helpers/price_access_fixture.dart';
 import 'package:cleaning_service_driver/components/stats_overview.dart';
 import 'package:cleaning_service_driver/data/viewmodels/stats_vm.dart';
 import 'package:cleaning_service_driver/l10n/app_localizations.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  setUp(grantPriceAccess);
   testWidgets('shows car-wash and pending request counts', (tester) async {
     final viewModel = StatsVM(
       total: 10,

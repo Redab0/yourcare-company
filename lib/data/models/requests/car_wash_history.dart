@@ -16,8 +16,11 @@ class CarWashHistory implements CleaningRequest {
   @override
   final RequestStatus requestStatus;
   @override
-  final double totalPrice;
+  final double? totalPrice;
 
+  @override
+  final bool pricesHidden;
+  final bool companyCampaignVisible;
   final bool registrationGiftApplied;
   final RequestCampaign? campaign;
   @override
@@ -44,6 +47,8 @@ class CarWashHistory implements CleaningRequest {
 
   const CarWashHistory({
     this.id,
+    this.pricesHidden = false,
+    this.companyCampaignVisible = false,
     this.registrationGiftApplied = false,
     this.campaign,
     this.type = 'carWash',
@@ -69,17 +74,18 @@ class CarWashHistory implements CleaningRequest {
         detailJson == null ? null : CarWashHistoryDetail.fromJson(detailJson);
     final customerJson = _asMap(json['customer']);
     final rawCustomer = json['customer'];
-    final companyJson = _asMap(json['businessId']);
 
     return CarWashHistory(
       id: _readId(json['id'] ?? json['_id'] ?? json['readableId']),
+      pricesHidden: json['pricesHidden'] == true,
+      companyCampaignVisible: json['companyCampaignVisible'] == true,
       registrationGiftApplied: json['registrationGiftApplied'] == true,
       campaign: _asMap(json['campaign']) == null
           ? null
           : RequestCampaign.fromJson(_asMap(json['campaign'])!),
       type: (json['type'] ?? 'carWash').toString(),
       requestStatus: requestStatusFromJson(json['requestStatus']?.toString()),
-      totalPrice: _asDouble(json['totalPrice']),
+      totalPrice: _asNullableDouble(json['totalPrice']),
       createdAt: _requiredDate(json['createdAt'], 'createdAt'),
       updatedAt: _requiredDate(json['updatedAt'], 'updatedAt'),
       customer: customerJson != null
@@ -87,8 +93,7 @@ class CarWashHistory implements CleaningRequest {
           : Customer(id: rawCustomer is String ? rawCustomer : null),
       scheduledTime: tryParseKuwaitSchedule(json['scheduledTime']) ??
           detail?.scheduledTime,
-      companyInformation:
-          companyJson == null ? null : CompanyInformation.fromJson(companyJson),
+      companyInformation: companyInformationFromJson(json['businessId']),
       detail: detail,
       extraFees: _asNullableDouble(json['extraFees']),
       extraFeesDescription: _nonEmptyString(json['extraFeesDescription']),
@@ -125,6 +130,8 @@ class CarWashHistory implements CleaningRequest {
       extraFeesDescription: extraFeesDescription ?? this.extraFeesDescription,
       awaitingExtraPayment: awaitingExtraPayment ?? this.awaitingExtraPayment,
       extraPaymentUrl: extraPaymentUrl ?? this.extraPaymentUrl,
+      pricesHidden: pricesHidden,
+      companyCampaignVisible: companyCampaignVisible,
       registrationGiftApplied: registrationGiftApplied,
       campaign: campaign,
       invoices: invoices ?? this.invoices,
@@ -166,6 +173,8 @@ class CarWashHistory implements CleaningRequest {
           'extraFeesDescription': extraFeesDescription,
         'awaitingExtraPayment': awaitingExtraPayment,
         if (extraPaymentUrl != null) 'extraPaymentUrl': extraPaymentUrl,
+        'pricesHidden': pricesHidden,
+        'companyCampaignVisible': companyCampaignVisible,
         'registrationGiftApplied': registrationGiftApplied,
         if (campaign != null) 'campaign': campaign!.toJson(),
         'invoices': invoices.map((invoice) => invoice.toJson()).toList(),
@@ -245,7 +254,7 @@ class CarWashHistoryDetail {
 class CarWashHistoryVehicle {
   final String vehicleTypeId;
   final String packageId;
-  final double price;
+  final double? price;
   final String? vehicleTitleEn;
   final String? vehicleTitleAr;
   final String? packageTitleEn;
@@ -256,7 +265,7 @@ class CarWashHistoryVehicle {
   const CarWashHistoryVehicle({
     this.vehicleTypeId = '',
     this.packageId = '',
-    this.price = 0,
+    this.price,
     this.vehicleTitleEn,
     this.vehicleTitleAr,
     this.packageTitleEn,
@@ -277,7 +286,7 @@ class CarWashHistoryVehicle {
           ) ??
           '',
       packageId: _readId(json['packageId'] ?? json['package']) ?? '',
-      price: _asDouble(json['price'] ?? packageJson?['price']),
+      price: _asNullableDouble(json['price'] ?? packageJson?['price']),
       vehicleTitleEn: _nonEmptyString(
         vehicleJson?['titleEn'] ??
             json['vehicleTypeTitleEn'] ??
@@ -340,11 +349,6 @@ String? _readId(Object? value) {
 String? _nonEmptyString(Object? value) {
   final result = value?.toString().trim();
   return result == null || result.isEmpty ? null : result;
-}
-
-double _asDouble(Object? value) {
-  if (value is num) return value.toDouble();
-  return double.tryParse(value?.toString() ?? '') ?? 0;
 }
 
 double? _asNullableDouble(Object? value) {

@@ -2,6 +2,7 @@ import 'package:cleaning_service_driver/core/models/response.dart';
 import 'package:cleaning_service_driver/core/models/response_payload.dart';
 import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
 import 'package:cleaning_service_driver/data/models/profile/business_profile_model.dart';
+import 'package:cleaning_service_driver/data/models/profile/company_services.dart';
 import 'package:cleaning_service_driver/data/models/profile/covered_service_item_model.dart';
 import 'package:cleaning_service_driver/data/models/profile/custom_service_item_request.dart';
 import 'package:cleaning_service_driver/data/models/profile/media_upload_response.dart';
@@ -21,6 +22,9 @@ abstract class BusinessProfileService {
   @GET('/business/my-business')
   Future<ApiResponse<ResponsePayload<BusinessProfileModel>>>
       getCompanyProfile();
+
+  @GET('/business/my-services')
+  Future<ApiResponse<ResponsePayload<CompanyServices>>> getCompanyServices();
 
   @PATCH('/business/my-business')
   Future<ApiResponse<ResponsePayload<BusinessProfileModel>>>

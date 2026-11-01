@@ -1,3 +1,4 @@
+import '../../../core/access/price_widgets.dart';
 import 'dart:async';
 
 import 'package:cleaning_service_driver/components/business_back_button.dart';
@@ -52,7 +53,9 @@ class _LaundryJobDetailsScreenState extends State<LaundryJobDetailsScreen> {
   }
 
   Future<void> _invoice() async {
-    if (_openingInvoice ||
+    if (!context.canSeePrices ||
+        _cubit.state.order!.pricesHidden ||
+        _openingInvoice ||
         _cubit.state.loading ||
         !_cubit.state.order!.displayDetail.canEditInvoice) {
       return;
@@ -75,10 +78,11 @@ class _LaundryJobDetailsScreenState extends State<LaundryJobDetailsScreen> {
                   catalog: _cubit.state.catalog,
                   draft: _pendingInvoice,
                   onManageCatalog: _manageCatalog,
-                  minimumCharge: _cubit.state.order!.detail.minimumCharge,
+                  minimumCharge: _cubit.state.order!.detail.minimumCharge ?? 0,
                   invoice: _cubit.state.order!.detail.invoice)));
       if (mounted &&
           body != null &&
+          context.canSeePrices &&
           _cubit.state.order!.displayDetail.canEditInvoice) {
         _pendingInvoice = body;
         await _cubit.saveInvoice(body);
@@ -243,10 +247,8 @@ class _LaundryJobDetailsScreenState extends State<LaundryJobDetailsScreen> {
           '${context.l10n.address}: ${_addressLabel(order)}',
           if (mapLink != null) 'Google Maps: $mapLink',
           '${context.l10n.laundry_payment_status}: ${laundryStatusLabel(context, detail.paymentStatus)}',
-          if (detail.invoice != null)
-            '${context.l10n.laundry_total}: ${RequestFmt.price(detail.invoice!.total)}'
-          else
-            '${context.l10n.laundry_total}: ${RequestFmt.price(order.totalPrice)}',
+          if (context.canSeePrices && !order.pricesHidden)
+            '${context.l10n.laundry_total}: ${RequestFmt.price(detail.invoice?.total ?? order.totalPrice)}',
           if (detail.specialNotes?.trim().isNotEmpty == true)
             '${context.l10n.notes}: ${detail.specialNotes}',
         ].join('\n'));
@@ -363,13 +365,22 @@ class _LaundryJobDetailsScreenState extends State<LaundryJobDetailsScreen> {
                               final descriptor = <String>[
                                 if (line.sizeName(arabic)?.isNotEmpty == true)
                                   '${line.serviceId != null ? context.l10n.laundry_item_service : context.l10n.laundry_size}: ${line.sizeName(arabic)}',
-                                '${context.l10n.laundry_quantity}: ${line.quantity} × ${RequestFmt.price(line.unitPrice)} ${laundryUnitLabel(context, line.unit, line.unitLabel)}',
+                                '${context.l10n.laundry_quantity}: ${line.quantity} ${laundryUnitLabel(context, line.unit, line.unitLabel)}',
+                                if (context.canSeePrices &&
+                                    !order.pricesHidden &&
+                                    line.unitPrice != null)
+                                  RequestFmt.price(line.unitPrice),
                               ].join(' · ');
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  _row(line.name(arabic),
-                                      RequestFmt.price(line.total)),
+                                  _row(
+                                      line.name(arabic),
+                                      context.canSeePrices &&
+                                              !order.pricesHidden &&
+                                              line.total != null
+                                          ? RequestFmt.price(line.total)
+                                          : ''),
                                   Text(descriptor,
                                       style: Theme.of(context)
                                           .textTheme
@@ -388,10 +399,16 @@ class _LaundryJobDetailsScreenState extends State<LaundryJobDetailsScreen> {
                                   context.l10n.laundry_payment_status,
                                   laundryStatusLabel(
                                       context, detail.paymentStatus)),
-                              if (!detail.isPickupFirst || detail.isPaid)
+                              if (context.canSeePrices &&
+                                  !order.pricesHidden &&
+                                  (!detail.isPickupFirst || detail.isPaid))
                                 _row(context.l10n.original_order_total,
                                     RequestFmt.price(order.totalPrice)),
-                              if (detail.invoiceMinimumCharge > 0 &&
+                              if (context.canSeePrices &&
+                                  !order.pricesHidden &&
+                                  (detail.invoiceMinimumCharge ?? 0) > 0 &&
+                                  context.canSeePrices &&
+                                  !order.pricesHidden &&
                                   detail.canEditInvoice) ...[
                                 _row(
                                     context.l10n.laundry_minimum_charge,
@@ -416,6 +433,8 @@ class _LaundryJobDetailsScreenState extends State<LaundryJobDetailsScreen> {
                         if (order.hasExtraInvoice)
                           ExtraInvoiceStatusCard(request: order),
                         if (order.id?.isNotEmpty == true &&
+                            context.canSeePrices &&
+                            !order.pricesHidden &&
                             detail.canEditInvoice)
                           LaundryCatalogLoadNotice(
                             loading: state.loadingCatalog,
@@ -436,7 +455,9 @@ class _LaundryJobDetailsScreenState extends State<LaundryJobDetailsScreen> {
                           request: order,
                           onPressed: _createExtraInvoice,
                         ),
-                      if (detail.canEditInvoice)
+                      if (context.canSeePrices &&
+                          !order.pricesHidden &&
+                          detail.canEditInvoice)
                         OutlinedButton.icon(
                           onPressed: state.loading || _openingInvoice
                               ? null
@@ -446,14 +467,19 @@ class _LaundryJobDetailsScreenState extends State<LaundryJobDetailsScreen> {
                               ? context.l10n.laundry_create_invoice
                               : context.l10n.laundry_edit_invoice),
                         ),
-                      if (detail.canEditInvoice && _pendingInvoice != null)
+                      if (context.canSeePrices &&
+                          !order.pricesHidden &&
+                          detail.canEditInvoice &&
+                          _pendingInvoice != null)
                         TextButton(
                           onPressed: state.loading || _openingInvoice
                               ? null
                               : _reloadInvoice,
                           child: Text(context.l10n.laundry_reload_invoice),
                         ),
-                      if (detail.canSendInvoice)
+                      if (context.canSeePrices &&
+                          !order.pricesHidden &&
+                          detail.canSendInvoice)
                         FilledButton.icon(
                           onPressed: state.loading || _openingInvoice
                               ? null

@@ -22,6 +22,12 @@ abstract class ScheduleService {
     @Body() CleanerAvailabilityRequest body,
   );
 
+  @PUT('/company/cleaner-availability/dates')
+  Future<ApiResponse<ResponsePayload<List<CleanerAvailabilitySlot>>>>
+      replaceDatedAvailability(
+    @Body() DatedAvailabilityRequest body,
+  );
+
   @PATCH('/company/cleaner-availability/{id}')
   Future<ApiResponse<ResponsePayload<CleanerAvailabilitySlot>>>
       updateCleanerAvailability(

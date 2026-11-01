@@ -9,10 +9,12 @@ class CreateUserModel {
   final String? password;
   final String? email;
   final String? phone;
+  final bool? canSeePrices;
   final String image;
 
   CreateUserModel(
-      {required this.username,
+      {this.canSeePrices,
+      required this.username,
       required this.role,
       required this.image,
       required this.email,

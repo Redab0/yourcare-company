@@ -38,8 +38,8 @@ LaundrySettings _$LaundrySettingsFromJson(Map<String, dynamic> json) =>
               $checkedConvert('sameDayCutoffTime', (v) => v as String?),
           timeZone: $checkedConvert('timeZone', (v) => v as String),
           available: $checkedConvert('available', (v) => v as bool? ?? true),
-          minimumCharge: $checkedConvert(
-              'minimumCharge', (v) => (v as num?)?.toDouble() ?? 0),
+          minimumCharge:
+              $checkedConvert('minimumCharge', (v) => (v as num?)?.toDouble()),
           workingHours: $checkedConvert(
               'workingHours',
               (v) => (v as List<dynamic>?)

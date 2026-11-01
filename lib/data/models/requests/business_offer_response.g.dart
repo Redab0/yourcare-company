@@ -15,8 +15,8 @@ BusinessOfferResponse _$BusinessOfferResponseFromJson(
         final val = BusinessOfferResponse(
           readableId: $checkedConvert('readableId', (v) => v as String?),
           id: $checkedConvert('id', (v) => v as String?),
-          totalPrice: $checkedConvert(
-              'totalPrice', (v) => (v as num?)?.toDouble() ?? 0),
+          totalPrice:
+              $checkedConvert('totalPrice', (v) => (v as num?)?.toDouble()),
           requestStatus: $checkedConvert(
               'requestStatus',
               (v) => $enumDecodeNullable(_$RequestStatusEnumMap, v,

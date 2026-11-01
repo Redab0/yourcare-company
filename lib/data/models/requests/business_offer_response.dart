@@ -7,8 +7,7 @@ part 'business_offer_response.g.dart';
 class BusinessOfferResponse {
   final String? id;
   final String? readableId;
-  @JsonKey(defaultValue: 0)
-  final double totalPrice;
+  final double? totalPrice;
   @JsonKey(unknownEnumValue: RequestStatus.unknown)
   final RequestStatus? requestStatus;
   final String? createdAt;
@@ -21,7 +20,7 @@ class BusinessOfferResponse {
   BusinessOfferResponse({
     this.readableId,
     this.id,
-    this.totalPrice = 0,
+    this.totalPrice,
     this.requestStatus,
     this.createdAt,
     this.updatedAt,

@@ -1,3 +1,4 @@
+import 'helpers/price_access_fixture.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:dio/dio.dart';
@@ -69,6 +70,7 @@ class FakeCases implements DocumentsUseCases {
 }
 
 void main() {
+  setUp(grantPriceAccess);
   setUpAll(() async {
     await (FontLoader('Zain')
           ..addFont(rootBundle.load('assets/fonts/Zain-Regular.ttf')))

@@ -8,6 +8,10 @@ class UpholsteryPricingState extends Equatable {
   final String? successMessage;
   final List<UpholsteryType> types;
   final List<UpholsteryPricingGroup> pricing;
+  final bool? available;
+  final bool isAvailabilityLoading;
+  final bool isAvailabilitySaving;
+  final String? availabilityError;
 
   const UpholsteryPricingState({
     this.isLoading = false,
@@ -16,6 +20,10 @@ class UpholsteryPricingState extends Equatable {
     this.successMessage,
     this.types = const [],
     this.pricing = const [],
+    this.available,
+    this.isAvailabilityLoading = false,
+    this.isAvailabilitySaving = false,
+    this.availabilityError,
   });
 
   UpholsteryPricingState copyWith({
@@ -25,6 +33,11 @@ class UpholsteryPricingState extends Equatable {
     String? successMessage,
     List<UpholsteryType>? types,
     List<UpholsteryPricingGroup>? pricing,
+    bool? available,
+    bool? isAvailabilityLoading,
+    bool? isAvailabilitySaving,
+    String? availabilityError,
+    bool clearAvailabilityError = false,
   }) {
     return UpholsteryPricingState(
       isLoading: isLoading ?? this.isLoading,
@@ -33,6 +46,13 @@ class UpholsteryPricingState extends Equatable {
       successMessage: successMessage,
       types: types ?? this.types,
       pricing: pricing ?? this.pricing,
+      available: available ?? this.available,
+      isAvailabilityLoading:
+          isAvailabilityLoading ?? this.isAvailabilityLoading,
+      isAvailabilitySaving: isAvailabilitySaving ?? this.isAvailabilitySaving,
+      availabilityError: clearAvailabilityError
+          ? null
+          : availabilityError ?? this.availabilityError,
     );
   }
 
@@ -44,6 +64,10 @@ class UpholsteryPricingState extends Equatable {
         successMessage,
         types,
         pricing,
+        available,
+        isAvailabilityLoading,
+        isAvailabilitySaving,
+        availabilityError,
       ];
 }
 

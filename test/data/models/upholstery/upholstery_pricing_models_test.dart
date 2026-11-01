@@ -89,6 +89,37 @@ void main() {
     expect(group.upholsteryTypeId, 'sofa-id');
     expect(group.packages.single.packageId, 'package-id');
     expect(group.packages.single.discountPercentage, 10);
+    expect(group.isEnabled, isTrue);
+  });
+
+  test('disabled pricing parses and serializes independently from its prices',
+      () {
+    final group = UpholsteryPricingGroup.fromJson({
+      'upholsteryTypeId': 'sofa-id',
+      'enabled': false,
+      'packages': [
+        {'_id': 'saved-id', 'price': 1.125, 'discountPercentage': 12.5},
+      ],
+    });
+    expect(group.isEnabled, isFalse);
+    expect(group.toJson()['enabled'], isFalse);
+    expect(group.packages.single.price, 1.125);
+    expect(group.packages.single.packageId, 'saved-id');
+    final request = UpholsteryPricingRequest(pricing: [group]).toJson();
+    expect((request['pricing'] as List).single['enabled'], isFalse);
+    expect(
+        (request['pricing'] as List).single['packages'].single['price'], 1.125);
+  });
+
+  test('availability requires a real authoritative boolean', () {
+    expect(UpholsteryAvailability.fromJson({'available': false}).available,
+        isFalse);
+    for (final invalid in [null, 'true', 1]) {
+      expect(() => UpholsteryAvailability.fromJson({'available': invalid}),
+          throwsA(anything));
+    }
+    expect(const UpdateUpholsteryAvailabilityRequest(available: false).toJson(),
+        {'available': false});
   });
 
   test('pricing request never sends backend or local package IDs', () {
@@ -120,6 +151,7 @@ void main() {
     expect(package, isNot(contains('localId')));
     expect(package, isNot(contains('sizeId')));
     expect(group, isNot(contains('isEnabled')));
+    expect(group['enabled'], isTrue);
     expect(package, isNot(contains('descriptionEn')));
   });
 }

@@ -11,8 +11,18 @@ abstract class AutoBidCategoriesService {
       _AutoBidCategoriesService;
 
   @GET('/business/auto-bid/categories/{serviceType}')
-  Future<ApiResponse<ResponsePayload<Map<String, dynamic>>>>
+  Future<ApiResponse<ResponsePayload<AutoBidCategoriesPayload>>>
       getAutoBidCategories(
     @Path('serviceType') String serviceType,
   );
+}
+
+/// Keeps the service-discriminated catalog opaque without relying on a
+/// generated Map.fromJson constructor (which Dart maps do not provide).
+class AutoBidCategoriesPayload {
+  const AutoBidCategoriesPayload(this.json);
+  final Map<String, dynamic> json;
+  factory AutoBidCategoriesPayload.fromJson(Map<String, dynamic> json) =>
+      AutoBidCategoriesPayload(json);
+  Map<String, dynamic> toJson() => json;
 }

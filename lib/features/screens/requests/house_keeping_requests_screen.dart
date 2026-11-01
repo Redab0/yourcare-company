@@ -1,7 +1,7 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/detail_row.dart';
-import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
@@ -34,21 +34,11 @@ class _HouseKeepingRequestScreenState extends State<HouseKeepingRequestScreen> {
   final Set<String> _selectedWorkerIds = {};
   String? _checkingWorkerId;
   String? _pendingWorkerId;
-  bool _hidePriceForWorker = false;
 
   @override
   void initState() {
     super.initState();
-    _loadRole();
     context.read<RequestsActionBloc>().add(FetchWorkersEvent());
-  }
-
-  Future<void> _loadRole() async {
-    final user = await SecureStorageService().getUser();
-    if (!mounted) return;
-    setState(() {
-      _hidePriceForWorker = user?.role?.toLowerCase() == 'worker';
-    });
   }
 
   @override
@@ -115,9 +105,10 @@ class _HouseKeepingRequestScreenState extends State<HouseKeepingRequestScreen> {
             child: ListView(
               children: [
                 _title(context.l10n.request_details_label),
-                if (!_hidePriceForWorker) ...[
-                  DetailRow(context.l10n.request_price,
-                      RequestFmt.price(widget.request.totalPrice)),
+                if (context.canSeePrices) ...[
+                  PriceOnly(
+                      child: DetailRow(context.l10n.request_price,
+                          RequestFmt.price(widget.request.totalPrice))),
                   const Divider(),
                 ],
                 DetailRow(

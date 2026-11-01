@@ -12,19 +12,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get previewLoginRequired => 'Enter your phone number and password.';
 
   @override
-  String get previewLoginInvalid => 'Sign-in failed. Check your DEV phone number and password, and that your account is active.';
+  String get previewLoginInvalid =>
+      'Sign-in failed. Check your DEV phone number and password, and that your account is active.';
 
   @override
-  String get previewLoginUnavailable => 'Cannot reach the DEV server. Please try again.';
+  String get previewLoginUnavailable =>
+      'Cannot reach the DEV server. Please try again.';
 
   @override
-  String get previewLoginCompanyRequired => 'This account cannot open the company preview. Sign in with a DEV business owner or manager linked to a business.';
+  String get previewLoginCompanyRequired =>
+      'This account cannot open the company preview. Sign in with a DEV business owner or manager linked to a business.';
 
   @override
-  String get previewLoginSessionFailed => 'The login session could not be loaded. Refresh the page and try again.';
+  String get previewLoginSessionFailed =>
+      'The login session could not be loaded. Refresh the page and try again.';
 
   @override
-  String get previewLoginRateLimit => 'Too many sign-in attempts. Please wait before trying again.';
+  String get previewLoginRateLimit =>
+      'Too many sign-in attempts. Please wait before trying again.';
 
   @override
   String get documentsCenter => 'Documents Center';
@@ -48,10 +53,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get documentPreviewError => 'Unable to open this document.';
 
   @override
-  String get documentPreviewTimeout => 'Opening this document took too long. Try downloading it instead.';
+  String get documentPreviewTimeout =>
+      'Opening this document took too long. Try downloading it instead.';
 
   @override
-  String get documentPreviewUnsupported => 'Preview is unavailable for this file type. You can download the file instead.';
+  String get documentPreviewUnsupported =>
+      'Preview is unavailable for this file type. You can download the file instead.';
 
   @override
   String get documentDownloaded => 'Document downloaded';
@@ -78,7 +85,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get documentRetry => 'Retry';
 
   @override
-  String get documentsError => 'Unable to load or download documents. Please try again.';
+  String get documentsError =>
+      'Unable to load or download documents. Please try again.';
 
   @override
   String get documentsEmpty => 'No documents found';
@@ -111,13 +119,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get houseKeeping => 'Hourly Cleaning';
 
   @override
-  String get houseKeepingDescription => 'Regular cleaning for your home with customizable options';
+  String get houseKeepingDescription =>
+      'Regular cleaning for your home with customizable options';
 
   @override
   String get deepCleaning => 'Deep Cleaning';
 
   @override
-  String get deepCleaningDescription => 'Our professionals will provide quality cleaning using equipment';
+  String get deepCleaningDescription =>
+      'Our professionals will provide quality cleaning using equipment';
 
   @override
   String get searchServices => 'Search services...';
@@ -147,13 +157,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get propertyTypeQuestion => 'What type of property needs cleaning?';
 
   @override
-  String get propertyTypeDescription => 'Select the property type that best describes your space';
+  String get propertyTypeDescription =>
+      'Select the property type that best describes your space';
 
   @override
   String get propertyDetailsTitle => 'Tell us about your property';
 
   @override
-  String get propertyDetailsDescription => 'These details help cleaning companies provide more accurate quotes';
+  String get propertyDetailsDescription =>
+      'These details help cleaning companies provide more accurate quotes';
 
   @override
   String get numberOfBedrooms => 'Number of Bedrooms';
@@ -174,13 +186,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get additionalInformation => 'Additional Information';
 
   @override
-  String get additionalInformationHint => 'Special instructions, specific areas that need attention, etc.';
+  String get additionalInformationHint =>
+      'Special instructions, specific areas that need attention, etc.';
 
   @override
   String get addPhotosVideos => 'Add Photos & Videos';
 
   @override
-  String get photosVideosDescription => 'Help us understand your space better by uploading photos or videos';
+  String get photosVideosDescription =>
+      'Help us understand your space better by uploading photos or videos';
 
   @override
   String get gallery => 'Gallery';
@@ -231,7 +245,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get delete_availability_title => 'Delete Availability';
 
   @override
-  String get delete_availability_message => 'Are you sure you want to delete this availability slot?';
+  String get delete_availability_message =>
+      'Are you sure you want to delete this availability slot?';
 
   @override
   String get no_availability => 'No availability';
@@ -339,7 +354,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get schedule_conflict_title => 'Schedule conflict';
 
   @override
-  String get schedule_conflict_message => 'This worker already has a job at this time.';
+  String get schedule_conflict_message =>
+      'This worker already has a job at this time.';
 
   @override
   String get ok => 'OK';
@@ -360,7 +376,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scheduleDeepCleaning => 'Schedule Your Deep Cleaning';
 
   @override
-  String get scheduleDescription => 'Select a date, time, and address for your deep cleaning service';
+  String get scheduleDescription =>
+      'Select a date, time, and address for your deep cleaning service';
 
   @override
   String get date => 'Date';
@@ -438,6 +455,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get request_card_cleaners => 'Cleaners';
 
   @override
+  String housekeeping_duration_hours(num hours) {
+    final intl.NumberFormat hoursNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String hoursString = hoursNumberFormat.format(hours);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hoursString hours',
+      one: '1 hour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get housekeeping_duration_varies => 'Varies by visit';
+
+  @override
+  String get housekeeping_visit_next => 'Next visit';
+
+  @override
+  String get housekeeping_visit_current => 'Current visit';
+
+  @override
   String get request_card_duration => 'Duration';
 
   @override
@@ -480,7 +521,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get login_signup => 'Sign Up';
 
   @override
-  String get signup_accept_terms_conditions => 'You must accept the Terms and Conditions';
+  String get signup_accept_terms_conditions =>
+      'You must accept the Terms and Conditions';
 
   @override
   String get signup_title => 'Create Account';
@@ -492,7 +534,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signup_join_yourcare => 'Join Your Care';
 
   @override
-  String get signup_fill_information => 'Fill in your details to create an account';
+  String get signup_fill_information =>
+      'Fill in your details to create an account';
 
   @override
   String get signup_name => 'Name';
@@ -591,7 +634,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get address_no_saved_address => 'You have no saved addresses yet';
 
   @override
-  String get address_delete_confirmation => 'Are you sure you want to delete address?';
+  String get address_delete_confirmation =>
+      'Are you sure you want to delete address?';
 
   @override
   String get address_building => 'Building';
@@ -663,13 +707,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get request_status_updated => 'Status was updated';
 
   @override
-  String get request_location_reminder => 'Please double-check the customer\'s map location before sending the team.';
+  String get request_location_reminder =>
+      'Please double-check the customer\'s map location before sending the team.';
 
   @override
   String get refresh_request_details => 'Refresh request details';
 
   @override
-  String get request_visit_id_missing => 'This visit is missing its ID. Refresh the request details and try again.';
+  String get request_visit_id_missing =>
+      'This visit is missing its ID. Refresh the request details and try again.';
 
   @override
   String get request_paid => 'Paid';
@@ -678,7 +724,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get request_not_paid => 'Not paid';
 
   @override
-  String request_share_furniture_item(String item, String size, String quantity) {
+  String request_share_furniture_item(
+      String item, String size, String quantity) {
     return 'Item: $item\nSize: $size\nQuantity: $quantity';
   }
 
@@ -737,7 +784,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get requests_cleaning_product_title => 'Cleaning Products';
 
   @override
-  String get requests_cleaning_products_description => 'Would you like us to bring our own cleaning products?';
+  String get requests_cleaning_products_description =>
+      'Would you like us to bring our own cleaning products?';
 
   @override
   String get general_cancel => 'Cancel';
@@ -803,7 +851,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get no_pricing_options => 'No pricing options available';
 
   @override
-  String get base_price_per_cleaner_per_hour => 'Base price per cleaner per hour';
+  String get base_price_per_cleaner_per_hour =>
+      'Base price per cleaner per hour';
 
   @override
   String get single_pricing_model => 'Single Pricing Model';
@@ -818,7 +867,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cleaning_products_price => 'Cleaning products price';
 
   @override
-  String get price_must_be_greater_than_zero => 'Price must be greater than zero';
+  String get price_must_be_greater_than_zero =>
+      'Price must be greater than zero';
 
   @override
   String get price_must_be_zero_or_greater => 'Price must be zero or greater';
@@ -836,7 +886,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get force_update_title => 'Update Required';
 
   @override
-  String get force_update_message => 'A newer version of the app is required to continue.';
+  String get force_update_message =>
+      'A newer version of the app is required to continue.';
 
   @override
   String get force_update_minimum_label => 'Minimum required version';
@@ -848,7 +899,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get update_now => 'Update Now';
 
   @override
-  String get update_available_message => 'A newer version is available. Update now for the best experience.';
+  String get update_available_message =>
+      'A newer version is available. Update now for the best experience.';
 
   @override
   String get save_pricing => 'Save Pricing';
@@ -863,7 +915,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get frequency_visits_per_week => 'visit';
 
   @override
-  String get enter_all_frequency_discounts => 'Enter all service frequency discounts.';
+  String get enter_all_frequency_discounts =>
+      'Enter all service frequency discounts.';
 
   @override
   String get no_areas_available => 'No areas available';
@@ -923,106 +976,140 @@ class AppLocalizationsEn extends AppLocalizations {
   String get business_setup_tour_done => 'Done';
 
   @override
-  String get business_setup_tour_profile => 'Start here: add your logo, company details, service descriptions, and the services you provide.';
+  String get business_setup_tour_profile =>
+      'Start here: add your logo, company details, service descriptions, and the services you provide.';
 
   @override
-  String get business_setup_tour_housekeeping => 'Set hourly pricing and area fees, then define when your team is available.';
+  String get business_setup_tour_housekeeping =>
+      'Set hourly pricing and area fees, then define when your team is available.';
 
   @override
-  String get business_setup_tour_car_wash => 'Create wash packages, assign them to vehicle types, add area fees, and set service availability.';
+  String get business_setup_tour_car_wash =>
+      'Create wash packages, assign them to vehicle types, add area fees, and set service availability.';
 
   @override
-  String get business_setup_tour_furniture => 'Activate the furniture types you clean, price every supported size, and set service availability.';
+  String get business_setup_tour_furniture =>
+      'Activate the furniture types you clean, price every supported size, and set service availability.';
 
   @override
-  String get business_setup_tour_auto_bid => 'For deep cleaning, enable automatic bidding and define the prices and expected duration.';
+  String get business_setup_tour_auto_bid =>
+      'For deep cleaning, enable automatic bidding and define the prices and expected duration.';
 
   @override
-  String get business_setup_tour_staff => 'Create staff accounts and teams, assign permissions, and review the employee calendar.';
+  String get business_setup_tour_staff =>
+      'Create staff accounts and teams, assign permissions, and review the employee calendar.';
 
   @override
-  String get business_setup_tour_requests => 'Review new customer requests and submit or accept work according to the service.';
+  String get business_setup_tour_requests =>
+      'Review new customer requests and submit or accept work according to the service.';
 
   @override
-  String get business_setup_tour_jobs => 'Manage confirmed jobs here, from assignment and start through completion.';
+  String get business_setup_tour_jobs =>
+      'Manage confirmed jobs here, from assignment and start through completion.';
 
   @override
-  String get business_inner_tour_housekeeping_pricing => 'Set hourly and duration-based prices, repeat-booking discounts, cleaning-product charges, and area fees.';
+  String get business_inner_tour_housekeeping_pricing =>
+      'Set hourly and duration-based prices, repeat-booking discounts, cleaning-product charges, and area fees.';
 
   @override
-  String get business_inner_tour_housekeeping_availability => 'Choose the days and time slots when your housekeeping team can accept bookings.';
+  String get business_inner_tour_housekeeping_availability =>
+      'Choose the days and time slots when your housekeeping team can accept bookings.';
 
   @override
-  String get business_inner_tour_car_wash_packages => 'Create reusable wash packages, then assign each package to the vehicle types you support.';
+  String get business_inner_tour_car_wash_packages =>
+      'Create reusable wash packages, then assign each package to the vehicle types you support.';
 
   @override
-  String get business_inner_tour_car_wash_hours => 'Define the weekly days and time slots when customers can book car washing.';
+  String get business_inner_tour_car_wash_hours =>
+      'Set dated time slots for the next 14 days when customers can book car washing.';
 
   @override
-  String get business_inner_tour_staff_create_user => 'Create a staff account and grant only the permissions needed for that role.';
+  String get business_inner_tour_staff_create_user =>
+      'Create a staff account and grant only the permissions needed for that role.';
 
   @override
-  String get business_inner_tour_staff_manage_users => 'Review staff accounts, update permissions, and enable or disable access.';
+  String get business_inner_tour_staff_manage_users =>
+      'Review staff accounts, update permissions, and enable or disable access.';
 
   @override
-  String get business_inner_tour_staff_create_team => 'Group staff into a team that can be assigned to customer requests.';
+  String get business_inner_tour_staff_create_team =>
+      'Group staff into a team that can be assigned to customer requests.';
 
   @override
-  String get business_inner_tour_staff_manage_teams => 'Review and update the teams available for job assignment.';
+  String get business_inner_tour_staff_manage_teams =>
+      'Review and update the teams available for job assignment.';
 
   @override
-  String get business_inner_tour_staff_calendar => 'Use the employee calendar to review scheduled work and team workload.';
+  String get business_inner_tour_staff_calendar =>
+      'Use the employee calendar to review scheduled work and team workload.';
 
   @override
-  String get business_inner_tour_profile_identity => 'Add a clear logo and complete the company contact details shown to customers.';
+  String get business_inner_tour_profile_identity =>
+      'Add a clear logo and complete the company contact details shown to customers.';
 
   @override
-  String get business_inner_tour_profile_services => 'Open each offered service to choose and describe the exact work your company covers.';
+  String get business_inner_tour_profile_services =>
+      'Open each offered service to choose and describe the exact work your company covers.';
 
   @override
-  String get business_inner_tour_profile_areas => 'Select every area your company serves. These areas control where customers can find you.';
+  String get business_inner_tour_profile_areas =>
+      'Select every area your company serves. These areas control where customers can find you.';
 
   @override
-  String get business_inner_tour_profile_save => 'Save after updating company details, coverage, service descriptions, or media.';
+  String get business_inner_tour_profile_save =>
+      'Save after updating company details, coverage, service descriptions, or media.';
 
   @override
-  String get business_inner_tour_upholstery_type => 'Expand a furniture type to set size prices, and use its switch to offer or hide that type.';
+  String get business_inner_tour_upholstery_type =>
+      'Expand a furniture type to set size prices, and use its switch to offer or hide that type.';
 
   @override
-  String get business_inner_tour_upholstery_save => 'Save after activating furniture types and entering a valid price for every supported size.';
+  String get business_inner_tour_upholstery_save =>
+      'Save after activating furniture types and entering a valid price for every supported size.';
 
   @override
-  String get business_inner_tour_requests => 'Expand a request to review its details, then open it to accept the work or submit a bid when applicable.';
+  String get business_inner_tour_requests =>
+      'Expand a request to review its details, then open it to accept the work or submit a bid when applicable.';
 
   @override
-  String get business_inner_tour_jobs_statuses => 'Switch between confirmed, in-progress, completed, and cancelled jobs.';
+  String get business_inner_tour_jobs_statuses =>
+      'Switch between confirmed, in-progress, completed, and cancelled jobs.';
 
   @override
-  String get business_inner_tour_jobs_list => 'Open a job to assign staff, manage its status, contact the customer, or add an extra invoice when allowed.';
+  String get business_inner_tour_jobs_list =>
+      'Open a job to assign staff, manage its status, contact the customer, or add an extra invoice when allowed.';
 
   @override
-  String get business_inner_tour_area_fees => 'Set the additional travel fee for each service area. Leave unsupported areas without an active fee.';
+  String get business_inner_tour_area_fees =>
+      'Set the additional travel fee for each service area. Leave unsupported areas without an active fee.';
 
   @override
-  String get business_inner_tour_schedule_days => 'Select a day to review and configure its availability.';
+  String get business_inner_tour_schedule_days =>
+      'Select a day to review and configure its availability.';
 
   @override
-  String get business_inner_tour_schedule_day_status => 'Mark the selected day open or closed before editing its time slots.';
+  String get business_inner_tour_schedule_day_status =>
+      'Mark the selected day open or closed before editing its time slots.';
 
   @override
-  String get business_inner_tour_schedule_apply_week => 'Use this only when the selected day\'s schedule should replace every other day in the week.';
+  String get business_inner_tour_schedule_apply_week =>
+      'Use this only when the selected day\'s schedule should replace every other day in the week.';
 
   @override
-  String get business_inner_tour_schedule_slots => 'Add and edit the booking time slots available on the selected day.';
+  String get business_inner_tour_schedule_slots =>
+      'Add and edit the booking time slots available on the selected day.';
 
   @override
-  String get business_inner_tour_schedule_save => 'Save the complete weekly schedule after reviewing every day.';
+  String get business_inner_tour_schedule_save =>
+      'Save the complete weekly schedule after reviewing every day.';
 
   @override
-  String get business_inner_tour_car_wash_sections => 'Move between reusable packages, vehicle assignments, and delivery fees by area.';
+  String get business_inner_tour_car_wash_sections =>
+      'Move between reusable packages, vehicle assignments, and delivery fees by area.';
 
   @override
-  String get business_inner_tour_car_wash_package_editor => 'Create package details here. Next, assign saved packages to vehicle types and configure area fees.';
+  String get business_inner_tour_car_wash_package_editor =>
+      'Create package details here. Next, assign saved packages to vehicle types and configure area fees.';
 
   @override
   String get requests => 'requests';
@@ -1100,7 +1187,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get covered_services_edit_custom => 'Edit Service';
 
   @override
-  String get covered_services_delete_confirmation => 'Are you sure you want to delete this service?';
+  String get covered_services_delete_confirmation =>
+      'Are you sure you want to delete this service?';
 
   @override
   String get covered_services_title_en => 'Title (English)';
@@ -1118,7 +1206,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get house_cleaning_description => 'House Cleaning Description';
 
   @override
-  String get upholstery_cleaning_description => 'Upholstery Cleaning Description';
+  String get upholstery_cleaning_description =>
+      'Upholstery Cleaning Description';
 
   @override
   String get enter_bid => 'Enter your bid';
@@ -1273,6 +1362,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get number_of_visits => 'Visits';
 
   @override
+  String get dated_availability_title => 'Next 14 Days';
+
+  @override
+  String get save_dated_availability => 'Save Availability';
+
+  @override
+  String get availability_dated_hint =>
+      'Set availability for each date in Kuwait time. New dates stay unavailable until you set them; schedules do not repeat automatically.';
+
+  @override
+  String get availability_window_expired =>
+      'The date window has changed. Refresh to load the next 14 days before saving. Your unsaved changes will stay here until you refresh.';
+
+  @override
+  String get availability_load_failed => 'Could not load availability';
+
+  @override
+  String get availability_dated_copy_hint =>
+      'Copy this date’s hours to selected dates within these 14 days. Each date remains independent.';
+
+  @override
+  String get availability_dated_save_hint =>
+      'Save your changed dates together after reviewing their hours and worker counts.';
+
+  @override
   String get weekly_availability_title => 'Weekly Availability';
 
   @override
@@ -1315,7 +1429,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hourly_availability => 'Hourly Availability';
 
   @override
-  String get availability_hourly_hint => 'Enable the hours when customers can book, then set how many workers are available during each hour.';
+  String get availability_hourly_hint =>
+      'Enable the hours when customers can book, then set how many workers are available during each hour.';
 
   @override
   String get availability_enabled => 'Enabled';
@@ -1346,7 +1461,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get availability_select_days_hint => 'Select every day that should receive this schedule.';
+  String get availability_select_days_hint =>
+      'Select every day that should receive this schedule.';
 
   @override
   String get availability_select_all => 'Select all';
@@ -1355,16 +1471,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get availability_apply_selected => 'Apply to selected days';
 
   @override
-  String get availability_copy_warning => 'Existing changes for selected days will be replaced. Each day can still be edited independently afterward.';
+  String get availability_copy_warning =>
+      'Existing changes for selected days will be replaced. Each day can still be edited independently afterward.';
 
   @override
-  String get availability_schedule_copied => 'Schedule copied to the selected days';
+  String get availability_schedule_copied =>
+      'Schedule copied to the selected days';
 
   @override
-  String get availability_unsaved_changes => 'You have unsaved availability changes.';
+  String get availability_unsaved_changes =>
+      'You have unsaved availability changes.';
 
   @override
-  String get availability_save_before_leaving => 'Please save your changes before leaving.';
+  String get availability_save_before_leaving =>
+      'Please save your changes before leaving.';
 
   @override
   String get availability_discard_title => 'Discard changes?';
@@ -1379,7 +1499,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get availability_no_changes => 'There are no changes to save';
 
   @override
-  String get availability_invalid_workers => 'Enter at least 1 worker for every enabled hour.';
+  String get availability_invalid_workers =>
+      'Enter at least 1 worker for every enabled hour.';
 
   @override
   String availability_changed_days(int count) {
@@ -1489,28 +1610,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get car_wash_packages => 'Packages';
 
   @override
-  String get car_wash_packages_hint => 'Create each package once, set its price for every vehicle type, then assign it to the vehicle types you support.';
+  String get car_wash_packages_hint =>
+      'Create each package once, set its price for every vehicle type, then assign it to the vehicle types you support.';
 
   @override
   String get car_wash_vehicle_pricing => 'Vehicle Type Pricing';
 
   @override
-  String get car_wash_vehicle_pricing_hint => 'Set this package\'s price separately for every vehicle type.';
+  String get car_wash_vehicle_pricing_hint =>
+      'Set this package\'s price separately for every vehicle type.';
 
   @override
-  String get car_wash_vehicle_price_not_set => 'No price is configured for this vehicle type';
+  String get car_wash_vehicle_price_not_set =>
+      'No price is configured for this vehicle type';
 
   @override
   String get car_wash_vehicle_assignments => 'Vehicle Types';
 
   @override
-  String get car_wash_vehicle_assignments_hint => 'Choose which reusable packages are offered for each vehicle type.';
+  String get car_wash_vehicle_assignments_hint =>
+      'Choose which reusable packages are offered for each vehicle type.';
 
   @override
   String get car_wash_area_fees => 'Area Fees';
 
   @override
-  String get car_wash_area_fees_hint => 'Set an optional delivery fee for each service area.';
+  String get car_wash_area_fees_hint =>
+      'Set an optional delivery fee for each service area.';
 
   @override
   String get car_wash_working_hours => 'Car Wash Availability';
@@ -1528,7 +1654,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pricing_saved_successfully => 'Pricing saved successfully';
 
   @override
-  String get working_hours_saved_successfully => 'Working hours saved successfully';
+  String get working_hours_saved_successfully =>
+      'Working hours saved successfully';
 
   @override
   String get no_car_wash_options => 'No car wash options available';
@@ -1564,7 +1691,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get delete_car_wash_package => 'Delete Package';
 
   @override
-  String get delete_car_wash_package_message => 'Delete this package? It will no longer be available for any vehicle type.';
+  String get delete_car_wash_package_message =>
+      'Delete this package? It will no longer be available for any vehicle type.';
 
   @override
   String get package_created_successfully => 'Package created successfully';
@@ -1579,22 +1707,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get no_car_wash_packages => 'No packages created yet';
 
   @override
-  String get package_title_required => 'Enter the package title in English and Arabic';
+  String get package_title_required =>
+      'Enter the package title in English and Arabic';
 
   @override
-  String get invalid_discount_percentage => 'Discount must be between 0 and 100';
+  String get invalid_discount_percentage =>
+      'Discount must be between 0 and 100';
 
   @override
   String get car_wash_package_enabled => 'Package enabled';
 
   @override
-  String get car_wash_package_enabled_hint => 'Enabled packages are available to customers. Disabled packages are hidden.';
+  String get car_wash_package_enabled_hint =>
+      'Enabled packages are available to customers. Disabled packages are hidden.';
 
   @override
   String get package_working_hours => 'Package Availability';
 
   @override
-  String get package_working_hours_hint => 'Optionally add the days and time slots when this package can be booked.';
+  String get package_working_hours_hint =>
+      'Optionally add the days and time slots when this package can be booked.';
 
   @override
   String get package_availability_not_set => 'No availability slots added';
@@ -1606,7 +1738,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get package_duration_minutes => 'Package Duration';
 
   @override
-  String get package_duration_minutes_hint => 'How long one booking takes, in minutes';
+  String get package_duration_minutes_hint =>
+      'How long one booking takes, in minutes';
 
   @override
   String get duration_must_be_positive => 'Duration must be greater than zero';
@@ -1621,22 +1754,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get edit_time_slot => 'Edit Time Slot';
 
   @override
-  String get overlapping_time_slot => 'This time overlaps another slot on the same day';
+  String get overlapping_time_slot =>
+      'This time overlaps another slot on the same day';
 
   @override
   String get save_package => 'Save Package';
 
   @override
-  String get create_package_first => 'Create at least one package before assigning packages to vehicles.';
+  String get create_package_first =>
+      'Create at least one package before assigning packages to vehicles.';
 
   @override
-  String get assign_packages_to_vehicle => 'Select the packages offered for this vehicle type';
+  String get assign_packages_to_vehicle =>
+      'Select the packages offered for this vehicle type';
 
   @override
   String get save_package_assignments => 'Save Assignments';
 
   @override
-  String get package_assignments_saved_successfully => 'Vehicle package assignments saved successfully';
+  String get package_assignments_saved_successfully =>
+      'Vehicle package assignments saved successfully';
 
   @override
   String get delivery_fee => 'Delivery Fee';
@@ -1654,7 +1791,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get remove_delivery_fee => 'Remove Delivery Fee';
 
   @override
-  String get remove_delivery_fee_message => 'Remove the delivery fee for this area?';
+  String get remove_delivery_fee_message =>
+      'Remove the delivery fee for this area?';
 
   @override
   String get fee_cannot_be_negative => 'Fee cannot be negative';
@@ -1667,6 +1805,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get refresh => 'Refresh';
+
+  @override
+  String get upholstery_availability => 'Furniture cleaning availability';
+
+  @override
+  String get upholstery_availability_hint =>
+      'Accept new furniture cleaning bookings. Turning this off keeps your saved prices and existing requests.';
+
+  @override
+  String get upholstery_availability_failed =>
+      'Could not update availability. Retry to confirm the current status.';
 
   @override
   String get upholstery_configuration => 'Furniture Cleaning Configuration';
@@ -1687,16 +1836,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get no_upholstery_types => 'No furniture types are available';
 
   @override
-  String get no_upholstery_packages => 'No packages added for this furniture type';
+  String get no_upholstery_packages =>
+      'No packages added for this furniture type';
 
   @override
-  String get upholstery_size_pricing_hint => 'Enable each furniture type your company cleans, then set the price and optional discount for every size.';
+  String get upholstery_size_pricing_hint =>
+      'Enable each furniture type your company cleans, then set the price and optional discount for every size.';
 
   @override
   String get offer_upholstery_type => 'Offer cleaning for this furniture type';
 
   @override
-  String get no_upholstery_sizes => 'No sizes are configured for this furniture type';
+  String get no_upholstery_sizes =>
+      'No sizes are configured for this furniture type';
 
   @override
   String get additional_upholstery_packages => 'Existing additional packages';
@@ -1708,7 +1860,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get car_wash_request_vehicles => 'Vehicles and Packages';
 
   @override
-  String get no_car_wash_vehicle_details => 'No vehicle details are available for this request.';
+  String get no_car_wash_vehicle_details =>
+      'No vehicle details are available for this request.';
 
   @override
   String get original_order_total => 'Original order total';
@@ -1726,28 +1879,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get extra_invoice_reason => 'Reason';
 
   @override
-  String get extra_invoice_reason_hint => 'For example, an additional service requested on site';
+  String get extra_invoice_reason_hint =>
+      'For example, an additional service requested on site';
 
   @override
-  String get extra_invoice_customer_payment_hint => 'Enter the additional service amount and reason. The customer will receive an invoice to pay from the request details screen.';
+  String get extra_invoice_customer_payment_hint =>
+      'Enter the additional service amount and reason. The customer will receive an invoice to pay from the request details screen.';
 
   @override
-  String get extra_invoice_created_successfully => 'Extra invoice created successfully';
+  String get extra_invoice_created_successfully =>
+      'Extra invoice created successfully';
 
   @override
-  String get extra_invoice_amount_required => 'Enter an amount greater than zero';
+  String get extra_invoice_amount_required =>
+      'Enter an amount greater than zero';
 
   @override
-  String get extra_invoice_reason_required => 'Enter a reason for the extra invoice';
+  String get extra_invoice_reason_required =>
+      'Enter a reason for the extra invoice';
 
   @override
   String get extra_invoice_payment_pending => 'Waiting for extra payment';
 
   @override
-  String get extra_invoice_payment_pending_hint => 'The customer must pay this invoice from the request details screen before another one can be created.';
+  String get extra_invoice_payment_pending_hint =>
+      'The customer must pay this invoice from the request details screen before another one can be created.';
 
   @override
-  String get extra_invoice_payments_successful => 'Extra invoice payments successful';
+  String get extra_invoice_payments_successful =>
+      'Extra invoice payments successful';
 
   @override
   String get extra_invoice_paid => 'Paid';
@@ -1768,7 +1928,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get laundry_catalog => 'Laundry price list';
 
   @override
-  String get laundry_setup_help => 'Enable your items, choose their services and set prices. Service names are managed globally by admin. You can also add your own items.';
+  String get laundry_setup_help =>
+      'Enable your items, choose their services and set prices. Service names are managed globally by admin. You can also add your own items.';
 
   @override
   String get laundry_add_item => 'Add item';
@@ -1777,7 +1938,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get laundry_edit_item => 'Edit item';
 
   @override
-  String get laundry_empty_catalog => 'Add your first laundry item to start building your price list.';
+  String get laundry_empty_catalog =>
+      'Add your first laundry item to start building your price list.';
 
   @override
   String get laundry_name_en => 'Item name in English';
@@ -1825,16 +1987,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get laundry_deactivate => 'Deactivate item';
 
   @override
-  String get laundry_deactivate_confirm => 'Deactivate this item? It will no longer appear in the customer price list. Existing orders keep their prices.';
+  String get laundry_deactivate_confirm =>
+      'Deactivate this item? It will no longer appear in the customer price list. Existing orders keep their prices.';
 
   @override
   String get laundry_required => 'This field is required';
 
   @override
-  String get laundry_valid_number => 'Enter an amount from 0 to 10,000 with up to 3 decimal places';
+  String get laundry_valid_number =>
+      'Enter an amount from 0 to 10,000 with up to 3 decimal places';
 
   @override
-  String get laundry_valid_quantity => 'Enter a quantity from 0.001 to 10,000 with up to 3 decimal places';
+  String get laundry_valid_quantity =>
+      'Enter a quantity from 0.001 to 10,000 with up to 3 decimal places';
 
   @override
   String get laundry_order => 'Laundry order';
@@ -1894,7 +2059,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get laundry_complete => 'Complete order';
 
   @override
-  String get laundry_waiting_payment => 'Waiting for customer payment. Refresh to check payment status.';
+  String get laundry_waiting_payment =>
+      'Waiting for customer payment. Refresh to check payment status.';
 
   @override
   String get laundry_payment_pending => 'Payment pending';
@@ -1945,7 +2111,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get laundry_send_invoice => 'Send invoice';
 
   @override
-  String get laundry_invoice_help => 'Choose items from your active catalog. Prices are calculated from your company price list when you save.';
+  String get laundry_invoice_help =>
+      'Choose items from your active catalog. Prices are calculated from your company price list when you save.';
 
   @override
   String get laundry_pickup_fee => 'Pickup fee (KWD)';
@@ -1969,7 +2136,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get laundry_invoice_empty => 'Add at least one laundry item';
 
   @override
-  String get laundry_invoice_unavailable_item => 'This invoice contains an inactive or changed item. Remove it and select an active catalog item.';
+  String get laundry_invoice_unavailable_item =>
+      'This invoice contains an inactive or changed item. Remove it and select an active catalog item.';
 
   @override
   String get laundry_cancel_order => 'Cancel order';
@@ -1996,7 +2164,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get laundry_estimated_total => 'Estimated total before platform fees';
 
   @override
-  String get laundry_duplicate_items => 'Combine quantities for the same item and size in one line.';
+  String get laundry_duplicate_items =>
+      'Combine quantities for the same item and size in one line.';
 
   @override
   String get laundry_whole_quantity => 'Use a whole number of items.';
@@ -2005,16 +2174,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get laundry_enable_service => 'Offer Laundry Service';
 
   @override
-  String get laundry_enable_service_help => 'Enable Laundry, select your service areas, then save this profile. Configure items and prices below before accepting orders.';
+  String get laundry_enable_service_help =>
+      'Enable Laundry, select your service areas, then save this profile. Configure items and prices below before accepting orders.';
 
   @override
   String get laundry_revenue => 'Laundry revenue';
 
   @override
-  String get laundry_service_disabled_title => 'Laundry is not enabled for customers';
+  String get laundry_service_disabled_title =>
+      'Laundry is not enabled for customers';
 
   @override
-  String get laundry_service_disabled_help => 'Prepare your items and prices here, then enable Laundry in Company Profile, select your service areas and save the profile to receive orders.';
+  String get laundry_service_disabled_help =>
+      'Prepare your items and prices here, then enable Laundry in Company Profile, select your service areas and save the profile to receive orders.';
 
   @override
   String get laundry_admin_products => 'Admin products';
@@ -2029,7 +2201,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get laundry_edit_prices => 'Edit prices';
 
   @override
-  String get laundry_admin_product_help => 'The item and service names are managed by admin. Enable services for this item and enter your prices. Each price must be greater than zero.';
+  String get laundry_admin_product_help =>
+      'The item and service names are managed by admin. Enable services for this item and enter your prices. Each price must be greater than zero.';
 
   @override
   String get laundry_use_default_price => 'Use admin default price';
@@ -2044,10 +2217,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get laundry_reset_prices => 'Reset all prices to admin defaults';
 
   @override
-  String get laundry_send_invoice_confirm => 'Send this invoice to the customer? Items and prices cannot be changed after sending.';
+  String get laundry_send_invoice_confirm =>
+      'Send this invoice to the customer? Items and prices cannot be changed after sending.';
 
   @override
-  String get registrationGiftApplied => 'Registration gift applied • Funded by your company';
+  String get registrationGiftApplied =>
+      'Registration gift applied • Funded by your company';
 
   @override
   String registrationGiftAppliedAmount(String amount) {
@@ -2055,7 +2230,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get registrationGiftReserved => 'Registration gift reserved • Funded by your company';
+  String get registrationGiftReserved =>
+      'Registration gift reserved • Funded by your company';
 
   @override
   String registrationGiftReservedAmount(String amount) {
@@ -2086,7 +2262,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get laundry_same_day => 'Same Day';
 
   @override
-  String get laundry_same_day_help => 'Offer same-day service for orders booked before your cutoff time. Orders booked at or after the cutoff are not eligible.';
+  String get laundry_same_day_help =>
+      'Offer same-day service for orders booked before your cutoff time. Orders booked at or after the cutoff are not eligible.';
 
   @override
   String get laundry_same_day_enable => 'Enable same-day service';
@@ -2101,13 +2278,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get laundry_same_day_kuwait_time => 'Kuwait time (24-hour format)';
 
   @override
-  String get laundry_same_day_cutoff_required => 'Choose a booking cutoff before enabling same-day service.';
+  String get laundry_same_day_cutoff_required =>
+      'Choose a booking cutoff before enabling same-day service.';
 
   @override
-  String get laundry_same_day_load_error => 'Could not load same-day settings. Please try again.';
+  String get laundry_same_day_load_error =>
+      'Could not load same-day settings. Please try again.';
 
   @override
-  String get laundry_same_day_save_error => 'Settings were not saved. Please try again.';
+  String get laundry_same_day_save_error =>
+      'Settings were not saved. Please try again.';
 
   @override
   String get laundry_same_day_saved => 'Same-day settings saved';
@@ -2119,16 +2299,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get laundry_item_service => 'Service';
 
   @override
-  String get laundry_shared_services_help => 'Enable the services you offer for this item and set each price. Service names are shared and managed by admin.';
+  String get laundry_shared_services_help =>
+      'Enable the services you offer for this item and set each price. Service names are shared and managed by admin.';
 
   @override
-  String get laundry_no_shared_services => 'No services have been created by admin yet.';
+  String get laundry_no_shared_services =>
+      'No services have been created by admin yet.';
 
   @override
-  String get laundry_item_needs_service => 'Enable and price at least one service before this item appears to customers.';
+  String get laundry_item_needs_service =>
+      'Enable and price at least one service before this item appears to customers.';
 
   @override
-  String get laundry_legacy_pricing_help => 'Existing item prices and options remain bookable when these services are off. Turn off the item to stop all bookings.';
+  String get laundry_legacy_pricing_help =>
+      'Existing item prices and options remain bookable when these services are off. Turn off the item to stop all bookings.';
 
   @override
   String get laundry_category => 'Category';
@@ -2143,22 +2327,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get laundry_search_items => 'Search items';
 
   @override
-  String get laundry_no_matching_items => 'No items match this category or search.';
+  String get laundry_no_matching_items =>
+      'No items match this category or search.';
 
   @override
-  String get laundry_catalog_setup_needed => 'Enable and price items in your Laundry catalog before creating an invoice.';
+  String get laundry_catalog_setup_needed =>
+      'Enable and price items in your Laundry catalog before creating an invoice.';
 
   @override
-  String get laundry_bag_items_help => 'Bag pickup — inspect the collected laundry, then add its items and services to the invoice.';
+  String get laundry_bag_items_help =>
+      'Bag pickup — inspect the collected laundry, then add its items and services to the invoice.';
 
   @override
-  String get laundry_invoice_category_help => 'Choose a category to find items faster. Changing it only resets this invoice line.';
+  String get laundry_invoice_category_help =>
+      'Choose a category to find items faster. Changing it only resets this invoice line.';
 
   @override
-  String get laundry_invoice_invalid_discount => 'Discount cannot exceed the items and collection/delivery fees.';
+  String get laundry_invoice_invalid_discount =>
+      'Discount cannot exceed the items and collection/delivery fees.';
 
   @override
-  String get laundry_invoice_estimate_help => 'The server confirms current prices and platform fees when you save.';
+  String get laundry_invoice_estimate_help =>
+      'The server confirms current prices and platform fees when you save.';
 
   @override
   String get laundry_company_price_required => 'Enter a company price';
@@ -2167,7 +2357,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get laundry_reload_invoice => 'Reload saved invoice';
 
   @override
-  String get laundry_reload_invoice_confirm => 'Discard your unsaved invoice changes and review the latest saved invoice?';
+  String get laundry_reload_invoice_confirm =>
+      'Discard your unsaved invoice changes and review the latest saved invoice?';
 
   @override
   String get laundry_manage_catalog => 'Manage Laundry catalog';
@@ -2182,28 +2373,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get laundry_pricing => 'Pricing';
 
   @override
-  String get laundry_configuration_help => 'Set your working hours, booking availability and item prices.';
+  String get laundry_configuration_help =>
+      'Set your working hours, booking availability and item prices.';
 
   @override
-  String get laundry_working_hours_help => 'Choose when customers can book a pickup. Hours repeat each week in Kuwait time.';
+  String get laundry_working_hours_help =>
+      'Choose when customers can book a pickup. Hours repeat each week in Kuwait time.';
 
   @override
   String get laundry_available => 'Available for bookings';
 
   @override
-  String get laundry_availability_help => 'When switched off, customers see Fully booked and cannot book your company.';
+  String get laundry_availability_help =>
+      'When switched off, customers see Fully booked and cannot book your company.';
 
   @override
   String get laundry_settings_saved => 'Laundry settings saved';
 
   @override
-  String get laundry_settings_load_error => 'Could not load laundry settings. Please try again.';
+  String get laundry_settings_load_error =>
+      'Could not load laundry settings. Please try again.';
 
   @override
-  String get laundry_hours_invalid => 'Each time slot must end after it starts, without overlapping another slot on the same day. Use a separate slot on the next day for overnight hours. Use no more than 168 time slots per week.';
+  String get laundry_hours_invalid =>
+      'Each time slot must end after it starts, without overlapping another slot on the same day. Use a separate slot on the next day for overnight hours. Use no more than 168 time slots per week.';
 
   @override
-  String get laundry_hours_unrestricted => 'No working hours have been set yet. Bookings are currently allowed all week. Edit the days below to limit pickup times.';
+  String get laundry_hours_unrestricted =>
+      'No working hours have been set yet. Bookings are currently allowed all week. Edit the days below to limit pickup times.';
 
   @override
   String get laundry_day_open => 'Open for pickups';
@@ -2215,13 +2412,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get laundry_minimum_charge => 'Minimum order amount';
 
   @override
-  String get laundry_minimum_charge_help => 'Customers must add enough items to reach this amount. Pickup and delivery fees do not count. Bag pickups can be booked without items, but the invoice must meet this minimum before sending. Set 0 for no minimum.';
+  String get laundry_minimum_charge_help =>
+      'Customers must add enough items to reach this amount. Pickup and delivery fees do not count. Bag pickups can be booked without items, but the invoice must meet this minimum before sending. Set 0 for no minimum.';
 
   @override
-  String get laundry_minimum_charge_invalid => 'Enter an amount from 0 to 100000 KWD with up to 3 decimal places.';
+  String get laundry_minimum_charge_invalid =>
+      'Enter an amount from 0 to 100000 KWD with up to 3 decimal places.';
 
   @override
-  String get laundry_minimum_invoice_help => 'Add enough items to reach the minimum before sending. Fees do not count; you can still save a draft.';
+  String get laundry_minimum_invoice_help =>
+      'Add enough items to reach the minimum before sending. Fees do not count; you can still save a draft.';
 
   @override
   String get laundry_items_subtotal => 'Items subtotal';
@@ -2230,29 +2430,579 @@ class AppLocalizationsEn extends AppLocalizations {
   String get laundry_catalog_loading => 'Loading invoice items…';
 
   @override
-  String get laundry_catalog_load_timeout => 'Loading items took too long. Check your connection and try again. Your changes are kept.';
+  String get laundry_catalog_load_timeout =>
+      'Loading items took too long. Check your connection and try again. Your changes are kept.';
 
   @override
-  String get laundry_catalog_load_error => 'Could not load the item list. Try again. Your changes are kept.';
+  String get laundry_catalog_load_error =>
+      'Could not load the item list. Try again. Your changes are kept.';
 
   @override
   String get laundry_bulk_prices => 'Update multiple prices';
 
   @override
-  String get laundry_bulk_prices_help => 'Edit prices and item availability, then save all your changes together. Service availability stays the same.';
+  String get laundry_bulk_prices_help =>
+      'Edit prices and item availability, then save all your changes together. Service availability stays the same.';
 
   @override
   String get laundry_bulk_prices_save => 'Save all changes';
 
   @override
-  String get laundry_bulk_prices_error => 'Could not save the changes. Your edits are kept. Please try again.';
+  String get laundry_bulk_prices_error =>
+      'Could not save the changes. Your edits are kept. Please try again.';
 
   @override
-  String get laundry_bulk_prices_unsaved => 'You have unsaved changes to prices or item availability.';
+  String get laundry_bulk_prices_unsaved =>
+      'You have unsaved changes to prices or item availability.';
 
   @override
-  String get laundry_bulk_prices_limit => 'Update up to 200 items at a time. Save these changes before editing more items.';
+  String get laundry_bulk_prices_limit =>
+      'Update up to 200 items at a time. Save these changes before editing more items.';
 
   @override
-  String get laundry_bulk_prices_invalid => 'Enter a price from 0.001 to 10,000 KWD, using up to 3 decimal places.';
+  String get laundry_bulk_prices_invalid =>
+      'Enter a price from 0.001 to 10,000 KWD, using up to 3 decimal places.';
+
+  @override
+  String get canSeePrices => 'Can see prices';
+
+  @override
+  String get canSeePricesDescription =>
+      'Show prices, fees, invoices and financial information. Only the owner or administrator can change this option.';
+
+  @override
+  String get priceAccessUnavailable =>
+      'Financial information is unavailable for this account.';
+
+  @override
+  String get permissionOtherTitle => 'Additional access option';
+
+  @override
+  String get permissionOtherDescription =>
+      'An existing access option. Keep it unless its purpose is confirmed.';
+
+  @override
+  String get permissionRetainedDescription =>
+      'Other existing access will be kept when you save.';
+
+  @override
+  String get permissionRetainedTitle => 'Other existing access';
+
+  @override
+  String get permissionOptionsLoading => 'Loading staff access options…';
+
+  @override
+  String get permissionOptionsUnavailable =>
+      'Staff access options could not be loaded. Please try again.';
+
+  @override
+  String get permissionOptionsEmpty =>
+      'There are no access options you can assign.';
+
+  @override
+  String get permissionServiceContextUnavailable =>
+      'Company services could not be loaded. General access options are still available.';
+
+  @override
+  String get companyServicesUnavailable =>
+      'Company services could not be refreshed. Existing jobs remain available.';
+
+  @override
+  String get homeDataUnavailable =>
+      'Company information could not be loaded. Please try again.';
+
+  @override
+  String get staffEditTitle => 'Edit staff account';
+
+  @override
+  String get staffUpdated => 'Staff account updated.';
+
+  @override
+  String get staffPermissionsSaved => 'Staff access saved.';
+
+  @override
+  String get capabilityUsersCreateTitle => 'Add user accounts';
+
+  @override
+  String get capabilityUsersCreateDescription => 'Create new user accounts.';
+
+  @override
+  String get capabilityUsersReadTitle => 'See company accounts';
+
+  @override
+  String get capabilityUsersReadDescription =>
+      'View this company\'s accounts and team members.';
+
+  @override
+  String get capabilityUsersUpdateTitle => 'Change user accounts';
+
+  @override
+  String get capabilityUsersUpdateDescription =>
+      'Adjust existing user accounts within your assigned access.';
+
+  @override
+  String get capabilityUsersDeleteTitle => 'Remove user accounts';
+
+  @override
+  String get capabilityUsersDeleteDescription =>
+      'Remove user accounts where removal is allowed.';
+
+  @override
+  String get capabilityBusinessCreateTitle => 'Add companies';
+
+  @override
+  String get capabilityBusinessCreateDescription => 'Create new companies.';
+
+  @override
+  String get capabilityBusinessReadTitle => 'View company settings';
+
+  @override
+  String get capabilityBusinessReadDescription =>
+      'View settings for the services this company offers.';
+
+  @override
+  String get capabilityBusinessUpdateTitle => 'Manage company settings';
+
+  @override
+  String get capabilityBusinessUpdateDescription =>
+      'Manage settings for the services this company offers.';
+
+  @override
+  String get capabilityBusinessDeleteTitle => 'Remove companies';
+
+  @override
+  String get capabilityBusinessDeleteDescription =>
+      'Remove companies where removal is allowed.';
+
+  @override
+  String get capabilityCategoriesCreateTitle => 'Add service categories';
+
+  @override
+  String get capabilityCategoriesCreateDescription =>
+      'Create new service categories.';
+
+  @override
+  String get capabilityCategoriesReadTitle => 'See service categories';
+
+  @override
+  String get capabilityCategoriesReadDescription =>
+      'View existing service categories available to your account.';
+
+  @override
+  String get capabilityCategoriesUpdateTitle => 'Change service categories';
+
+  @override
+  String get capabilityCategoriesUpdateDescription =>
+      'Adjust existing service categories within your assigned access.';
+
+  @override
+  String get capabilityCategoriesDeleteTitle => 'Remove service categories';
+
+  @override
+  String get capabilityCategoriesDeleteDescription =>
+      'Remove service categories where removal is allowed.';
+
+  @override
+  String get capabilityRequestsCreateTitle => 'Send job offers';
+
+  @override
+  String get capabilityRequestsCreateDescription =>
+      'Submit offers for new customer jobs.';
+
+  @override
+  String get capabilityRequestsReadTitle => 'See customer requests';
+
+  @override
+  String get capabilityRequestsReadDescription =>
+      'View existing customer requests available to your account.';
+
+  @override
+  String get capabilityRequestsUpdateTitle => 'Manage jobs';
+
+  @override
+  String get capabilityRequestsUpdateDescription =>
+      'Start, finish or cancel jobs where your account is allowed.';
+
+  @override
+  String get capabilityRequestsDeleteTitle => 'Remove customer requests';
+
+  @override
+  String get capabilityRequestsDeleteDescription =>
+      'Remove customer requests where removal is allowed.';
+
+  @override
+  String get capabilityTransactionsCreateTitle => 'Add transactions';
+
+  @override
+  String get capabilityTransactionsCreateDescription =>
+      'Create new transactions.';
+
+  @override
+  String get capabilityTransactionsReadTitle => 'See transactions';
+
+  @override
+  String get capabilityTransactionsReadDescription =>
+      'View existing transactions available to your account.';
+
+  @override
+  String get capabilityTransactionsUpdateTitle => 'Change transactions';
+
+  @override
+  String get capabilityTransactionsUpdateDescription =>
+      'Adjust existing transactions within your assigned access.';
+
+  @override
+  String get capabilityTransactionsDeleteTitle => 'Remove transactions';
+
+  @override
+  String get capabilityTransactionsDeleteDescription =>
+      'Remove transactions where removal is allowed.';
+
+  @override
+  String get capabilityAreasCreateTitle => 'Add service areas';
+
+  @override
+  String get capabilityAreasCreateDescription => 'Create new service areas.';
+
+  @override
+  String get capabilityAreasReadTitle => 'See service areas';
+
+  @override
+  String get capabilityAreasReadDescription =>
+      'View existing service areas available to your account.';
+
+  @override
+  String get capabilityAreasUpdateTitle => 'Change service areas';
+
+  @override
+  String get capabilityAreasUpdateDescription =>
+      'Adjust existing service areas within your assigned access.';
+
+  @override
+  String get capabilityAreasDeleteTitle => 'Remove service areas';
+
+  @override
+  String get capabilityAreasDeleteDescription =>
+      'Remove service areas where removal is allowed.';
+
+  @override
+  String get capabilityEmailCreateTitle => 'Send emails';
+
+  @override
+  String get capabilityEmailCreateDescription =>
+      'Send emails where your account is allowed.';
+
+  @override
+  String get capabilityEmailReadTitle => 'See emails';
+
+  @override
+  String get capabilityEmailReadDescription =>
+      'View existing emails available to your account.';
+
+  @override
+  String get capabilityEmailUpdateTitle => 'Change emails';
+
+  @override
+  String get capabilityEmailUpdateDescription =>
+      'Adjust existing emails within your assigned access.';
+
+  @override
+  String get capabilityEmailDeleteTitle => 'Remove emails';
+
+  @override
+  String get capabilityEmailDeleteDescription =>
+      'Remove emails where removal is allowed.';
+
+  @override
+  String get capabilityChatCreateTitle => 'Start conversations';
+
+  @override
+  String get capabilityChatCreateDescription =>
+      'Open conversations for jobs your account can access.';
+
+  @override
+  String get capabilityChatReadTitle => 'See conversations';
+
+  @override
+  String get capabilityChatReadDescription =>
+      'View existing conversations available to your account.';
+
+  @override
+  String get capabilityChatUpdateTitle => 'Change conversations';
+
+  @override
+  String get capabilityChatUpdateDescription =>
+      'Adjust existing conversations within your assigned access.';
+
+  @override
+  String get capabilityChatDeleteTitle => 'Remove conversations';
+
+  @override
+  String get capabilityChatDeleteDescription =>
+      'Remove conversations where removal is allowed.';
+
+  @override
+  String get capabilityTeamsCreateTitle => 'Add work teams';
+
+  @override
+  String get capabilityTeamsCreateDescription => 'Create new work teams.';
+
+  @override
+  String get capabilityTeamsReadTitle => 'See work teams';
+
+  @override
+  String get capabilityTeamsReadDescription =>
+      'View existing work teams available to your account.';
+
+  @override
+  String get capabilityTeamsUpdateTitle => 'Change work teams';
+
+  @override
+  String get capabilityTeamsUpdateDescription =>
+      'Adjust existing work teams within your assigned access.';
+
+  @override
+  String get capabilityTeamsDeleteTitle => 'Remove work teams';
+
+  @override
+  String get capabilityTeamsDeleteDescription =>
+      'Remove work teams where removal is allowed.';
+
+  @override
+  String get capabilityPermissionsCreateTitle => 'Add access options';
+
+  @override
+  String get capabilityPermissionsCreateDescription =>
+      'Create new access options.';
+
+  @override
+  String get capabilityPermissionsReadTitle => 'See staff access options';
+
+  @override
+  String get capabilityPermissionsReadDescription =>
+      'See which access options can be assigned to staff.';
+
+  @override
+  String get capabilityPermissionsUpdateTitle => 'Manage staff access';
+
+  @override
+  String get capabilityPermissionsUpdateDescription =>
+      'Choose the access options you are allowed to give company staff.';
+
+  @override
+  String get capabilityPermissionsDeleteTitle => 'Remove access options';
+
+  @override
+  String get capabilityPermissionsDeleteDescription =>
+      'Remove access options where removal is allowed.';
+
+  @override
+  String get capabilityStaffCreateTitle => 'Add staff accounts';
+
+  @override
+  String get capabilityStaffCreateDescription => 'Create new staff accounts.';
+
+  @override
+  String get capabilityStaffReadTitle => 'See staff accounts';
+
+  @override
+  String get capabilityStaffReadDescription =>
+      'View existing staff accounts available to your account.';
+
+  @override
+  String get capabilityStaffUpdateTitle => 'Change staff accounts';
+
+  @override
+  String get capabilityStaffUpdateDescription =>
+      'Adjust existing staff accounts within your assigned access.';
+
+  @override
+  String get capabilityStaffDeleteTitle => 'Remove staff accounts';
+
+  @override
+  String get capabilityStaffDeleteDescription =>
+      'Remove staff accounts where removal is allowed.';
+
+  @override
+  String get capabilityHousekeepingPricingCreateTitle =>
+      'Add housekeeping prices';
+
+  @override
+  String get capabilityHousekeepingPricingCreateDescription =>
+      'Create new housekeeping prices.';
+
+  @override
+  String get capabilityHousekeepingPricingReadTitle =>
+      'See housekeeping prices';
+
+  @override
+  String get capabilityHousekeepingPricingReadDescription =>
+      'View existing housekeeping prices available to your account.';
+
+  @override
+  String get capabilityHousekeepingPricingUpdateTitle =>
+      'Change housekeeping prices';
+
+  @override
+  String get capabilityHousekeepingPricingUpdateDescription =>
+      'Adjust existing housekeeping prices within your assigned access.';
+
+  @override
+  String get capabilityHousekeepingPricingDeleteTitle =>
+      'Remove housekeeping prices';
+
+  @override
+  String get capabilityHousekeepingPricingDeleteDescription =>
+      'Remove housekeeping prices where removal is allowed.';
+
+  @override
+  String get capabilityCleanerAvailabilityCreateTitle =>
+      'Add available dates and hours';
+
+  @override
+  String get capabilityCleanerAvailabilityCreateDescription =>
+      'Create new available dates and hours.';
+
+  @override
+  String get capabilityCleanerAvailabilityReadTitle =>
+      'See available dates and hours';
+
+  @override
+  String get capabilityCleanerAvailabilityReadDescription =>
+      'View existing available dates and hours available to your account.';
+
+  @override
+  String get capabilityCleanerAvailabilityUpdateTitle =>
+      'Change available dates and hours';
+
+  @override
+  String get capabilityCleanerAvailabilityUpdateDescription =>
+      'Adjust existing available dates and hours within your assigned access.';
+
+  @override
+  String get capabilityCleanerAvailabilityDeleteTitle =>
+      'Remove available dates and hours';
+
+  @override
+  String get capabilityCleanerAvailabilityDeleteDescription =>
+      'Remove available dates and hours where removal is allowed.';
+
+  @override
+  String get capabilityAutoBidCreateTitle => 'Add automatic offer rules';
+
+  @override
+  String get capabilityAutoBidCreateDescription =>
+      'Create new automatic offer rules.';
+
+  @override
+  String get capabilityAutoBidReadTitle => 'See automatic offer rules';
+
+  @override
+  String get capabilityAutoBidReadDescription =>
+      'View existing automatic offer rules available to your account.';
+
+  @override
+  String get capabilityAutoBidUpdateTitle => 'Change automatic offer rules';
+
+  @override
+  String get capabilityAutoBidUpdateDescription =>
+      'Adjust existing automatic offer rules within your assigned access.';
+
+  @override
+  String get capabilityAutoBidDeleteTitle => 'Remove automatic offer rules';
+
+  @override
+  String get capabilityAutoBidDeleteDescription =>
+      'Remove automatic offer rules where removal is allowed.';
+
+  @override
+  String get capabilityCompanyRequestsReadTitle => 'See company jobs';
+
+  @override
+  String get capabilityCompanyRequestsReadDescription =>
+      'View assigned jobs and the work calendar.';
+
+  @override
+  String get capabilityCompanyRequestsUpdateTitle => 'Assign workers and teams';
+
+  @override
+  String get capabilityCompanyRequestsUpdateDescription =>
+      'Choose the workers or teams responsible for company jobs.';
+
+  @override
+  String get capabilityAvailableRequestsReadTitle => 'Find new jobs';
+
+  @override
+  String get capabilityAvailableRequestsReadDescription =>
+      'Browse new jobs available to your company.';
+
+  @override
+  String get capabilityUploadCreateTitle => 'Upload files';
+
+  @override
+  String get capabilityUploadCreateDescription =>
+      'Attach photos and documents to permitted company work.';
+
+  @override
+  String get capabilityUploadDeleteTitle => 'Remove uploaded files';
+
+  @override
+  String get capabilityUploadDeleteDescription =>
+      'Remove uploaded files your account is allowed to manage.';
+
+  @override
+  String get capabilityCompanyProfileReadTitle => 'See company profile';
+
+  @override
+  String get capabilityCompanyProfileReadDescription =>
+      'View company details, services and coverage areas.';
+
+  @override
+  String get capabilityCompanyProfileUpdateTitle => 'Change company profile';
+
+  @override
+  String get capabilityCompanyProfileUpdateDescription =>
+      'Adjust company details, services and coverage areas.';
+
+  @override
+  String get capabilityReportsReadTitle => 'See business reports';
+
+  @override
+  String get capabilityReportsReadDescription =>
+      'View job summaries; financial figures also require price access.';
+
+  @override
+  String get capabilityCompanyRequestsCreateTitle => 'Add company jobs';
+
+  @override
+  String get capabilityCompanyRequestsCreateDescription =>
+      'Add company jobs where this existing access option is supported.';
+
+  @override
+  String get capabilityCompanyRequestsDeleteTitle => 'Remove company jobs';
+
+  @override
+  String get capabilityCompanyRequestsDeleteDescription =>
+      'Remove company jobs where removal is allowed.';
+
+  @override
+  String get capabilityCompanyRequestsStatisticsTitle => 'See business reports';
+
+  @override
+  String get capabilityCompanyRequestsStatisticsDescription =>
+      'View job summaries; financial figures also require price access.';
+
+  @override
+  String get capabilityAvailableRequestsBrowseTitle => 'Find new jobs';
+
+  @override
+  String get capabilityAvailableRequestsBrowseDescription =>
+      'Browse new jobs available to your company.';
+
+  @override
+  String get capabilityAvailableRequestsBrowsTitle => 'Find new jobs';
+
+  @override
+  String get capabilityAvailableRequestsBrowsDescription =>
+      'Browse new jobs available to your company.';
 }

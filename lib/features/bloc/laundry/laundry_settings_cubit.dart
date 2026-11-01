@@ -56,7 +56,10 @@ class LaundrySettingsState {
   bool get valid =>
       (!enabled || LaundrySettings.isValidCutoff(cutoff)) &&
       LaundryWorkingHour.validSchedule(workingHours) &&
-      minimumCharge != null;
+      (minimumCharge != null ||
+          (saved != null &&
+              saved!.minimumCharge == null &&
+              minimumChargeText.isEmpty));
   List<LaundryWorkingHour> get effectiveHours =>
       workingHours ??
       List.generate(
@@ -91,7 +94,7 @@ class LaundrySettingsCubit extends Cubit<LaundrySettingsState> {
           cutoff: value.sameDayCutoffTime,
           available: value.available,
           workingHours: value.workingHours,
-          minimumChargeText: value.minimumCharge.toString(),
+          minimumChargeText: value.minimumCharge?.toString() ?? '',
           saveSucceeded: succeeded);
   void change(
       {bool? enabled,

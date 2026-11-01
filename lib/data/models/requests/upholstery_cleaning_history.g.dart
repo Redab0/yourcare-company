@@ -14,6 +14,10 @@ UpholsteryCleaningHistory _$UpholsteryCleaningHistoryFromJson(
       ($checkedConvert) {
         final val = UpholsteryCleaningHistory(
           id: $checkedConvert('id', (v) => v as String?),
+          pricesHidden:
+              $checkedConvert('pricesHidden', (v) => v as bool? ?? false),
+          companyCampaignVisible: $checkedConvert(
+              'companyCampaignVisible', (v) => v as bool? ?? false),
           registrationGiftApplied: $checkedConvert(
               'registrationGiftApplied', (v) => v as bool? ?? false),
           campaign: $checkedConvert(
@@ -26,7 +30,7 @@ UpholsteryCleaningHistory _$UpholsteryCleaningHistoryFromJson(
           requestStatus: $checkedConvert(
               'requestStatus', (v) => $enumDecode(_$RequestStatusEnumMap, v)),
           totalPrice:
-              $checkedConvert('totalPrice', (v) => (v as num).toDouble()),
+              $checkedConvert('totalPrice', (v) => (v as num?)?.toDouble()),
           type: $checkedConvert('type', (v) => v as String),
           createdAt:
               $checkedConvert('createdAt', (v) => DateTime.parse(v as String)),
@@ -41,10 +45,7 @@ UpholsteryCleaningHistory _$UpholsteryCleaningHistoryFromJson(
               (v) => _$JsonConverterFromJson<String, DateTime>(
                   v, const KuwaitScheduleConverter().fromJson)),
           companyInformation: $checkedConvert(
-              'businessId',
-              (v) => v == null
-                  ? null
-                  : CompanyInformation.fromJson(v as Map<String, dynamic>)),
+              'businessId', (v) => companyInformationFromJson(v)),
           assignedWorker: $checkedConvert(
               'cleaners',
               (v) => (v as List<dynamic>?)
@@ -96,6 +97,8 @@ Map<String, dynamic> _$UpholsteryCleaningHistoryToJson(
       'type': instance.type,
       'requestStatus': _$RequestStatusEnumMap[instance.requestStatus]!,
       'totalPrice': instance.totalPrice,
+      'pricesHidden': instance.pricesHidden,
+      'companyCampaignVisible': instance.companyCampaignVisible,
       'registrationGiftApplied': instance.registrationGiftApplied,
       'campaign': instance.campaign,
       'createdAt': instance.createdAt.toIso8601String(),

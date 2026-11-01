@@ -19,6 +19,6 @@ void main() {
     final notifications =
         NotificationsRepository(NotificationsService(dio), null);
     await notifications.initializeAndRegister();
-    await notifications.onLogoutCleanup();
+    await notifications.onLogoutCleanup(expectedToken: 'fixture-token');
   });
 }

@@ -8,6 +8,7 @@ part of 'update_user_model.dart';
 
 UpdateUserModel _$UpdateUserModelFromJson(Map<String, dynamic> json) =>
     UpdateUserModel(
+      canSeePrices: json['canSeePrices'] as bool?,
       username: json['username'] as String?,
       image: json['image'] as String?,
       email: json['email'] as String?,
@@ -23,6 +24,7 @@ Map<String, dynamic> _$UpdateUserModelToJson(UpdateUserModel instance) =>
       if (instance.password case final value?) 'password': value,
       if (instance.email case final value?) 'email': value,
       if (instance.phone case final value?) 'phone': value,
+      if (instance.canSeePrices case final value?) 'canSeePrices': value,
       if (instance.image case final value?) 'image': value,
       if (instance.enabled case final value?) 'enabled': value,
       if (instance.role case final value?) 'role': value,

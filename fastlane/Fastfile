@@ -1,0 +1,92 @@
+require "google/apis/androidpublisher_v3"
+require "googleauth"
+require "spaceship"
+require "shellwords"
+require_relative "lib/store_version"
+
+REPOSITORY_ROOT = File.expand_path("..", __dir__)
+RELEASE_TEMP = File.join(ENV.fetch("RUNNER_TEMP", "/tmp"), "yourcare-release")
+
+def apple_api_key
+  app_store_connect_api_key(
+    key_id: ENV.fetch("APP_STORE_CONNECT_KEY_ID"),
+    issuer_id: ENV.fetch("APP_STORE_CONNECT_ISSUER_ID"),
+    key_filepath: File.join(RELEASE_TEMP, "AuthKey.p8"),
+    duration: 1200,
+    in_house: false
+  )
+end
+
+def build_flutter(platform, version)
+  arguments = ["flutter", "build", platform == "android" ? "appbundle" : "ipa", "--release",
+               "--build-name=#{version.fetch('version')}", "--build-number=#{version.fetch('build_number')}",
+               "--dart-define-from-file=#{File.join(RELEASE_TEMP, 'build-defines.json')}"]
+  arguments << "--export-options-plist=#{File.join(RELEASE_TEMP, 'ExportOptions.plist')}" if platform == "ios"
+  Dir.chdir(REPOSITORY_ROOT) { sh(*arguments) }
+end
+
+platform :android do
+  desc "Read Play versions, increment, build a signed AAB and upload to internal testing"
+  lane :internal do |options|
+    credentials = File.join(RELEASE_TEMP, "play-service-account.json")
+    client = Google::Apis::AndroidpublisherV3::AndroidPublisherService.new
+    client.authorization = Google::Auth::ServiceAccountCredentials.make_creds(
+      json_key_io: File.open(credentials),
+      scope: "https://www.googleapis.com/auth/androidpublisher"
+    )
+    client.request_options.retries = 3
+    snapshot = StoreVersion::PlayStore.new(client: client, package_name: ENV.fetch("APP_IDENTIFIER")).snapshot
+    version = StoreVersion.record(StoreVersion.next_version(**snapshot, bump: options[:bump] || "patch", platform: "android"), root: REPOSITORY_ROOT)
+    UI.message("Building Android #{version.fetch('version')} (#{version.fetch('build_number')})")
+    build_flutter("android", version)
+    release_status = ENV.fetch("PLAY_RELEASE_STATUS", "completed")
+    UI.user_error!("PLAY_RELEASE_STATUS must be completed or draft") unless %w[completed draft].include?(release_status)
+    upload_to_play_store(
+      package_name: ENV.fetch("APP_IDENTIFIER"),
+      json_key: credentials,
+      aab: File.join(REPOSITORY_ROOT, "build/app/outputs/bundle/release/app-release.aab"),
+      track: "internal",
+      version_name: version.fetch("version"),
+      release_status: release_status,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+end
+
+platform :ios do
+  desc "Read Apple versions, increment, build a signed IPA and upload to TestFlight"
+  lane :beta do |options|
+    apple_api_key
+    snapshot = StoreVersion::AppleStore.new(api: Spaceship::ConnectAPI, bundle_id: ENV.fetch("APP_IDENTIFIER")).snapshot
+    version = StoreVersion.record(StoreVersion.next_version(**snapshot, bump: options[:bump] || "patch", platform: "ios"), root: REPOSITORY_ROOT)
+    signing = JSON.parse(File.read(File.join(RELEASE_TEMP, "signing.json")))
+    update_code_signing_settings(
+      path: File.join(REPOSITORY_ROOT, "ios/Runner.xcodeproj"),
+      use_automatic_signing: false,
+      team_id: signing.fetch("team_id"),
+      sdk: "iphoneos*",
+      code_sign_identity: signing.fetch("certificate_sha1"),
+      profile_uuid: signing.fetch("profile_uuid"),
+      profile_name: signing.fetch("profile_name"),
+      targets: ["Runner"],
+      build_configurations: ["Release"]
+    )
+    UI.message("Building iOS #{version.fetch('version')} (#{version.fetch('build_number')})")
+    build_flutter("ios", version)
+    Dir.chdir(REPOSITORY_ROOT) { sh("python3", "scripts/ci/prepare_release.py", "verify-ios") }
+    ipas = Dir[File.join(REPOSITORY_ROOT, "build/ios/ipa/*.ipa")]
+    UI.user_error!("Expected exactly one IPA") unless ipas.length == 1
+    upload_to_testflight(
+      api_key: apple_api_key,
+      app_identifier: ENV.fetch("APP_IDENTIFIER"),
+      ipa: ipas.first,
+      skip_waiting_for_build_processing: false,
+      wait_processing_timeout_duration: 1800,
+      distribute_external: false,
+      submit_beta_review: false
+    )
+  end
+end

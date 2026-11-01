@@ -4,8 +4,6 @@ import 'dart:convert';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 final _fln = FlutterLocalNotificationsPlugin();
@@ -28,12 +26,11 @@ class PushService {
     FirebaseMessaging.onBackgroundMessage(_bgHandler);
 
     // iOS permission prompt
-    final settings = await FirebaseMessaging.instance.requestPermission(
+    await FirebaseMessaging.instance.requestPermission(
       alert: true,
       badge: true,
       sound: true,
     );
-    debugPrint('Push permission: ${settings.authorizationStatus}');
 
     // Foreground presentation on iOS
     await FirebaseMessaging.instance

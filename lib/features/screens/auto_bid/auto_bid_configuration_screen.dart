@@ -1,3 +1,5 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
+import '../../../core/validators/validators.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
@@ -85,7 +87,8 @@ class _AutoBidConfigurationScreenState
       () => TextEditingController(text: _formatAmount(price)),
     );
     final focusNode = _priceFocusNodes[key];
-    if (focusNode == null || !focusNode.hasFocus) {
+    if ((focusNode == null || !focusNode.hasFocus) &&
+        Validators.validAmount(controller.text)) {
       final formatted = _formatAmount(price);
       if (controller.text != formatted) {
         controller.text = formatted;
@@ -104,7 +107,9 @@ class _AutoBidConfigurationScreenState
       () => TextEditingController(text: _formatExpectedTime(value)),
     );
     final focusNode = _expectedFocusNodes[key];
-    if (focusNode == null || !focusNode.hasFocus) {
+    if ((focusNode == null || !focusNode.hasFocus) &&
+        (controller.text.isEmpty ||
+            (int.tryParse(controller.text) ?? 0) >= 1)) {
       final formatted = _formatExpectedTime(value);
       if (controller.text != formatted) {
         controller.text = formatted;
@@ -137,6 +142,7 @@ class _AutoBidConfigurationScreenState
 
   @override
   Widget build(BuildContext context) {
+    if (!context.canSeePrices) return const SizedBox.shrink();
     return Scaffold(
       appBar: AppBar(
         leading: const BusinessBackButton(fallbackRouteName: 'home'),
@@ -224,6 +230,15 @@ class _AutoBidConfigurationScreenState
             );
       },
       onSave: () {
+        final validPrices = _priceControllers.values
+            .every((controller) => Validators.validAmount(controller.text));
+        final validExpected = _expectedControllers.values.every((controller) =>
+            controller.text.isEmpty ||
+            (int.tryParse(controller.text) ?? 0) >= 1);
+        if (!validPrices || !validExpected) {
+          context.showErrorToast();
+          return;
+        }
         context.read<AutoBidConfigBloc>().add(
               const SaveAutoBidConfig(
                 serviceType: AutoBidConfigBloc.deepCleaning,
@@ -526,7 +541,11 @@ class _AutoBidConfigurationScreenState
                       ),
                       onChanged: onManualChange == null
                           ? null
-                          : (value) => onManualChange(_parseAmount(value)),
+                          : (value) {
+                              if (Validators.validAmount(value)) {
+                                onManualChange(_parseAmount(value));
+                              }
+                            },
                     ),
                   ),
                   const SizedBox(width: 4),
@@ -550,7 +569,11 @@ class _AutoBidConfigurationScreenState
                 ),
                 onChanged: onExpectedChange == null
                     ? null
-                    : (value) => onExpectedChange(_parseExpectedTime(value)),
+                    : (value) {
+                        if (value.isEmpty || (int.tryParse(value) ?? 0) >= 1) {
+                          onExpectedChange(_parseExpectedTime(value));
+                        }
+                      },
               );
 
               return Column(

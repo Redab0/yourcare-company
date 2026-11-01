@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer' as developer;
 
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/utils/loading_controller.dart';
@@ -31,19 +30,6 @@ class BusinessProfileBloc
   final deleteCustomServiceItemUseCase = sl<DeleteCustomServiceItemUseCase>();
   final _loader = sl<LoadingController>();
 
-  void _logError(
-    String action,
-    Object error,
-    StackTrace stackTrace,
-  ) {
-    developer.log(
-      '[BusinessProfileBloc] $action failed: $error',
-      name: 'BusinessProfileBloc',
-      error: error,
-      stackTrace: stackTrace,
-    );
-  }
-
   BusinessProfileBloc() : super(ProfileInitial()) {
     on<LoadProfileEvent>(_onLoadProfileEvent);
     on<UpdateProfileEvent>(_onUpdateProfileEvent);
@@ -58,8 +44,11 @@ class BusinessProfileBloc
 
   FutureOr<void> _onLoadProfileEvent(
       LoadProfileEvent event, Emitter<BusinessProfileState> emit) async {
+    final cache = sl<CompanyProfileCubit>();
+    final generation = cache.generation;
     final cachedProfile = event.cachedProfile;
-    if (cachedProfile != null) {
+    if (cachedProfile != null &&
+        identical(cachedProfile, cache.state.profile)) {
       emit(ProfileLoaded(cachedProfile));
       return;
     }
@@ -68,11 +57,12 @@ class BusinessProfileBloc
     try {
       final profile = await getProfileUseCase.call();
       _loader.hide();
-      sl<CompanyProfileCubit>().setProfile(profile);
+      if (cache.generation != generation) return;
+      cache.setProfile(profile, expectedGeneration: generation);
       emit(ProfileLoaded(profile));
-    } catch (e, s) {
-      _logError('_onLoadProfileEvent', e, s);
+    } catch (e) {
       _loader.hide();
+      if (cache.generation != generation) return;
       emit(ProfileError(e.toString()));
     }
   }
@@ -80,14 +70,17 @@ class BusinessProfileBloc
   FutureOr<void> _onUpdateProfileEvent(
       UpdateProfileEvent event, Emitter<BusinessProfileState> emit) async {
     _loader.show();
+    final cache = sl<CompanyProfileCubit>();
+    final generation = cache.generation;
     try {
       final profile = await updateProfileUseCase(event.model);
       _loader.hide();
-      sl<CompanyProfileCubit>().setProfile(profile);
+      if (cache.generation != generation) return;
+      cache.setProfile(profile, expectedGeneration: generation);
       emit(ProfileLoaded(profile));
-    } catch (e, s) {
-      _logError('_onUpdateProfileEvent', e, s);
+    } catch (e) {
       _loader.hide();
+      if (cache.generation != generation) return;
       emit(ProfileError(e.toString()));
     }
   }
@@ -97,8 +90,7 @@ class BusinessProfileBloc
     try {
       var areas = await getAreasUseCase.execute();
       emit(AreasLoaded(areas));
-    } catch (e, s) {
-      _logError('_onGetAreas', e, s);
+    } catch (e) {
       emit(ProfileError(e.toString()));
     }
   }
@@ -110,8 +102,7 @@ class BusinessProfileBloc
       final response = await uploadMediaUseCase.call(event.files);
       _loader.hide();
       emit(MediaUploaded(response));
-    } catch (e, s) {
-      _logError('_upload', e, s);
+    } catch (e) {
       _loader.hide();
       emit(ProfileError("Request Failed $e"));
     }
@@ -120,11 +111,10 @@ class BusinessProfileBloc
   FutureOr<void> _onLoadCoveredServiceItems(LoadCoveredServiceItemsEvent event,
       Emitter<BusinessProfileState> emit) async {
     try {
-      final groups =
-          await getCoveredServiceItemsUseCase.call(profile: event.cachedProfile);
+      final groups = await getCoveredServiceItemsUseCase.call(
+          profile: event.cachedProfile);
       emit(CoveredServiceItemsLoaded(groups));
-    } catch (e, s) {
-      _logError('_onLoadCoveredServiceItems', e, s);
+    } catch (e) {
       emit(ProfileError(e.toString()));
     }
   }
@@ -147,8 +137,7 @@ class BusinessProfileBloc
       final groups = await updateCoveredServiceItemsUseCase.call(ids.toList());
       _loader.hide();
       emit(CoveredServiceItemsLoaded(groups));
-    } catch (e, s) {
-      _logError('_onUpdateCoveredServiceItems', e, s);
+    } catch (e) {
       _loader.hide();
       emit(ProfileError(e.toString()));
     }
@@ -165,8 +154,7 @@ class BusinessProfileBloc
       );
       _loader.hide();
       emit(CoveredServiceItemsLoaded(groups));
-    } catch (e, s) {
-      _logError('_onCreateCustomServiceItem', e, s);
+    } catch (e) {
       _loader.hide();
       emit(ProfileError(e.toString()));
     }
@@ -183,8 +171,7 @@ class BusinessProfileBloc
       );
       _loader.hide();
       emit(CoveredServiceItemsLoaded(groups));
-    } catch (e, s) {
-      _logError('_onUpdateCustomServiceItem', e, s);
+    } catch (e) {
       _loader.hide();
       emit(ProfileError(e.toString()));
     }
@@ -198,8 +185,7 @@ class BusinessProfileBloc
           await deleteCustomServiceItemUseCase.call(event.serviceItemId);
       _loader.hide();
       emit(CoveredServiceItemsLoaded(groups));
-    } catch (e, s) {
-      _logError('_onDeleteCustomServiceItem', e, s);
+    } catch (e) {
       _loader.hide();
       emit(ProfileError(e.toString()));
     }

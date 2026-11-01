@@ -1,3 +1,5 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
+import '../../../core/validators/validators.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
@@ -30,6 +32,7 @@ class _HousekeepingConfigurationScreenState
   final _areaFeesTourKey = GlobalKey(debugLabel: 'housekeeping-area-fees-tour');
   late final BusinessShowcaseTourController _tour;
   String? _tourOwnerId;
+  final Set<TextEditingController> _invalidNumericDrafts = {};
   final _basePriceController = TextEditingController();
   final _basePriceFocus = FocusNode();
   final _cleaningProductsController = TextEditingController();
@@ -74,7 +77,19 @@ class _HousekeepingConfigurationScreenState
   }
 
   Future<void> _refresh() async {
+    _invalidNumericDrafts.clear();
     context.read<HousekeepingPricingBloc>().add(const LoadHousekeepingConfig());
+  }
+
+  bool _recordNumericDraft(TextEditingController controller, String value,
+      {double? maximum}) {
+    final valid = Validators.validAmount(value, maximum: maximum);
+    if (valid) {
+      _invalidNumericDrafts.remove(controller);
+    } else {
+      _invalidNumericDrafts.add(controller);
+    }
+    return valid;
   }
 
   double _parseAmount(String input) {
@@ -89,7 +104,8 @@ class _HousekeepingConfigurationScreenState
 
   void _syncBasePriceText(double value) {
     final formatted = _formatAmount(value);
-    if (_basePriceFocus.hasFocus) {
+    if (_basePriceFocus.hasFocus ||
+        _invalidNumericDrafts.contains(_basePriceController)) {
       return;
     }
     if (_basePriceController.text != formatted) {
@@ -99,7 +115,10 @@ class _HousekeepingConfigurationScreenState
 
   void _syncCleaningProductsText(double value) {
     final formatted = _formatAmount(value);
-    if (_cleaningProductsFocus.hasFocus) return;
+    if (_cleaningProductsFocus.hasFocus ||
+        _invalidNumericDrafts.contains(_cleaningProductsController)) {
+      return;
+    }
     if (_cleaningProductsController.text != formatted) {
       _cleaningProductsController.text = formatted;
     }
@@ -114,7 +133,9 @@ class _HousekeepingConfigurationScreenState
         TextEditingController.new,
       );
       final focusNode = _optionPriceFocusNodes.putIfAbsent(id, FocusNode.new);
-      if (focusNode.hasFocus) continue;
+      if (focusNode.hasFocus || _invalidNumericDrafts.contains(controller)) {
+        continue;
+      }
       final formatted = _formatAmount(option.price);
       if (controller.text != formatted) {
         controller.text = formatted;
@@ -134,7 +155,9 @@ class _HousekeepingConfigurationScreenState
         id,
         FocusNode.new,
       );
-      if (focusNode.hasFocus) continue;
+      if (focusNode.hasFocus || _invalidNumericDrafts.contains(controller)) {
+        continue;
+      }
       final value = state.serviceFrequencyDiscounts[id];
       final formatted = value == null ? '' : _formatAmount(value);
       if (controller.text != formatted) {
@@ -196,6 +219,20 @@ class _HousekeepingConfigurationScreenState
   }
 
   void _savePricing(HousekeepingPricingState state) {
+    if (_invalidNumericDrafts.isNotEmpty) {
+      context.showErrorToast();
+      return;
+    }
+    if (![
+          _basePriceController,
+          _cleaningProductsController,
+          ..._optionPriceControllers.values
+        ].every((controller) => Validators.validAmount(controller.text)) ||
+        !_frequencyDiscountControllers.values.every((controller) =>
+            Validators.validAmount(controller.text, maximum: 100))) {
+      context.showErrorToast();
+      return;
+    }
     final base = _parseAmount(_basePriceController.text);
     final cleaningProducts = _parseAmount(_cleaningProductsController.text);
 
@@ -240,6 +277,7 @@ class _HousekeepingConfigurationScreenState
 
   @override
   Widget build(BuildContext context) {
+    if (!context.canSeePrices) return const SizedBox.shrink();
     return Scaffold(
       appBar: AppBar(
         leading: const BusinessBackButton(
@@ -359,6 +397,9 @@ class _HousekeepingConfigurationScreenState
                     suffixText: context.l10n.kwd,
                   ),
                   onChanged: (value) {
+                    if (!_recordNumericDraft(_basePriceController, value)) {
+                      return;
+                    }
                     final parsed = _parseAmount(value);
                     if (parsed > 0) {
                       context
@@ -419,6 +460,9 @@ class _HousekeepingConfigurationScreenState
                               suffixText: context.l10n.kwd,
                             ),
                             onChanged: (value) {
+                              if (!_recordNumericDraft(controller, value)) {
+                                return;
+                              }
                               final parsed = _parseAmount(value);
                               if (parsed > 0) {
                                 context.read<HousekeepingPricingBloc>().add(
@@ -469,6 +513,10 @@ class _HousekeepingConfigurationScreenState
                               suffixText: '%',
                             ),
                             onChanged: (value) {
+                              if (!_recordNumericDraft(controller, value,
+                                  maximum: 100)) {
+                                return;
+                              }
                               final parsed = _parseAmount(value);
                               context.read<HousekeepingPricingBloc>().add(
                                     UpdateServiceFrequencyDiscount(
@@ -505,6 +553,10 @@ class _HousekeepingConfigurationScreenState
                     suffixText: context.l10n.kwd,
                   ),
                   onChanged: (value) {
+                    if (!_recordNumericDraft(
+                        _cleaningProductsController, value)) {
+                      return;
+                    }
                     context.read<HousekeepingPricingBloc>().add(
                           UpdateCleaningProductsPrice(_parseAmount(value)),
                         );

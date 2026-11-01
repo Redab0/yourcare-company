@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'core/access/price_widgets.dart';
+import 'core/api/api_client.dart';
+import 'core/security/session_lifecycle.dart';
 import 'package:cleaning_service_driver/core/diagnostics/mobile_telemetry.dart';
 import 'package:cleaning_service_driver/core/diagnostics/app_diagnostics.dart';
 import 'package:cleaning_service_driver/core/api/api_environment.dart';
@@ -40,16 +44,26 @@ void main() async {
   await setupServiceLocator();
 
   // If already logged in, initialize notifications and register token.
-  final accessToken = await SecureStorageService().getAccessToken();
+  String? accessToken;
+  try {
+    accessToken = await SecureStorageService().getAccessToken();
+  } catch (_) {
+    /* Unavailable native storage does not clear saved credentials. */
+  }
   if (accessToken != null) {
-    await sl<NotificationsRepository>().initializeAndRegister();
+    unawaited(sl<NotificationsRepository>()
+        .initializeAndRegister()
+        .then<void>((_) {}, onError: (Object _, StackTrace __) {}));
   }
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
 
-  runApp(MyApp());
+  runApp(SessionLifecycle(
+      sessions: sl<ApiClient>().sessions,
+      onResume: sl<ApiClient>().refreshPriceAccess,
+      child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -82,8 +96,9 @@ class MyApp extends StatelessWidget {
               final scaler = AppTheme.textScalerForWidth(width);
               return MediaQuery(
                 data: MediaQuery.of(context).copyWith(textScaler: scaler),
-                child:
-                    EnvironmentBanner(child: child ?? const SizedBox.shrink()),
+                child: PriceAccessScope(
+                    child: EnvironmentBanner(
+                        child: child ?? const SizedBox.shrink())),
               );
             },
             debugShowCheckedModeBanner: false,

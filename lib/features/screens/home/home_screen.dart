@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
@@ -9,7 +10,7 @@ import 'package:cleaning_service_driver/features/bloc/home/home_event.dart';
 import 'package:cleaning_service_driver/features/bloc/home/home_state.dart';
 import 'package:cleaning_service_driver/features/onboarding/business_showcase.dart';
 import 'package:cleaning_service_driver/features/screens/home/business_home_service.dart';
-import 'package:cleaning_service_driver/features/screens/home/company_profile_cubit.dart';
+import 'package:cleaning_service_driver/features/screens/home/company_services_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -34,24 +35,30 @@ class _HomePageState extends State<HomePage> {
       service: GlobalKey(debugLabel: 'setup-tour-${service.name}'),
   };
   User? _user; // will hold the latest fetched user
+  late final int _accountGeneration;
   List<BusinessHomeService> _visibleSetupTourServices = const [];
 
   @override
   void initState() {
     super.initState();
+    _accountGeneration = SecureStorageService().authGeneration;
     _setupTour = BusinessShowcaseTourController(
       scope: _setupTourScope,
     );
     // Grab stored user & kick off fresh fetch
     SecureStorageService().getUser().then((stored) {
-      if (stored == null && mounted) {
+      if (!mounted ||
+          _accountGeneration != SecureStorageService().authGeneration) {
+        return;
+      }
+      if (stored == null || stored.id == null) {
         context.go('/login');
         return;
       }
-      if (!mounted) return;
-      _userId = stored!.id!;
+      _userId = stored.id!;
       setState(() => _user = stored);
       context.read<HomeBloc>().add(FetchUserDetails(_userId));
+      sl<CompanyServicesCubit>().preload(force: true);
     });
   }
 
@@ -175,20 +182,41 @@ class _HomePageState extends State<HomePage> {
         ),
         body: MultiBlocListener(
             listeners: [
+              BlocListener<CompanyServicesCubit, CompanyServicesState>(
+                bloc: sl<CompanyServicesCubit>(),
+                listenWhen: (previous, current) =>
+                    (previous.context != null || previous.isLoading) &&
+                    current.context == null &&
+                    !current.isLoading &&
+                    !current.failed,
+                listener: (_, __) {
+                  if (mounted &&
+                      _accountGeneration ==
+                          SecureStorageService().authGeneration) {
+                    sl<CompanyServicesCubit>().preload(force: true);
+                  }
+                },
+              ),
               BlocListener<HomeBloc, HomeState>(listener: (ctx, state) {
                 if (state is UserFetched) {
-                  final refreshedUser = state.user.copyWith(
-                    services: _user?.services ?? state.user.services,
-                  );
+                  if (_accountGeneration !=
+                          SecureStorageService().authGeneration ||
+                      state.user.id != _userId) {
+                    return;
+                  }
+                  final refreshedUser = state.user;
                   _user = refreshedUser;
-                  SecureStorageService().saveUser(refreshedUser);
+                  SecureStorageService().saveUser(refreshedUser,
+                      expectedGeneration: _accountGeneration);
+                  // A fresh own-profile response may invalidate the capability
+                  // cache; reload services after that authoritative response.
+                  sl<CompanyServicesCubit>().preload(force: true);
                 } else if (state is HomeFailure) {
                   ctx.showErrorToast();
                 }
               }),
               BlocListener<AuthBloc, AuthState>(listener: (ctx, state) {
                 if (state is Unauthenticated) {
-                  SecureStorageService().clearAuthData();
                   context.go('/login');
                 }
               })
@@ -196,7 +224,16 @@ class _HomePageState extends State<HomePage> {
             child: BlocBuilder<HomeBloc, HomeState>(builder: (ctx, state) {
               // show spinner while loading
               if (state is HomeFailure) {
-                return SizedBox.shrink();
+                return Center(
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  Text(context.l10n.homeDataUnavailable),
+                  TextButton(
+                      onPressed: () {
+                        context.read<HomeBloc>().add(FetchUserDetails(_userId));
+                        sl<CompanyServicesCubit>().preload(force: true);
+                      },
+                      child: Text(context.l10n.retry)),
+                ]));
               }
               final user = _user;
               if (user == null) {
@@ -210,26 +247,32 @@ class _HomePageState extends State<HomePage> {
                 final crossAxisCount = isTablet ? 3 : 2;
                 final aspectRatio = isTablet ? 1.2 : .8;
 
-                return BlocBuilder<CompanyProfileCubit, CompanyProfileState>(
-                  bloc: sl<CompanyProfileCubit>(),
+                return BlocBuilder<CompanyServicesCubit, CompanyServicesState>(
+                  bloc: sl<CompanyServicesCubit>(),
                   builder: (context, profileState) {
-                    final companyServices = profileState.companyServices ??
-                        (user.services == null
+                    final companyUnavailable = profileState.failed ||
+                        (!profileState.isLoading &&
+                            profileState.context != null &&
+                            profileState.context?.businessId !=
+                                user.businessId);
+                    final companyServices =
+                        profileState.isLoading || companyUnavailable
                             ? null
-                            : CompanyProvidedService.parseAll(user.services));
+                            : profileState.companyServices;
                     final services = BusinessHomeService.values
                         .where((service) => service.canShow(
                               permissions: perms ?? const [],
                               companyServices: companyServices,
                               isBusinessOwner: user.role == 'business_owner',
                               role: user.role,
+                              canSeePrices: context.canSeePrices,
                             ))
                         .toList(growable: false);
                     _visibleSetupTourServices =
                         orderedBusinessSetupTourServices(services);
 
-                    final profile = profileState.profile;
-                    final profileId = profile?.id?.trim();
+                    final profile = profileState.context;
+                    final profileId = profile?.businessId.trim();
                     final tourOwnerId = businessShowcaseOwnerId(user) ??
                         (profileId?.isNotEmpty == true ? profileId : null);
                     if (tourOwnerId != null &&
@@ -253,6 +296,22 @@ class _HomePageState extends State<HomePage> {
                                 spacing: spacing,
                                 runSpacing: spacing,
                                 children: [
+                                  if (profileState.isLoading)
+                                    SizedBox(
+                                        width: innerConstraints.maxWidth,
+                                        child: const LinearProgressIndicator()),
+                                  if (companyUnavailable)
+                                    SizedBox(
+                                        width: innerConstraints.maxWidth,
+                                        child: Column(children: [
+                                          Text(context
+                                              .l10n.companyServicesUnavailable),
+                                          TextButton(
+                                              onPressed: () =>
+                                                  sl<CompanyServicesCubit>()
+                                                      .preload(force: true),
+                                              child: Text(context.l10n.retry)),
+                                        ])),
                                   for (final service in services)
                                     SizedBox(
                                       width: tileWidth,

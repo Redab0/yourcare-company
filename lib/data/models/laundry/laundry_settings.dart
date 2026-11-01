@@ -58,7 +58,7 @@ class LaundrySettings {
   final String? sameDayCutoffTime;
   final String timeZone;
   final bool available;
-  final double minimumCharge;
+  final double? minimumCharge;
 
   /// Null is the legacy unrestricted schedule; [] explicitly closes all days.
   final List<LaundryWorkingHour>? workingHours;
@@ -67,7 +67,7 @@ class LaundrySettings {
       required this.sameDayCutoffTime,
       required this.timeZone,
       this.available = true,
-      this.minimumCharge = 0,
+      this.minimumCharge,
       this.workingHours});
   factory LaundrySettings.fromJson(Map<String, dynamic> json) =>
       _$LaundrySettingsFromJson(json);

@@ -1,0 +1,3 @@
+import 'contract_suite.dart';
+
+void main() => registerLegacyProviderContractTests();

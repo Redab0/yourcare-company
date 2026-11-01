@@ -1,15 +1,27 @@
 import 'package:cleaning_service_driver/core/api/api_diagnostics_interceptor.dart';
+import '../../features/screens/home/company_services_cubit.dart';
 import 'package:cleaning_service_driver/core/api/api_environment.dart';
+import '../security/request_security_interceptor.dart';
+import '../security/bounded_response_adapter.dart';
+import '../security/session_state.dart';
+import '../security/session_renewal_coordinator.dart';
+import '../security/session_renewal_transport.dart';
+import 'session_error_interceptor.dart';
+import '../../features/chats/data/chat_socket_service.dart';
 import 'package:cleaning_service_driver/core/api/session_request_interceptor.dart';
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/utils/locale_cubit.dart';
 import 'package:dio/dio.dart';
+import '../access/price_access.dart';
+import '../access/price_access_interceptor.dart';
+import '../../features/screens/home/company_profile_cubit.dart';
 
 /// A simple, reusable API client using Dio.
-/// You can extend this for auth, error handling, and logging.
+/// You can extend this for auth and error handling.
 class ApiClient {
   final Dio _dio;
+  late final SessionRenewalCoordinator sessions;
 
   /// Base URL for your API (change as needed)
   // static const String baseUrl = 'https://be-cleaning.yourcarehere.com/api';
@@ -30,16 +42,58 @@ class ApiClient {
           BaseOptions(
             baseUrl: baseUrl,
             connectTimeout: const Duration(seconds: 30),
+            sendTimeout: const Duration(seconds: 30),
+            followRedirects: false,
+            maxRedirects: 0,
             receiveTimeout: const Duration(seconds: 30),
             headers: {'Content-Type': 'application/json', 'channel': 'MANAGER'},
           ),
         ) {
     ApiEnvironment.validate();
+    _dio.httpClientAdapter = BoundedResponseAdapter(_dio.httpClientAdapter);
+    sessions = SessionRenewalCoordinator(
+      storage: SecureStorageService(),
+      onTerminal: clearSessionState,
+      onRotated: () async {
+        if (sl.isRegistered<ChatSocketService>()) {
+          await sl<ChatSocketService>().refreshCredentials();
+        }
+      },
+      transport: DioSessionRenewalTransport(
+        adapter: () => _dio.httpClientAdapter,
+        languageTag: () => sl<LocaleCubit>().state.toLanguageTag(),
+      ),
+    );
+    _dio.interceptors.add(RequestSecurityInterceptor(
+        accountGeneration: () => sessions.storage.authGeneration));
     _dio.interceptors.add(ApiDiagnosticsInterceptor());
     _dio.interceptors.add(SessionRequestInterceptor(
-      readAccessToken: SecureStorageService().getAccessToken,
+      readAccessToken: () async => (await sessions.ensureSession())?.token,
+      accountGeneration: () => sessions.storage.authGeneration,
       languageTag: () => sl<LocaleCubit>().state.toLanguageTag(),
     ));
+    _dio.interceptors.add(SessionErrorInterceptor(sessions, _dio));
+    _dio.interceptors.add(PriceAccessInterceptor(sessions.storage));
+    PriceAccess.instance.addListener(() {
+      if (sl.isRegistered<CompanyProfileCubit>()) {
+        sl<CompanyProfileCubit>().clear();
+      }
+      if (sl.isRegistered<CompanyServicesCubit>()) {
+        sl<CompanyServicesCubit>().clear();
+      }
+    });
+  }
+
+  Future<void>? _accessRefresh;
+  Future<void> refreshPriceAccess() => _accessRefresh ??=
+      _refreshPriceAccess().whenComplete(() => _accessRefresh = null);
+  Future<void> _refreshPriceAccess() async {
+    try {
+      if (await sessions.ensureSession() == null) return;
+      await _dio.get('/users/profile');
+    } catch (_) {
+      /* Offline access stays denied until authority is available. */
+    }
   }
 
   /// Expose Dio if you need full access

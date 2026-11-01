@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
 import 'dart:async';
 
@@ -38,7 +39,6 @@ class _RequestsScreenState extends State<RequestsScreen> {
   final _scrollCtrl = ScrollController();
   late final BusinessShowcaseTourController _tour;
   late Timer _autoRefreshTimer;
-  bool _hidePriceForWorker = false;
 
   @override
   void initState() {
@@ -53,7 +53,6 @@ class _RequestsScreenState extends State<RequestsScreen> {
         keys: [_requestsTourKey],
       );
     });
-    _loadRole();
     context.read<RequestsBloc>().add(FetchFirstPageRequests());
 
     _autoRefreshTimer = Timer.periodic(
@@ -74,14 +73,6 @@ class _RequestsScreenState extends State<RequestsScreen> {
       if (cur >= max - 200) {
         context.read<RequestsBloc>().add(FetchNextPageRequests());
       }
-    });
-  }
-
-  Future<void> _loadRole() async {
-    final user = await SecureStorageService().getUser();
-    if (!mounted) return;
-    setState(() {
-      _hidePriceForWorker = user?.role?.toLowerCase() == 'worker';
     });
   }
 
@@ -145,7 +136,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
                       onLoadMore: () => context
                           .read<RequestsBloc>()
                           .add(FetchNextPageRequests()),
-                      hidePriceForWorker: _hidePriceForWorker,
+                      hidePriceForWorker: !context.canSeePrices,
                     ),
                   ),
                 ),

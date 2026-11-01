@@ -58,10 +58,16 @@ class _NotificationsService implements NotificationsService {
 
   @override
   Future<ApiResponse<ResponsePayload<RegisterTokenResponse>>>
-      deactivateDeviceToken(RegisterToken registerToken) async {
+      deactivateDeviceToken(
+    RegisterToken registerToken, {
+    String? authorization,
+    CancelToken? cancelToken,
+  }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _headers = <String, dynamic>{r'Authorization': authorization};
+    _headers.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     _data.addAll(registerToken.toJson());
     final _options =
@@ -72,6 +78,7 @@ class _NotificationsService implements NotificationsService {
             '/notifications/deactivate-token',
             queryParameters: queryParameters,
             data: _data,
+            cancelToken: cancelToken,
           )
           .copyWith(
             baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),

@@ -1,5 +1,7 @@
 # KW Clean Business Platform
 
+Signed Google Play internal-testing and Apple TestFlight builds: [CI/CD setup and required GitHub secrets](docs/store-cicd.md).
+
 A comprehensive business management platform for cleaning service businesses built with Flutter.
 
 ## Features

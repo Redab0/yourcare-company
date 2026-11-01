@@ -11,6 +11,19 @@ class LoadUpholsteryPricingConfig extends UpholsteryPricingEvent {
   const LoadUpholsteryPricingConfig();
 }
 
+class LoadUpholsteryAvailability extends UpholsteryPricingEvent {
+  const LoadUpholsteryAvailability();
+}
+
+class ChangeUpholsteryAvailability extends UpholsteryPricingEvent {
+  final bool available;
+
+  const ChangeUpholsteryAvailability(this.available);
+
+  @override
+  List<Object?> get props => [available];
+}
+
 class ToggleUpholsteryType extends UpholsteryPricingEvent {
   final String upholsteryTypeId;
   final bool isEnabled;

@@ -1,3 +1,4 @@
+import '../../../helpers/price_access_fixture.dart';
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
@@ -187,6 +188,7 @@ Future<void> _action(WidgetTester tester, String text) async {
 }
 
 void main() {
+  setUp(grantPriceAccess);
   setUp(() => FlutterSecureStorage.setMockInitialValues({
         'auth_user': jsonEncode({
           'role': 'manager',
@@ -539,9 +541,14 @@ void main() {
     await tester.tap(find.text(l10n.laundry_save_draft));
     await tester.pumpAndSettle();
     expect(find.text(l10n.laundry_whole_quantity), findsOneWidget);
-    await tester.enterText(find.byType(TextFormField).first, '2');
-    await tester.enterText(
-        find.widgetWithText(TextFormField, l10n.laundry_discount), '100');
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpWidget(_app(const LaundryInvoiceEditor(
+        catalog: _catalog,
+        draft: LaundryInvoiceRequest(items: [
+          LaundryInvoiceSelection(
+              itemId: 'shirt', sizeId: 'cleaning', quantity: 2),
+        ], discount: 100, send: false))));
+    await tester.pumpAndSettle();
     await tester.tap(find.text(l10n.laundry_save_draft));
     await tester.pumpAndSettle();
     expect(find.text(l10n.laundry_invoice_invalid_discount), findsOneWidget);

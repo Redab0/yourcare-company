@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/home_menu_item.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
@@ -73,7 +74,8 @@ class _LaundryConfigurationScreenState
                     String description,
                   })> tiles = [];
 
-              if (canAccessLaundrySettings(snapshot.data)) {
+              if (context.canSeePrices &&
+                  canAccessLaundrySettings(snapshot.data)) {
                 tiles.add((
                   key: _pricingKey,
                   title: context.l10n.laundry_pricing,

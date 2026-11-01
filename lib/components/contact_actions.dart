@@ -9,19 +9,17 @@ class ContactActions extends StatelessWidget {
   const ContactActions({Key? key, required this.phoneNumber}) : super(key: key);
 
   Future<void> _launchCall() async {
+    if (!RegExp(r'^\+?[0-9]{8,15}$').hasMatch(phoneNumber)) return;
     final uri = Uri(scheme: 'tel', path: phoneNumber);
-    if (!await launchUrl(uri)) {
-      debugPrint('Could not launch $uri');
-    }
+    await launchUrl(uri);
   }
 
   Future<void> _launchWhatsApp() async {
     // remove any '+' or non-digits for wa.me
-    final digitsOnly = phoneNumber.replaceAll(RegExp(r'\D'), '');
+    if (!RegExp(r'^\+?[0-9]{8,15}$').hasMatch(phoneNumber)) return;
+    final digitsOnly = phoneNumber.replaceAll('+', '');
     final uri = Uri.parse('https://wa.me/$digitsOnly');
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      debugPrint('Could not launch WhatsApp with $uri');
-    }
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
   @override

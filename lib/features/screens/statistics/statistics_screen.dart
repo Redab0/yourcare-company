@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/date_time_picker_field.dart';
 import 'package:cleaning_service_driver/components/stats_overview.dart';
@@ -40,6 +41,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!context.canSeePrices) return const SizedBox.shrink();
     return Scaffold(
       appBar: AppBar(
         leading: const BusinessBackButton(fallbackRouteName: 'home'),

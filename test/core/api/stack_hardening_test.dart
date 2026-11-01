@@ -71,23 +71,24 @@ void main() {
         malformed.requestOptions.headers['X-Request-ID'], 'fixture-request-id');
   });
 
-  test('diagnostics retain no exception message, URL or request payload', () {
-    AppDiagnostics.sink = null;
-    AppDiagnostics.recordError(
-        StateError('secret-token-and-phone'), StackTrace.empty);
-    final record = AppDiagnostics.records.last;
-    expect(record.fields['error_type'], 'StateError');
-    expect(record.fields.toString(), isNot(contains('secret-token')));
-    expect(ApiDiagnosticsInterceptor.operationFor('/api/requests/private-id'),
-        'requests');
-    expect(ApiDiagnosticsInterceptor.operationFor('/private-secret'), 'other');
-    for (var i = 0; i < 75; i++) {
-      AppDiagnostics.recordError(StateError('ignored'), StackTrace.empty);
-    }
-    expect(AppDiagnostics.records.length, AppDiagnostics.maxRecords);
+  test('diagnostics never retain records or call a configured sink', () async {
+    var called = false;
+    AppDiagnostics.sink = (_) async {
+      called = true;
+    };
+    AppDiagnostics.recordError(StateError('secret-token'), StackTrace.empty);
+    AppDiagnostics.recordApi(
+        method: 'POST',
+        operation: 'requests',
+        status: 500,
+        requestId: 'sensitive');
+    await Future<void>.delayed(Duration.zero);
+    expect(AppDiagnostics.records, isEmpty);
+    expect(AppDiagnostics.sink, isNull);
+    expect(called, isFalse);
   });
 
-  test('framework and async errors enter the diagnostic adapter', () {
+  test('framework errors are handled without a diagnostic record', () {
     final flutterHandler = FlutterError.onError;
     final platformHandler = PlatformDispatcher.instance.onError;
     addTearDown(() {
@@ -95,9 +96,11 @@ void main() {
       PlatformDispatcher.instance.onError = platformHandler;
     });
     AppDiagnostics.installErrorHandlers();
-    PlatformDispatcher.instance.onError!(
-        ArgumentError('redacted'), StackTrace.empty);
-    expect(AppDiagnostics.records.last.fields['error_type'], 'ArgumentError');
+    expect(
+        PlatformDispatcher.instance.onError!(
+            ArgumentError('secret'), StackTrace.empty),
+        isTrue);
+    expect(AppDiagnostics.records, isEmpty);
     expect(FlutterError.onError, isNot(same(flutterHandler)));
   });
 

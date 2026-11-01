@@ -1,3 +1,4 @@
+import '../../../helpers/price_access_fixture.dart';
 import 'package:cleaning_service_driver/components/registration_gift_badge.dart';
 import 'package:cleaning_service_driver/data/models/requests/request_campaign.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
@@ -28,6 +29,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
+  setUp(grantPriceAccess);
   setUp(() => FlutterSecureStorage.setMockInitialValues({}));
 
   for (final type in [
@@ -251,6 +253,7 @@ CleaningRequest _request(String type, RequestStatus status,
     case 'deepCleaning':
       return DeepCleaningHistory(
           id: 'request-1',
+          companyCampaignVisible: campaign != null,
           registrationGiftApplied: registrationGiftApplied,
           campaign: campaign,
           type: type,
@@ -264,6 +267,7 @@ CleaningRequest _request(String type, RequestStatus status,
     case 'upholsteryCleaning':
       return UpholsteryCleaningHistory(
           id: 'request-1',
+          companyCampaignVisible: campaign != null,
           registrationGiftApplied: registrationGiftApplied,
           campaign: campaign,
           type: type,
@@ -277,6 +281,7 @@ CleaningRequest _request(String type, RequestStatus status,
     case 'houseCleaning':
       return HouseKeepingHistory(
           id: 'request-1',
+          companyCampaignVisible: campaign != null,
           registrationGiftApplied: registrationGiftApplied,
           campaign: campaign,
           type: type,
@@ -290,6 +295,7 @@ CleaningRequest _request(String type, RequestStatus status,
     default:
       return CarWashHistory(
           id: 'request-1',
+          companyCampaignVisible: campaign != null,
           registrationGiftApplied: registrationGiftApplied,
           campaign: campaign,
           requestStatus: status,

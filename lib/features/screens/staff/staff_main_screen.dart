@@ -23,12 +23,16 @@ class _StaffMainScreenState extends State<StaffMainScreen> {
   final _manageTeamsKey = GlobalKey(debugLabel: 'staff-manage-teams-tour');
   final _calendarKey = GlobalKey(debugLabel: 'staff-calendar-tour');
   late final BusinessShowcaseTourController _tour;
+  late final Future<User?> _userFuture;
+  late final int _accountGeneration;
   List<GlobalKey> _visibleTourKeys = const [];
 
   @override
   void initState() {
     super.initState();
     _tour = BusinessShowcaseTourController(scope: _tourScope);
+    _accountGeneration = SecureStorageService().authGeneration;
+    _userFuture = SecureStorageService().getUser();
   }
 
   @override
@@ -63,9 +67,14 @@ class _StaffMainScreenState extends State<StaffMainScreen> {
           final maxWidth = isTablet ? 1100.0 : double.infinity;
 
           return FutureBuilder<User?>(
-            future: SecureStorageService().getUser(),
+            future: _userFuture,
             builder: (context, snapshot) {
-              final perms = snapshot.data?.permissions ?? [];
+              final user =
+                  _accountGeneration == SecureStorageService().authGeneration
+                      ? snapshot.data
+                      : null;
+              final perms = user?.permissions ?? [];
+              final isOwner = user?.role == 'business_owner';
               final List<
                   ({
                     GlobalKey key,
@@ -74,7 +83,7 @@ class _StaffMainScreenState extends State<StaffMainScreen> {
                     String description,
                   })> tiles = [];
 
-              if (perms.hasPermission(Permission.staffCreate)) {
+              if (isOwner || perms.hasPermission(Permission.staffCreate)) {
                 tiles.add((
                   key: _createUserKey,
                   title: context.l10n.create_user_title,
@@ -89,10 +98,11 @@ class _StaffMainScreenState extends State<StaffMainScreen> {
                 ));
               }
 
-              if (perms.hasAnyPermission([
-                Permission.staffRead,
-                Permission.staffUpdate,
-              ])) {
+              if (isOwner ||
+                  perms.hasAnyPermission([
+                    Permission.staffRead,
+                    Permission.staffUpdate,
+                  ])) {
                 tiles.add((
                   key: _manageUsersKey,
                   title: context.l10n.user_management,
@@ -107,7 +117,7 @@ class _StaffMainScreenState extends State<StaffMainScreen> {
                 ));
               }
 
-              if (perms.hasPermission(Permission.teamsCreate)) {
+              if (isOwner || perms.hasPermission(Permission.teamsCreate)) {
                 tiles.add((
                   key: _createTeamKey,
                   title: context.l10n.create_team,
@@ -122,10 +132,11 @@ class _StaffMainScreenState extends State<StaffMainScreen> {
                 ));
               }
 
-              if (perms.hasAnyPermission([
-                Permission.teamsRead,
-                Permission.teamsUpdate,
-              ])) {
+              if (isOwner ||
+                  perms.hasAnyPermission([
+                    Permission.teamsRead,
+                    Permission.teamsUpdate,
+                  ])) {
                 tiles.add((
                   key: _manageTeamsKey,
                   title: context.l10n.team_management,
@@ -140,14 +151,8 @@ class _StaffMainScreenState extends State<StaffMainScreen> {
                 ));
               }
 
-              if (perms.hasAnyPermission([
-                Permission.requestsRead,
-                Permission.companyRequestsRead,
-                Permission.companyRequestsStatistics,
-                Permission.availableRequestsRead,
-                Permission.availableRequestsBrowse,
-                Permission.browsAvailableRequests,
-              ])) {
+              if (isOwner ||
+                  perms.hasPermission(Permission.companyRequestsRead)) {
                 tiles.add((
                   key: _calendarKey,
                   title: context.l10n.employee_calendar,
@@ -162,7 +167,7 @@ class _StaffMainScreenState extends State<StaffMainScreen> {
               }
 
               _visibleTourKeys = tiles.map((item) => item.key).toList();
-              final ownerId = businessShowcaseOwnerId(snapshot.data);
+              final ownerId = businessShowcaseOwnerId(user);
               if (ownerId != null) {
                 _tour.scheduleStartOnce(
                   ownerId: ownerId,

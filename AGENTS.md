@@ -110,6 +110,9 @@ Shared hourly availability in `lib/data/services/schedule` supports housekeeping
 
 ## Before reporting completion
 
+- Update root `PROJECT_HISTORY.md` after each completed task with the date,
+  outcome, relevant branches/commit references, checks actually run, deployment
+  status and open issues. Link detailed feature evidence and omit credentials/PII.
 - Start with `git status --short`; preserve existing user changes and keep the diff scoped.
 - For code changes, format changed Dart files, run applicable generators, focused regression tests, then `flutter analyze` and `flutter test`. Build the affected platform when runtime/platform changes warrant it.
 - API changes must cover serialization/auth/status behavior; service UI changes must cover visibility, error/loading states and English/Arabic layouts. Existing coverage includes `test/data/services/api_request_body_typing_test.dart`, `test/data/services/request_status_actions_test.dart` and `test/features/screens/jobs/request_details_actions_test.dart`.

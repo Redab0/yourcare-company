@@ -1,3 +1,4 @@
+import 'core/diagnostics/app_diagnostics.dart';
 import 'package:cleaning_service_driver/core/api/api_client.dart';
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
@@ -14,6 +15,7 @@ import 'package:go_router/go_router.dart';
 // Standalone DEV preview: real authentication and APIs, no mobile push bootstrap.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  AppDiagnostics.installErrorHandlers();
   if (ApiClient.baseUrl != ApiClient.dev_baseUrl) {
     throw StateError('The laundry preview must use DEV');
   }
@@ -38,8 +40,9 @@ class _LaundryPreviewApp extends StatelessWidget {
         builder: (_, __) => const LaundryCatalogScreen(),
         redirect: (_, __) async {
           final storage = SecureStorageService();
-          final user = await storage.getUser();
-          return await storage.getAccessToken() != null &&
+          final session = await storage.sessionSnapshot();
+          final user = session.user;
+          return session.token != null &&
                   ['business_owner', 'manager'].contains(user?.role) &&
                   user?.businessId != null
               ? null

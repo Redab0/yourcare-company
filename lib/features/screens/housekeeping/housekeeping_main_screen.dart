@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/home_menu_item.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
@@ -22,12 +23,16 @@ class _HouseKeepingMainScreenState extends State<HouseKeepingMainScreen> {
   final _availabilityKey =
       GlobalKey(debugLabel: 'housekeeping-availability-tour');
   late final BusinessShowcaseTourController _tour;
+  late final Future<User?> _userFuture;
+  late final int _accountGeneration;
   List<GlobalKey> _visibleTourKeys = const [];
 
   @override
   void initState() {
     super.initState();
     _tour = BusinessShowcaseTourController(scope: _tourScope);
+    _accountGeneration = SecureStorageService().authGeneration;
+    _userFuture = SecureStorageService().getUser();
   }
 
   @override
@@ -62,9 +67,14 @@ class _HouseKeepingMainScreenState extends State<HouseKeepingMainScreen> {
           final maxWidth = isTablet ? 1100.0 : double.infinity;
 
           return FutureBuilder<User?>(
-            future: SecureStorageService().getUser(),
+            future: _userFuture,
             builder: (context, snapshot) {
-              final perms = snapshot.data?.permissions ?? [];
+              final user =
+                  _accountGeneration == SecureStorageService().authGeneration
+                      ? snapshot.data
+                      : null;
+              final perms = user?.permissions ?? [];
+              final isOwner = user?.role == 'business_owner';
               final List<
                   ({
                     GlobalKey key,
@@ -73,11 +83,13 @@ class _HouseKeepingMainScreenState extends State<HouseKeepingMainScreen> {
                     String description,
                   })> tiles = [];
 
-              if (perms.hasAnyPermission([
-                Permission.housekeepingPricingRead,
-                Permission.housekeepingPricingCreate,
-                Permission.housekeepingPricingUpdate,
-              ])) {
+              if (context.canSeePrices &&
+                  (isOwner ||
+                      perms.hasAnyPermission([
+                        Permission.housekeepingPricingRead,
+                        Permission.housekeepingPricingCreate,
+                        Permission.housekeepingPricingUpdate,
+                      ]))) {
                 tiles.add((
                   key: _pricingKey,
                   title: context.l10n.housekeeping_configuration,
@@ -94,12 +106,13 @@ class _HouseKeepingMainScreenState extends State<HouseKeepingMainScreen> {
                 ));
               }
 
-              if (perms.hasAnyPermission([
-                Permission.cleanerAvailabilityRead,
-                Permission.cleanerAvailabilityCreate,
-                Permission.cleanerAvailabilityUpdate,
-                Permission.cleanerAvailabilityDelete,
-              ])) {
+              if (isOwner ||
+                  perms.hasAnyPermission([
+                    Permission.cleanerAvailabilityRead,
+                    Permission.cleanerAvailabilityCreate,
+                    Permission.cleanerAvailabilityUpdate,
+                    Permission.cleanerAvailabilityDelete,
+                  ])) {
                 tiles.add((
                   key: _availabilityKey,
                   title: context.l10n.employee_availability,
@@ -121,7 +134,7 @@ class _HouseKeepingMainScreenState extends State<HouseKeepingMainScreen> {
               }
 
               _visibleTourKeys = tiles.map((item) => item.key).toList();
-              final ownerId = businessShowcaseOwnerId(snapshot.data);
+              final ownerId = businessShowcaseOwnerId(user);
               if (ownerId != null) {
                 _tour.scheduleStartOnce(
                   ownerId: ownerId,

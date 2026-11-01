@@ -1,3 +1,4 @@
+import '../../../helpers/price_access_fixture.dart';
 import 'package:cleaning_service_driver/components/job_tile.dart';
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/themes/app_theme.dart';
@@ -63,6 +64,7 @@ LaundryHistory _order(String id, String status,
 }
 
 void main() {
+  setUp(grantPriceAccess);
   setUp(() => FlutterSecureStorage.setMockInitialValues({}));
   for (final language in ['en', 'ar']) {
     testWidgets('initial bag pricing and status remain visible in $language',

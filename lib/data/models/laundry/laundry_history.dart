@@ -16,7 +16,7 @@ class LaundryDetails {
   final String status;
   final String paymentStatus;
   final bool sameDay;
-  final double minimumCharge;
+  final double? minimumCharge;
   @JsonKey(fromJson: _referenceId)
   final String? addressId;
   @JsonKey(fromJson: _referenceId)
@@ -36,7 +36,7 @@ class LaundryDetails {
       required this.status,
       required this.paymentStatus,
       this.sameDay = false,
-      this.minimumCharge = 0,
+      this.minimumCharge,
       this.addressId,
       this.areaId,
       this.address,
@@ -118,11 +118,12 @@ class LaundryDetails {
       !isPaid &&
       paymentStatus != 'refunded' &&
       (invoice == null || invoice!.status == 'draft');
-  double get invoiceMinimumCharge => invoice?.minimumCharge ?? minimumCharge;
+  double? get invoiceMinimumCharge => invoice?.minimumCharge ?? minimumCharge;
   bool get invoiceMeetsMinimum =>
-      invoice != null &&
-      (invoice!.subtotal * 1000).round() >=
-          (invoiceMinimumCharge * 1000).round();
+      invoice?.subtotal != null &&
+      invoiceMinimumCharge != null &&
+      (invoice!.subtotal! * 1000).round() >=
+          (invoiceMinimumCharge! * 1000).round();
   bool get canSendInvoice =>
       canEditInvoice && invoice?.status == 'draft' && invoiceMeetsMinimum;
   bool get isAwaitingPayment =>
@@ -165,7 +166,9 @@ class LaundryHistory implements CleaningRequest {
   @JsonKey(fromJson: requestStatusFromJson, toJson: requestStatusToJson)
   final RequestStatus requestStatus;
   @override
-  final double totalPrice;
+  final double? totalPrice;
+  @override
+  final bool pricesHidden;
   @override
   final DateTime createdAt;
   @override
@@ -193,7 +196,8 @@ class LaundryHistory implements CleaningRequest {
       {this.id,
       this.type = 'laundry',
       required this.requestStatus,
-      this.totalPrice = 0,
+      this.totalPrice,
+      this.pricesHidden = false,
       required this.createdAt,
       required this.updatedAt,
       required this.customer,
@@ -253,6 +257,7 @@ class LaundryHistory implements CleaningRequest {
           type: type,
           requestStatus: requestStatus,
           totalPrice: totalPrice,
+          pricesHidden: pricesHidden,
           createdAt: createdAt,
           updatedAt: updatedAt,
           customer: customer,

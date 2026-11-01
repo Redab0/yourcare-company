@@ -10,7 +10,7 @@ class AutoBidCategoriesRepository {
       String serviceType) async {
     final response = await _service.getAutoBidCategories(serviceType);
     if (response.success) {
-      final raw = response.data?.data ?? {};
+      final raw = response.data?.data?.json ?? {};
       return AutoBidDeepCleaningCategories.fromJson(raw);
     } else {
       throw Exception(response.message);
@@ -21,7 +21,7 @@ class AutoBidCategoriesRepository {
       String serviceType) async {
     final response = await _service.getAutoBidCategories(serviceType);
     if (response.success) {
-      final raw = response.data?.data ?? {};
+      final raw = response.data?.data?.json ?? {};
       return AutoBidUpholsteryCategories.fromJson(raw);
     } else {
       throw Exception(response.message);

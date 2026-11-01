@@ -58,3 +58,12 @@ class ReplaceAvailabilityDays extends EmployeeAvailabilityEvent {
   @override
   List<Object?> get props => [serviceType, scheduleByDay];
 }
+
+class ReplaceAvailabilityDates extends EmployeeAvailabilityEvent {
+  final DatedAvailabilityRequest request;
+
+  const ReplaceAvailabilityDates(this.request);
+
+  @override
+  List<Object?> get props => [request];
+}

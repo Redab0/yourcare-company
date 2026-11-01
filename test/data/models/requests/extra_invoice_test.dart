@@ -1,3 +1,4 @@
+import '../../../helpers/price_access_fixture.dart';
 import 'package:cleaning_service_driver/components/extra_invoice.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  setUp(grantPriceAccess);
   const submitted = AddExtraFeesRequest(
     extraFees: 7.5,
     extraFeesDescription: 'Additional service requested on site',

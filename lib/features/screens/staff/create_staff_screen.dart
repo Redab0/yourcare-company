@@ -1,10 +1,14 @@
+import '../../../components/price_access_checkbox.dart';
+import '../../../components/company_permission_panel.dart';
+import '../../../core/storage/secure_storage_service.dart';
+import '../../../core/access/price_widgets.dart';
 import 'dart:io';
+import '../../../core/validators/validators.dart';
 
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/data/models/staff/assign_permission_model.dart';
 import 'package:cleaning_service_driver/data/models/staff/create_user_model.dart';
-import 'package:cleaning_service_driver/data/models/staff/permission_model.dart';
 import 'package:cleaning_service_driver/data/models/staff/user_role.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_action_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_actions_event.dart';
@@ -34,8 +38,9 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
   bool _uploading = false;
   bool _saving = false;
   bool _pendingPermissionAssign = false;
-  List<PermissionModel> _allPermissions = [];
-  final Set<String> _selectedResources = {};
+  late final int _accountGeneration;
+  Set<String> _selectedIds = {};
+  bool _canSeePrices = false;
 
   final _picker = ImagePicker();
 
@@ -47,13 +52,17 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<StaffActionBloc>().add(FetchPermissionsEvent());
+    _accountGeneration = SecureStorageService().authGeneration;
   }
 
   Future<void> _pickPhoto() async {
     final XFile? file =
         await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
-    if (file == null) return;
+    if (file == null ||
+        !mounted ||
+        _accountGeneration != SecureStorageService().authGeneration) {
+      return;
+    }
     setState(() {
       _pickedPhoto = File(file.path);
       _uploading = true;
@@ -84,6 +93,9 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
       ),
       body: BlocConsumer<StaffActionBloc, StaffActionState>(
         listener: (context, state) {
+          if (_accountGeneration != SecureStorageService().authGeneration) {
+            return;
+          }
           if (state is MediaUploaded) {
             setState(() {
               _uploadedPhotoUrl = state.media.first.url;
@@ -96,11 +108,6 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
               _uploading = false;
               _saving = false;
               _pendingPermissionAssign = false;
-            });
-          }
-          if (state is PermissionsFetched) {
-            setState(() {
-              _allPermissions = state.permission;
             });
           }
           if (state is UserCreatedState && !_pendingPermissionAssign) {
@@ -134,7 +141,6 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
           }
         },
         builder: (context, state) {
-          final resourceGroups = _groupedPermissions;
           return Padding(
             padding: EdgeInsets.all(16),
             child: Form(
@@ -146,6 +152,7 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
                     initialValue: _role,
                     decoration: InputDecoration(labelText: context.l10n.role),
                     items: UserRole.values
+                        .where((r) => r != UserRole.businessOwner)
                         .map((r) => DropdownMenuItem(
                               value: r.value,
                               child: Text(
@@ -169,8 +176,9 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
                     controller: _usernameCtl,
                     decoration:
                         InputDecoration(labelText: context.l10n.signup_name),
-                    validator: (v) =>
-                        v!.isEmpty ? context.l10n.signup_name : null,
+                    validator: (v) => Validators.validStaffUsername(v ?? '')
+                        ? null
+                        : context.l10n.signup_name,
                   ),
                   const SizedBox(height: 16),
 
@@ -190,9 +198,12 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
                     ),
                     obscureText: !_showPassword,
                     validator: (v) {
-                      final value = v?.trim() ?? '';
+                      final value = v ?? '';
                       if (_isCleanerRole && value.isEmpty) return null;
-                      if (value.length < 6) return 'At least 6 characters';
+                      if (!Validators.validStaffPassword(value,
+                          creating: true)) {
+                        return context.l10n.signup_password;
+                      }
                       return null;
                     },
                   ),
@@ -207,7 +218,7 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
                     validator: (v) {
                       final value = (v ?? '').trim();
                       if (_isCleanerRole && value.isEmpty) return null;
-                      return value.contains('@')
+                      return Validators.validateEmail(value) == null
                           ? null
                           : context.l10n.signup_email;
                     },
@@ -224,36 +235,25 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
                     validator: (v) {
                       final value = (v ?? '').trim();
                       if (_isCleanerRole && value.isEmpty) return null;
-                      return value.isEmpty ? context.l10n.signup_phone : null;
+                      return Validators.validatePhone(value) == null
+                          ? null
+                          : context.l10n.signup_phone;
                     },
                   ),
                   const SizedBox(height: 24),
 
-                  if (resourceGroups.isNotEmpty) ...[
+                  PriceAccessCheckbox(
+                      value: _canSeePrices,
+                      onChanged: (value) =>
+                          setState(() => _canSeePrices = value)),
+                  ...[
                     Text(context.l10n.permissions,
                         style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 8),
-                    ...resourceGroups.entries.map((entry) {
-                      final resource = entry.key;
-                      final isSelected = _selectedResources.contains(resource);
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: CheckboxListTile(
-                          value: isSelected,
-                          onChanged: (v) {
-                            setState(() {
-                              if (v == true) {
-                                _selectedResources.add(resource);
-                              } else {
-                                _selectedResources.remove(resource);
-                              }
-                            });
-                          },
-                          title: Text(_resourceLabel(resource)),
-                          subtitle: Text('${entry.value.length} permissions'),
-                        ),
-                      );
-                    }),
+                    CompanyPermissionPanel(
+                        selectedIds: _selectedIds,
+                        onChanged: (next) =>
+                            setState(() => _selectedIds = next)),
                     const SizedBox(height: 24),
                   ],
 
@@ -285,6 +285,12 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
                     onPressed: _uploading || _saving
                         ? null
                         : () {
+                            if (_accountGeneration !=
+                                SecureStorageService().authGeneration) {
+                              context.showErrorToast(
+                                  context.l10n.permissionOptionsUnavailable);
+                              return;
+                            }
                             if (_formKey.currentState!.validate()) {
                               final selectedRole = UserRoleX.fromValue(_role);
                               if (selectedRole == null) return;
@@ -296,19 +302,21 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
                               });
                               final model = CreateUserModel(
                                 role: selectedRole.value,
+                                canSeePrices: context.canManagePriceAccess
+                                    ? _canSeePrices
+                                    : null,
                                 username: _usernameCtl.text.trim(),
-                                password: isCleaner &&
-                                        _passwordCtl.text.trim().isEmpty
+                                password: isCleaner && _passwordCtl.text.isEmpty
                                     ? null
                                     : _passwordCtl.text,
                                 email:
                                     isCleaner && _emailCtl.text.trim().isEmpty
                                         ? null
                                         : _emailCtl.text.trim(),
-                                phone:
-                                    isCleaner && _phoneCtl.text.trim().isEmpty
-                                        ? null
-                                        : _phoneCtl.text.trim(),
+                                phone: isCleaner &&
+                                        _phoneCtl.text.trim().isEmpty
+                                    ? null
+                                    : Validators.normalizePhone(_phoneCtl.text),
                                 image: _uploadedPhotoUrl ?? "",
                               );
                               context
@@ -327,32 +335,5 @@ class _CreateStaffScreenState extends State<CreateStaffScreen> {
     );
   }
 
-  Map<String, List<PermissionModel>> get _groupedPermissions {
-    final grouped = <String, List<PermissionModel>>{};
-    for (final permission in _allPermissions) {
-      final resource = (permission.resource ?? 'other').trim();
-      grouped.putIfAbsent(resource, () => []).add(permission);
-    }
-    return grouped;
-  }
-
-  List<String> get _selectedPermissionIds {
-    final ids = <String>{};
-    for (final resource in _selectedResources) {
-      final perms = _groupedPermissions[resource] ?? const <PermissionModel>[];
-      for (final permission in perms) {
-        final id = permission.id;
-        if (id != null) ids.add(id);
-      }
-    }
-    return ids.toList();
-  }
-
-  String _resourceLabel(String raw) {
-    if (raw.isEmpty) return 'Other';
-    return raw
-        .split('_')
-        .map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1)}')
-        .join(' ');
-  }
+  List<String> get _selectedPermissionIds => _selectedIds.toList();
 }

@@ -13,6 +13,10 @@ DeepCleaningHistory _$DeepCleaningHistoryFromJson(Map<String, dynamic> json) =>
       ($checkedConvert) {
         final val = DeepCleaningHistory(
           id: $checkedConvert('id', (v) => v as String?),
+          pricesHidden:
+              $checkedConvert('pricesHidden', (v) => v as bool? ?? false),
+          companyCampaignVisible: $checkedConvert(
+              'companyCampaignVisible', (v) => v as bool? ?? false),
           registrationGiftApplied: $checkedConvert(
               'registrationGiftApplied', (v) => v as bool? ?? false),
           campaign: $checkedConvert(
@@ -23,7 +27,7 @@ DeepCleaningHistory _$DeepCleaningHistoryFromJson(Map<String, dynamic> json) =>
           requestStatus: $checkedConvert(
               'requestStatus', (v) => $enumDecode(_$RequestStatusEnumMap, v)),
           totalPrice:
-              $checkedConvert('totalPrice', (v) => (v as num).toDouble()),
+              $checkedConvert('totalPrice', (v) => (v as num?)?.toDouble()),
           type: $checkedConvert('type', (v) => v as String?),
           createdAt:
               $checkedConvert('createdAt', (v) => DateTime.parse(v as String)),
@@ -43,10 +47,7 @@ DeepCleaningHistory _$DeepCleaningHistoryFromJson(Map<String, dynamic> json) =>
                   ? null
                   : TeamModel.fromJson(v as Map<String, dynamic>)),
           companyInformation: $checkedConvert(
-              'businessId',
-              (v) => v == null
-                  ? null
-                  : CompanyInformation.fromJson(v as Map<String, dynamic>)),
+              'businessId', (v) => companyInformationFromJson(v)),
           serviceFrequencyCount: $checkedConvert(
               'serviceFrequencyCount', (v) => (v as num?)?.toInt()),
           serviceIntervalDays: $checkedConvert(
@@ -94,6 +95,8 @@ Map<String, dynamic> _$DeepCleaningHistoryToJson(
       'id': instance.id,
       'type': instance.type,
       'totalPrice': instance.totalPrice,
+      'pricesHidden': instance.pricesHidden,
+      'companyCampaignVisible': instance.companyCampaignVisible,
       'registrationGiftApplied': instance.registrationGiftApplied,
       'campaign': instance.campaign,
       'createdAt': instance.createdAt.toIso8601String(),

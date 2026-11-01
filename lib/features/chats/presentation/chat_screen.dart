@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'dart:async';
 
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
@@ -447,7 +448,7 @@ class _RequestSummaryCard extends StatelessWidget {
           context.l10n.chat_phone,
           conversation.customerPhone!,
         ),
-      if (conversation.requestTotalPrice != null)
+      if (context.canSeePrices && conversation.requestTotalPrice != null)
         _summaryRow(
           context,
           context.l10n.chat_price,

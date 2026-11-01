@@ -10,7 +10,6 @@ class PlayServices {
 
     final gms = GoogleApiAvailability.instance;
     final status = await gms.checkGooglePlayServicesAvailability();
-    debugPrint('Google Play services status: $status');
 
     if (status == GooglePlayServicesAvailability.success) return true;
 

@@ -212,7 +212,7 @@ class UpholsteryPricingGroup extends Equatable {
   @JsonKey(readValue: _readUpholsteryTypeId)
   final String upholsteryTypeId;
   final List<UpholsteryPricingPackage> packages;
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(name: 'enabled', defaultValue: true)
   final bool isEnabled;
 
   const UpholsteryPricingGroup({
@@ -307,10 +307,13 @@ class UpholsteryPricingGroupRequest extends Equatable {
   final String upholsteryTypeId;
   @JsonKey()
   final List<UpholsteryPricingPackageRequest> packages;
+  @JsonKey()
+  final bool enabled;
 
   const UpholsteryPricingGroupRequest({
     required this.upholsteryTypeId,
     required this.packages,
+    required this.enabled,
   });
 
   factory UpholsteryPricingGroupRequest.fromGroup(
@@ -318,6 +321,7 @@ class UpholsteryPricingGroupRequest extends Equatable {
   ) {
     return UpholsteryPricingGroupRequest(
       upholsteryTypeId: group.upholsteryTypeId,
+      enabled: group.isEnabled,
       packages: group.packages
           .map(UpholsteryPricingPackageRequest.fromPackage)
           .toList(growable: false),
@@ -327,7 +331,37 @@ class UpholsteryPricingGroupRequest extends Equatable {
   Map<String, dynamic> toJson() => _$UpholsteryPricingGroupRequestToJson(this);
 
   @override
-  List<Object?> get props => [upholsteryTypeId, packages];
+  List<Object?> get props => [upholsteryTypeId, packages, enabled];
+}
+
+@JsonSerializable(ignoreUnannotated: true)
+class UpholsteryAvailability extends Equatable {
+  @JsonKey()
+  final bool available;
+
+  const UpholsteryAvailability({required this.available});
+
+  factory UpholsteryAvailability.fromJson(Map<String, dynamic> json) =>
+      _$UpholsteryAvailabilityFromJson(json);
+
+  Map<String, dynamic> toJson() => _$UpholsteryAvailabilityToJson(this);
+
+  @override
+  List<Object?> get props => [available];
+}
+
+@JsonSerializable(createFactory: false, ignoreUnannotated: true)
+class UpdateUpholsteryAvailabilityRequest extends Equatable {
+  @JsonKey()
+  final bool available;
+
+  const UpdateUpholsteryAvailabilityRequest({required this.available});
+
+  Map<String, dynamic> toJson() =>
+      _$UpdateUpholsteryAvailabilityRequestToJson(this);
+
+  @override
+  List<Object?> get props => [available];
 }
 
 @JsonSerializable(

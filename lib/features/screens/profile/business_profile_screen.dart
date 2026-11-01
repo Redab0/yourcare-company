@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'dart:io';
+import '../../../core/validators/validators.dart';
 
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
@@ -566,12 +567,14 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                         controller: _nameCtrl,
                         decoration: InputDecoration(
                             labelText: context.l10n.business_name),
-                        validator: (v) =>
-                            v!.isEmpty ? context.l10n.business_name : null,
+                        validator: (v) => Validators.validateName(v) == null
+                            ? null
+                            : context.l10n.business_name,
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: _descCtrl,
+                        validator: Validators.validateOptionalText,
                         decoration: InputDecoration(
                             labelText: context.l10n.business_description),
                         maxLines: 3,
@@ -579,24 +582,28 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: _addressCtrl,
+                        validator: Validators.validateOptionalText,
                         decoration: InputDecoration(
                             labelText: context.l10n.business_address),
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: _phoneCtrl,
+                        validator: Validators.validateOptionalPhone,
                         decoration: InputDecoration(
                             labelText: context.l10n.business_phone),
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: _emailCtrl,
+                        validator: Validators.validateOptionalEmail,
                         decoration: InputDecoration(
                             labelText: context.l10n.business_email),
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: _websiteCtrl,
+                        validator: Validators.validateOptionalWebsite,
                         decoration: InputDecoration(
                             labelText: context.l10n.business_website),
                       ),
