@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/home_menu_item.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
@@ -21,6 +22,7 @@ class _CarWashMainScreenState extends State<CarWashMainScreen> {
   final _hoursKey = GlobalKey(debugLabel: 'car-wash-hours-tour');
   late final BusinessShowcaseTourController _tour;
   late final Future<User?> _userFuture;
+  late final int _accountGeneration;
   bool _canManageAvailability = false;
 
   List<GlobalKey> get _tourKeys => [
@@ -32,17 +34,22 @@ class _CarWashMainScreenState extends State<CarWashMainScreen> {
   void initState() {
     super.initState();
     _tour = BusinessShowcaseTourController(scope: _tourScope);
+    _accountGeneration = SecureStorageService().authGeneration;
     _userFuture = SecureStorageService().getUser();
     _userFuture.then((user) {
-      if (!mounted) return;
+      if (!mounted ||
+          _accountGeneration != SecureStorageService().authGeneration) {
+        return;
+      }
       final permissions = user?.permissions ?? const [];
       setState(() {
-        _canManageAvailability = permissions.hasAnyPermission([
-          Permission.cleanerAvailabilityRead,
-          Permission.cleanerAvailabilityCreate,
-          Permission.cleanerAvailabilityUpdate,
-          Permission.cleanerAvailabilityDelete,
-        ]);
+        _canManageAvailability = user?.role == 'business_owner' ||
+            permissions.hasAnyPermission([
+              Permission.cleanerAvailabilityRead,
+              Permission.cleanerAvailabilityCreate,
+              Permission.cleanerAvailabilityUpdate,
+              Permission.cleanerAvailabilityDelete,
+            ]);
       });
       final ownerId = businessShowcaseOwnerId(user);
       if (ownerId == null) return;
@@ -77,20 +84,21 @@ class _CarWashMainScreenState extends State<CarWashMainScreen> {
           final crossAxisCount = isTablet ? 3 : 2;
           final aspectRatio = isTablet ? 1.2 : .8;
           final tiles = [
-            BusinessShowcaseStep(
-              showcaseKey: _packagesKey,
-              scope: _tourScope,
-              title: context.l10n.car_wash_packages_and_pricing,
-              description: context.l10n.business_inner_tour_car_wash_packages,
-              index: 0,
-              itemCount: _tourKeys.length,
-              child: HomeMenuItem(
-                imageAsset: 'assets/images/business_car_wash_pricing.png',
+            if (context.canSeePrices)
+              BusinessShowcaseStep(
+                showcaseKey: _packagesKey,
+                scope: _tourScope,
                 title: context.l10n.car_wash_packages_and_pricing,
-                onTap: () => context.pushNamed('car-wash-pricing-screen'),
-                large: isTablet,
+                description: context.l10n.business_inner_tour_car_wash_packages,
+                index: 0,
+                itemCount: _tourKeys.length,
+                child: HomeMenuItem(
+                  imageAsset: 'assets/images/business_car_wash_pricing.png',
+                  title: context.l10n.car_wash_packages_and_pricing,
+                  onTap: () => context.pushNamed('car-wash-pricing-screen'),
+                  large: isTablet,
+                ),
               ),
-            ),
             if (_canManageAvailability)
               BusinessShowcaseStep(
                 showcaseKey: _hoursKey,

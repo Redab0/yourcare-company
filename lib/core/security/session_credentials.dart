@@ -21,6 +21,9 @@ class SessionCredentials {
     this.requestId,
     this.requestCredential,
     this.requestIsRefresh = false,
+    this.priceAccessDenied = false,
+    this.requestCanSeePrices,
+    this.requestPriceAccessDenied,
   });
 
   final String token;
@@ -31,6 +34,10 @@ class SessionCredentials {
   final String? requestId;
   final String? requestCredential;
   final bool requestIsRefresh;
+  // Local authorization snapshot, never sent as part of the renewal API body.
+  final bool priceAccessDenied;
+  final bool? requestCanSeePrices;
+  final bool? requestPriceAccessDenied;
 
   void validateReplacement(SessionCredentials previous, DateTime now) {
     if (token.length > 16384 ||
@@ -64,9 +71,13 @@ class SessionCredentials {
         requestId: id,
         requestCredential: refreshToken ?? token,
         requestIsRefresh: refreshToken != null,
+        priceAccessDenied: priceAccessDenied,
+        requestCanSeePrices: user?.effectiveCanSeePrices,
+        requestPriceAccessDenied: priceAccessDenied,
       );
 
-  SessionCredentials withUser(User value) => SessionCredentials(
+  SessionCredentials withUser(User value, {bool? priceAccessDenied}) =>
+      SessionCredentials(
         token: token,
         user: value,
         refreshToken: refreshToken,
@@ -75,6 +86,9 @@ class SessionCredentials {
         requestId: requestId,
         requestCredential: requestCredential,
         requestIsRefresh: requestIsRefresh,
+        priceAccessDenied: priceAccessDenied ?? this.priceAccessDenied,
+        requestCanSeePrices: requestCanSeePrices,
+        requestPriceAccessDenied: requestPriceAccessDenied,
       );
 
   Map<String, dynamic> toJson() => {
@@ -87,10 +101,16 @@ class SessionCredentials {
         'requestId': requestId,
         'requestCredential': requestCredential,
         'requestIsRefresh': requestIsRefresh,
+        'priceAccessDenied': priceAccessDenied,
+        'requestCanSeePrices': requestCanSeePrices,
+        'requestPriceAccessDenied': requestPriceAccessDenied,
       };
 
   factory SessionCredentials.fromJson(Map<String, dynamic> json) {
-    if (json['version'] != 2 || json['token'] is! String) {
+    if (json['version'] != 2 ||
+        json['token'] is! String ||
+        (json.containsKey('priceAccessDenied') &&
+            json['priceAccessDenied'] is! bool)) {
       throw const FormatException('Invalid stored session.');
     }
     return SessionCredentials(
@@ -106,6 +126,9 @@ class SessionCredentials {
       requestId: json['requestId'] as String?,
       requestCredential: json['requestCredential'] as String?,
       requestIsRefresh: json['requestIsRefresh'] == true,
+      priceAccessDenied: json['priceAccessDenied'] == true,
+      requestCanSeePrices: json['requestCanSeePrices'] as bool?,
+      requestPriceAccessDenied: json['requestPriceAccessDenied'] as bool?,
     );
   }
 }

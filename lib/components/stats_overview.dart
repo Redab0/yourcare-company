@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/data/viewmodels/stats_vm.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ class StatsOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!context.canSeePrices) return const SizedBox.shrink();
     final t = Theme.of(context);
     final locale = Localizations.localeOf(context).toLanguageTag();
     final money = NumberFormat.currency(

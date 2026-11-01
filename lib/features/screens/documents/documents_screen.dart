@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/loading_overlay.dart';
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
@@ -168,6 +169,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!context.canSeePrices) return const SizedBox.shrink();
     final l = context.l10n;
     return Scaffold(
         appBar: AppBar(

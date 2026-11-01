@@ -43,3 +43,15 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# CI tooling and ephemeral signing material
+/.bundle/
+/vendor/bundle/
+/fastlane/report.xml
+/fastlane/README.md
+/fastlane/Preview.html
+*.p12
+*.p8
+*.mobileprovision
+/ios/Flutter/Secrets.xcconfig
+/android/secrets.properties

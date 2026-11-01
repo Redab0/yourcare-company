@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/components/registration_gift_badge.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/contact_actions.dart';
@@ -135,12 +136,17 @@ class _CarWashJobDetailsScreenState extends State<CarWashJobDetailsScreen> {
       '${context.l10n.request_date_time}: ${RequestFmt.date(_scheduledTime)} ${RequestFmt.time(_scheduledTime)}',
       '${context.l10n.address}: ${_addressLabel(address)}',
       if (mapLink != null) 'Google Maps / خرائط Google: $mapLink',
-      '${context.l10n.request_price}: ${RequestFmt.price(request.totalPrice)}',
+      if (context.canSeePrices && !request.pricesHidden)
+        '${context.l10n.request_price}: ${RequestFmt.price(request.totalPrice)}',
       if (specialNotes != null)
         '${context.l10n.request_card_notes}: $specialNotes',
-      if ((request.extraFees ?? 0) > 0)
+      if (context.canSeePrices &&
+          !request.pricesHidden &&
+          (request.extraFees ?? 0) > 0)
         '${context.l10n.extra_invoice_amount}: ${RequestFmt.price(request.extraFees)}',
-      if (request.extraFeesDescription?.isNotEmpty ?? false)
+      if (context.canSeePrices &&
+          !request.pricesHidden &&
+          (request.extraFeesDescription?.isNotEmpty ?? false))
         '${context.l10n.extra_invoice_reason}: ${request.extraFeesDescription}',
     ];
     await shareTextFrom(shareContext, lines.join('\n'));
@@ -259,10 +265,11 @@ class _CarWashJobDetailsScreenState extends State<CarWashJobDetailsScreen> {
                   title: context.l10n.job_details,
                   child: Column(
                     children: [
-                      DetailRow(
+                      PriceOnly(
+                          child: DetailRow(
                         context.l10n.original_order_total,
                         RequestFmt.price(request.totalPrice),
-                      ),
+                      )),
                       const Divider(height: 1),
                       DetailRow(
                         context.l10n.request_date_time,
@@ -366,16 +373,19 @@ class _CarWashJobDetailsScreenState extends State<CarWashJobDetailsScreen> {
                                         ),
                                       ),
                                       const SizedBox(width: 8),
-                                      Text(
-                                        RequestFmt.price(vehicle.price),
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium
-                                            ?.copyWith(
-                                              color: AppTheme.primary,
-                                              fontWeight: FontWeight.w900,
-                                            ),
-                                      ),
+                                      if (context.canSeePrices &&
+                                          !request.pricesHidden &&
+                                          vehicle.price != null)
+                                        Text(
+                                          RequestFmt.price(vehicle.price),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(
+                                                color: AppTheme.primary,
+                                                fontWeight: FontWeight.w900,
+                                              ),
+                                        ),
                                     ],
                                   ),
                                 ),

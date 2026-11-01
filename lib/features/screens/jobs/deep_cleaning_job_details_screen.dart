@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/components/registration_gift_badge.dart';
 import 'dart:io';
 
@@ -168,12 +169,14 @@ class _DeepCleaningJobDetailsState extends State<DeepCleaningJobDetailsScreen> {
     if (specialNotes != null) {
       lines.add('Special Notes / ملاحظات خاصة: $specialNotes');
     }
-    if ((req.extraFees ?? 0) > 0) {
+    if (context.canSeePrices && !req.pricesHidden && (req.extraFees ?? 0) > 0) {
       lines.add(
         'Extra invoice / الفاتورة الإضافية: ${RequestFmt.price(req.extraFees)}',
       );
     }
-    if (req.extraFeesDescription?.isNotEmpty ?? false) {
+    if (context.canSeePrices &&
+        !req.pricesHidden &&
+        (req.extraFeesDescription?.isNotEmpty ?? false)) {
       lines.add(
         'Extra invoice reason / سبب الفاتورة الإضافية: ${req.extraFeesDescription}',
       );

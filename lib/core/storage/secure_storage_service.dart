@@ -1,5 +1,6 @@
 import 'package:cleaning_service_driver/core/api/api_environment.dart';
 import 'dart:convert';
+import '../access/price_access.dart';
 import '../security/session_credentials.dart';
 
 import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
@@ -158,6 +159,7 @@ class SecureStorageService {
   Future<bool> commitRenewal(SessionCredentials replacement,
           {required SessionCredentials expected,
           required int generation,
+          int? expectedAccessEpoch,
           DateTime? now}) =>
       _withAuthLock(() async {
         final current = await _loadCredentials();
@@ -175,9 +177,28 @@ class SecureStorageService {
         final newerProfile = current.user != null &&
             jsonEncode(current.user!.toJson()) !=
                 jsonEncode(expected.user?.toJson());
-        await _writeCredentials(
-            newerProfile ? replacement.withUser(current.user!) : replacement);
+        // Rotation must commit even if a capability changed during the HTTP
+        // flight. A conflicting stale grant never defeats a newer revocation;
+        // a subsequent fresh profile request may explicitly restore access.
+        final commitEpoch = PriceAccess.instance.epoch;
+        final accessChanged = (expectedAccessEpoch != null &&
+                expectedAccessEpoch != PriceAccess.instance.epoch) ||
+            current.user?.effectiveCanSeePrices !=
+                expected.requestCanSeePrices ||
+            current.priceAccessDenied != expected.requestPriceAccessDenied;
+        final retainDenial = accessChanged && current.priceAccessDenied;
+        final priceGrant = replacement.user!.effectiveCanSeePrices &&
+            (!accessChanged || current.user?.effectiveCanSeePrices == true);
+        final mergedUser = (newerProfile ? current.user! : replacement.user!)
+            .copyWith(canSeePrices: priceGrant);
+        final committed =
+            replacement.withUser(mergedUser, priceAccessDenied: retainDenial);
+        await _writeCredentials(committed);
         _credentialRevision++;
+        if (PriceAccess.instance.epoch == commitEpoch) {
+          PriceAccess.instance.publish(mergedUser,
+              generation: _authGeneration, pricesHidden: retainDenial);
+        }
         await _deleteLegacyCredentials();
         return true;
       });
@@ -219,18 +240,67 @@ class SecureStorageService {
   // Compatibility helper; normal login writes the complete envelope.
   Future<void> saveAccessToken(String token) => _withAuthLock(() async {
         _authGeneration++;
+        PriceAccess.instance.reset(generation: _authGeneration);
         final current = await _loadCredentials();
         await _writeCredentials(
             SessionCredentials(token: token, user: current?.user));
         _credentialRevision++;
       });
 
-  Future<void> saveUser(User user) => _withAuthLock(() async {
+  Future<bool> saveUser(User user,
+          {int? expectedGeneration,
+          int? expectedAccessEpoch,
+          bool authoritativeAccess = false}) =>
+      _withAuthLock(() async {
+        if ((expectedGeneration != null &&
+                expectedGeneration != _authGeneration) ||
+            (expectedAccessEpoch != null &&
+                expectedAccessEpoch != PriceAccess.instance.epoch)) {
+          return false;
+        }
         final current = await _loadCredentials();
         if (current == null || user.id == null || current.user?.id != user.id) {
-          return;
+          return false;
         }
-        await _writeCredentials(current.withUser(user));
+        if (expectedAccessEpoch != null &&
+            expectedAccessEpoch != PriceAccess.instance.epoch) {
+          return false;
+        }
+        final savedUser = authoritativeAccess
+            ? user
+            : user.copyWith(canSeePrices: current.user?.effectiveCanSeePrices);
+        await _writeCredentials(current.withUser(savedUser,
+            priceAccessDenied:
+                authoritativeAccess ? false : current.priceAccessDenied));
+        if (expectedAccessEpoch != null &&
+            expectedAccessEpoch != PriceAccess.instance.epoch) {
+          return false;
+        }
+        if (authoritativeAccess) {
+          PriceAccess.instance.publish(savedUser, generation: _authGeneration);
+        }
+        return true;
+      });
+
+  Future<bool> markPricesHidden(
+          {required int generation, required int accessEpoch}) =>
+      _withAuthLock(() async {
+        if (_authGeneration != generation ||
+            PriceAccess.instance.epoch != accessEpoch) {
+          return false;
+        }
+        final current = await _loadCredentials();
+        if (current?.user == null) return false;
+        final user = current!.user!.copyWith(canSeePrices: false);
+        try {
+          await _writeCredentials(
+              current.withUser(user, priceAccessDenied: true));
+        } finally {
+          // Native write failure must not keep already-revoked UI access.
+          PriceAccess.instance
+              .publish(user, generation: _authGeneration, pricesHidden: true);
+        }
+        return true;
       });
 
   Future<String?> _readCommittedToken() async =>
@@ -375,10 +445,12 @@ class SecureStorageService {
         // Invalidate old work even if native storage persists before returning
         // an error; the newly selected record must never keep account A's epoch.
         _authGeneration++;
+        PriceAccess.instance.reset(generation: _authGeneration);
         await beforeSave?.call();
         // A complete record commits the pair. A failed write can expose only a
         // complete old or new pair, never token B plus user A.
         await _writeCredentials(SessionCredentials(token: token, user: user));
+        PriceAccess.instance.publish(user, generation: _authGeneration);
         _credentialRevision++;
         await _deleteLegacyAccountData();
       });
@@ -401,6 +473,7 @@ class SecureStorageService {
           {Future<void> Function()? onCleared}) =>
       _withAuthLock(() async {
         _authGeneration++;
+        PriceAccess.instance.reset(generation: _authGeneration);
         _credentialRevision++;
         SessionCredentials? session;
         String? fcmToken;
@@ -436,6 +509,7 @@ class SecureStorageService {
         }
         if (await _readCommittedToken() != sentToken) return false;
         _authGeneration++;
+        PriceAccess.instance.reset(generation: _authGeneration);
         _credentialRevision++;
         await _signedOut();
         await onCleared?.call();
@@ -463,6 +537,7 @@ class SecureStorageService {
       _withAuthLock(() async {
         if (_authGeneration != generation) return false;
         _authGeneration++;
+        PriceAccess.instance.reset(generation: _authGeneration);
         _credentialRevision++;
         await _signedOut();
         await onCleared?.call();
@@ -472,6 +547,7 @@ class SecureStorageService {
   Future<void> clearAuthData({Future<void> Function()? onCleared}) =>
       _withAuthLock(() async {
         _authGeneration++;
+        PriceAccess.instance.reset(generation: _authGeneration);
         _credentialRevision++;
         await _signedOut();
         await onCleared?.call();

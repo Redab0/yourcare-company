@@ -16,7 +16,8 @@ abstract class CleaningRequest {
   String? get id;
   String? get type;
   RequestStatus get requestStatus;
-  double get totalPrice;
+  double? get totalPrice;
+  bool get pricesHidden;
   DateTime get createdAt;
   DateTime get updatedAt;
   DateTime? get scheduledTime;
@@ -100,6 +101,14 @@ extension CleaningRequestExtraInvoiceX on CleaningRequest {
 
 /// Gift labels use the server flag and the order snapshot, never eligibility.
 extension RegistrationGiftRequest on CleaningRequest {
+  bool get companyCampaignVisible => switch (this) {
+        HouseKeepingHistory r => r.companyCampaignVisible,
+        DeepCleaningHistory r => r.companyCampaignVisible,
+        UpholsteryCleaningHistory r => r.companyCampaignVisible,
+        CarWashHistory r => r.companyCampaignVisible,
+        _ => false,
+      };
+
   bool get registrationGiftApplied => switch (this) {
         HouseKeepingHistory r => r.registrationGiftApplied,
         DeepCleaningHistory r => r.registrationGiftApplied,
@@ -117,11 +126,12 @@ extension RegistrationGiftRequest on CleaningRequest {
       };
 
   bool get hasActiveRegistrationGift {
+    if (!companyCampaignVisible || pricesHidden) return false;
     // Cancellation does not necessarily refund or release a consumed gift.
     if (!registrationGiftApplied) return false;
     final snapshot = campaignSnapshot;
     // Legacy responses have only the server flag. Do not invent an amount.
-    if (snapshot == null) return true;
+    if (snapshot == null) return false;
     final amount = snapshot.discountKwd;
     return snapshot.hasActiveRegistrationGift &&
         (amount == null || (amount.isFinite && amount > 0));
@@ -134,5 +144,8 @@ extension RegistrationGiftRequest on CleaningRequest {
       hasActiveRegistrationGift && campaignSnapshot?.state == 'reserved';
 
   bool get hasVisibleCampaignBenefit =>
-      hasActiveRegistrationGift || campaignSnapshot?.hasVisibleBenefit == true;
+      companyCampaignVisible &&
+      !pricesHidden &&
+      (hasActiveRegistrationGift ||
+          campaignSnapshot?.hasVisibleBenefit == true);
 }

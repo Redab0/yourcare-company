@@ -1,3 +1,4 @@
+import '../../../helpers/price_access_fixture.dart';
 import 'dart:convert';
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/themes/app_theme.dart';
@@ -75,6 +76,7 @@ void _user({bool edit = true, bool read = true}) =>
       })
     });
 void main() {
+  setUp(grantPriceAccess);
   test('working hours cap matches the backend 168-window limit', () {
     String time(int minutes) =>
         '${(minutes ~/ 60).toString().padLeft(2, '0')}:${(minutes % 60).toString().padLeft(2, '0')}';
@@ -99,7 +101,7 @@ void main() {
       'timeZone': 'Asia/Kuwait'
     });
     expect(value.available, isTrue);
-    expect(value.minimumCharge, 0);
+    expect(value.minimumCharge, isNull);
     expect(value.workingHours, isNull);
     expect(LaundrySettingsRequest(workingHours: []).toJson(),
         {'workingHours': []});
@@ -491,9 +493,9 @@ void main() {
         .widgetList<DropdownButtonFormField<String>>(
             find.byType(DropdownButtonFormField<String>))
         .toList();
-    expect(fields.length, 2);
+    expect(fields.length, 3);
     // Dropdown's current value verifies midnight remains an explicit end boundary.
-    expect(find.text('24:00'), findsWidgets);
+    expect(fields.any((field) => field.initialValue == '24:00'), isTrue);
     await tester.tap(find.byKey(const ValueKey('laundry-available')));
     await tester.pumpAndSettle();
     final card = tester.widget<LaundrySameDaySettingsCard>(

@@ -292,8 +292,9 @@ LaundryLine _$LaundryLineFromJson(Map<String, dynamic> json) => $checkedCreate(
           unit: $checkedConvert('unit', (v) => v as String? ?? 'item'),
           unitLabel: $checkedConvert('unitLabel', (v) => v as String?),
           quantity: $checkedConvert('quantity', (v) => (v as num).toDouble()),
-          unitPrice: $checkedConvert('unitPrice', (v) => (v as num).toDouble()),
-          total: $checkedConvert('total', (v) => (v as num).toDouble()),
+          unitPrice:
+              $checkedConvert('unitPrice', (v) => (v as num?)?.toDouble()),
+          total: $checkedConvert('total', (v) => (v as num?)?.toDouble()),
         );
         return val;
       },
@@ -314,8 +315,8 @@ Map<String, dynamic> _$LaundryLineToJson(LaundryLine instance) =>
       'unit': instance.unit,
       if (instance.unitLabel case final value?) 'unitLabel': value,
       'quantity': instance.quantity,
-      'unitPrice': instance.unitPrice,
-      'total': instance.total,
+      if (instance.unitPrice case final value?) 'unitPrice': value,
+      if (instance.total case final value?) 'total': value,
     };
 
 LaundryInvoice _$LaundryInvoiceFromJson(Map<String, dynamic> json) =>
@@ -334,19 +335,17 @@ LaundryInvoice _$LaundryInvoiceFromJson(Map<String, dynamic> json) =>
                           LaundryLine.fromJson(e as Map<String, dynamic>))
                       .toList() ??
                   const []),
-          subtotal:
-              $checkedConvert('subtotal', (v) => (v as num?)?.toDouble() ?? 0),
+          subtotal: $checkedConvert('subtotal', (v) => (v as num?)?.toDouble()),
           minimumCharge:
               $checkedConvert('minimumCharge', (v) => (v as num?)?.toDouble()),
           pickupFee:
-              $checkedConvert('pickupFee', (v) => (v as num?)?.toDouble() ?? 0),
-          deliveryFee: $checkedConvert(
-              'deliveryFee', (v) => (v as num?)?.toDouble() ?? 0),
-          discount:
-              $checkedConvert('discount', (v) => (v as num?)?.toDouble() ?? 0),
-          platformFees: $checkedConvert(
-              'platformFees', (v) => (v as num?)?.toDouble() ?? 0),
-          total: $checkedConvert('total', (v) => (v as num?)?.toDouble() ?? 0),
+              $checkedConvert('pickupFee', (v) => (v as num?)?.toDouble()),
+          deliveryFee:
+              $checkedConvert('deliveryFee', (v) => (v as num?)?.toDouble()),
+          discount: $checkedConvert('discount', (v) => (v as num?)?.toDouble()),
+          platformFees:
+              $checkedConvert('platformFees', (v) => (v as num?)?.toDouble()),
+          total: $checkedConvert('total', (v) => (v as num?)?.toDouble()),
           paidAt: $checkedConvert(
               'paidAt', (v) => v == null ? null : DateTime.parse(v as String)),
         );
@@ -359,13 +358,13 @@ Map<String, dynamic> _$LaundryInvoiceToJson(LaundryInvoice instance) =>
       if (instance.revision case final value?) 'revision': value,
       'status': instance.status,
       'items': instance.items.map((e) => e.toJson()).toList(),
-      'subtotal': instance.subtotal,
+      if (instance.subtotal case final value?) 'subtotal': value,
       if (instance.minimumCharge case final value?) 'minimumCharge': value,
-      'pickupFee': instance.pickupFee,
-      'deliveryFee': instance.deliveryFee,
-      'discount': instance.discount,
-      'platformFees': instance.platformFees,
-      'total': instance.total,
+      if (instance.pickupFee case final value?) 'pickupFee': value,
+      if (instance.deliveryFee case final value?) 'deliveryFee': value,
+      if (instance.discount case final value?) 'discount': value,
+      if (instance.platformFees case final value?) 'platformFees': value,
+      if (instance.total case final value?) 'total': value,
       if (instance.paidAt?.toIso8601String() case final value?) 'paidAt': value,
     };
 

@@ -1,3 +1,4 @@
+import '../../../helpers/price_access_fixture.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -73,6 +74,7 @@ Widget _app(LaundrySettingsCubit cubit,
     );
 
 void main() {
+  setUp(grantPriceAccess);
   test('cutoff accepts only zero-padded 24-hour boundaries', () {
     for (final value in ['00:00', '09:05', '12:00', '23:59']) {
       expect(LaundrySettings.isValidCutoff(value), isTrue);
@@ -238,11 +240,12 @@ void main() {
                   find.byKey(const ValueKey('laundry-same-day-save')))
               .onPressed,
           isNull);
-      await tester.tap(find.byKey(const ValueKey('laundry-same-day-cutoff')));
-      await tester.pumpAndSettle();
-      final material = MaterialLocalizations.of(
-          tester.element(find.byType(TimePickerDialog)));
-      await tester.tap(find.text(material.okButtonLabel));
+      final cutoff = find.byType(DropdownButtonFormField<String>);
+      expect(tester.widget<DropdownButtonFormField<String>>(cutoff).onChanged,
+          isNotNull);
+      tester
+          .widget<DropdownButtonFormField<String>>(cutoff)
+          .onChanged!('12:00');
       await tester.pumpAndSettle();
       expect(cubit.state.cutoff, '12:00');
       final pending = Completer<LaundrySettings>();
@@ -301,9 +304,9 @@ void main() {
         isNull);
     expect(
         tester
-            .widget<OutlinedButton>(
-                find.byKey(const ValueKey('laundry-same-day-cutoff')))
-            .onPressed,
+            .widget<DropdownButtonFormField<String>>(
+                find.byType(DropdownButtonFormField<String>))
+            .onChanged,
         isNull);
     expect(find.byKey(const ValueKey('laundry-same-day-save')), findsNothing);
   });

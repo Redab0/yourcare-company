@@ -16,8 +16,8 @@ LaundryDetails _$LaundryDetailsFromJson(Map<String, dynamic> json) =>
           status: $checkedConvert('status', (v) => v as String),
           paymentStatus: $checkedConvert('paymentStatus', (v) => v as String),
           sameDay: $checkedConvert('sameDay', (v) => v as bool? ?? false),
-          minimumCharge: $checkedConvert(
-              'minimumCharge', (v) => (v as num?)?.toDouble() ?? 0),
+          minimumCharge:
+              $checkedConvert('minimumCharge', (v) => (v as num?)?.toDouble()),
           addressId: $checkedConvert('addressId', (v) => _referenceId(v)),
           areaId: $checkedConvert('areaId', (v) => _referenceId(v)),
           address: $checkedConvert(
@@ -58,7 +58,7 @@ Map<String, dynamic> _$LaundryDetailsToJson(LaundryDetails instance) =>
       'status': instance.status,
       'paymentStatus': instance.paymentStatus,
       'sameDay': instance.sameDay,
-      'minimumCharge': instance.minimumCharge,
+      if (instance.minimumCharge case final value?) 'minimumCharge': value,
       if (instance.addressId case final value?) 'addressId': value,
       if (instance.areaId case final value?) 'areaId': value,
       if (instance.address?.toJson() case final value?) 'address': value,
@@ -99,8 +99,10 @@ LaundryHistory _$LaundryHistoryFromJson(Map<String, dynamic> json) =>
           type: $checkedConvert('type', (v) => v as String? ?? 'laundry'),
           requestStatus: $checkedConvert(
               'requestStatus', (v) => requestStatusFromJson(v as String?)),
-          totalPrice: $checkedConvert(
-              'totalPrice', (v) => (v as num?)?.toDouble() ?? 0),
+          totalPrice:
+              $checkedConvert('totalPrice', (v) => (v as num?)?.toDouble()),
+          pricesHidden:
+              $checkedConvert('pricesHidden', (v) => v as bool? ?? false),
           createdAt:
               $checkedConvert('createdAt', (v) => DateTime.parse(v as String)),
           updatedAt:
@@ -139,7 +141,8 @@ Map<String, dynamic> _$LaundryHistoryToJson(LaundryHistory instance) =>
       if (instance.id case final value?) 'id': value,
       'type': instance.type,
       'requestStatus': requestStatusToJson(instance.requestStatus),
-      'totalPrice': instance.totalPrice,
+      if (instance.totalPrice case final value?) 'totalPrice': value,
+      'pricesHidden': instance.pricesHidden,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
       'customer': instance.customer.toJson(),

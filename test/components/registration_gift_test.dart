@@ -1,3 +1,4 @@
+import '../helpers/price_access_fixture.dart';
 import 'dart:convert';
 
 import 'package:cleaning_service_driver/components/registration_gift_badge.dart';
@@ -22,6 +23,7 @@ CleaningRequest order(String type, bool? applied,
       'type': type,
       'requestStatus': status,
       'totalPrice': 18,
+      'companyCampaignVisible': true,
       'createdAt': '2026-10-06T08:00:00Z',
       'updatedAt': '2026-10-06T08:00:00Z',
       'scheduledTime': '2026-10-10T08:00:00Z',
@@ -47,6 +49,7 @@ Map<String, dynamic> gift(String state, {double amount = 1.25}) => {
     };
 
 void main() {
+  setUp(grantPriceAccess);
   test('Laundry remains outside supported registration gift services', () {
     final request = order('laundry', true, campaign: gift('applied'));
     expect(request.hasActiveRegistrationGift, isFalse);
@@ -54,17 +57,17 @@ void main() {
   });
 
   for (final type in serviceTypes) {
-    test('$type accepts legacy gift flags without inventing a discount', () {
+    test('$type hides legacy gift flags without an approved snapshot', () {
       for (final applied in [true, false, null]) {
         final request = order(type, applied);
         expect(request.registrationGiftApplied, applied == true);
-        expect(request.hasActiveRegistrationGift, applied == true);
+        expect(request.hasActiveRegistrationGift, isFalse);
         expect(request.registrationGiftDiscountKwd, isNull);
         final updated = request.copyWithExtraInvoice(
             extraFees: 3,
             extraFeesDescription: 'Extra service',
             awaitingExtraPayment: true);
-        expect(updated.hasActiveRegistrationGift, applied == true);
+        expect(updated.hasActiveRegistrationGift, isFalse);
       }
     });
 
@@ -102,7 +105,7 @@ void main() {
       }
       for (final status in ['cancelled', 'canceled']) {
         expect(order(type, true, status: status).hasActiveRegistrationGift,
-            isTrue);
+            isFalse);
         expect(
             order(type, true, status: status, campaign: gift('applied'))
                 .hasActiveRegistrationGift,
@@ -170,7 +173,7 @@ void main() {
           }
 
           var l10n = await pump(order(type, true));
-          expect(find.text(l10n.registrationGiftApplied), findsOneWidget);
+          expect(find.text(l10n.registrationGiftApplied), findsNothing);
           final amount = NumberFormat('0.000', language).format(1.25);
           for (final state in ['reserved', 'applied']) {
             l10n = await pump(order(type, true, campaign: gift(state)));

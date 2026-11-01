@@ -66,9 +66,11 @@ class _UpholsteryPricingService implements UpholsteryPricingService {
 
   @override
   Future<ApiResponse<ResponsePayload<List<UpholsteryPricingGroup>>>>
-      getMyUpholsteryPackages() async {
+      getMyUpholsteryPackages({bool includeDisabled = false}) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'includeDisabled': includeDisabled,
+    };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<
@@ -111,10 +113,94 @@ class _UpholsteryPricingService implements UpholsteryPricingService {
   }
 
   @override
-  Future<ApiResponse<ResponsePayload<BusinessProfileModel>>>
-      updateMyUpholsteryPricing(UpholsteryPricingRequest request) async {
+  Future<ApiResponse<ResponsePayload<UpholsteryAvailability>>>
+      getMyUpholsteryAvailability() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options =
+        _setStreamType<ApiResponse<ResponsePayload<UpholsteryAvailability>>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/business/my-business/upholstery-availability',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(
+            baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+          ),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<ResponsePayload<UpholsteryAvailability>> _value;
+    try {
+      _value = ApiResponse<ResponsePayload<UpholsteryAvailability>>.fromJson(
+        _result.data!,
+        (json) => ResponsePayload<UpholsteryAvailability>.fromJson(
+          json as Map<String, dynamic>,
+          (json) =>
+              UpholsteryAvailability.fromJson(json as Map<String, dynamic>),
+        ),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ApiResponse<ResponsePayload<UpholsteryAvailability>>>
+      updateMyUpholsteryAvailability(
+    UpdateUpholsteryAvailabilityRequest request,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(request.toJson());
+    final _options =
+        _setStreamType<ApiResponse<ResponsePayload<UpholsteryAvailability>>>(
+      Options(method: 'PATCH', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/business/my-business/upholstery-availability',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(
+            baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+          ),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<ResponsePayload<UpholsteryAvailability>> _value;
+    try {
+      _value = ApiResponse<ResponsePayload<UpholsteryAvailability>>.fromJson(
+        _result.data!,
+        (json) => ResponsePayload<UpholsteryAvailability>.fromJson(
+          json as Map<String, dynamic>,
+          (json) =>
+              UpholsteryAvailability.fromJson(json as Map<String, dynamic>),
+        ),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<ApiResponse<ResponsePayload<BusinessProfileModel>>>
+      updateMyUpholsteryPricing(
+    UpholsteryPricingRequest request, {
+    bool includeDisabled = false,
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'includeDisabled': includeDisabled,
+    };
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(request.toJson());

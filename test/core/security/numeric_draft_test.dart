@@ -1,3 +1,4 @@
+import '../../helpers/price_access_fixture.dart';
 import 'package:cleaning_service_driver/features/bloc/housekeeping/housekeeping_pricing_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/housekeeping/housekeeping_pricing_event.dart';
 import 'package:cleaning_service_driver/features/bloc/housekeeping/housekeeping_pricing_state.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  setUp(grantPriceAccess);
   setUp(() => FlutterSecureStorage.setMockInitialValues({}));
   for (final raw in ['bad', '-1', 'NaN', 'Infinity', '1.0001']) {
     testWidgets(

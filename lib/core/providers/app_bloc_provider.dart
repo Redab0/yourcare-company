@@ -19,6 +19,7 @@ import 'package:cleaning_service_driver/features/bloc/statistics/statistics_bloc
 import 'package:cleaning_service_driver/features/bloc/upholstery/upholstery_pricing_bloc.dart';
 import 'package:cleaning_service_driver/features/chats/bloc/chat_launcher_cubit.dart';
 import 'package:flutter/material.dart';
+import '../access/price_access.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AppBlocProviders extends StatelessWidget {
@@ -28,29 +29,37 @@ class AppBlocProviders extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (_) => sl<AuthBloc>()),
-        BlocProvider(create: (_) => sl<HomeBloc>()),
-        BlocProvider(create: (_) => sl<RequestsBloc>()),
-        BlocProvider(create: (_) => sl<JobBloc>()),
-        BlocProvider(create: (_) => sl<RequestsActionBloc>()),
-        BlocProvider(create: (_) => sl<JobActionsBloc>()),
-        BlocProvider(create: (_) => sl<StaffBloc>()),
-        BlocProvider(create: (_) => sl<StaffActionBloc>()),
-        BlocProvider(create: (_) => sl<BusinessProfileBloc>()),
-        BlocProvider(create: (_) => sl<LocaleCubit>()),
-        BlocProvider(create: (_) => sl<StatisticsBloc>()),
-        BlocProvider(create: (_) => sl<UserProfileBloc>()),
-        BlocProvider(create: (_) => sl<EmployeeCalendarBloc>()),
-        BlocProvider(create: (_) => sl<EmployeeAvailabilityBloc>()),
-        BlocProvider(create: (_) => sl<HousekeepingPricingBloc>()),
-        BlocProvider(create: (_) => sl<CarWashBloc>()),
-        BlocProvider(create: (_) => sl<UpholsteryPricingBloc>()),
-        BlocProvider(create: (_) => sl<AutoBidConfigBloc>()),
-        BlocProvider(create: (_) => sl<ChatLauncherCubit>()),
-      ],
-      child: child,
+    // Keep authentication alive while financial/account caches are discarded.
+    // A capability refresh must never close an in-flight login/logout handler.
+    return BlocProvider(
+      create: (_) => sl<AuthBloc>(),
+      child: AnimatedBuilder(
+        animation: PriceAccess.instance,
+        builder: (context, _) => MultiBlocProvider(
+          key: ValueKey(PriceAccess.instance.epoch),
+          providers: [
+            BlocProvider(create: (_) => sl<HomeBloc>()),
+            BlocProvider(create: (_) => sl<RequestsBloc>()),
+            BlocProvider(create: (_) => sl<JobBloc>()),
+            BlocProvider(create: (_) => sl<RequestsActionBloc>()),
+            BlocProvider(create: (_) => sl<JobActionsBloc>()),
+            BlocProvider(create: (_) => sl<StaffBloc>()),
+            BlocProvider(create: (_) => sl<StaffActionBloc>()),
+            BlocProvider(create: (_) => sl<BusinessProfileBloc>()),
+            BlocProvider.value(value: sl<LocaleCubit>()),
+            BlocProvider(create: (_) => sl<StatisticsBloc>()),
+            BlocProvider(create: (_) => sl<UserProfileBloc>()),
+            BlocProvider(create: (_) => sl<EmployeeCalendarBloc>()),
+            BlocProvider(create: (_) => sl<EmployeeAvailabilityBloc>()),
+            BlocProvider(create: (_) => sl<HousekeepingPricingBloc>()),
+            BlocProvider(create: (_) => sl<CarWashBloc>()),
+            BlocProvider(create: (_) => sl<UpholsteryPricingBloc>()),
+            BlocProvider(create: (_) => sl<AutoBidConfigBloc>()),
+            BlocProvider.value(value: sl<ChatLauncherCubit>()),
+          ],
+          child: child,
+        ),
+      ),
     );
   }
 }

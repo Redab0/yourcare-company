@@ -149,6 +149,8 @@ class _AuthService implements AuthService {
 }
 
 class _Transport implements SessionRenewalTransport {
+  @override
+  Future<void> confirm(SessionCredentials session, CancelToken cancel) async {}
   Future<void> Function(SessionCredentials)? remote;
   Future<SessionCredentials> Function(SessionCredentials)? renewal;
   Future<void> Function(String, String)? deactivation;

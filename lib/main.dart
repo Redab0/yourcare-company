@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'core/access/price_widgets.dart';
 import 'core/api/api_client.dart';
 import 'core/security/session_lifecycle.dart';
 import 'package:cleaning_service_driver/core/diagnostics/mobile_telemetry.dart';
@@ -59,7 +60,10 @@ void main() async {
     DeviceOrientation.portraitUp,
   ]);
 
-  runApp(SessionLifecycle(sessions: sl<ApiClient>().sessions, child: MyApp()));
+  runApp(SessionLifecycle(
+      sessions: sl<ApiClient>().sessions,
+      onResume: sl<ApiClient>().refreshPriceAccess,
+      child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -92,8 +96,9 @@ class MyApp extends StatelessWidget {
               final scaler = AppTheme.textScalerForWidth(width);
               return MediaQuery(
                 data: MediaQuery.of(context).copyWith(textScaler: scaler),
-                child:
-                    EnvironmentBanner(child: child ?? const SizedBox.shrink()),
+                child: PriceAccessScope(
+                    child: EnvironmentBanner(
+                        child: child ?? const SizedBox.shrink())),
               );
             },
             debugShowCheckedModeBanner: false,

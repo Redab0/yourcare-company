@@ -24,8 +24,11 @@ class UpholsteryCleaningHistory implements CleaningRequest {
   @override
   final RequestStatus requestStatus;
   @override
-  final double totalPrice;
+  final double? totalPrice;
 
+  @override
+  final bool pricesHidden;
+  final bool companyCampaignVisible;
   final bool registrationGiftApplied;
   final RequestCampaign? campaign;
   @override
@@ -50,7 +53,7 @@ class UpholsteryCleaningHistory implements CleaningRequest {
   @JsonKey(defaultValue: <RequestInvoice>[])
   final List<RequestInvoice> invoices;
 
-  @JsonKey(name: 'businessId')
+  @JsonKey(name: 'businessId', fromJson: companyInformationFromJson)
   final CompanyInformation? companyInformation;
   @JsonKey(name: 'cleaners')
   final List<AssignedWorker>? assignedWorker;
@@ -64,6 +67,8 @@ class UpholsteryCleaningHistory implements CleaningRequest {
 
   UpholsteryCleaningHistory({
     this.id,
+    this.pricesHidden = false,
+    this.companyCampaignVisible = false,
     this.registrationGiftApplied = false,
     this.campaign,
     required this.customer,
@@ -117,6 +122,8 @@ class UpholsteryCleaningHistory implements CleaningRequest {
       extraFeesDescription: extraFeesDescription,
       awaitingExtraPayment: awaitingExtraPayment,
       extraPaymentUrl: extraPaymentUrl ?? this.extraPaymentUrl,
+      pricesHidden: pricesHidden,
+      companyCampaignVisible: companyCampaignVisible,
       registrationGiftApplied: registrationGiftApplied,
       campaign: campaign,
       invoices: invoices ?? this.invoices,
@@ -245,7 +252,6 @@ class UpholsteryCleaningPackage {
 
 Map<String, dynamic> _normalizeUpholsteryHistory(Map<String, dynamic> json) {
   final normalized = Map<String, dynamic>.from(json);
-  if (normalized['businessId'] is String) normalized['businessId'] = null;
 
   final details = _upholsteryMap(
         normalized['UpholsteryCleaning'] ??
@@ -286,9 +292,8 @@ Map<String, dynamic> _normalizeUpholsteryHistory(Map<String, dynamic> json) {
   normalized['UpholsteryCleaning'] = normalizedDetails;
   normalized['scheduledTime'] ??= normalizedDetails['scheduledTime'];
   normalized['totalPrice'] = _upholsteryDouble(
-        normalized['totalPrice'] ?? normalizedDetails['totalPrice'],
-      ) ??
-      0;
+    normalized['totalPrice'] ?? normalizedDetails['totalPrice'],
+  );
   return normalized;
 }
 

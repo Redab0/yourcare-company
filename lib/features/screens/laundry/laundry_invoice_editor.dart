@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'dart:async';
 
 import 'package:cleaning_service_driver/components/business_back_button.dart';
@@ -175,6 +176,7 @@ class _LaundryInvoiceEditorState extends State<LaundryInvoiceEditor> {
 
   @override
   Widget build(BuildContext context) {
+    if (!context.canSeePrices) return const SizedBox.shrink();
     final arabic = context.l10n.localeName.startsWith('ar');
     return Scaffold(
       appBar: AppBar(

@@ -206,8 +206,7 @@ abstract final class RequestSecurity {
         }
       }
       if (data['role'] != null &&
-          !{'business_owner', 'manager', 'worker', 'driver'}
-              .contains(data['role'])) {
+          !{'manager', 'worker', 'driver'}.contains(data['role'])) {
         throw const FormatException('Invalid staff role.');
       }
     }
@@ -280,6 +279,7 @@ class _RequestWalker {
       'available',
       'active',
       'enabled',
+      'canSeePrices',
       'isActive',
       'isEnabled',
       'sameDayEnabled',

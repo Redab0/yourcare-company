@@ -8,7 +8,7 @@ class RequestInvoice {
   final String? id;
   final String? type;
   @JsonKey(fromJson: _invoiceAmount)
-  final double amount;
+  final double? amount;
   final String? status;
   final String? paymentUrl;
   final String? paymentMethod;
@@ -20,7 +20,7 @@ class RequestInvoice {
   const RequestInvoice({
     this.id,
     this.type,
-    this.amount = 0,
+    this.amount,
     this.status,
     this.paymentUrl,
     this.paymentMethod,
@@ -67,7 +67,7 @@ Map<String, dynamic> normalizeRequestInvoiceState(
   return normalized;
 }
 
-double _invoiceAmount(Object? value) {
+double? _invoiceAmount(Object? value) {
   if (value is num) return value.toDouble();
-  return double.tryParse(value?.toString() ?? '') ?? 0;
+  return double.tryParse(value?.toString() ?? '');
 }

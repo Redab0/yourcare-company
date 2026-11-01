@@ -1,3 +1,4 @@
+import '../core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,11 @@ class RegistrationGiftBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!request.hasVisibleCampaignBenefit) return const SizedBox.shrink();
     final colors = Theme.of(context).colorScheme;
+    if (!context.canSeePrices ||
+        !request.companyCampaignVisible ||
+        request.pricesHidden) {
+      return const SizedBox.shrink();
+    }
     final campaign = request.campaignSnapshot;
     final String label;
     if (campaign == null || request.hasActiveRegistrationGift) {

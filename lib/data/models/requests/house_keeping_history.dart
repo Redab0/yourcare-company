@@ -22,8 +22,11 @@ class HouseKeepingHistory implements CleaningRequest {
   @override
   final String? type;
   @override
-  final double totalPrice;
+  final double? totalPrice;
 
+  @override
+  final bool pricesHidden;
+  final bool companyCampaignVisible;
   final bool registrationGiftApplied;
   final RequestCampaign? campaign;
   @override
@@ -58,7 +61,7 @@ class HouseKeepingHistory implements CleaningRequest {
   @JsonKey(name: 'HouseCleaning')
   final HouseKeepingDetail detail;
 
-  @JsonKey(name: 'businessId')
+  @JsonKey(name: 'businessId', fromJson: companyInformationFromJson)
   final CompanyInformation? companyInformation;
 
   final List<String>? cleanersIds;
@@ -68,6 +71,8 @@ class HouseKeepingHistory implements CleaningRequest {
 
   HouseKeepingHistory({
     this.id,
+    this.pricesHidden = false,
+    this.companyCampaignVisible = false,
     this.registrationGiftApplied = false,
     this.campaign,
     required this.requestStatus,
@@ -124,6 +129,8 @@ class HouseKeepingHistory implements CleaningRequest {
         extraFeesDescription: extraFeesDescription ?? this.extraFeesDescription,
         awaitingExtraPayment: awaitingExtraPayment ?? this.awaitingExtraPayment,
         extraPaymentUrl: extraPaymentUrl ?? this.extraPaymentUrl,
+        pricesHidden: pricesHidden,
+        companyCampaignVisible: companyCampaignVisible,
         registrationGiftApplied: registrationGiftApplied,
         campaign: campaign,
         invoices: invoices ?? this.invoices);
@@ -184,22 +191,27 @@ class FrequentRequestModel {
   @KuwaitScheduleConverter()
   DateTime? date;
   RequestStatus? status;
+  @JsonKey(fromJson: _validVisitDuration, includeIfNull: false)
+  final double? durationHours;
 
   FrequentRequestModel({
     this.status,
     this.id,
     this.date,
-  });
+    double? durationHours,
+  }) : durationHours = _validVisitDuration(durationHours);
 
   FrequentRequestModel copyWith({
     String? id,
     DateTime? date,
     RequestStatus? status,
+    double? durationHours,
   }) {
     return FrequentRequestModel(
       status: status ?? this.status,
       id: id ?? this.id,
       date: date ?? this.date,
+      durationHours: durationHours ?? this.durationHours,
     );
   }
 
@@ -211,6 +223,12 @@ class FrequentRequestModel {
             : (json['_id'] as String?)?.trim(),
       });
   Map<String, dynamic> toJson() => _$FrequentRequestModelToJson(this);
+}
+
+double? _validVisitDuration(Object? value) {
+  if (value is! num) return null;
+  final hours = value.toDouble();
+  return hours.isFinite && hours > 0 && hours <= 24 ? hours : null;
 }
 
 @JsonSerializable(checked: true)

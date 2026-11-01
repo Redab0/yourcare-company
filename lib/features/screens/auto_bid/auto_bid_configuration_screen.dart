@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import '../../../core/validators/validators.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
@@ -141,6 +142,7 @@ class _AutoBidConfigurationScreenState
 
   @override
   Widget build(BuildContext context) {
+    if (!context.canSeePrices) return const SizedBox.shrink();
     return Scaffold(
       appBar: AppBar(
         leading: const BusinessBackButton(fallbackRouteName: 'home'),

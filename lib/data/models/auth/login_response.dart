@@ -51,6 +51,8 @@ class User {
   final String? role;
   final String? image;
   final bool? enabled;
+  @JsonKey(includeIfNull: false)
+  final bool? canSeePrices;
   final String? businessId;
   final List<String>? services;
   final List<Address>? addresses;
@@ -65,6 +67,7 @@ class User {
     this.phone,
     this.role,
     this.enabled,
+    this.canSeePrices,
     this.createdAt,
     this.updatedAt,
     this.businessId,
@@ -74,9 +77,18 @@ class User {
     this.addresses = const [],
   });
 
-  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+  factory User.fromJson(Map<String, dynamic> json) {
+    if (json.containsKey('canSeePrices') && json['canSeePrices'] is! bool) {
+      throw const FormatException('Price access must be a boolean.');
+    }
+    return _$UserFromJson(json);
+  }
 
   Map<String, dynamic> toJson() => _$UserToJson(this);
+
+  bool get canManagePriceAccess => role == 'business_owner' || role == 'admin';
+  bool get effectiveCanSeePrices =>
+      canManagePriceAccess || (canSeePrices ?? (role != null));
 
   User copyWith({
     String? id,
@@ -85,6 +97,7 @@ class User {
     String? phone,
     String? role,
     bool? enabled,
+    bool? canSeePrices,
     String? createdAt,
     String? updatedAt,
     String? businessId,
@@ -100,6 +113,7 @@ class User {
         phone: phone ?? this.phone,
         role: role ?? this.role,
         enabled: enabled ?? this.enabled,
+        canSeePrices: canSeePrices ?? this.canSeePrices,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
         businessId: businessId ?? this.businessId,

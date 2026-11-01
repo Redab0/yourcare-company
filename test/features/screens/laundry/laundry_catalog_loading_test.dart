@@ -1,3 +1,4 @@
+import '../../../helpers/price_access_fixture.dart';
 import 'dart:async';
 import 'package:cleaning_service_driver/components/loading_overlay.dart';
 import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
@@ -71,6 +72,7 @@ Map<String, dynamic> _response() => {
       }
     };
 void main() {
+  setUp(grantPriceAccess);
   test(
       'catalog has a whole-request deadline, cancels stalled transport and supports retry',
       () async {
@@ -83,7 +85,7 @@ void main() {
       if (pending.length == 2) secondRequest.complete();
     }));
     final repo = LaundryRepository(LaundryService(dio),
-        catalogTimeout: const Duration(milliseconds: 30));
+        catalogTimeout: const Duration(seconds: 1));
     await expectLater(repo.getCatalog(), throwsA(isA<TimeoutException>()));
     expect(pending.single.$1.path, '/business/my-business/laundry-catalog');
     expect(pending.single.$1.cancelToken!.isCancelled, isTrue);
@@ -114,7 +116,7 @@ void main() {
     }));
     final cubit = LaundryCubit(
         LaundryRepository(LaundryService(dio),
-            catalogTimeout: const Duration(milliseconds: 30)),
+            catalogTimeout: const Duration(seconds: 1)),
         order: _order());
     addTearDown(cubit.close);
     await cubit.loadCatalog();
@@ -215,14 +217,15 @@ void main() {
           tester.element(find.byType(LaundryJobDetailsScreen)))!;
       final create = find.ancestor(
           of: find.text(l10n.laundry_create_invoice),
-          matching: find.byWidgetPredicate((widget) => widget is FilledButton));
+          matching:
+              find.byWidgetPredicate((widget) => widget is OutlinedButton));
       await tester.ensureVisible(create);
       await tester.tap(create);
       await tester.pump();
       expect(find.text(l10n.laundry_catalog_loading), findsOneWidget);
       expect(find.text(l10n.laundry_customer), findsWidgets);
       expect(find.byType(LaundryInvoiceEditor), findsNothing);
-      expect(tester.widget<FilledButton>(create).onPressed, isNull);
+      expect(tester.widget<OutlinedButton>(create).onPressed, isNull);
       pending.completeError(TimeoutException('Timed out'));
       await tester.pumpAndSettle();
       expect(find.byType(AppIconSpinner), findsNothing);
@@ -246,9 +249,10 @@ void main() {
     repo.replies.add(pending.future);
     await tester.pumpWidget(_app(LaundryJobDetailsScreen(request: _order())));
     await tester.pumpAndSettle();
-    final button = tester.widget<FilledButton>(find.ancestor(
+    final button = tester.widget<OutlinedButton>(find.ancestor(
         of: find.text('Create invoice'),
-        matching: find.byWidgetPredicate((widget) => widget is FilledButton)));
+        matching:
+            find.byWidgetPredicate((widget) => widget is OutlinedButton)));
     button.onPressed!();
     button.onPressed!();
     await tester.pump();

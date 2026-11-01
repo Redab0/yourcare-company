@@ -1,0 +1,298 @@
+{
+  "fixtureVersion": 2,
+  "syntheticOnly": true,
+  "provenance": "Actual HTTP RequestsController/RequestsService/DTO with synthetic repository, payment and capacity adapters; actual catalog enrichment and actor response policy. Real Mongo authority covered separately.",
+  "allowedCompanyRequest": {
+    "success": true,
+    "message": "Success",
+    "data": {
+      "data": {
+        "weeklySchedule": [
+          {
+            "dayOfWeek": 0,
+            "time": "09:30"
+          },
+          {
+            "dayOfWeek": 2,
+            "time": "14:00"
+          }
+        ],
+        "numberOfWeeklyVisits": 2,
+        "totalVisits": 8,
+        "id": "HK-RELEASE-FIXTURE",
+        "customer": {
+          "id": "507f1f77bcf86cd799439022",
+          "addresses": []
+        },
+        "readableId": "HK-RELEASE-FIXTURE",
+        "requestStatus": "pending",
+        "totalPrice": 38.4,
+        "platformFees": 1.92,
+        "totalPriceWithFees": 40.32,
+        "type": "houseCleaning",
+        "createdAt": "2030-10-20T03:00:00.000Z",
+        "updatedAt": "2030-10-20T03:00:00.000Z",
+        "HouseCleaning": {
+          "numberOfCleaners": {
+            "option": {
+              "_id": "507f1f77bcf86cd799439027",
+              "titleEn": "2 cleaners",
+              "titleAr": "عاملتان",
+              "price": 2
+            },
+            "quantity": 1
+          },
+          "cleaningDurations": {
+            "option": {
+              "_id": "507f1f77bcf86cd799439026",
+              "titleEn": "2 hours",
+              "titleAr": "ساعتان",
+              "price": 3
+            },
+            "quantity": 1
+          },
+          "cleaningProducts": null,
+          "address": {
+            "id": "507f1f77bcf86cd799439023",
+            "area": "Unknown Area",
+            "isDefault": false
+          },
+          "areaId": "507f1f77bcf86cd799439024",
+          "scheduledTime": "2030-10-20T09:30:00.000+03:00",
+          "specialNotes": "Synthetic fixture only",
+          "totalPrice": 38.4
+        },
+        "scheduledTime": "2030-10-20T09:30:00.000+03:00",
+        "requestFrequencyId": "507f1f77bcf86cd799439025",
+        "serviceFrequencyCount": 8,
+        "serviceIntervalDays": 7,
+        "frequencyDates": [
+          {
+            "id": "000000000000000000000001",
+            "date": "2030-10-20T06:30:00.000Z",
+            "status": "pending"
+          },
+          {
+            "id": "000000000000000000000002",
+            "date": "2030-10-22T11:00:00.000Z",
+            "status": "pending"
+          },
+          {
+            "id": "000000000000000000000003",
+            "date": "2030-10-27T06:30:00.000Z",
+            "status": "pending"
+          },
+          {
+            "id": "000000000000000000000004",
+            "date": "2030-10-29T11:00:00.000Z",
+            "status": "pending"
+          },
+          {
+            "id": "000000000000000000000005",
+            "date": "2030-11-03T06:30:00.000Z",
+            "status": "pending"
+          },
+          {
+            "id": "000000000000000000000006",
+            "date": "2030-11-05T11:00:00.000Z",
+            "status": "pending"
+          },
+          {
+            "id": "000000000000000000000007",
+            "date": "2030-11-10T06:30:00.000Z",
+            "status": "pending"
+          },
+          {
+            "id": "000000000000000000000008",
+            "date": "2030-11-12T11:00:00.000Z",
+            "status": "pending"
+          }
+        ],
+        "isRated": false,
+        "rescheduleLog": [],
+        "campaign": {
+          "campaignId": "507f1f77bcf86cd799439029",
+          "name": "Synthetic offer",
+          "type": "discount",
+          "fundedBy": "provider",
+          "state": "applied",
+          "discountKwd": 4
+        },
+        "companyCampaignVisible": true,
+        "registrationGiftApplied": false
+      },
+      "locale": "en"
+    }
+  },
+  "restrictedCompanyRequest": {
+    "success": true,
+    "message": "Success",
+    "data": {
+      "data": {
+        "weeklySchedule": [
+          {
+            "dayOfWeek": 0,
+            "time": "09:30"
+          },
+          {
+            "dayOfWeek": 2,
+            "time": "14:00"
+          }
+        ],
+        "numberOfWeeklyVisits": 2,
+        "totalVisits": 8,
+        "id": "HK-RELEASE-FIXTURE",
+        "customer": {
+          "id": "507f1f77bcf86cd799439022",
+          "addresses": []
+        },
+        "readableId": "HK-RELEASE-FIXTURE",
+        "requestStatus": "pending",
+        "type": "houseCleaning",
+        "createdAt": "2030-10-20T03:00:00.000Z",
+        "updatedAt": "2030-10-20T03:00:00.000Z",
+        "HouseCleaning": {
+          "numberOfCleaners": {
+            "option": {
+              "_id": "507f1f77bcf86cd799439027",
+              "titleEn": "2 cleaners",
+              "titleAr": "عاملتان"
+            },
+            "quantity": 1
+          },
+          "cleaningDurations": {
+            "option": {
+              "_id": "507f1f77bcf86cd799439026",
+              "titleEn": "2 hours",
+              "titleAr": "ساعتان"
+            },
+            "quantity": 1
+          },
+          "cleaningProducts": null,
+          "address": {
+            "id": "507f1f77bcf86cd799439023",
+            "area": "Unknown Area",
+            "isDefault": false
+          },
+          "areaId": "507f1f77bcf86cd799439024",
+          "scheduledTime": "2030-10-20T09:30:00.000+03:00",
+          "specialNotes": "Synthetic fixture only"
+        },
+        "scheduledTime": "2030-10-20T09:30:00.000+03:00",
+        "requestFrequencyId": "507f1f77bcf86cd799439025",
+        "serviceFrequencyCount": 8,
+        "serviceIntervalDays": 7,
+        "frequencyDates": [
+          {
+            "id": "000000000000000000000001",
+            "date": "2030-10-20T06:30:00.000Z",
+            "status": "pending"
+          },
+          {
+            "id": "000000000000000000000002",
+            "date": "2030-10-22T11:00:00.000Z",
+            "status": "pending"
+          },
+          {
+            "id": "000000000000000000000003",
+            "date": "2030-10-27T06:30:00.000Z",
+            "status": "pending"
+          },
+          {
+            "id": "000000000000000000000004",
+            "date": "2030-10-29T11:00:00.000Z",
+            "status": "pending"
+          },
+          {
+            "id": "000000000000000000000005",
+            "date": "2030-11-03T06:30:00.000Z",
+            "status": "pending"
+          },
+          {
+            "id": "000000000000000000000006",
+            "date": "2030-11-05T11:00:00.000Z",
+            "status": "pending"
+          },
+          {
+            "id": "000000000000000000000007",
+            "date": "2030-11-10T06:30:00.000Z",
+            "status": "pending"
+          },
+          {
+            "id": "000000000000000000000008",
+            "date": "2030-11-12T11:00:00.000Z",
+            "status": "pending"
+          }
+        ],
+        "isRated": false,
+        "rescheduleLog": [],
+        "pricesHidden": true
+      },
+      "locale": "en"
+    },
+    "pricesHidden": true
+  },
+  "staff": [
+    {
+      "canSeePrices": false,
+      "id": "507f1f77bcf86cd799439022",
+      "username": "Synthetic staff",
+      "role": "worker",
+      "enabled": true,
+      "addresses": [],
+      "createdAt": "2030-10-20T03:00:00.000Z",
+      "updatedAt": "2030-10-20T03:00:00.000Z",
+      "permissions": [],
+      "walletBalance": 0,
+      "totalCompletedRequestsValue": 0,
+      "membershipTier": "regular",
+      "membershipUpdatedAt": null
+    },
+    {
+      "canSeePrices": true,
+      "id": "507f1f77bcf86cd799439022",
+      "username": "Synthetic staff",
+      "role": "manager",
+      "enabled": true,
+      "addresses": [],
+      "createdAt": "2030-10-20T03:00:00.000Z",
+      "updatedAt": "2030-10-20T03:00:00.000Z",
+      "permissions": [],
+      "walletBalance": 0,
+      "totalCompletedRequestsValue": 0,
+      "membershipTier": "regular",
+      "membershipUpdatedAt": null
+    },
+    {
+      "canSeePrices": false,
+      "id": "507f1f77bcf86cd799439022",
+      "username": "Synthetic staff",
+      "role": "driver",
+      "enabled": true,
+      "addresses": [],
+      "createdAt": "2030-10-20T03:00:00.000Z",
+      "updatedAt": "2030-10-20T03:00:00.000Z",
+      "permissions": [],
+      "walletBalance": 0,
+      "totalCompletedRequestsValue": 0,
+      "membershipTier": "regular",
+      "membershipUpdatedAt": null
+    },
+    {
+      "canSeePrices": true,
+      "id": "507f1f77bcf86cd799439022",
+      "username": "Synthetic staff",
+      "role": "business_owner",
+      "enabled": true,
+      "addresses": [],
+      "createdAt": "2030-10-20T03:00:00.000Z",
+      "updatedAt": "2030-10-20T03:00:00.000Z",
+      "permissions": [],
+      "walletBalance": 0,
+      "totalCompletedRequestsValue": 0,
+      "membershipTier": "regular",
+      "membershipUpdatedAt": null
+    }
+  ],
+  "sourceSha256": "27ff56e8d96815d97f5fe3276ef01b0482ff98d291ba264c93a802983e6ee0fa"
+}

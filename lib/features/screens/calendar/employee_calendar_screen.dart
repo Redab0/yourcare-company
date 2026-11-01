@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/date_time_picker_field.dart';
@@ -380,10 +381,11 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
                   '${summary.totalWorks ?? 0}',
                 ),
                 const SizedBox(height: 8),
-                _statRow(
-                  context.l10n.total_revenue_label,
-                  money.format(summary.totalRevenue ?? 0),
-                ),
+                if (context.canSeePrices && summary.totalRevenue != null)
+                  _statRow(
+                    context.l10n.total_revenue_label,
+                    money.format(summary.totalRevenue),
+                  ),
                 const SizedBox(height: 8),
                 _statRow(
                   context.l10n.completed,
@@ -510,10 +512,11 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
                     '${employee.confirmedWorks ?? 0}',
                   ),
                   const SizedBox(height: 6),
-                  _statRow(
-                    context.l10n.total_revenue_label,
-                    money.format(employee.totalRevenue ?? 0),
-                  ),
+                  if (context.canSeePrices && employee.totalRevenue != null)
+                    _statRow(
+                      context.l10n.total_revenue_label,
+                      money.format(employee.totalRevenue),
+                    ),
                 ],
               ),
             ),
@@ -582,10 +585,11 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
                     '${teamSummary.confirmedWorks ?? 0}',
                   ),
                   const SizedBox(height: 6),
-                  _statRow(
-                    context.l10n.total_revenue_label,
-                    money.format(teamSummary.totalRevenue ?? 0),
-                  ),
+                  if (context.canSeePrices && teamSummary.totalRevenue != null)
+                    _statRow(
+                      context.l10n.total_revenue_label,
+                      money.format(teamSummary.totalRevenue),
+                    ),
                 ],
               ),
             ),
@@ -1129,7 +1133,7 @@ class _EmployeeCalendarScreenState extends State<EmployeeCalendarScreen> {
           const SizedBox(height: 6),
           if (scheduleLabel.isNotEmpty)
             Text(scheduleLabel, style: theme.textTheme.bodySmall),
-          if ((work.totalPrice ?? 0) > 0)
+          if (context.canSeePrices && work.totalPrice != null)
             Text(money.format(work.totalPrice),
                 style: theme.textTheme.bodySmall),
           if (customerLabel.isNotEmpty)

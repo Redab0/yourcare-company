@@ -23,8 +23,11 @@ class DeepCleaningHistory implements CleaningRequest {
   @override
   final String? type;
   @override
-  final double totalPrice;
+  final double? totalPrice;
 
+  @override
+  final bool pricesHidden;
+  final bool companyCampaignVisible;
   final bool registrationGiftApplied;
   final RequestCampaign? campaign;
   @override
@@ -43,7 +46,7 @@ class DeepCleaningHistory implements CleaningRequest {
   @JsonKey(name: 'team')
   final TeamModel? assignedTeam;
 
-  @JsonKey(name: 'businessId')
+  @JsonKey(name: 'businessId', fromJson: companyInformationFromJson)
   final CompanyInformation? companyInformation;
 
   @JsonKey(name: 'serviceFrequencyCount')
@@ -75,6 +78,8 @@ class DeepCleaningHistory implements CleaningRequest {
 
   DeepCleaningHistory({
     this.id,
+    this.pricesHidden = false,
+    this.companyCampaignVisible = false,
     this.registrationGiftApplied = false,
     this.campaign,
     required this.requestStatus,
@@ -138,6 +143,8 @@ class DeepCleaningHistory implements CleaningRequest {
         extraFeesDescription: extraFeesDescription ?? this.extraFeesDescription,
         awaitingExtraPayment: awaitingExtraPayment ?? this.awaitingExtraPayment,
         extraPaymentUrl: extraPaymentUrl ?? this.extraPaymentUrl,
+        pricesHidden: pricesHidden,
+        companyCampaignVisible: companyCampaignVisible,
         registrationGiftApplied: registrationGiftApplied,
         campaign: campaign,
         invoices: invoices ?? this.invoices,

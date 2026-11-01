@@ -4,6 +4,8 @@ import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/utils/loading_controller.dart';
 import 'package:cleaning_service_driver/data/models/upholstery/upholstery_pricing_models.dart';
 import 'package:cleaning_service_driver/domain/usecases/upholstery/get_upholstery_pricing_config_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/upholstery/get_upholstery_availability_usecase.dart';
+import 'package:cleaning_service_driver/domain/usecases/upholstery/update_upholstery_availability_usecase.dart';
 import 'package:cleaning_service_driver/domain/usecases/upholstery/update_upholstery_pricing_usecase.dart';
 import 'package:cleaning_service_driver/features/bloc/upholstery/upholstery_pricing_event.dart';
 import 'package:cleaning_service_driver/features/bloc/upholstery/upholstery_pricing_state.dart';
@@ -14,22 +16,32 @@ class UpholsteryPricingBloc
     extends Bloc<UpholsteryPricingEvent, UpholsteryPricingState> {
   final GetUpholsteryPricingConfigUseCase _getConfigUseCase;
   final UpdateUpholsteryPricingUseCase _updatePricingUseCase;
+  final GetUpholsteryAvailabilityUseCase _getAvailabilityUseCase;
+  final UpdateUpholsteryAvailabilityUseCase _updateAvailabilityUseCase;
   final LoadingController _loader;
   final Uuid _uuid;
 
   UpholsteryPricingBloc({
     GetUpholsteryPricingConfigUseCase? getConfigUseCase,
     UpdateUpholsteryPricingUseCase? updatePricingUseCase,
+    GetUpholsteryAvailabilityUseCase? getAvailabilityUseCase,
+    UpdateUpholsteryAvailabilityUseCase? updateAvailabilityUseCase,
     LoadingController? loader,
     Uuid uuid = const Uuid(),
   })  : _getConfigUseCase =
             getConfigUseCase ?? sl<GetUpholsteryPricingConfigUseCase>(),
         _updatePricingUseCase =
             updatePricingUseCase ?? sl<UpdateUpholsteryPricingUseCase>(),
+        _getAvailabilityUseCase =
+            getAvailabilityUseCase ?? sl<GetUpholsteryAvailabilityUseCase>(),
+        _updateAvailabilityUseCase = updateAvailabilityUseCase ??
+            sl<UpdateUpholsteryAvailabilityUseCase>(),
         _loader = loader ?? sl<LoadingController>(),
         _uuid = uuid,
         super(const UpholsteryPricingInitial()) {
     on<LoadUpholsteryPricingConfig>(_onLoadConfig);
+    on<LoadUpholsteryAvailability>(_onLoadAvailability);
+    on<ChangeUpholsteryAvailability>(_onChangeAvailability);
     on<ToggleUpholsteryType>(_onToggleType);
     on<UpdateUpholsteryPackagePrice>(_onUpdatePackagePrice);
     on<UpdateUpholsteryPackageDiscount>(_onUpdatePackageDiscount);
@@ -37,6 +49,60 @@ class UpholsteryPricingBloc
     on<AddUpholsteryPackage>(_onAddPackage);
     on<RemoveUpholsteryPackage>(_onRemovePackage);
     on<SaveUpholsteryPricing>(_onSavePricing);
+  }
+
+  Future<void> _onLoadAvailability(
+    LoadUpholsteryAvailability event,
+    Emitter<UpholsteryPricingState> emit,
+  ) async {
+    if (state.isAvailabilityLoading || state.isAvailabilitySaving) return;
+    emit(state.copyWith(
+      isAvailabilityLoading: true,
+      clearAvailabilityError: true,
+    ));
+    try {
+      final result = await _getAvailabilityUseCase.call();
+      emit(state.copyWith(
+        available: result.available,
+        isAvailabilityLoading: false,
+        clearAvailabilityError: true,
+      ));
+    } catch (error) {
+      emit(state.copyWith(
+        isAvailabilityLoading: false,
+        availabilityError: error.toString(),
+      ));
+    }
+  }
+
+  Future<void> _onChangeAvailability(
+    ChangeUpholsteryAvailability event,
+    Emitter<UpholsteryPricingState> emit,
+  ) async {
+    if (state.available == null ||
+        state.isAvailabilityLoading ||
+        state.isAvailabilitySaving) {
+      return;
+    }
+    emit(state.copyWith(
+      isAvailabilitySaving: true,
+      clearAvailabilityError: true,
+    ));
+    try {
+      final result = await _updateAvailabilityUseCase.call(
+        UpdateUpholsteryAvailabilityRequest(available: event.available),
+      );
+      emit(state.copyWith(
+        available: result.available,
+        isAvailabilitySaving: false,
+        clearAvailabilityError: true,
+      ));
+    } catch (error) {
+      emit(state.copyWith(
+        isAvailabilitySaving: false,
+        availabilityError: error.toString(),
+      ));
+    }
   }
 
   FutureOr<void> _onToggleType(
@@ -171,12 +237,17 @@ class UpholsteryPricingBloc
     SaveUpholsteryPricing event,
     Emitter<UpholsteryPricingState> emit,
   ) async {
+    // Older backends ignore group enabled flags. The new resource confirms
+    // support before a pricing write can safely include disabled groups.
+    if (state.isSaving || state.isLoading || state.available == null) return;
+    if (!_validPricing(state.pricing)) {
+      emit(state.copyWith(error: 'Invalid furniture pricing'));
+      return;
+    }
     emit(state.copyWith(isSaving: true, error: null, successMessage: null));
     _loader.show();
     try {
-      final requestPricing = state.pricing
-          .where((group) => group.isEnabled && group.packages.isNotEmpty)
-          .toList(growable: false);
+      final requestPricing = state.pricing;
       final saved = await _updatePricingUseCase.call(
         UpholsteryPricingRequest(pricing: requestPricing),
       );
@@ -184,7 +255,7 @@ class UpholsteryPricingBloc
         isSaving: false,
         pricing: _mergePricing(
           state.types,
-          saved.isEmpty ? requestPricing : saved,
+          saved,
         ),
         successMessage: 'saved',
         error: null,
@@ -194,6 +265,21 @@ class UpholsteryPricingBloc
     } finally {
       _loader.hide();
     }
+  }
+
+  bool _validPricing(List<UpholsteryPricingGroup> pricing) {
+    return pricing.isNotEmpty &&
+        pricing.every((group) =>
+            group.upholsteryTypeId.isNotEmpty &&
+            (!group.isEnabled || group.packages.isNotEmpty) &&
+            group.packages.every((package) =>
+                (package.titleEn?.trim().isNotEmpty ?? false) &&
+                (package.titleAr?.trim().isNotEmpty ?? false) &&
+                package.price.isFinite &&
+                package.price >= 0 &&
+                package.discountPercentage.isFinite &&
+                package.discountPercentage >= 0 &&
+                package.discountPercentage <= 100));
   }
 
   List<UpholsteryPricingGroup> _updatePackage(
@@ -216,16 +302,16 @@ class UpholsteryPricingBloc
     List<UpholsteryType> types,
     List<UpholsteryPricingGroup> saved,
   ) {
-    final savedByType = <String, List<UpholsteryPricingPackage>>{};
+    final savedByType = <String, UpholsteryPricingGroup>{};
     for (final group in saved) {
-      savedByType[group.upholsteryTypeId] = group.packages;
+      savedByType[group.upholsteryTypeId] = group;
     }
 
     return types.where((type) => type.id.isNotEmpty).map((type) {
       final savedPackages = [
-        ...(savedByType[type.id] ?? const <UpholsteryPricingPackage>[]),
+        ...(savedByType[type.id]?.packages ??
+            const <UpholsteryPricingPackage>[]),
       ];
-      final hasSavedPackages = savedPackages.isNotEmpty;
       final sizePackages = type.sizes.where((size) => size.id.isNotEmpty).map(
         (size) {
           // The pricing API has no sizeId, so persisted size packages are
@@ -239,12 +325,22 @@ class UpholsteryPricingBloc
             packageId: savedPackage?.packageId,
             localId: 'size:${size.id}',
             sizeId: size.id,
-            titleEn: size.titleEn ?? size.titleAr ?? size.title,
-            titleAr: size.titleAr ?? size.titleEn ?? size.title,
-            descriptionEn:
-                size.descriptionEn ?? size.descriptionAr ?? size.description,
-            descriptionAr:
-                size.descriptionAr ?? size.descriptionEn ?? size.description,
+            titleEn: savedPackage?.titleEn ??
+                size.titleEn ??
+                size.titleAr ??
+                size.title,
+            titleAr: savedPackage?.titleAr ??
+                size.titleAr ??
+                size.titleEn ??
+                size.title,
+            descriptionEn: savedPackage?.descriptionEn ??
+                size.descriptionEn ??
+                size.descriptionAr ??
+                size.description,
+            descriptionAr: savedPackage?.descriptionAr ??
+                size.descriptionAr ??
+                size.descriptionEn ??
+                size.description,
             price: savedPackage?.price ?? size.price,
             discountPercentage: savedPackage?.discountPercentage ?? 0,
           );
@@ -258,7 +354,7 @@ class UpholsteryPricingBloc
       return UpholsteryPricingGroup(
         upholsteryTypeId: type.id,
         packages: [...sizePackages, ...unmatchedPackages],
-        isEnabled: hasSavedPackages,
+        isEnabled: savedByType[type.id]?.isEnabled ?? false,
       );
     }).toList(growable: false);
   }

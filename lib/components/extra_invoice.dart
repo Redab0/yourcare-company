@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/data/models/requests/add_extra_fees_request.dart';
@@ -70,9 +71,11 @@ List<RequestInvoice> _mergeCreatedInvoice({
 Future<AddExtraFeesRequest?> showExtraInvoiceDialog(
   BuildContext context,
 ) {
+  if (!context.canSeePrices) return Future.value();
   return showDialog<AddExtraFeesRequest>(
     context: context,
-    builder: (_) => const _ExtraInvoiceDialog(),
+    builder: (_) =>
+        FinancialAccessGuard(builder: (_) => const _ExtraInvoiceDialog()),
   );
 }
 
@@ -88,7 +91,11 @@ class ExtraInvoiceActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!request.canCreateExtraInvoice) return const SizedBox.shrink();
+    if (!context.canSeePrices ||
+        request.pricesHidden ||
+        !request.canCreateExtraInvoice) {
+      return const SizedBox.shrink();
+    }
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
@@ -114,16 +121,22 @@ class ExtraInvoiceStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!request.hasExtraInvoice) return const SizedBox.shrink();
+    if (!context.canSeePrices ||
+        request.pricesHidden ||
+        !request.hasExtraInvoice) {
+      return const SizedBox.shrink();
+    }
     final invoices = request.invoices;
     final pending = request.hasPendingExtraInvoicePayment;
     final successful = request.allExtraInvoicePaymentsSuccessful;
-    final amount = invoices.isEmpty
-        ? request.extraFees
-        : invoices.fold<double>(
-            0,
-            (total, invoice) => total + invoice.amount,
-          );
+    final amount = invoices.any((invoice) => invoice.amount == null)
+        ? null
+        : invoices.isEmpty
+            ? request.extraFees
+            : invoices.fold<double>(
+                0,
+                (total, invoice) => total + (invoice.amount ?? 0),
+              );
     final accent = pending ? Colors.orange.shade800 : Colors.green.shade800;
 
     return Card(

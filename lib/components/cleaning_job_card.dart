@@ -1,5 +1,7 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
+import 'package:cleaning_service_driver/core/utils/housekeeping_visit_duration.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/data/models/requests/house_keeping_history.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +27,8 @@ class CleaningJobCard extends StatelessWidget {
     final theme = Theme.of(context);
     final tGreen = const Color(0xFF10B981);
     final cardR = BorderRadius.circular(24);
+    final durationSummary =
+        HousekeepingVisitDuration.summary(request, context.l10n);
 
     return Padding(
       padding: padding ?? const EdgeInsets.all(24),
@@ -36,18 +40,22 @@ class CleaningJobCard extends StatelessWidget {
             children: [
               Column(
                 children: [
-                  if (!hidePrice) ...[
+                  if (context.canSeePrices &&
+                      !hidePrice &&
+                      !request.pricesHidden &&
+                      request.totalPrice != null) ...[
                     Text(context.l10n.request_price,
                         style: theme.textTheme.labelLarge!
                             .copyWith(color: Colors.grey[600])),
-                    Text('${request.totalPrice.toStringAsFixed(3)} KWD',
+                    Text('${request.totalPrice!.toStringAsFixed(3)} KWD',
                         style: theme.textTheme.headlineMedium!.copyWith(
                             color: tGreen, fontWeight: FontWeight.w700)),
                   ],
                 ],
               ),
-              const Spacer(),
-              Column(
+              const SizedBox(width: 12),
+              Expanded(
+                  child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(context.l10n.request_id,
@@ -67,7 +75,7 @@ class CleaningJobCard extends StatelessWidget {
                     style: theme.textTheme.bodyMedium,
                   ),
                 ],
-              ),
+              )),
             ],
           ),
           const SizedBox(height: 24),
@@ -80,10 +88,11 @@ class CleaningJobCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _iconLabel(Icons.groups,
-                  '${request.detail.cleanersCount} ${context.l10n.cleaner}${request.detail.cleanersCount > 1 ? 's' : ''}'),
-              _iconLabel(Icons.timer,
-                  '${request.detail.durationHours} ${context.l10n.hour}'),
+              Expanded(
+                  child: _iconLabel(Icons.groups,
+                      '${request.detail.cleanersCount} ${context.l10n.cleaner}${request.detail.cleanersCount > 1 ? 's' : ''}')),
+              if (durationSummary != null)
+                Expanded(child: _iconLabel(Icons.timer, durationSummary)),
             ],
           ),
           const SizedBox(height: 20),
@@ -135,6 +144,7 @@ class CleaningJobCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             overflow: TextOverflow.fade,
+            textAlign: TextAlign.center,
             label,
             style: TextStyle(fontSize: 20),
           ),

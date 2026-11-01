@@ -3,7 +3,7 @@ description: "A new Flutter project."
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 3.0.0+2
+version: 3.0.2+1
 
 environment:
   sdk: ^3.6.1
@@ -77,6 +77,8 @@ dependencies:
   showcaseview: ^5.1.0
 
 dev_dependencies:
+  integration_test:
+    sdk: flutter
   flutter_test:
     sdk: flutter
 

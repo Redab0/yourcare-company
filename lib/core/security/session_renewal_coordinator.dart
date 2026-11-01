@@ -1,3 +1,6 @@
+import '../access/price_access.dart';
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:uuid/uuid.dart';
 
@@ -33,6 +36,13 @@ class SessionRenewalCoordinator {
   CancelToken? _cancellation;
   DateTime? _retryAt;
   int? _retryGeneration;
+  Future<void>? _confirmationFlight;
+  CancelToken? _confirmationCancellation;
+  int? _confirmationGeneration;
+  String? _confirmationSessionId;
+  DateTime? _confirmationRetryAt;
+  int? _confirmedGeneration;
+  String? _confirmedSessionId;
 
   void cancelRenewal() {
     _epoch++;
@@ -41,6 +51,12 @@ class SessionRenewalCoordinator {
     _flight = null;
     _flightGeneration = null;
     _retryAt = null;
+    _confirmationCancellation?.cancel();
+    _confirmationCancellation = null;
+    _confirmationFlight = null;
+    _confirmationRetryAt = null;
+    _confirmedGeneration = null;
+    _confirmedSessionId = null;
   }
 
   Future<SessionCredentials?> ensureSession(
@@ -48,13 +64,19 @@ class SessionRenewalCoordinator {
     final session = await storage.credentials();
     if (session == null) return null;
     final generation = storage.authGeneration;
-    if (expiredToken != null && session.token != expiredToken) return session;
+    if (expiredToken != null && session.token != expiredToken) {
+      _scheduleConfirmation(session, generation);
+      return session;
+    }
     final due = session.requestId != null ||
         session.refreshToken == null ||
         session.accessExpiresAt == null ||
         !session.accessExpiresAt!
             .isAfter(_now().add(const Duration(seconds: 60)));
-    if (!force && !due) return session;
+    if (!force && !due) {
+      _scheduleConfirmation(session, generation);
+      return session;
+    }
     if (_retryGeneration == generation && _retryAt?.isAfter(_now()) == true) {
       return session;
     }
@@ -87,13 +109,18 @@ class SessionRenewalCoordinator {
       if (pending == null || epoch != _epoch || cancellation.isCancelled) {
         return storage.credentials();
       }
+      final accessEpoch = PriceAccess.instance.epoch;
       final replacement = await transport.renew(pending, cancellation);
       if (epoch == _epoch && !cancellation.isCancelled) {
         final committed = await storage.commitRenewal(replacement,
-            expected: pending, generation: generation, now: _now());
+            expected: pending,
+            generation: generation,
+            expectedAccessEpoch: accessEpoch,
+            now: _now());
         if (committed &&
             epoch == _epoch &&
             storage.authGeneration == generation) {
+          _scheduleConfirmation(replacement, generation);
           await onRotated?.call();
         }
       }
@@ -113,6 +140,80 @@ class SessionRenewalCoordinator {
       }
     }
     return storage.credentials();
+  }
+
+  /// Runs separately from renewal: even an explicit confirmation rejection
+  /// cannot clear the replacement which has already been safely saved.
+  void _scheduleConfirmation(SessionCredentials session, int generation) {
+    if (session.refreshToken == null ||
+        session.requestId != null ||
+        session.sessionId == null ||
+        session.user?.id == null ||
+        session.accessExpiresAt?.isAfter(_now()) != true ||
+        (_confirmedGeneration == generation &&
+            _confirmedSessionId == session.sessionId)) {
+      return;
+    }
+    final sameSession = _confirmationGeneration == generation &&
+        _confirmationSessionId == session.sessionId;
+    if (sameSession &&
+        (_confirmationFlight != null ||
+            _confirmationRetryAt?.isAfter(_now()) == true)) {
+      return;
+    }
+    // Account switches may have left a request in flight. Cancel it before
+    // scheduling the new account; a late completion never marks that account.
+    _confirmationCancellation?.cancel();
+    final cancellation = CancelToken();
+    _confirmationCancellation = cancellation;
+    _confirmationGeneration = generation;
+    _confirmationSessionId = session.sessionId;
+    _confirmationRetryAt = null;
+    final epoch = _epoch;
+    final future = _confirmCommitted(session, generation, epoch, cancellation);
+    _confirmationFlight = future;
+    unawaited(future.whenComplete(() {
+      if (identical(_confirmationFlight, future)) {
+        _confirmationFlight = null;
+        _confirmationCancellation = null;
+      }
+    }));
+  }
+
+  Future<void> _confirmCommitted(SessionCredentials expected, int generation,
+      int epoch, CancelToken cancellation) async {
+    try {
+      // A successful write is insufficient: the native store must return the
+      // complete replacement before its legacy bearer can be retired remotely.
+      final current = await storage.credentials();
+      if (epoch != _epoch ||
+          cancellation.isCancelled ||
+          storage.authGeneration != generation ||
+          current?.token != expected.token ||
+          current?.refreshToken != expected.refreshToken ||
+          current?.sessionId != expected.sessionId ||
+          current?.user?.id != expected.user?.id ||
+          current?.requestId != null ||
+          current?.accessExpiresAt?.isAfter(_now()) != true) {
+        return;
+      }
+      await transport.confirm(current!, cancellation);
+      if (epoch == _epoch &&
+          !cancellation.isCancelled &&
+          storage.authGeneration == generation) {
+        _confirmedGeneration = generation;
+        _confirmedSessionId = expected.sessionId;
+      }
+    } catch (error) {
+      if (epoch == _epoch &&
+          !cancellation.isCancelled &&
+          storage.authGeneration == generation) {
+        _confirmationRetryAt = _now().add(
+            error is DioException && error.response?.statusCode == 404
+                ? unsupportedCooldown
+                : retryCooldown);
+      }
+    }
   }
 
   static const terminalCodes = {

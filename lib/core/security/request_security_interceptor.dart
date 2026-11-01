@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import '../access/price_access.dart';
+import '../access/price_access_interceptor.dart';
 import '../api/api_environment.dart';
 import '../api/upload_limits.dart';
 import 'request_security.dart';
@@ -14,6 +16,8 @@ class RequestSecurityInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     try {
+      options.extra.putIfAbsent(
+          PriceAccessInterceptor.epochKey, () => PriceAccess.instance.epoch);
       if (accountGeneration != null) {
         options.extra.putIfAbsent(
             SessionRequestInterceptor.expectedGenerationKey,

@@ -1,4 +1,5 @@
 import 'package:cleaning_service_driver/core/api/api_diagnostics_interceptor.dart';
+import '../../features/screens/home/company_services_cubit.dart';
 import 'package:cleaning_service_driver/core/api/api_environment.dart';
 import '../security/request_security_interceptor.dart';
 import '../security/bounded_response_adapter.dart';
@@ -12,6 +13,9 @@ import 'package:cleaning_service_driver/core/di/dependency_injection.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/utils/locale_cubit.dart';
 import 'package:dio/dio.dart';
+import '../access/price_access.dart';
+import '../access/price_access_interceptor.dart';
+import '../../features/screens/home/company_profile_cubit.dart';
 
 /// A simple, reusable API client using Dio.
 /// You can extend this for auth and error handling.
@@ -69,6 +73,27 @@ class ApiClient {
       languageTag: () => sl<LocaleCubit>().state.toLanguageTag(),
     ));
     _dio.interceptors.add(SessionErrorInterceptor(sessions, _dio));
+    _dio.interceptors.add(PriceAccessInterceptor(sessions.storage));
+    PriceAccess.instance.addListener(() {
+      if (sl.isRegistered<CompanyProfileCubit>()) {
+        sl<CompanyProfileCubit>().clear();
+      }
+      if (sl.isRegistered<CompanyServicesCubit>()) {
+        sl<CompanyServicesCubit>().clear();
+      }
+    });
+  }
+
+  Future<void>? _accessRefresh;
+  Future<void> refreshPriceAccess() => _accessRefresh ??=
+      _refreshPriceAccess().whenComplete(() => _accessRefresh = null);
+  Future<void> _refreshPriceAccess() async {
+    try {
+      if (await sessions.ensureSession() == null) return;
+      await _dio.get('/users/profile');
+    } catch (_) {
+      /* Offline access stays denied until authority is available. */
+    }
   }
 
   /// Expose Dio if you need full access

@@ -287,8 +287,8 @@ class LaundryLine {
   final String unit;
   final String? unitLabel;
   final double quantity;
-  final double unitPrice;
-  final double total;
+  final double? unitPrice;
+  final double? total;
 
   const LaundryLine(
       {this.imageUrl,
@@ -318,26 +318,26 @@ class LaundryInvoice {
   final String? revision;
   final String status;
   final List<LaundryLine> items;
-  final double subtotal;
+  final double? subtotal;
   final double? minimumCharge;
-  final double pickupFee;
-  final double deliveryFee;
-  final double discount;
-  final double platformFees;
-  final double total;
+  final double? pickupFee;
+  final double? deliveryFee;
+  final double? discount;
+  final double? platformFees;
+  final double? total;
   final DateTime? paidAt;
 
   const LaundryInvoice(
       {this.revision,
       required this.status,
       this.items = const [],
-      this.subtotal = 0,
+      this.subtotal,
       this.minimumCharge,
-      this.pickupFee = 0,
-      this.deliveryFee = 0,
-      this.discount = 0,
-      this.platformFees = 0,
-      this.total = 0,
+      this.pickupFee,
+      this.deliveryFee,
+      this.discount,
+      this.platformFees,
+      this.total,
       this.paidAt});
   factory LaundryInvoice.fromJson(Map<String, dynamic> json) =>
       _$LaundryInvoiceFromJson(json);

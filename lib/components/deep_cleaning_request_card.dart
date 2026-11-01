@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
@@ -126,7 +127,9 @@ class DeepCleaningRequestCard extends StatelessWidget {
           ],
 
           const SizedBox(height: 24),
-          if (myBid != null) ...[
+          if (context.canSeePrices &&
+              !request.pricesHidden &&
+              myBid != null) ...[
             Text(
               context.l10n.submitted_bid_title,
               style: theme.textTheme.titleMedium
@@ -138,7 +141,7 @@ class DeepCleaningRequestCard extends StatelessWidget {
               _iconLine(Icons.schedule, myBid.timelineBusinessOffer!),
             if ((myBid.descriptionBusinessOffer ?? '').isNotEmpty)
               _iconLine(Icons.notes_outlined, myBid.descriptionBusinessOffer!),
-          ] else ...[
+          ] else if (context.canSeePrices && !request.pricesHidden) ...[
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(

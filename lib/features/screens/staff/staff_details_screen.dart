@@ -1,3 +1,9 @@
+import '../../../core/di/dependency_injection.dart';
+import '../../../domain/usecases/staff/get_user_details.dart';
+import '../../../components/price_access_checkbox.dart';
+import '../../../components/company_permission_panel.dart';
+import '../../../core/storage/secure_storage_service.dart';
+import '../../../core/access/price_widgets.dart';
 import 'dart:io';
 import '../../../core/validators/validators.dart';
 
@@ -5,7 +11,6 @@ import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/data/models/auth/login_response.dart';
 import 'package:cleaning_service_driver/data/models/staff/assign_permission_model.dart';
-import 'package:cleaning_service_driver/data/models/staff/permission_model.dart';
 import 'package:cleaning_service_driver/data/models/staff/update_user_model.dart';
 import 'package:cleaning_service_driver/data/models/staff/user_role.dart';
 import 'package:cleaning_service_driver/features/bloc/staff/staff_action_bloc.dart';
@@ -36,12 +41,18 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
   bool _uploading = false;
   final _picker = ImagePicker();
 
-  List<PermissionModel> _allPerms = [];
+  late final int _accountGeneration;
   late Set<String> _selectedPermissionIds;
+  bool? _canSeePricesDraft;
+  late User _editingUser;
+  bool _loadingUser = true;
+  bool _loadFailed = false;
 
   @override
   void initState() {
     super.initState();
+    _accountGeneration = SecureStorageService().authGeneration;
+    _editingUser = widget.user;
     // init controllers with existing values
     _usernameCtl = TextEditingController(text: widget.user.username);
     _passwordCtl = TextEditingController(); // leave empty for no-change
@@ -50,7 +61,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
     _role = UserRoleX.fromValue(widget.user.role)?.value;
 
     // init permissions selection
-    _selectedPermissionIds = widget.user.permissions!
+    _selectedPermissionIds = (widget.user.permissions ?? [])
         .where((p) => p.id != null)
         .map((p) => p.id!)
         .toSet();
@@ -59,7 +70,39 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
     _uploadedPhotoUrl = widget.user.image;
 
     // fetch all permissions
-    context.read<StaffActionBloc>().add(FetchPermissionsEvent());
+    _refreshUser();
+  }
+
+  Future<void> _refreshUser() async {
+    try {
+      final user = await sl<GetUserDetails>().call(widget.user.id!);
+      if (!mounted ||
+          _accountGeneration != SecureStorageService().authGeneration) {
+        return;
+      }
+      setState(() {
+        _editingUser = user;
+        _usernameCtl.text = user.username ?? '';
+        _emailCtl.text = user.email ?? '';
+        _phoneCtl.text = user.phone ?? '';
+        _role = UserRoleX.fromValue(user.role)?.value;
+        _uploadedPhotoUrl = user.image;
+        _selectedPermissionIds = (user.permissions ?? [])
+            .map((p) => p.id)
+            .whereType<String>()
+            .toSet();
+        _loadingUser = false;
+        _loadFailed = false;
+      });
+    } catch (_) {
+      if (mounted &&
+          _accountGeneration == SecureStorageService().authGeneration) {
+        setState(() {
+          _loadingUser = false;
+          _loadFailed = true;
+        });
+      }
+    }
   }
 
   @override
@@ -74,7 +117,11 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
   Future<void> _pickPhoto() async {
     final XFile? file =
         await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
-    if (file == null) return;
+    if (file == null ||
+        !mounted ||
+        _accountGeneration != SecureStorageService().authGeneration) {
+      return;
+    }
     setState(() {
       _pickedPhoto = File(file.path);
       _uploading = true;
@@ -85,15 +132,34 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_loadingUser || _loadFailed) {
+      return Scaffold(
+        appBar: AppBar(title: Text(context.l10n.staffEditTitle)),
+        body: Center(
+            child: _loadingUser
+                ? const CircularProgressIndicator()
+                : TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _loadingUser = true;
+                      });
+                      _refreshUser();
+                    },
+                    child: Text(context.l10n.refresh))),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit User Profile & Permissions'),
+        title: Text(context.l10n.staffEditTitle),
         leading: const BusinessBackButton(
           fallbackRouteName: 'staffList',
         ),
       ),
       body: BlocConsumer<StaffActionBloc, StaffActionState>(
         listener: (context, state) {
+          if (_accountGeneration != SecureStorageService().authGeneration) {
+            return;
+          }
           if (state is MediaUploaded) {
             setState(() {
               _uploadedPhotoUrl = state.media.first.url;
@@ -105,35 +171,22 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                   content: Text(state is UserUpdatedState
-                      ? 'User updated successfully'
-                      : 'User created successfully')),
+                      ? context.l10n.staffUpdated
+                      : context.l10n.user_created)),
             );
             Navigator.of(context).pop();
           }
           if (state is UserPermissionUpdated) {
             ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Permissions saved!')));
+                SnackBar(content: Text(context.l10n.staffPermissionsSaved)));
           }
           if (state is StaffActionFailure) {
             context.showErrorToast();
             setState(() => _uploading = false);
           }
         },
-        builder: (context, state) {
-          final loading = state is StaffActionInitial;
-          if (state is PermissionsFetched) {
-            _allPerms = state.permission;
-          }
-          return AbsorbPointer(
-            absorbing: loading,
-            child: Stack(
-              children: [
-                _buildForm(context),
-                if (loading) SizedBox.shrink(),
-              ],
-            ),
-          );
-        },
+        // Initial is idle; pending actions use the global LoadingController.
+        builder: (context, state) => _buildForm(context),
       ),
     );
   }
@@ -204,6 +257,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
                               labelText: context.l10n.role,
                               suffixIcon: Icon(Icons.edit)),
                           items: UserRole.values
+                              .where((r) => r != UserRole.businessOwner)
                               .map((r) => DropdownMenuItem(
                                     value: r.value,
                                     child: Text(
@@ -275,6 +329,11 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
                                   ? null
                                   : context.l10n.signup_phone,
                         ),
+                        PriceAccessCheckbox(
+                            value: _canSeePricesDraft ??
+                                _editingUser.effectiveCanSeePrices,
+                            onChanged: (value) =>
+                                setState(() => _canSeePricesDraft = value)),
                         const SizedBox(height: 20),
                         ElevatedButton.icon(
                           onPressed: _uploading ? null : _onUpdateProfile,
@@ -293,7 +352,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
           ),
           const SizedBox(height: 24),
           // Permissions Section
-          if (_allPerms.isNotEmpty) ...[
+          ...[
             Text(
               context.l10n.permissions,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -315,74 +374,16 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
     );
   }
 
-  List<Widget> _buildPermissionGroups() {
-    final grouped = <String, List<PermissionModel>>{};
-    for (var p in _allPerms) {
-      grouped.putIfAbsent(p.resource ?? 'other', () => []).add(p);
-    }
-    return grouped.entries.map((entry) {
-      final resource = entry.key;
-      final perms = entry.value;
-      final permIds = perms.map((p) => p.id).whereType<String>().toSet();
-      final allSelected =
-          permIds.isNotEmpty && permIds.every(_selectedPermissionIds.contains);
-      return Card(
-        margin: const EdgeInsets.symmetric(vertical: 6),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        child: CheckboxListTile(
-          secondary: Icon(_iconForResource(resource)),
-          title: Text(
-            _resourceLabel(resource),
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
-          subtitle: Text('${permIds.length} permissions'),
-          value: allSelected,
-          onChanged: (v) {
-            setState(() {
-              if (v == true) {
-                _selectedPermissionIds.addAll(permIds);
-              } else {
-                _selectedPermissionIds.removeAll(permIds);
-              }
-            });
-          },
-        ),
-      );
-    }).toList();
-  }
-
-  String _resourceLabel(String resource) {
-    if (resource.trim().isEmpty) return 'Other';
-    return resource
-        .split('_')
-        .map((p) => p.isEmpty ? p : p[0].toUpperCase() + p.substring(1))
-        .join(' ');
-  }
-
-  IconData _iconForResource(String resource) {
-    switch (resource) {
-      case 'users':
-        return Icons.person_outline;
-      case 'business':
-        return Icons.business;
-      case 'categories':
-        return Icons.category;
-      case 'requests':
-        return Icons.request_page;
-      case 'transactions':
-        return Icons.receipt_long;
-      case 'areas':
-        return Icons.map_outlined;
-      case 'email':
-        return Icons.email;
-      case 'chat':
-        return Icons.chat_bubble_outline;
-      default:
-        return Icons.lock_outline;
-    }
-  }
+  List<Widget> _buildPermissionGroups() => [
+        CompanyPermissionPanel(
+          existing: _editingUser.permissions ?? const [],
+          selectedIds: _selectedPermissionIds,
+          onChanged: (next) => setState(() => _selectedPermissionIds = next),
+        )
+      ];
 
   void _onUpdateProfile() {
+    if (_accountGeneration != SecureStorageService().authGeneration) return;
     if (!_formKey.currentState!.validate()) return;
     final selectedRole = UserRoleX.fromValue(_role);
     if (selectedRole == null) return;
@@ -396,6 +397,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
           : Validators.normalizePhone(_phoneCtl.text),
       image: _uploadedPhotoUrl,
       role: selectedRole.value,
+      canSeePrices: context.canManagePriceAccess ? _canSeePricesDraft : null,
     );
     context
         .read<StaffActionBloc>()
@@ -403,6 +405,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen> {
   }
 
   void _onSavePermissions() {
+    if (_accountGeneration != SecureStorageService().authGeneration) return;
     final permModel = AssignPermissionModel(
       widget.user.id,
       _selectedPermissionIds.toList(),

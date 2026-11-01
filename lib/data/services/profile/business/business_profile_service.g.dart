@@ -55,6 +55,43 @@ class _BusinessProfileService implements BusinessProfileService {
   }
 
   @override
+  Future<ApiResponse<ResponsePayload<CompanyServices>>>
+      getCompanyServices() async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options =
+        _setStreamType<ApiResponse<ResponsePayload<CompanyServices>>>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/business/my-services',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(
+            baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
+          ),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ApiResponse<ResponsePayload<CompanyServices>> _value;
+    try {
+      _value = ApiResponse<ResponsePayload<CompanyServices>>.fromJson(
+        _result.data!,
+        (json) => ResponsePayload<CompanyServices>.fromJson(
+          json as Map<String, dynamic>,
+          (json) => CompanyServices.fromJson(json as Map<String, dynamic>),
+        ),
+      );
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<ApiResponse<ResponsePayload<BusinessProfileModel>>>
       updateCompanyProfile(UpdateBusinessProfileModel model) async {
     final _extra = <String, dynamic>{};

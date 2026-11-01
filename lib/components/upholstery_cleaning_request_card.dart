@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/data/models/requests/upholstery_cleaning_history.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +55,9 @@ class UpholsteryCleaningRequestCard extends StatelessWidget {
             Text(context.l10n.requests_no_requests,
                 style: theme.textTheme.bodyMedium),
           const SizedBox(height: 16),
-          if (myBid != null) ...[
+          if (context.canSeePrices &&
+              !request.pricesHidden &&
+              myBid != null) ...[
             Text(
               context.l10n.submitted_bid_title,
               style: theme.textTheme.titleMedium
@@ -74,7 +77,7 @@ class UpholsteryCleaningRequestCard extends StatelessWidget {
                 context.l10n.enter_note,
                 myBid.descriptionBusinessOffer!,
               ),
-          ] else ...[
+          ] else if (context.canSeePrices && !request.pricesHidden) ...[
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(

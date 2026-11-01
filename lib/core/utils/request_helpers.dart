@@ -64,7 +64,12 @@ extension CleaningItemTextX on CleaningItem {
 extension CleaningRequestPresentationX on CleaningRequest {
   bool get showsScheduleInBusinessApp => this is! UpholsteryCleaningHistory;
 
-  double get originalServiceTotal {
+  double? get originalServiceTotal {
+    if (pricesHidden ||
+        totalPrice == null ||
+        invoices.any((i) => i.amount == null)) {
+      return null;
+    }
     double? originalTotal;
     if (this is HouseKeepingHistory) {
       originalTotal = (this as HouseKeepingHistory).detail.totalPrice;
@@ -83,32 +88,34 @@ extension CleaningRequestPresentationX on CleaningRequest {
     final returnedInvoiceTotal = invoices.isNotEmpty
         ? invoices.fold<double>(
             0,
-            (total, invoice) => total + invoice.amount,
+            (total, invoice) => total + invoice.amount!,
           )
         : extraFees ?? 0;
-    final inferredOriginalTotal = totalPrice - returnedInvoiceTotal;
+    final inferredOriginalTotal = totalPrice! - returnedInvoiceTotal;
     return inferredOriginalTotal >= 0 ? inferredOriginalTotal : totalPrice;
   }
 
-  double get totalIncludingExtraInvoices {
+  double? get totalIncludingExtraInvoices {
+    if (originalServiceTotal == null) return null;
     final invoiceTotal = invoices.isNotEmpty
         ? invoices.fold<double>(
             0,
-            (total, invoice) => total + invoice.amount,
+            (total, invoice) => total + invoice.amount!,
           )
         : extraFees ?? 0;
-    return originalServiceTotal + invoiceTotal;
+    return originalServiceTotal! + invoiceTotal;
   }
 
-  double get totalPaidIncludingExtraInvoices {
+  double? get totalPaidIncludingExtraInvoices {
+    if (originalServiceTotal == null) return null;
     final paidInvoiceTotal = invoices.isNotEmpty
         ? invoices
             .where((invoice) => invoice.isPaid)
-            .fold<double>(0, (total, invoice) => total + invoice.amount)
+            .fold<double>(0, (total, invoice) => total + invoice.amount!)
         : hasPendingExtraInvoicePayment
             ? 0
             : extraFees ?? 0;
-    return originalServiceTotal + paidInvoiceTotal;
+    return originalServiceTotal! + paidInvoiceTotal;
   }
 
   String? get customerSpecialNotes {

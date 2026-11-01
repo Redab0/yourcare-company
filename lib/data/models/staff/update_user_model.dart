@@ -8,12 +8,14 @@ class UpdateUserModel {
   final String? password;
   final String? email;
   final String? phone;
+  final bool? canSeePrices;
   final String? image;
   final bool? enabled;
   final String? role;
 
   UpdateUserModel(
-      {this.username,
+      {this.canSeePrices,
+      this.username,
       this.image,
       this.email,
       this.password,

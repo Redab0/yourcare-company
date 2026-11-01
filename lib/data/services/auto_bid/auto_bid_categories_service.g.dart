@@ -18,14 +18,14 @@ class _AutoBidCategoriesService implements AutoBidCategoriesService {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<ApiResponse<ResponsePayload<Map<String, dynamic>>>>
+  Future<ApiResponse<ResponsePayload<AutoBidCategoriesPayload>>>
       getAutoBidCategories(String serviceType) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options =
-        _setStreamType<ApiResponse<ResponsePayload<Map<String, dynamic>>>>(
+        _setStreamType<ApiResponse<ResponsePayload<AutoBidCategoriesPayload>>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -38,13 +38,14 @@ class _AutoBidCategoriesService implements AutoBidCategoriesService {
           ),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ApiResponse<ResponsePayload<Map<String, dynamic>>> _value;
+    late ApiResponse<ResponsePayload<AutoBidCategoriesPayload>> _value;
     try {
-      _value = ApiResponse<ResponsePayload<Map<String, dynamic>>>.fromJson(
+      _value = ApiResponse<ResponsePayload<AutoBidCategoriesPayload>>.fromJson(
         _result.data!,
-        (json) => ResponsePayload<Map<String, dynamic>>.fromJson(
+        (json) => ResponsePayload<AutoBidCategoriesPayload>.fromJson(
           json as Map<String, dynamic>,
-          (json) => json as Map<String, dynamic>,
+          (json) =>
+              AutoBidCategoriesPayload.fromJson(json as Map<String, dynamic>),
         ),
       );
     } on Object catch (e, s) {

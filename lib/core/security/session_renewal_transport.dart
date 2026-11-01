@@ -11,6 +11,7 @@ import 'session_credentials.dart';
 abstract interface class SessionRenewalTransport {
   Future<SessionCredentials> renew(
       SessionCredentials pending, CancelToken cancel);
+  Future<void> confirm(SessionCredentials session, CancelToken cancel);
   Future<void> revoke(SessionCredentials session, CancelToken cancel);
   Future<void> deactivate(
       {required String bearer,
@@ -138,6 +139,25 @@ class DioSessionRenewalTransport implements SessionRenewalTransport {
   }
 
   @override
+  Future<void> confirm(SessionCredentials session, CancelToken cancel) async {
+    final request = SessionConfirmationRequest(session.sessionId);
+    if (session.refreshToken == null ||
+        session.requestId != null ||
+        !SessionCredentials.jwtPattern.hasMatch(session.token)) {
+      throw const FormatException('Missing committed renewable session.');
+    }
+    final response = await _post(
+        '/auth/session/confirm', request.toJson(), cancel,
+        bearer: session.token);
+    if (response.statusCode != 204) {
+      throw DioException.badResponse(
+          statusCode: response.statusCode ?? 0,
+          requestOptions: response.requestOptions,
+          response: response);
+    }
+  }
+
+  @override
   Future<void> revoke(SessionCredentials session, CancelToken cancel) async {
     if (session.refreshToken != null) {
       _credential(session.refreshToken!);
@@ -161,6 +181,20 @@ class DioSessionRenewalTransport implements SessionRenewalTransport {
         cancel,
         bearer: bearer);
   }
+}
+
+/// The confirmation endpoint never accepts a caller-selected account or root.
+class SessionConfirmationRequest {
+  SessionConfirmationRequest(String? value)
+      : sessionId =
+            value ?? (throw const FormatException('Missing session ID.')) {
+    if (!SessionCredentials.uuidPattern.hasMatch(sessionId)) {
+      throw const FormatException('Invalid session ID.');
+    }
+  }
+
+  final String sessionId;
+  Map<String, String> toJson() => {'sessionId': sessionId};
 }
 
 class _BorrowedAdapter implements HttpClientAdapter {

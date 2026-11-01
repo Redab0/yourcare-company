@@ -14,8 +14,7 @@ RequestInvoice _$RequestInvoiceFromJson(Map<String, dynamic> json) =>
         final val = RequestInvoice(
           id: $checkedConvert('_id', (v) => v as String?),
           type: $checkedConvert('type', (v) => v as String?),
-          amount: $checkedConvert(
-              'amount', (v) => v == null ? 0 : _invoiceAmount(v)),
+          amount: $checkedConvert('amount', (v) => _invoiceAmount(v)),
           status: $checkedConvert('status', (v) => v as String?),
           paymentUrl: $checkedConvert('paymentUrl', (v) => v as String?),
           paymentMethod: $checkedConvert('paymentMethod', (v) => v as String?),

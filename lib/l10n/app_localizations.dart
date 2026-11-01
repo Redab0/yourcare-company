@@ -62,7 +62,8 @@ import 'app_localizations_en.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,7 +71,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -82,7 +84,8 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
     delegate,
     GlobalMaterialLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
@@ -953,6 +956,30 @@ abstract class AppLocalizations {
   /// **'Cleaners'**
   String get request_card_cleaners;
 
+  /// Duration of one housekeeping visit, or the shared duration when all visits match.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours, plural, =1{1 hour} other{{hours} hours}}'**
+  String housekeeping_duration_hours(num hours);
+
+  /// No description provided for @housekeeping_duration_varies.
+  ///
+  /// In en, this message translates to:
+  /// **'Varies by visit'**
+  String get housekeeping_duration_varies;
+
+  /// No description provided for @housekeeping_visit_next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next visit'**
+  String get housekeeping_visit_next;
+
+  /// No description provided for @housekeeping_visit_current.
+  ///
+  /// In en, this message translates to:
+  /// **'Current visit'**
+  String get housekeeping_visit_current;
+
   /// No description provided for @request_card_duration.
   ///
   /// In en, this message translates to:
@@ -1437,7 +1464,8 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Item: {item}\nSize: {size}\nQuantity: {quantity}'**
-  String request_share_furniture_item(String item, String size, String quantity);
+  String request_share_furniture_item(
+      String item, String size, String quantity);
 
   /// No description provided for @open_in_google_maps.
   ///
@@ -1988,7 +2016,7 @@ abstract class AppLocalizations {
   /// No description provided for @business_inner_tour_car_wash_hours.
   ///
   /// In en, this message translates to:
-  /// **'Define the weekly days and time slots when customers can book car washing.'**
+  /// **'Set dated time slots for the next 14 days when customers can book car washing.'**
   String get business_inner_tour_car_wash_hours;
 
   /// No description provided for @business_inner_tour_staff_create_user.
@@ -2602,6 +2630,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Visits'**
   String get number_of_visits;
+
+  /// No description provided for @dated_availability_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Next 14 Days'**
+  String get dated_availability_title;
+
+  /// No description provided for @save_dated_availability.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Availability'**
+  String get save_dated_availability;
+
+  /// No description provided for @availability_dated_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Set availability for each date in Kuwait time. New dates stay unavailable until you set them; schedules do not repeat automatically.'**
+  String get availability_dated_hint;
+
+  /// No description provided for @availability_window_expired.
+  ///
+  /// In en, this message translates to:
+  /// **'The date window has changed. Refresh to load the next 14 days before saving. Your unsaved changes will stay here until you refresh.'**
+  String get availability_window_expired;
+
+  /// No description provided for @availability_load_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load availability'**
+  String get availability_load_failed;
+
+  /// No description provided for @availability_dated_copy_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy this date’s hours to selected dates within these 14 days. Each date remains independent.'**
+  String get availability_dated_copy_hint;
+
+  /// No description provided for @availability_dated_save_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Save your changed dates together after reviewing their hours and worker counts.'**
+  String get availability_dated_save_hint;
 
   /// No description provided for @weekly_availability_title.
   ///
@@ -3370,6 +3440,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Refresh'**
   String get refresh;
+
+  /// No description provided for @upholstery_availability.
+  ///
+  /// In en, this message translates to:
+  /// **'Furniture cleaning availability'**
+  String get upholstery_availability;
+
+  /// No description provided for @upholstery_availability_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept new furniture cleaning bookings. Turning this off keeps your saved prices and existing requests.'**
+  String get upholstery_availability_hint;
+
+  /// No description provided for @upholstery_availability_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update availability. Retry to confirm the current status.'**
+  String get upholstery_availability_failed;
 
   /// No description provided for @upholstery_configuration.
   ///
@@ -4522,9 +4610,934 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter a price from 0.001 to 10,000 KWD, using up to 3 decimal places.'**
   String get laundry_bulk_prices_invalid;
+
+  /// No description provided for @canSeePrices.
+  ///
+  /// In en, this message translates to:
+  /// **'Can see prices'**
+  String get canSeePrices;
+
+  /// No description provided for @canSeePricesDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Show prices, fees, invoices and financial information. Only the owner or administrator can change this option.'**
+  String get canSeePricesDescription;
+
+  /// No description provided for @priceAccessUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Financial information is unavailable for this account.'**
+  String get priceAccessUnavailable;
+
+  /// No description provided for @permissionOtherTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional access option'**
+  String get permissionOtherTitle;
+
+  /// No description provided for @permissionOtherDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'An existing access option. Keep it unless its purpose is confirmed.'**
+  String get permissionOtherDescription;
+
+  /// No description provided for @permissionRetainedDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Other existing access will be kept when you save.'**
+  String get permissionRetainedDescription;
+
+  /// No description provided for @permissionRetainedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Other existing access'**
+  String get permissionRetainedTitle;
+
+  /// No description provided for @permissionOptionsLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading staff access options…'**
+  String get permissionOptionsLoading;
+
+  /// No description provided for @permissionOptionsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff access options could not be loaded. Please try again.'**
+  String get permissionOptionsUnavailable;
+
+  /// No description provided for @permissionOptionsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no access options you can assign.'**
+  String get permissionOptionsEmpty;
+
+  /// No description provided for @permissionServiceContextUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Company services could not be loaded. General access options are still available.'**
+  String get permissionServiceContextUnavailable;
+
+  /// No description provided for @companyServicesUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Company services could not be refreshed. Existing jobs remain available.'**
+  String get companyServicesUnavailable;
+
+  /// No description provided for @homeDataUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Company information could not be loaded. Please try again.'**
+  String get homeDataUnavailable;
+
+  /// No description provided for @staffEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit staff account'**
+  String get staffEditTitle;
+
+  /// No description provided for @staffUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff account updated.'**
+  String get staffUpdated;
+
+  /// No description provided for @staffPermissionsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff access saved.'**
+  String get staffPermissionsSaved;
+
+  /// No description provided for @capabilityUsersCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add user accounts'**
+  String get capabilityUsersCreateTitle;
+
+  /// No description provided for @capabilityUsersCreateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new user accounts.'**
+  String get capabilityUsersCreateDescription;
+
+  /// No description provided for @capabilityUsersReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See company accounts'**
+  String get capabilityUsersReadTitle;
+
+  /// No description provided for @capabilityUsersReadDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View this company\'s accounts and team members.'**
+  String get capabilityUsersReadDescription;
+
+  /// No description provided for @capabilityUsersUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change user accounts'**
+  String get capabilityUsersUpdateTitle;
+
+  /// No description provided for @capabilityUsersUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust existing user accounts within your assigned access.'**
+  String get capabilityUsersUpdateDescription;
+
+  /// No description provided for @capabilityUsersDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove user accounts'**
+  String get capabilityUsersDeleteTitle;
+
+  /// No description provided for @capabilityUsersDeleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove user accounts where removal is allowed.'**
+  String get capabilityUsersDeleteDescription;
+
+  /// No description provided for @capabilityBusinessCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add companies'**
+  String get capabilityBusinessCreateTitle;
+
+  /// No description provided for @capabilityBusinessCreateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new companies.'**
+  String get capabilityBusinessCreateDescription;
+
+  /// No description provided for @capabilityBusinessReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View company settings'**
+  String get capabilityBusinessReadTitle;
+
+  /// No description provided for @capabilityBusinessReadDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View settings for the services this company offers.'**
+  String get capabilityBusinessReadDescription;
+
+  /// No description provided for @capabilityBusinessUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage company settings'**
+  String get capabilityBusinessUpdateTitle;
+
+  /// No description provided for @capabilityBusinessUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage settings for the services this company offers.'**
+  String get capabilityBusinessUpdateDescription;
+
+  /// No description provided for @capabilityBusinessDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove companies'**
+  String get capabilityBusinessDeleteTitle;
+
+  /// No description provided for @capabilityBusinessDeleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove companies where removal is allowed.'**
+  String get capabilityBusinessDeleteDescription;
+
+  /// No description provided for @capabilityCategoriesCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add service categories'**
+  String get capabilityCategoriesCreateTitle;
+
+  /// No description provided for @capabilityCategoriesCreateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new service categories.'**
+  String get capabilityCategoriesCreateDescription;
+
+  /// No description provided for @capabilityCategoriesReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See service categories'**
+  String get capabilityCategoriesReadTitle;
+
+  /// No description provided for @capabilityCategoriesReadDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View existing service categories available to your account.'**
+  String get capabilityCategoriesReadDescription;
+
+  /// No description provided for @capabilityCategoriesUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change service categories'**
+  String get capabilityCategoriesUpdateTitle;
+
+  /// No description provided for @capabilityCategoriesUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust existing service categories within your assigned access.'**
+  String get capabilityCategoriesUpdateDescription;
+
+  /// No description provided for @capabilityCategoriesDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove service categories'**
+  String get capabilityCategoriesDeleteTitle;
+
+  /// No description provided for @capabilityCategoriesDeleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove service categories where removal is allowed.'**
+  String get capabilityCategoriesDeleteDescription;
+
+  /// No description provided for @capabilityRequestsCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send job offers'**
+  String get capabilityRequestsCreateTitle;
+
+  /// No description provided for @capabilityRequestsCreateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit offers for new customer jobs.'**
+  String get capabilityRequestsCreateDescription;
+
+  /// No description provided for @capabilityRequestsReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See customer requests'**
+  String get capabilityRequestsReadTitle;
+
+  /// No description provided for @capabilityRequestsReadDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View existing customer requests available to your account.'**
+  String get capabilityRequestsReadDescription;
+
+  /// No description provided for @capabilityRequestsUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage jobs'**
+  String get capabilityRequestsUpdateTitle;
+
+  /// No description provided for @capabilityRequestsUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Start, finish or cancel jobs where your account is allowed.'**
+  String get capabilityRequestsUpdateDescription;
+
+  /// No description provided for @capabilityRequestsDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove customer requests'**
+  String get capabilityRequestsDeleteTitle;
+
+  /// No description provided for @capabilityRequestsDeleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove customer requests where removal is allowed.'**
+  String get capabilityRequestsDeleteDescription;
+
+  /// No description provided for @capabilityTransactionsCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add transactions'**
+  String get capabilityTransactionsCreateTitle;
+
+  /// No description provided for @capabilityTransactionsCreateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new transactions.'**
+  String get capabilityTransactionsCreateDescription;
+
+  /// No description provided for @capabilityTransactionsReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See transactions'**
+  String get capabilityTransactionsReadTitle;
+
+  /// No description provided for @capabilityTransactionsReadDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View existing transactions available to your account.'**
+  String get capabilityTransactionsReadDescription;
+
+  /// No description provided for @capabilityTransactionsUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change transactions'**
+  String get capabilityTransactionsUpdateTitle;
+
+  /// No description provided for @capabilityTransactionsUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust existing transactions within your assigned access.'**
+  String get capabilityTransactionsUpdateDescription;
+
+  /// No description provided for @capabilityTransactionsDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove transactions'**
+  String get capabilityTransactionsDeleteTitle;
+
+  /// No description provided for @capabilityTransactionsDeleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove transactions where removal is allowed.'**
+  String get capabilityTransactionsDeleteDescription;
+
+  /// No description provided for @capabilityAreasCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add service areas'**
+  String get capabilityAreasCreateTitle;
+
+  /// No description provided for @capabilityAreasCreateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new service areas.'**
+  String get capabilityAreasCreateDescription;
+
+  /// No description provided for @capabilityAreasReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See service areas'**
+  String get capabilityAreasReadTitle;
+
+  /// No description provided for @capabilityAreasReadDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View existing service areas available to your account.'**
+  String get capabilityAreasReadDescription;
+
+  /// No description provided for @capabilityAreasUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change service areas'**
+  String get capabilityAreasUpdateTitle;
+
+  /// No description provided for @capabilityAreasUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust existing service areas within your assigned access.'**
+  String get capabilityAreasUpdateDescription;
+
+  /// No description provided for @capabilityAreasDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove service areas'**
+  String get capabilityAreasDeleteTitle;
+
+  /// No description provided for @capabilityAreasDeleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove service areas where removal is allowed.'**
+  String get capabilityAreasDeleteDescription;
+
+  /// No description provided for @capabilityEmailCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send emails'**
+  String get capabilityEmailCreateTitle;
+
+  /// No description provided for @capabilityEmailCreateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Send emails where your account is allowed.'**
+  String get capabilityEmailCreateDescription;
+
+  /// No description provided for @capabilityEmailReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See emails'**
+  String get capabilityEmailReadTitle;
+
+  /// No description provided for @capabilityEmailReadDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View existing emails available to your account.'**
+  String get capabilityEmailReadDescription;
+
+  /// No description provided for @capabilityEmailUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change emails'**
+  String get capabilityEmailUpdateTitle;
+
+  /// No description provided for @capabilityEmailUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust existing emails within your assigned access.'**
+  String get capabilityEmailUpdateDescription;
+
+  /// No description provided for @capabilityEmailDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove emails'**
+  String get capabilityEmailDeleteTitle;
+
+  /// No description provided for @capabilityEmailDeleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove emails where removal is allowed.'**
+  String get capabilityEmailDeleteDescription;
+
+  /// No description provided for @capabilityChatCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start conversations'**
+  String get capabilityChatCreateTitle;
+
+  /// No description provided for @capabilityChatCreateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Open conversations for jobs your account can access.'**
+  String get capabilityChatCreateDescription;
+
+  /// No description provided for @capabilityChatReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See conversations'**
+  String get capabilityChatReadTitle;
+
+  /// No description provided for @capabilityChatReadDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View existing conversations available to your account.'**
+  String get capabilityChatReadDescription;
+
+  /// No description provided for @capabilityChatUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change conversations'**
+  String get capabilityChatUpdateTitle;
+
+  /// No description provided for @capabilityChatUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust existing conversations within your assigned access.'**
+  String get capabilityChatUpdateDescription;
+
+  /// No description provided for @capabilityChatDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove conversations'**
+  String get capabilityChatDeleteTitle;
+
+  /// No description provided for @capabilityChatDeleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove conversations where removal is allowed.'**
+  String get capabilityChatDeleteDescription;
+
+  /// No description provided for @capabilityTeamsCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add work teams'**
+  String get capabilityTeamsCreateTitle;
+
+  /// No description provided for @capabilityTeamsCreateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new work teams.'**
+  String get capabilityTeamsCreateDescription;
+
+  /// No description provided for @capabilityTeamsReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See work teams'**
+  String get capabilityTeamsReadTitle;
+
+  /// No description provided for @capabilityTeamsReadDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View existing work teams available to your account.'**
+  String get capabilityTeamsReadDescription;
+
+  /// No description provided for @capabilityTeamsUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change work teams'**
+  String get capabilityTeamsUpdateTitle;
+
+  /// No description provided for @capabilityTeamsUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust existing work teams within your assigned access.'**
+  String get capabilityTeamsUpdateDescription;
+
+  /// No description provided for @capabilityTeamsDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove work teams'**
+  String get capabilityTeamsDeleteTitle;
+
+  /// No description provided for @capabilityTeamsDeleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove work teams where removal is allowed.'**
+  String get capabilityTeamsDeleteDescription;
+
+  /// No description provided for @capabilityPermissionsCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add access options'**
+  String get capabilityPermissionsCreateTitle;
+
+  /// No description provided for @capabilityPermissionsCreateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new access options.'**
+  String get capabilityPermissionsCreateDescription;
+
+  /// No description provided for @capabilityPermissionsReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See staff access options'**
+  String get capabilityPermissionsReadTitle;
+
+  /// No description provided for @capabilityPermissionsReadDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'See which access options can be assigned to staff.'**
+  String get capabilityPermissionsReadDescription;
+
+  /// No description provided for @capabilityPermissionsUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage staff access'**
+  String get capabilityPermissionsUpdateTitle;
+
+  /// No description provided for @capabilityPermissionsUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the access options you are allowed to give company staff.'**
+  String get capabilityPermissionsUpdateDescription;
+
+  /// No description provided for @capabilityPermissionsDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove access options'**
+  String get capabilityPermissionsDeleteTitle;
+
+  /// No description provided for @capabilityPermissionsDeleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove access options where removal is allowed.'**
+  String get capabilityPermissionsDeleteDescription;
+
+  /// No description provided for @capabilityStaffCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add staff accounts'**
+  String get capabilityStaffCreateTitle;
+
+  /// No description provided for @capabilityStaffCreateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new staff accounts.'**
+  String get capabilityStaffCreateDescription;
+
+  /// No description provided for @capabilityStaffReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See staff accounts'**
+  String get capabilityStaffReadTitle;
+
+  /// No description provided for @capabilityStaffReadDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View existing staff accounts available to your account.'**
+  String get capabilityStaffReadDescription;
+
+  /// No description provided for @capabilityStaffUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change staff accounts'**
+  String get capabilityStaffUpdateTitle;
+
+  /// No description provided for @capabilityStaffUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust existing staff accounts within your assigned access.'**
+  String get capabilityStaffUpdateDescription;
+
+  /// No description provided for @capabilityStaffDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove staff accounts'**
+  String get capabilityStaffDeleteTitle;
+
+  /// No description provided for @capabilityStaffDeleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove staff accounts where removal is allowed.'**
+  String get capabilityStaffDeleteDescription;
+
+  /// No description provided for @capabilityHousekeepingPricingCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add housekeeping prices'**
+  String get capabilityHousekeepingPricingCreateTitle;
+
+  /// No description provided for @capabilityHousekeepingPricingCreateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new housekeeping prices.'**
+  String get capabilityHousekeepingPricingCreateDescription;
+
+  /// No description provided for @capabilityHousekeepingPricingReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See housekeeping prices'**
+  String get capabilityHousekeepingPricingReadTitle;
+
+  /// No description provided for @capabilityHousekeepingPricingReadDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View existing housekeeping prices available to your account.'**
+  String get capabilityHousekeepingPricingReadDescription;
+
+  /// No description provided for @capabilityHousekeepingPricingUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change housekeeping prices'**
+  String get capabilityHousekeepingPricingUpdateTitle;
+
+  /// No description provided for @capabilityHousekeepingPricingUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust existing housekeeping prices within your assigned access.'**
+  String get capabilityHousekeepingPricingUpdateDescription;
+
+  /// No description provided for @capabilityHousekeepingPricingDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove housekeeping prices'**
+  String get capabilityHousekeepingPricingDeleteTitle;
+
+  /// No description provided for @capabilityHousekeepingPricingDeleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove housekeeping prices where removal is allowed.'**
+  String get capabilityHousekeepingPricingDeleteDescription;
+
+  /// No description provided for @capabilityCleanerAvailabilityCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add available dates and hours'**
+  String get capabilityCleanerAvailabilityCreateTitle;
+
+  /// No description provided for @capabilityCleanerAvailabilityCreateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new available dates and hours.'**
+  String get capabilityCleanerAvailabilityCreateDescription;
+
+  /// No description provided for @capabilityCleanerAvailabilityReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See available dates and hours'**
+  String get capabilityCleanerAvailabilityReadTitle;
+
+  /// No description provided for @capabilityCleanerAvailabilityReadDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View existing available dates and hours available to your account.'**
+  String get capabilityCleanerAvailabilityReadDescription;
+
+  /// No description provided for @capabilityCleanerAvailabilityUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change available dates and hours'**
+  String get capabilityCleanerAvailabilityUpdateTitle;
+
+  /// No description provided for @capabilityCleanerAvailabilityUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust existing available dates and hours within your assigned access.'**
+  String get capabilityCleanerAvailabilityUpdateDescription;
+
+  /// No description provided for @capabilityCleanerAvailabilityDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove available dates and hours'**
+  String get capabilityCleanerAvailabilityDeleteTitle;
+
+  /// No description provided for @capabilityCleanerAvailabilityDeleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove available dates and hours where removal is allowed.'**
+  String get capabilityCleanerAvailabilityDeleteDescription;
+
+  /// No description provided for @capabilityAutoBidCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add automatic offer rules'**
+  String get capabilityAutoBidCreateTitle;
+
+  /// No description provided for @capabilityAutoBidCreateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new automatic offer rules.'**
+  String get capabilityAutoBidCreateDescription;
+
+  /// No description provided for @capabilityAutoBidReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See automatic offer rules'**
+  String get capabilityAutoBidReadTitle;
+
+  /// No description provided for @capabilityAutoBidReadDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View existing automatic offer rules available to your account.'**
+  String get capabilityAutoBidReadDescription;
+
+  /// No description provided for @capabilityAutoBidUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change automatic offer rules'**
+  String get capabilityAutoBidUpdateTitle;
+
+  /// No description provided for @capabilityAutoBidUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust existing automatic offer rules within your assigned access.'**
+  String get capabilityAutoBidUpdateDescription;
+
+  /// No description provided for @capabilityAutoBidDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove automatic offer rules'**
+  String get capabilityAutoBidDeleteTitle;
+
+  /// No description provided for @capabilityAutoBidDeleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove automatic offer rules where removal is allowed.'**
+  String get capabilityAutoBidDeleteDescription;
+
+  /// No description provided for @capabilityCompanyRequestsReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See company jobs'**
+  String get capabilityCompanyRequestsReadTitle;
+
+  /// No description provided for @capabilityCompanyRequestsReadDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View assigned jobs and the work calendar.'**
+  String get capabilityCompanyRequestsReadDescription;
+
+  /// No description provided for @capabilityCompanyRequestsUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign workers and teams'**
+  String get capabilityCompanyRequestsUpdateTitle;
+
+  /// No description provided for @capabilityCompanyRequestsUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the workers or teams responsible for company jobs.'**
+  String get capabilityCompanyRequestsUpdateDescription;
+
+  /// No description provided for @capabilityAvailableRequestsReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find new jobs'**
+  String get capabilityAvailableRequestsReadTitle;
+
+  /// No description provided for @capabilityAvailableRequestsReadDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse new jobs available to your company.'**
+  String get capabilityAvailableRequestsReadDescription;
+
+  /// No description provided for @capabilityUploadCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload files'**
+  String get capabilityUploadCreateTitle;
+
+  /// No description provided for @capabilityUploadCreateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach photos and documents to permitted company work.'**
+  String get capabilityUploadCreateDescription;
+
+  /// No description provided for @capabilityUploadDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove uploaded files'**
+  String get capabilityUploadDeleteTitle;
+
+  /// No description provided for @capabilityUploadDeleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove uploaded files your account is allowed to manage.'**
+  String get capabilityUploadDeleteDescription;
+
+  /// No description provided for @capabilityCompanyProfileReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See company profile'**
+  String get capabilityCompanyProfileReadTitle;
+
+  /// No description provided for @capabilityCompanyProfileReadDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View company details, services and coverage areas.'**
+  String get capabilityCompanyProfileReadDescription;
+
+  /// No description provided for @capabilityCompanyProfileUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change company profile'**
+  String get capabilityCompanyProfileUpdateTitle;
+
+  /// No description provided for @capabilityCompanyProfileUpdateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust company details, services and coverage areas.'**
+  String get capabilityCompanyProfileUpdateDescription;
+
+  /// No description provided for @capabilityReportsReadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See business reports'**
+  String get capabilityReportsReadTitle;
+
+  /// No description provided for @capabilityReportsReadDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View job summaries; financial figures also require price access.'**
+  String get capabilityReportsReadDescription;
+
+  /// No description provided for @capabilityCompanyRequestsCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add company jobs'**
+  String get capabilityCompanyRequestsCreateTitle;
+
+  /// No description provided for @capabilityCompanyRequestsCreateDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Add company jobs where this existing access option is supported.'**
+  String get capabilityCompanyRequestsCreateDescription;
+
+  /// No description provided for @capabilityCompanyRequestsDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove company jobs'**
+  String get capabilityCompanyRequestsDeleteTitle;
+
+  /// No description provided for @capabilityCompanyRequestsDeleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove company jobs where removal is allowed.'**
+  String get capabilityCompanyRequestsDeleteDescription;
+
+  /// No description provided for @capabilityCompanyRequestsStatisticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See business reports'**
+  String get capabilityCompanyRequestsStatisticsTitle;
+
+  /// No description provided for @capabilityCompanyRequestsStatisticsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'View job summaries; financial figures also require price access.'**
+  String get capabilityCompanyRequestsStatisticsDescription;
+
+  /// No description provided for @capabilityAvailableRequestsBrowseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find new jobs'**
+  String get capabilityAvailableRequestsBrowseTitle;
+
+  /// No description provided for @capabilityAvailableRequestsBrowseDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse new jobs available to your company.'**
+  String get capabilityAvailableRequestsBrowseDescription;
+
+  /// No description provided for @capabilityAvailableRequestsBrowsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find new jobs'**
+  String get capabilityAvailableRequestsBrowsTitle;
+
+  /// No description provided for @capabilityAvailableRequestsBrowsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse new jobs available to your company.'**
+  String get capabilityAvailableRequestsBrowsDescription;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -4533,25 +5546,25 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['ar', 'en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['ar', 'en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'ar': return AppLocalizationsAr();
-    case 'en': return AppLocalizationsEn();
+    case 'ar':
+      return AppLocalizationsAr();
+    case 'en':
+      return AppLocalizationsEn();
   }
 
   throw FlutterError(
-    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-    'an issue with the localizations generation tool. Please file an issue '
-    'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
-  );
+      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }

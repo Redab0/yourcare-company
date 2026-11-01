@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_access.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -143,6 +144,24 @@ void main() {
     expect(await storage.getFcmToken(), 'push');
     expect(await storage.getString('areas'), 'cache');
     expect((await storage.credentials())?.requestId, isNull);
+  });
+
+  test(
+      'an in-flight renewal commits credentials without undoing a concurrent revoke',
+      () async {
+    await storage.saveSession(
+        'legacy', User(id: _id, role: 'manager', canSeePrices: true));
+    final generation = storage.authGeneration;
+    transport.remote = (_) async {
+      await storage.markPricesHidden(
+          generation: generation, accessEpoch: PriceAccess.instance.epoch);
+      return renewed();
+    };
+    expect((await sessions.ensureSession())?.token, _jwt('fresh'));
+    expect(storage.authGeneration, generation);
+    expect((await storage.getUser())?.effectiveCanSeePrices, isFalse);
+    expect(PriceAccess.instance.allowed, isFalse);
+    expect(terminal, 0);
   });
 
   test('credential rotation preserves a newer concurrently saved profile',
@@ -606,6 +625,8 @@ class _Transport implements SessionRenewalTransport {
   int calls = 0;
   final inputs = <SessionCredentials>[];
   CancelToken? lastCancellation;
+  @override
+  Future<void> confirm(SessionCredentials session, CancelToken cancel) async {}
   @override
   Future<SessionCredentials> renew(
       SessionCredentials pending, CancelToken cancel) {

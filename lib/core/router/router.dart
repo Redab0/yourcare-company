@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/features/screens/documents/documents_screen.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/features/screens/laundry/laundry_configuration_screen.dart';
@@ -84,15 +85,21 @@ class AppRouter {
       ),
 
       // Shell route with bottom navigation
-      GoRoute(path: '/documents', name: 'documents-center',
-        redirect: (_, __) async {
-          final storage = SecureStorageService();
-          final session = await storage.sessionSnapshot();
-          if (session.token == null) return '/login';
-          final user = session.user;
-          return ['business_owner', 'manager'].contains(user?.role) && user?.businessId != null ? null : '/home';
-        },
-        builder: (_, __) => const DocumentsScreen()),
+      GoRoute(
+          path: '/documents',
+          name: 'documents-center',
+          redirect: (_, __) async {
+            final storage = SecureStorageService();
+            final session = await storage.sessionSnapshot();
+            if (session.token == null) return '/login';
+            final user = session.user;
+            return ['business_owner', 'manager'].contains(user?.role) &&
+                    user?.businessId != null
+                ? null
+                : '/home';
+          },
+          builder: (_, __) =>
+              FinancialAccessGuard(builder: (_) => const DocumentsScreen())),
       ShellRoute(
         navigatorKey: shellNavigatorKey,
         builder: (context, state, child) {
@@ -122,8 +129,8 @@ class AppRouter {
           GoRoute(
             path: '/housekeeping-configuration',
             name: 'housekeeping-configuration-screen',
-            builder: (context, state) =>
-                const HousekeepingConfigurationScreen(),
+            builder: (context, state) => FinancialAccessGuard(
+                builder: (_) => const HousekeepingConfigurationScreen()),
           ),
           GoRoute(
             path: '/laundry-configuration',
@@ -138,7 +145,8 @@ class AppRouter {
           GoRoute(
             path: '/laundry-catalog',
             name: 'laundry-catalog-screen',
-            builder: (_, __) => const LaundryCatalogScreen(),
+            builder: (_, __) => FinancialAccessGuard(
+                builder: (_) => const LaundryCatalogScreen()),
           ),
           GoRoute(
             path: '/car-wash',
@@ -148,7 +156,8 @@ class AppRouter {
           GoRoute(
             path: '/car-wash-pricing',
             name: 'car-wash-pricing-screen',
-            builder: (context, state) => const CarWashPricingScreen(),
+            builder: (context, state) => FinancialAccessGuard(
+                builder: (_) => const CarWashPricingScreen()),
           ),
           GoRoute(
             path: '/car-wash-working-hours',
@@ -165,7 +174,8 @@ class AppRouter {
           GoRoute(
             path: '/auto-bidding',
             name: 'auto-bidding-screen',
-            builder: (context, state) => const AutoBidConfigurationScreen(),
+            builder: (context, state) => FinancialAccessGuard(
+                builder: (_) => const AutoBidConfigurationScreen()),
           ),
           GoRoute(
             path: '/user-profile',
@@ -275,7 +285,8 @@ class AppRouter {
           GoRoute(
             name: 'statisticsScreen',
             path: '/StatisticsScreen',
-            builder: (_, __) => StatisticsScreen(),
+            builder: (_, __) =>
+                FinancialAccessGuard(builder: (_) => StatisticsScreen()),
           ),
 
           GoRoute(
@@ -311,14 +322,16 @@ class AppRouter {
               GoRoute(
                 name: 'deepCleaning',
                 path: 'deep-cleaning',
-                builder: (_, s) => DeepCleaningRequestScreen(
-                    request: s.extra! as DeepCleaningHistory),
+                builder: (_, s) => FinancialAccessGuard(
+                    builder: (_) => DeepCleaningRequestScreen(
+                        request: s.extra! as DeepCleaningHistory)),
               ),
               GoRoute(
                 name: 'upholsteryCleaning',
                 path: 'upholstery-cleaning',
-                builder: (_, s) => UpholsteryCleaningRequestScreen(
-                    request: s.extra! as UpholsteryCleaningHistory),
+                builder: (_, s) => FinancialAccessGuard(
+                    builder: (_) => UpholsteryCleaningRequestScreen(
+                        request: s.extra! as UpholsteryCleaningHistory)),
               ),
               GoRoute(
                 name: 'houseKeepingSuccess',

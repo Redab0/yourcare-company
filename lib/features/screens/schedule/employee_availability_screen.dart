@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/loading_overlay.dart';
 import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/data/models/schedule/cleaner_availability.dart';
+import 'package:cleaning_service_driver/data/models/schedule/dated_availability_schedule.dart';
 import 'package:cleaning_service_driver/data/models/schedule/hourly_availability_schedule.dart';
 import 'package:cleaning_service_driver/features/bloc/schedule/employee_availability_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/schedule/employee_availability_event.dart';
@@ -16,10 +19,12 @@ import 'package:intl/intl.dart';
 
 class EmployeeAvailabilityScreen extends StatefulWidget {
   final AvailabilityServiceType serviceType;
+  final DateTime Function()? currentTime;
 
   const EmployeeAvailabilityScreen({
     super.key,
     this.serviceType = AvailabilityServiceType.houseCleaning,
+    this.currentTime,
   });
 
   @override
@@ -27,10 +32,25 @@ class EmployeeAvailabilityScreen extends StatefulWidget {
       _EmployeeAvailabilityScreenState();
 }
 
-class _EmployeeAvailabilityScreenState
-    extends State<EmployeeAvailabilityScreen> {
+class _EmployeeAvailabilityScreenState extends State<EmployeeAvailabilityScreen>
+    with WidgetsBindingObserver {
   String get _tourScope =>
-      'business_${widget.serviceType.apiValue}_availability_journey';
+      'business_${widget.serviceType.apiValue}_availability${_isDated ? '_dates' : ''}_journey';
+
+  bool get _isDated => widget.serviceType.usesDatedAvailability;
+  late DateTime _windowStart;
+  List<String> get _dates => DatedAvailabilitySchedule.dates(_windowStart);
+  DateTime _today() =>
+      DatedAvailabilitySchedule.today(now: widget.currentTime?.call());
+  bool _windowExpired = false;
+  Timer? _windowTimer;
+
+  String get _scheduleTitle => _isDated
+      ? context.l10n.dated_availability_title
+      : context.l10n.weekly_availability_title;
+  String get _saveLabel => _isDated
+      ? context.l10n.save_dated_availability
+      : context.l10n.save_weekly_schedule;
 
   int _selectedDayIndex = DateTime.now().weekday % 7;
   late Map<int, List<HourlyAvailabilityCell>> _scheduleByDay;
@@ -63,14 +83,25 @@ class _EmployeeAvailabilityScreenState
   @override
   void initState() {
     super.initState();
-    _scheduleByDay = HourlyAvailabilitySchedule.emptyWeek();
+    _windowStart = _today();
+    if (_isDated) _selectedDayIndex = 0;
+    _scheduleByDay = _isDated
+        ? DatedAvailabilitySchedule.fromSlots(const [], _dates)
+        : HourlyAvailabilitySchedule.emptyWeek();
     _workerControllers = {
-      for (var day = 0; day < HourlyAvailabilitySchedule.daysPerWeek; day++)
+      for (final day in _dayOrder)
         day: List.generate(
           HourlyAvailabilitySchedule.hoursPerDay,
           (_) => TextEditingController(text: '1'),
         ),
     };
+    WidgetsBinding.instance.addObserver(this);
+    if (_isDated) {
+      _windowTimer = Timer.periodic(
+        const Duration(seconds: 30),
+        (_) => _checkWindow(),
+      );
+    }
     _tour = BusinessShowcaseTourController(scope: _tourScope);
     SecureStorageService().getUser().then((user) {
       if (!mounted) return;
@@ -83,6 +114,8 @@ class _EmployeeAvailabilityScreenState
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _windowTimer?.cancel();
     for (final controllers in _workerControllers.values) {
       for (final controller in controllers) {
         controller.dispose();
@@ -90,6 +123,19 @@ class _EmployeeAvailabilityScreenState
     }
     _tour.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _checkWindow();
+  }
+
+  void _checkWindow() {
+    if (!_isDated || !mounted) return;
+    final expired = _today() != _windowStart;
+    if (expired != _windowExpired) {
+      setState(() => _windowExpired = expired);
+    }
   }
 
   @override
@@ -109,7 +155,7 @@ class _EmployeeAvailabilityScreenState
           title: Column(
             children: [
               Text(
-                context.l10n.weekly_availability_title,
+                _scheduleTitle,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -154,7 +200,8 @@ class _EmployeeAvailabilityScreenState
             if (ownerId != null) {
               _tour.scheduleStartOnce(
                 ownerId: ownerId,
-                journeyId: '${widget.serviceType.apiValue}_availability',
+                journeyId:
+                    '${widget.serviceType.apiValue}_availability${_isDated ? '_dates' : ''}',
                 keys: _tourKeys,
               );
             }
@@ -166,53 +213,60 @@ class _EmployeeAvailabilityScreenState
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 1100),
-                      child: ListView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        padding: EdgeInsets.fromLTRB(
-                          constraints.maxWidth >= 700 ? 24 : 16,
-                          16,
-                          constraints.maxWidth >= 700 ? 24 : 16,
-                          32,
+                      child: AbsorbPointer(
+                        absorbing:
+                            state.isSaving || _saveRequested || _windowExpired,
+                        child: ListView(
+                          key: const ValueKey('availability-editor'),
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: EdgeInsets.fromLTRB(
+                            constraints.maxWidth >= 700 ? 24 : 16,
+                            16,
+                            constraints.maxWidth >= 700 ? 24 : 16,
+                            32,
+                          ),
+                          children: [
+                            _scheduleTourStep(
+                              key: _daysTourKey,
+                              title: _scheduleTitle,
+                              description: context
+                                  .l10n.business_inner_tour_schedule_days,
+                              index: 0,
+                              child: _daySelector(),
+                            ),
+                            const SizedBox(height: 16),
+                            _infoBanner(),
+                            const SizedBox(height: 16),
+                            _scheduleTourStep(
+                              key: _dayStatusTourKey,
+                              title: context.l10n.hourly_availability,
+                              description: context
+                                  .l10n.business_inner_tour_schedule_day_status,
+                              index: 1,
+                              child: _daySummary(),
+                            ),
+                            const SizedBox(height: 16),
+                            _scheduleTourStep(
+                              key: _applyDaysTourKey,
+                              title: context.l10n.availability_apply_other_days,
+                              description: _isDated
+                                  ? context.l10n.availability_dated_copy_hint
+                                  : context.l10n
+                                      .business_inner_tour_schedule_apply_week,
+                              index: 2,
+                              child: _copyScheduleCard(),
+                            ),
+                            const SizedBox(height: 24),
+                            _scheduleTourStep(
+                              key: _hoursTourKey,
+                              title: context.l10n.hourly_availability,
+                              description: context
+                                  .l10n.business_inner_tour_schedule_slots,
+                              index: 3,
+                              child: _hourlySchedule(),
+                            ),
+                          ],
                         ),
-                        children: [
-                          _scheduleTourStep(
-                            key: _daysTourKey,
-                            title: context.l10n.weekly_availability_title,
-                            description:
-                                context.l10n.business_inner_tour_schedule_days,
-                            index: 0,
-                            child: _daySelector(),
-                          ),
-                          const SizedBox(height: 16),
-                          _infoBanner(),
-                          const SizedBox(height: 16),
-                          _scheduleTourStep(
-                            key: _dayStatusTourKey,
-                            title: context.l10n.hourly_availability,
-                            description: context
-                                .l10n.business_inner_tour_schedule_day_status,
-                            index: 1,
-                            child: _daySummary(),
-                          ),
-                          const SizedBox(height: 16),
-                          _scheduleTourStep(
-                            key: _applyDaysTourKey,
-                            title: context.l10n.availability_apply_other_days,
-                            description: context
-                                .l10n.business_inner_tour_schedule_apply_week,
-                            index: 2,
-                            child: _copyScheduleCard(),
-                          ),
-                          const SizedBox(height: 24),
-                          _scheduleTourStep(
-                            key: _hoursTourKey,
-                            title: context.l10n.hourly_availability,
-                            description:
-                                context.l10n.business_inner_tour_schedule_slots,
-                            index: 3,
-                            child: _hourlySchedule(),
-                          ),
-                        ],
                       ),
                     ),
                   ),
@@ -274,6 +328,7 @@ class _EmployeeAvailabilityScreenState
     if (state.serviceType != widget.serviceType) return;
 
     if (!state.isLoading && !state.isSaving && state.error != null) {
+      _checkWindow();
       if (_saveRequested) {
         setState(() => _saveRequested = false);
       }
@@ -307,7 +362,7 @@ class _EmployeeAvailabilityScreenState
             ),
             const SizedBox(height: 12),
             Text(
-              context.l10n.no_availability,
+              context.l10n.availability_load_failed,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 16),
@@ -343,8 +398,9 @@ class _EmployeeAvailabilityScreenState
   Widget _daySelector() {
     final labels = _dayLabels(context);
     return SizedBox(
-      height: 68,
+      height: _isDated ? 84 : 68,
       child: ListView.separated(
+        key: const ValueKey('availability-day-selector'),
         scrollDirection: Axis.horizontal,
         itemCount: _dayOrder.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
@@ -355,6 +411,7 @@ class _EmployeeAvailabilityScreenState
           final isDirty = _dirtyDays.contains(day);
           final colors = Theme.of(context).colorScheme;
           return InkWell(
+            key: ValueKey('availability-day-${_isDated ? _dates[day] : day}'),
             onTap: () {
               FocusManager.instance.primaryFocus?.unfocus();
               setState(() {
@@ -388,6 +445,7 @@ class _EmployeeAvailabilityScreenState
                 children: [
                   Text(
                     labels[day],
+                    textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
                           color: selected ? colors.onPrimary : colors.onSurface,
                           fontWeight: FontWeight.w700,
@@ -430,7 +488,9 @@ class _EmployeeAvailabilityScreenState
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: colors.primaryContainer.withValues(alpha: 0.55),
+        color:
+            (_windowExpired ? colors.errorContainer : colors.primaryContainer)
+                .withValues(alpha: 0.55),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: colors.primary.withValues(alpha: 0.18)),
       ),
@@ -441,7 +501,11 @@ class _EmployeeAvailabilityScreenState
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              context.l10n.availability_hourly_hint,
+              _windowExpired
+                  ? context.l10n.availability_window_expired
+                  : _isDated
+                      ? '${_windowRangeLabel()}\n${context.l10n.availability_dated_hint}\n${context.l10n.availability_hourly_hint}'
+                      : context.l10n.availability_hourly_hint,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: colors.onPrimaryContainer,
                     height: 1.4,
@@ -456,7 +520,7 @@ class _EmployeeAvailabilityScreenState
   Widget _daySummary() {
     final colors = Theme.of(context).colorScheme;
     final enabledHours = _enabledHours(_selectedDayIndex);
-    final dayLabel = _dayLabels(context)[_selectedDayIndex];
+    final dayLabel = _dayLabel(context, _selectedDayIndex);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
@@ -519,6 +583,7 @@ class _EmployeeAvailabilityScreenState
                 ? context.l10n.availability_disabled
                 : context.l10n.availability_enabled,
             child: Switch(
+              key: const ValueKey('availability-day-enabled'),
               value: enabledHours > 0,
               onChanged: _setDayEnabled,
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -531,7 +596,7 @@ class _EmployeeAvailabilityScreenState
 
   Widget _copyScheduleCard() {
     final colors = Theme.of(context).colorScheme;
-    final dayLabel = _dayLabels(context)[_selectedDayIndex];
+    final dayLabel = _dayLabel(context, _selectedDayIndex);
     return Material(
       color: colors.secondaryContainer.withValues(alpha: 0.45),
       borderRadius: BorderRadius.circular(12),
@@ -560,20 +625,22 @@ class _EmployeeAvailabilityScreenState
                 ),
               ),
               const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: colors.surface.withValues(alpha: 0.7),
-                  borderRadius: BorderRadius.circular(999),
+              if (!_isDated)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: colors.surface.withValues(alpha: 0.7),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    dayLabel,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: colors.onSecondaryContainer,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
                 ),
-                child: Text(
-                  dayLabel,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: colors.onSecondaryContainer,
-                        fontWeight: FontWeight.w600,
-                      ),
-                ),
-              ),
               const SizedBox(width: 6),
               Icon(
                 Icons.arrow_forward_ios,
@@ -599,7 +666,7 @@ class _EmployeeAvailabilityScreenState
         ),
         const SizedBox(height: 4),
         Text(
-          _dayLabels(context)[_selectedDayIndex],
+          _dayLabel(context, _selectedDayIndex),
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).hintColor,
               ),
@@ -694,6 +761,8 @@ class _EmployeeAvailabilityScreenState
               SizedBox(
                 width: 62,
                 child: TextField(
+                  key:
+                      ValueKey('availability-workers-$_selectedDayIndex-$hour'),
                   controller: controller,
                   enabled: cell.isEnabled,
                   keyboardType: TextInputType.number,
@@ -746,7 +815,9 @@ class _EmployeeAvailabilityScreenState
     final hasChanges = _dirtyDays.isNotEmpty;
     final isSaving = state.isSaving || _saveRequested;
     final changedDaysLabel = Text(
-      context.l10n.availability_changed_days(_dirtyDays.length),
+      _windowExpired
+          ? context.l10n.availability_window_expired
+          : context.l10n.availability_changed_days(_dirtyDays.length),
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.w600,
@@ -754,15 +825,18 @@ class _EmployeeAvailabilityScreenState
     );
     final saveButton = _scheduleTourStep(
       key: _saveTourKey,
-      title: context.l10n.save_weekly_schedule,
-      description: context.l10n.business_inner_tour_schedule_save,
+      title: _saveLabel,
+      description: _isDated
+          ? context.l10n.availability_dated_save_hint
+          : context.l10n.business_inner_tour_schedule_save,
       index: 4,
       child: SizedBox(
         width: double.infinity,
         child: FilledButton.icon(
-          onPressed: !hasChanges || isSaving ? null : _save,
+          key: const ValueKey('availability-save'),
+          onPressed: !hasChanges || isSaving || _windowExpired ? null : _save,
           icon: const Icon(Icons.save_outlined),
-          label: Text(context.l10n.save_weekly_schedule),
+          label: Text(_saveLabel),
         ),
       ),
     );
@@ -782,7 +856,7 @@ class _EmployeeAvailabilityScreenState
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      if (hasChanges) ...[
+                      if (hasChanges || _windowExpired) ...[
                         changedDaysLabel,
                         const SizedBox(height: 10),
                       ],
@@ -792,7 +866,7 @@ class _EmployeeAvailabilityScreenState
                 }
                 return Row(
                   children: [
-                    if (hasChanges)
+                    if (hasChanges || _windowExpired)
                       Expanded(child: changedDaysLabel)
                     else
                       const Spacer(),
@@ -809,10 +883,14 @@ class _EmployeeAvailabilityScreenState
   }
 
   void _hydrate(List<CleanerAvailabilitySlot> slots) {
-    final schedule = HourlyAvailabilitySchedule.fromSlots(slots);
+    final serviceSlots =
+        slots.where((slot) => slot.isForService(widget.serviceType));
+    final schedule = _isDated
+        ? DatedAvailabilitySchedule.fromSlots(serviceSlots, _dates)
+        : HourlyAvailabilitySchedule.fromSlots(serviceSlots);
     setState(() {
       _scheduleByDay = schedule;
-      for (var day = 0; day < HourlyAvailabilitySchedule.daysPerWeek; day++) {
+      for (final day in _dayOrder) {
         for (var hour = 0;
             hour < HourlyAvailabilitySchedule.hoursPerDay;
             hour++) {
@@ -826,6 +904,7 @@ class _EmployeeAvailabilityScreenState
       _hasHydrated = true;
       _saveRequested = false;
     });
+    _checkWindow();
   }
 
   void _setHourEnabled(int hour, bool isEnabled) {
@@ -920,7 +999,7 @@ class _EmployeeAvailabilityScreenState
             return AlertDialog(
               title: Text(
                 context.l10n.availability_apply_schedule_title(
-                  _dayLabels(context)[_selectedDayIndex],
+                  _dayLabel(context, _selectedDayIndex),
                 ),
               ),
               content: SingleChildScrollView(
@@ -947,7 +1026,9 @@ class _EmployeeAvailabilityScreenState
                       runSpacing: 8,
                       children: targets.map((day) {
                         return FilterChip(
-                          label: Text(_dayLabels(context)[day]),
+                          key: ValueKey(
+                              'availability-copy-${_isDated ? _dates[day] : day}'),
+                          label: Text(_dayLabel(context, day)),
                           selected: selectedDays.contains(day),
                           onSelected: (selected) {
                             setDialogState(() {
@@ -1030,6 +1111,12 @@ class _EmployeeAvailabilityScreenState
 
   void _save() {
     FocusManager.instance.primaryFocus?.unfocus();
+    _checkWindow();
+    if (_windowExpired ||
+        _saveRequested ||
+        context.read<EmployeeAvailabilityBloc>().state.isSaving) {
+      return;
+    }
     if (_dirtyDays.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.l10n.availability_no_changes)),
@@ -1042,6 +1129,25 @@ class _EmployeeAvailabilityScreenState
         _selectedDayIndex = _firstInvalidDay() ?? _selectedDayIndex;
       });
       _showInvalidWorkersMessage();
+      return;
+    }
+
+    if (_isDated) {
+      final days = _dirtyDays.toList()..sort();
+      final request = DatedAvailabilityRequest(
+        serviceType: widget.serviceType,
+        days: [
+          for (final day in days)
+            DatedAvailabilitySchedule.requestForDate(
+              date: _dates[day],
+              hours: _scheduleByDay[day]!,
+            ),
+        ],
+      );
+      setState(() => _saveRequested = true);
+      context
+          .read<EmployeeAvailabilityBloc>()
+          .add(ReplaceAvailabilityDates(request));
       return;
     }
 
@@ -1113,6 +1219,10 @@ class _EmployeeAvailabilityScreenState
   }
 
   Future<void> _refresh() async {
+    if (_saveRequested ||
+        context.read<EmployeeAvailabilityBloc>().state.isSaving) {
+      return;
+    }
     if (_dirtyDays.isNotEmpty) {
       final discard = await showDialog<bool>(
         context: context,
@@ -1134,6 +1244,11 @@ class _EmployeeAvailabilityScreenState
       if (discard != true || !mounted) return;
     }
     setState(() {
+      if (_isDated) {
+        _windowStart = _today();
+        _windowExpired = false;
+        _selectedDayIndex = 0;
+      }
       _hasHydrated = false;
       _saveRequested = false;
       _dirtyDays.clear();
@@ -1144,17 +1259,39 @@ class _EmployeeAvailabilityScreenState
         .add(LoadAvailabilityData(widget.serviceType));
   }
 
-  List<String> _dayLabels(BuildContext context) => [
-        context.l10n.sunday,
-        context.l10n.monday,
-        context.l10n.tuesday,
-        context.l10n.wednesday,
-        context.l10n.thursday,
-        context.l10n.friday,
-        context.l10n.saturday,
+  List<String> _dayLabels(BuildContext context) {
+    if (_isDated) {
+      final locale = Localizations.localeOf(context).toLanguageTag();
+      return [
+        for (final date in _dates)
+          '${DateFormat.E(locale).format(DateTime.parse(date))}\n'
+              '${DateFormat.MMMd(locale).format(DateTime.parse(date))}',
       ];
+    }
+    return [
+      context.l10n.sunday,
+      context.l10n.monday,
+      context.l10n.tuesday,
+      context.l10n.wednesday,
+      context.l10n.thursday,
+      context.l10n.friday,
+      context.l10n.saturday,
+    ];
+  }
 
-  static const List<int> _dayOrder = [6, 0, 1, 2, 3, 4, 5];
+  String _dayLabel(BuildContext context, int day) =>
+      _dayLabels(context)[day].replaceAll('\n', ', ');
+
+  String _windowRangeLabel() {
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    final formatter = DateFormat.yMMMd(locale);
+    return '${formatter.format(_windowStart)} – '
+        '${formatter.format(_windowStart.add(const Duration(days: 13)))}';
+  }
+
+  List<int> get _dayOrder => _isDated
+      ? List.generate(DatedAvailabilitySchedule.windowDays, (index) => index)
+      : const [6, 0, 1, 2, 3, 4, 5];
 
   String _timeRangeLabel(int startHour, int endHour) {
     final locale = Localizations.localeOf(context).toLanguageTag();

@@ -32,15 +32,45 @@ class UpholsteryPricingRepository {
   }
 
   Future<List<UpholsteryPricingGroup>> getPackages() async {
-    final response = await _service.getMyUpholsteryPackages();
-    if (response.success) return response.data?.data ?? const [];
-    throw Exception(response.message);
+    final response =
+        await _service.getMyUpholsteryPackages(includeDisabled: true);
+    if (!response.success) throw Exception(response.message);
+    final pricing = response.data?.data;
+    if (pricing == null) {
+      throw const FormatException('Missing saved furniture pricing');
+    }
+    return pricing;
+  }
+
+  Future<UpholsteryAvailability> getAvailability() async {
+    final response = await _service.getMyUpholsteryAvailability();
+    if (!response.success) throw Exception(response.message);
+    final availability = response.data?.data;
+    if (availability == null) {
+      throw const FormatException('Missing furniture availability');
+    }
+    return availability;
+  }
+
+  Future<UpholsteryAvailability> updateAvailability(
+    UpdateUpholsteryAvailabilityRequest request,
+  ) async {
+    final response = await _service.updateMyUpholsteryAvailability(request);
+    if (!response.success) throw Exception(response.message);
+    final availability = response.data?.data;
+    if (availability == null) {
+      throw const FormatException('Missing furniture availability');
+    }
+    return availability;
   }
 
   Future<BusinessProfileModel?> updatePricing(
     UpholsteryPricingRequest request,
   ) async {
-    final response = await _service.updateMyUpholsteryPricing(request);
+    final response = await _service.updateMyUpholsteryPricing(
+      request,
+      includeDisabled: true,
+    );
     if (response.success) return response.data?.data;
     throw Exception(response.message);
   }

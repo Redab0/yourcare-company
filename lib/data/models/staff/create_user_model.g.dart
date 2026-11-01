@@ -8,6 +8,7 @@ part of 'create_user_model.dart';
 
 CreateUserModel _$CreateUserModelFromJson(Map<String, dynamic> json) =>
     CreateUserModel(
+      canSeePrices: json['canSeePrices'] as bool?,
       username: json['username'] as String,
       role: json['role'] as String,
       image: json['image'] as String,
@@ -23,5 +24,6 @@ Map<String, dynamic> _$CreateUserModelToJson(CreateUserModel instance) =>
       if (instance.password case final value?) 'password': value,
       if (instance.email case final value?) 'email': value,
       if (instance.phone case final value?) 'phone': value,
+      if (instance.canSeePrices case final value?) 'canSeePrices': value,
       'image': instance.image,
     };

@@ -1,3 +1,4 @@
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/components/registration_gift_badge.dart';
 import 'dart:io';
 
@@ -150,12 +151,14 @@ class _UpholsteryCleaningJobDetailsState
     if (specialNotes != null) {
       lines.add('Special Notes / ملاحظات خاصة: $specialNotes');
     }
-    if ((req.extraFees ?? 0) > 0) {
+    if (context.canSeePrices && !req.pricesHidden && (req.extraFees ?? 0) > 0) {
       lines.add(
         'Extra invoice / الفاتورة الإضافية: ${RequestFmt.price(req.extraFees)}',
       );
     }
-    if (req.extraFeesDescription?.isNotEmpty ?? false) {
+    if (context.canSeePrices &&
+        !req.pricesHidden &&
+        (req.extraFeesDescription?.isNotEmpty ?? false)) {
       lines.add(
         'Extra invoice reason / سبب الفاتورة الإضافية: ${req.extraFeesDescription}',
       );
@@ -326,10 +329,11 @@ class _UpholsteryCleaningJobDetailsState
                   title: context.l10n.request_details_label,
                   child: Column(
                     children: [
-                      DetailRow(
+                      PriceOnly(
+                          child: DetailRow(
                         context.l10n.original_order_total,
                         RequestFmt.price(req.totalPrice),
-                      ),
+                      )),
                       const Divider(height: 1),
                       DetailRow(
                         context.l10n.address,
@@ -589,7 +593,9 @@ class _UpholsteryCleaningJobDetailsState
                 ],
               ),
             ),
-            if (total != null) ...[
+            if (context.canSeePrices &&
+                !_currentRequest.pricesHidden &&
+                total != null) ...[
               const SizedBox(width: 10),
               Text(
                 RequestFmt.price(total),

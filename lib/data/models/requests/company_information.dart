@@ -19,3 +19,17 @@ class CompanyInformation {
 
   Map<String, dynamic> toJson() => _$CompanyInformationToJson(this);
 }
+
+/// Request projections may contain a populated company or its bare reference.
+CompanyInformation? companyInformationFromJson(Object? value) {
+  if (value == null) return null;
+  if (value is String) {
+    return CompanyInformation(value, null, null, null, null, null);
+  }
+  if (value is Map) {
+    final json = Map<String, dynamic>.from(value);
+    return CompanyInformation.fromJson(
+        {...json, 'id': json['id'] ?? json['_id']});
+  }
+  throw const FormatException('Invalid company reference.');
+}

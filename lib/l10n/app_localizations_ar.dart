@@ -12,19 +12,24 @@ class AppLocalizationsAr extends AppLocalizations {
   String get previewLoginRequired => 'أدخل رقم الهاتف وكلمة المرور.';
 
   @override
-  String get previewLoginInvalid => 'تعذر تسجيل الدخول. تحقق من رقم الهاتف وكلمة المرور في بيئة التطوير ومن تفعيل الحساب.';
+  String get previewLoginInvalid =>
+      'تعذر تسجيل الدخول. تحقق من رقم الهاتف وكلمة المرور في بيئة التطوير ومن تفعيل الحساب.';
 
   @override
-  String get previewLoginUnavailable => 'تعذر الاتصال بخادم التطوير. يرجى المحاولة مجدداً.';
+  String get previewLoginUnavailable =>
+      'تعذر الاتصال بخادم التطوير. يرجى المحاولة مجدداً.';
 
   @override
-  String get previewLoginCompanyRequired => 'هذا الحساب لا يمكنه فتح معاينة الشركات. سجّل الدخول بحساب مالك أو مدير مرتبط بشركة في بيئة التطوير.';
+  String get previewLoginCompanyRequired =>
+      'هذا الحساب لا يمكنه فتح معاينة الشركات. سجّل الدخول بحساب مالك أو مدير مرتبط بشركة في بيئة التطوير.';
 
   @override
-  String get previewLoginSessionFailed => 'تعذر تحميل جلسة تسجيل الدخول. حدّث الصفحة وحاول مجدداً.';
+  String get previewLoginSessionFailed =>
+      'تعذر تحميل جلسة تسجيل الدخول. حدّث الصفحة وحاول مجدداً.';
 
   @override
-  String get previewLoginRateLimit => 'محاولات تسجيل الدخول كثيرة. يرجى الانتظار قبل المحاولة مجدداً.';
+  String get previewLoginRateLimit =>
+      'محاولات تسجيل الدخول كثيرة. يرجى الانتظار قبل المحاولة مجدداً.';
 
   @override
   String get documentsCenter => 'مركز المستندات';
@@ -48,10 +53,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get documentPreviewError => 'تعذر فتح هذا المستند.';
 
   @override
-  String get documentPreviewTimeout => 'استغرق فتح هذا المستند وقتًا طويلاً. جرّب تنزيله بدلاً من ذلك.';
+  String get documentPreviewTimeout =>
+      'استغرق فتح هذا المستند وقتًا طويلاً. جرّب تنزيله بدلاً من ذلك.';
 
   @override
-  String get documentPreviewUnsupported => 'المعاينة غير متاحة لهذا النوع من الملفات. يمكنك تنزيل الملف بدلاً من ذلك.';
+  String get documentPreviewUnsupported =>
+      'المعاينة غير متاحة لهذا النوع من الملفات. يمكنك تنزيل الملف بدلاً من ذلك.';
 
   @override
   String get documentDownloaded => 'تم تنزيل المستند';
@@ -78,7 +85,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get documentRetry => 'إعادة المحاولة';
 
   @override
-  String get documentsError => 'تعذر تحميل المستندات أو تنزيلها. يرجى المحاولة مجدداً.';
+  String get documentsError =>
+      'تعذر تحميل المستندات أو تنزيلها. يرجى المحاولة مجدداً.';
 
   @override
   String get documentsEmpty => 'لا توجد مستندات';
@@ -111,7 +119,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get houseKeeping => 'عمالة بالساعة';
 
   @override
-  String get houseKeepingDescription => 'تنظيف منتظم لمنزلك مع خيارات قابلة للتخصيص';
+  String get houseKeepingDescription =>
+      'تنظيف منتظم لمنزلك مع خيارات قابلة للتخصيص';
 
   @override
   String get deepCleaning => 'تنظيف عميق';
@@ -147,13 +156,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get propertyTypeQuestion => 'ما نوع العقار الذي يحتاج إلى التنظيف؟';
 
   @override
-  String get propertyTypeDescription => 'اختر نوع العقار الذي يصف مساحتك بشكل أفضل';
+  String get propertyTypeDescription =>
+      'اختر نوع العقار الذي يصف مساحتك بشكل أفضل';
 
   @override
   String get propertyDetailsTitle => 'أخبرنا عن عقارك';
 
   @override
-  String get propertyDetailsDescription => 'هذه التفاصيل تساعد شركات التنظيف في تقديم عروض أسعار أكثر دقة';
+  String get propertyDetailsDescription =>
+      'هذه التفاصيل تساعد شركات التنظيف في تقديم عروض أسعار أكثر دقة';
 
   @override
   String get numberOfBedrooms => 'عدد غرف النوم';
@@ -174,13 +185,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get additionalInformation => 'معلومات إضافية';
 
   @override
-  String get additionalInformationHint => 'تعليمات خاصة، مناطق محددة تحتاج إلى انتباه، إلخ.';
+  String get additionalInformationHint =>
+      'تعليمات خاصة، مناطق محددة تحتاج إلى انتباه، إلخ.';
 
   @override
   String get addPhotosVideos => 'إضافة صور وفيديوهات';
 
   @override
-  String get photosVideosDescription => 'ساعدنا في فهم مساحتك بشكل أفضل عن طريق تحميل صور أو فيديوهات';
+  String get photosVideosDescription =>
+      'ساعدنا في فهم مساحتك بشكل أفضل عن طريق تحميل صور أو فيديوهات';
 
   @override
   String get gallery => 'المعرض';
@@ -360,7 +373,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get scheduleDeepCleaning => 'جدولة تنظيفك العميق';
 
   @override
-  String get scheduleDescription => 'اختر تاريخًا وزمانًا وعنوانًا لخدمة التنظيف العميق الخاصة بك';
+  String get scheduleDescription =>
+      'اختر تاريخًا وزمانًا وعنوانًا لخدمة التنظيف العميق الخاصة بك';
 
   @override
   String get date => 'التاريخ';
@@ -438,6 +452,33 @@ class AppLocalizationsAr extends AppLocalizations {
   String get request_card_cleaners => 'العاملات';
 
   @override
+  String housekeeping_duration_hours(num hours) {
+    final intl.NumberFormat hoursNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String hoursString = hoursNumberFormat.format(hours);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hoursString ساعة',
+      many: '$hoursString ساعة',
+      few: '$hoursString ساعات',
+      two: 'ساعتان',
+      one: 'ساعة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get housekeeping_duration_varies => 'المدة تختلف حسب الزيارة';
+
+  @override
+  String get housekeeping_visit_next => 'الزيارة القادمة';
+
+  @override
+  String get housekeeping_visit_current => 'الزيارة الحالية';
+
+  @override
   String get request_card_duration => 'المدة';
 
   @override
@@ -480,7 +521,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get login_signup => 'أنشئ حساب';
 
   @override
-  String get signup_accept_terms_conditions => 'يجب الموافقة على الشروط والأحكام';
+  String get signup_accept_terms_conditions =>
+      'يجب الموافقة على الشروط والأحكام';
 
   @override
   String get signup_title => 'انشئ حساب';
@@ -591,7 +633,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get address_no_saved_address => 'لا يوجد لديك عناوين';
 
   @override
-  String get address_delete_confirmation => 'هل أنت متأكد أنك تريد مسح العنوان؟';
+  String get address_delete_confirmation =>
+      'هل أنت متأكد أنك تريد مسح العنوان؟';
 
   @override
   String get address_building => 'المبنى';
@@ -663,13 +706,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get request_status_updated => 'تم تحديث حالة الطلب';
 
   @override
-  String get request_location_reminder => 'يرجى التأكد من موقع العميل على الخريطة قبل إرسال الفريق.';
+  String get request_location_reminder =>
+      'يرجى التأكد من موقع العميل على الخريطة قبل إرسال الفريق.';
 
   @override
   String get refresh_request_details => 'تحديث تفاصيل الطلب';
 
   @override
-  String get request_visit_id_missing => 'معرّف هذه الزيارة غير متوفر. يرجى تحديث تفاصيل الطلب والمحاولة مجددًا.';
+  String get request_visit_id_missing =>
+      'معرّف هذه الزيارة غير متوفر. يرجى تحديث تفاصيل الطلب والمحاولة مجددًا.';
 
   @override
   String get request_paid => 'مدفوع';
@@ -678,7 +723,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get request_not_paid => 'غير مدفوع';
 
   @override
-  String request_share_furniture_item(String item, String size, String quantity) {
+  String request_share_furniture_item(
+      String item, String size, String quantity) {
     return 'الصنف: $item\nالحجم: $size\nالكمية: $quantity';
   }
 
@@ -737,7 +783,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get requests_cleaning_product_title => 'أدوات التنظيف';
 
   @override
-  String get requests_cleaning_products_description => 'هل تود أن نحضر أدوات التنظيف؟';
+  String get requests_cleaning_products_description =>
+      'هل تود أن نحضر أدوات التنظيف؟';
 
   @override
   String get general_cancel => 'الغاء';
@@ -803,7 +850,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get no_pricing_options => 'لا توجد خيارات تسعير';
 
   @override
-  String get base_price_per_cleaner_per_hour => 'السعر الأساسي لكل عامل بالساعة';
+  String get base_price_per_cleaner_per_hour =>
+      'السعر الأساسي لكل عامل بالساعة';
 
   @override
   String get single_pricing_model => 'نموذج التسعير الفردي';
@@ -836,7 +884,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get force_update_title => 'تحديث مطلوب';
 
   @override
-  String get force_update_message => 'يتطلب المتابعة تحديث التطبيق إلى إصدار أحدث.';
+  String get force_update_message =>
+      'يتطلب المتابعة تحديث التطبيق إلى إصدار أحدث.';
 
   @override
   String get force_update_minimum_label => 'الحد الأدنى للإصدار المطلوب';
@@ -848,7 +897,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get update_now => 'حدّث الآن';
 
   @override
-  String get update_available_message => 'يتوفر إصدار أحدث. حدّث الآن للحصول على أفضل تجربة.';
+  String get update_available_message =>
+      'يتوفر إصدار أحدث. حدّث الآن للحصول على أفضل تجربة.';
 
   @override
   String get save_pricing => 'حفظ التسعير';
@@ -923,106 +973,140 @@ class AppLocalizationsAr extends AppLocalizations {
   String get business_setup_tour_done => 'تم';
 
   @override
-  String get business_setup_tour_profile => 'ابدأ من هنا: أضف شعار الشركة وبياناتها وأوصاف الخدمات وحدد الخدمات التي تقدمها.';
+  String get business_setup_tour_profile =>
+      'ابدأ من هنا: أضف شعار الشركة وبياناتها وأوصاف الخدمات وحدد الخدمات التي تقدمها.';
 
   @override
-  String get business_setup_tour_housekeeping => 'حدد سعر الساعة ورسوم المناطق، ثم اضبط أوقات توفر فريقك.';
+  String get business_setup_tour_housekeeping =>
+      'حدد سعر الساعة ورسوم المناطق، ثم اضبط أوقات توفر فريقك.';
 
   @override
-  String get business_setup_tour_car_wash => 'أنشئ باقات الغسيل واربطها بأنواع المركبات وأضف رسوم المناطق وحدد أوقات توفر الخدمة.';
+  String get business_setup_tour_car_wash =>
+      'أنشئ باقات الغسيل واربطها بأنواع المركبات وأضف رسوم المناطق وحدد أوقات توفر الخدمة.';
 
   @override
-  String get business_setup_tour_furniture => 'فعّل أنواع الأثاث التي تنظفها وحدد سعراً لكل مقاس مدعوم وأوقات توفر الخدمة.';
+  String get business_setup_tour_furniture =>
+      'فعّل أنواع الأثاث التي تنظفها وحدد سعراً لكل مقاس مدعوم وأوقات توفر الخدمة.';
 
   @override
-  String get business_setup_tour_auto_bid => 'للتنظيف العميق، فعّل المزايدة التلقائية وحدد الأسعار والمدة المتوقعة.';
+  String get business_setup_tour_auto_bid =>
+      'للتنظيف العميق، فعّل المزايدة التلقائية وحدد الأسعار والمدة المتوقعة.';
 
   @override
-  String get business_setup_tour_staff => 'أنشئ حسابات الموظفين والفرق ووزع الصلاحيات وراجع تقويم الموظفين.';
+  String get business_setup_tour_staff =>
+      'أنشئ حسابات الموظفين والفرق ووزع الصلاحيات وراجع تقويم الموظفين.';
 
   @override
-  String get business_setup_tour_requests => 'راجع طلبات العملاء الجديدة وقدم عرضاً أو اقبل العمل بحسب نوع الخدمة.';
+  String get business_setup_tour_requests =>
+      'راجع طلبات العملاء الجديدة وقدم عرضاً أو اقبل العمل بحسب نوع الخدمة.';
 
   @override
-  String get business_setup_tour_jobs => 'أدر الطلبات المؤكدة هنا، من تعيين الفريق وبدء العمل حتى إكماله.';
+  String get business_setup_tour_jobs =>
+      'أدر الطلبات المؤكدة هنا، من تعيين الفريق وبدء العمل حتى إكماله.';
 
   @override
-  String get business_inner_tour_housekeeping_pricing => 'حدد سعر الساعة وأسعار المدد وخصومات الحجوزات المتكررة ورسوم مواد التنظيف ورسوم المناطق.';
+  String get business_inner_tour_housekeeping_pricing =>
+      'حدد سعر الساعة وأسعار المدد وخصومات الحجوزات المتكررة ورسوم مواد التنظيف ورسوم المناطق.';
 
   @override
-  String get business_inner_tour_housekeeping_availability => 'حدد الأيام والفترات الزمنية التي يمكن لفريق التنظيف المنزلي استقبال الحجوزات فيها.';
+  String get business_inner_tour_housekeeping_availability =>
+      'حدد الأيام والفترات الزمنية التي يمكن لفريق التنظيف المنزلي استقبال الحجوزات فيها.';
 
   @override
-  String get business_inner_tour_car_wash_packages => 'أنشئ باقات غسيل قابلة لإعادة الاستخدام ثم اربط كل باقة بأنواع المركبات التي تدعمها.';
+  String get business_inner_tour_car_wash_packages =>
+      'أنشئ باقات غسيل قابلة لإعادة الاستخدام ثم اربط كل باقة بأنواع المركبات التي تدعمها.';
 
   @override
-  String get business_inner_tour_car_wash_hours => 'حدد أيام وفترات العمل الأسبوعية التي يمكن للعملاء حجز غسيل السيارات خلالها.';
+  String get business_inner_tour_car_wash_hours =>
+      'حدد التواريخ والفترات المتاحة لحجز غسيل السيارات خلال الأيام الـ 14 القادمة.';
 
   @override
-  String get business_inner_tour_staff_create_user => 'أنشئ حساب موظف وامنحه فقط الصلاحيات اللازمة لدوره.';
+  String get business_inner_tour_staff_create_user =>
+      'أنشئ حساب موظف وامنحه فقط الصلاحيات اللازمة لدوره.';
 
   @override
-  String get business_inner_tour_staff_manage_users => 'راجع حسابات الموظفين وعدل الصلاحيات وفعّل الوصول أو أوقفه.';
+  String get business_inner_tour_staff_manage_users =>
+      'راجع حسابات الموظفين وعدل الصلاحيات وفعّل الوصول أو أوقفه.';
 
   @override
-  String get business_inner_tour_staff_create_team => 'اجمع الموظفين في فريق يمكن تعيينه لطلبات العملاء.';
+  String get business_inner_tour_staff_create_team =>
+      'اجمع الموظفين في فريق يمكن تعيينه لطلبات العملاء.';
 
   @override
-  String get business_inner_tour_staff_manage_teams => 'راجع الفرق المتاحة لتعيين الطلبات وعدلها.';
+  String get business_inner_tour_staff_manage_teams =>
+      'راجع الفرق المتاحة لتعيين الطلبات وعدلها.';
 
   @override
-  String get business_inner_tour_staff_calendar => 'استخدم تقويم الموظفين لمراجعة الأعمال المجدولة وحجم عمل الفرق.';
+  String get business_inner_tour_staff_calendar =>
+      'استخدم تقويم الموظفين لمراجعة الأعمال المجدولة وحجم عمل الفرق.';
 
   @override
-  String get business_inner_tour_profile_identity => 'أضف شعاراً واضحاً وأكمل بيانات تواصل الشركة التي تظهر للعملاء.';
+  String get business_inner_tour_profile_identity =>
+      'أضف شعاراً واضحاً وأكمل بيانات تواصل الشركة التي تظهر للعملاء.';
 
   @override
-  String get business_inner_tour_profile_services => 'افتح كل خدمة مقدمة لاختيار ووصف الأعمال التي تغطيها شركتك بدقة.';
+  String get business_inner_tour_profile_services =>
+      'افتح كل خدمة مقدمة لاختيار ووصف الأعمال التي تغطيها شركتك بدقة.';
 
   @override
-  String get business_inner_tour_profile_areas => 'حدد جميع المناطق التي تخدمها الشركة، فهي تحدد أين يمكن للعملاء العثور عليك.';
+  String get business_inner_tour_profile_areas =>
+      'حدد جميع المناطق التي تخدمها الشركة، فهي تحدد أين يمكن للعملاء العثور عليك.';
 
   @override
-  String get business_inner_tour_profile_save => 'احفظ بعد تعديل بيانات الشركة أو التغطية أو أوصاف الخدمات أو الوسائط.';
+  String get business_inner_tour_profile_save =>
+      'احفظ بعد تعديل بيانات الشركة أو التغطية أو أوصاف الخدمات أو الوسائط.';
 
   @override
-  String get business_inner_tour_upholstery_type => 'وسّع نوع الأثاث لتحديد أسعار المقاسات، واستخدم المفتاح لتقديم هذا النوع أو إخفائه.';
+  String get business_inner_tour_upholstery_type =>
+      'وسّع نوع الأثاث لتحديد أسعار المقاسات، واستخدم المفتاح لتقديم هذا النوع أو إخفائه.';
 
   @override
-  String get business_inner_tour_upholstery_save => 'احفظ بعد تفعيل أنواع الأثاث وإدخال سعر صحيح لكل مقاس مدعوم.';
+  String get business_inner_tour_upholstery_save =>
+      'احفظ بعد تفعيل أنواع الأثاث وإدخال سعر صحيح لكل مقاس مدعوم.';
 
   @override
-  String get business_inner_tour_requests => 'وسّع الطلب لمراجعة تفاصيله ثم افتحه لقبول العمل أو تقديم عرض عندما ينطبق ذلك.';
+  String get business_inner_tour_requests =>
+      'وسّع الطلب لمراجعة تفاصيله ثم افتحه لقبول العمل أو تقديم عرض عندما ينطبق ذلك.';
 
   @override
-  String get business_inner_tour_jobs_statuses => 'تنقل بين الطلبات المؤكدة وقيد التنفيذ والمكتملة والملغاة.';
+  String get business_inner_tour_jobs_statuses =>
+      'تنقل بين الطلبات المؤكدة وقيد التنفيذ والمكتملة والملغاة.';
 
   @override
-  String get business_inner_tour_jobs_list => 'افتح الطلب لتعيين الموظفين أو إدارة حالته أو التواصل مع العميل أو إضافة فاتورة إضافية عند السماح.';
+  String get business_inner_tour_jobs_list =>
+      'افتح الطلب لتعيين الموظفين أو إدارة حالته أو التواصل مع العميل أو إضافة فاتورة إضافية عند السماح.';
 
   @override
-  String get business_inner_tour_area_fees => 'حدد رسوم الانتقال الإضافية لكل منطقة خدمة، واترك المناطق غير المدعومة دون رسوم مفعلة.';
+  String get business_inner_tour_area_fees =>
+      'حدد رسوم الانتقال الإضافية لكل منطقة خدمة، واترك المناطق غير المدعومة دون رسوم مفعلة.';
 
   @override
-  String get business_inner_tour_schedule_days => 'اختر يوماً لمراجعة أوقات توفره وضبطها.';
+  String get business_inner_tour_schedule_days =>
+      'اختر يوماً لمراجعة أوقات توفره وضبطها.';
 
   @override
-  String get business_inner_tour_schedule_day_status => 'حدد ما إذا كان اليوم المختار مفتوحاً أو مغلقاً قبل تعديل فتراته.';
+  String get business_inner_tour_schedule_day_status =>
+      'حدد ما إذا كان اليوم المختار مفتوحاً أو مغلقاً قبل تعديل فتراته.';
 
   @override
-  String get business_inner_tour_schedule_apply_week => 'استخدم هذا فقط عندما تريد استبدال جداول باقي الأسبوع بجدول اليوم المختار.';
+  String get business_inner_tour_schedule_apply_week =>
+      'استخدم هذا فقط عندما تريد استبدال جداول باقي الأسبوع بجدول اليوم المختار.';
 
   @override
-  String get business_inner_tour_schedule_slots => 'أضف فترات الحجز المتاحة في اليوم المختار وعدلها.';
+  String get business_inner_tour_schedule_slots =>
+      'أضف فترات الحجز المتاحة في اليوم المختار وعدلها.';
 
   @override
-  String get business_inner_tour_schedule_save => 'احفظ الجدول الأسبوعي الكامل بعد مراجعة جميع الأيام.';
+  String get business_inner_tour_schedule_save =>
+      'احفظ الجدول الأسبوعي الكامل بعد مراجعة جميع الأيام.';
 
   @override
-  String get business_inner_tour_car_wash_sections => 'تنقل بين الباقات القابلة لإعادة الاستخدام وربط المركبات ورسوم التوصيل حسب المنطقة.';
+  String get business_inner_tour_car_wash_sections =>
+      'تنقل بين الباقات القابلة لإعادة الاستخدام وربط المركبات ورسوم التوصيل حسب المنطقة.';
 
   @override
-  String get business_inner_tour_car_wash_package_editor => 'أنشئ تفاصيل الباقة هنا، ثم اربط الباقات المحفوظة بأنواع المركبات واضبط رسوم المناطق.';
+  String get business_inner_tour_car_wash_package_editor =>
+      'أنشئ تفاصيل الباقة هنا، ثم اربط الباقات المحفوظة بأنواع المركبات واضبط رسوم المناطق.';
 
   @override
   String get requests => 'طلبات جديدة';
@@ -1100,7 +1184,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get covered_services_edit_custom => 'تعديل الخدمة';
 
   @override
-  String get covered_services_delete_confirmation => 'هل أنت متأكد من حذف هذه الخدمة؟';
+  String get covered_services_delete_confirmation =>
+      'هل أنت متأكد من حذف هذه الخدمة؟';
 
   @override
   String get covered_services_title_en => 'العنوان (إنجليزي)';
@@ -1277,6 +1362,31 @@ class AppLocalizationsAr extends AppLocalizations {
   String get number_of_visits => 'الزيارات';
 
   @override
+  String get dated_availability_title => 'التوفر للأيام الـ 14 القادمة';
+
+  @override
+  String get save_dated_availability => 'حفظ التوفر';
+
+  @override
+  String get availability_dated_hint =>
+      'حدد التوفر لكل تاريخ بتوقيت الكويت. تبقى التواريخ الجديدة غير متاحة حتى تحددها، ولا يتكرر الجدول تلقائيًا.';
+
+  @override
+  String get availability_window_expired =>
+      'تغيرت فترة التواريخ. حدّث الصفحة لتحميل الأيام الـ 14 القادمة قبل الحفظ. تبقى تغييراتك غير المحفوظة هنا حتى تحدّث الصفحة.';
+
+  @override
+  String get availability_load_failed => 'تعذر تحميل التوفر';
+
+  @override
+  String get availability_dated_copy_hint =>
+      'انسخ ساعات هذا التاريخ إلى التواريخ المحددة ضمن هذه الأيام الـ 14. يبقى كل تاريخ مستقلًا.';
+
+  @override
+  String get availability_dated_save_hint =>
+      'احفظ التواريخ التي عدّلتها معًا بعد مراجعة ساعاتها وعدد العمال.';
+
+  @override
   String get weekly_availability_title => 'التوفر الأسبوعي';
 
   @override
@@ -1319,7 +1429,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get hourly_availability => 'التوفر بالساعة';
 
   @override
-  String get availability_hourly_hint => 'فعّل الساعات التي يمكن للعملاء الحجز فيها، ثم حدد عدد العمال المتاحين خلال كل ساعة.';
+  String get availability_hourly_hint =>
+      'فعّل الساعات التي يمكن للعملاء الحجز فيها، ثم حدد عدد العمال المتاحين خلال كل ساعة.';
 
   @override
   String get availability_enabled => 'مفعّل';
@@ -1350,7 +1461,8 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get availability_select_days_hint => 'اختر كل الأيام التي تريد تطبيق هذا الجدول عليها.';
+  String get availability_select_days_hint =>
+      'اختر كل الأيام التي تريد تطبيق هذا الجدول عليها.';
 
   @override
   String get availability_select_all => 'تحديد الكل';
@@ -1359,16 +1471,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get availability_apply_selected => 'تطبيق على الأيام المحددة';
 
   @override
-  String get availability_copy_warning => 'سيتم استبدال التغييرات الحالية للأيام المحددة. ويمكن تعديل كل يوم بشكل مستقل بعد ذلك.';
+  String get availability_copy_warning =>
+      'سيتم استبدال التغييرات الحالية للأيام المحددة. ويمكن تعديل كل يوم بشكل مستقل بعد ذلك.';
 
   @override
   String get availability_schedule_copied => 'تم نسخ الجدول إلى الأيام المحددة';
 
   @override
-  String get availability_unsaved_changes => 'لديك تغييرات غير محفوظة في التوفر.';
+  String get availability_unsaved_changes =>
+      'لديك تغييرات غير محفوظة في التوفر.';
 
   @override
-  String get availability_save_before_leaving => 'يرجى حفظ تغييراتك قبل مغادرة الصفحة.';
+  String get availability_save_before_leaving =>
+      'يرجى حفظ تغييراتك قبل مغادرة الصفحة.';
 
   @override
   String get availability_discard_title => 'تجاهل التغييرات؟';
@@ -1383,7 +1498,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get availability_no_changes => 'لا توجد تغييرات لحفظها';
 
   @override
-  String get availability_invalid_workers => 'أدخل عاملًا واحدًا على الأقل لكل ساعة مفعّلة.';
+  String get availability_invalid_workers =>
+      'أدخل عاملًا واحدًا على الأقل لكل ساعة مفعّلة.';
 
   @override
   String availability_changed_days(int count) {
@@ -1493,28 +1609,33 @@ class AppLocalizationsAr extends AppLocalizations {
   String get car_wash_packages => 'الباقات';
 
   @override
-  String get car_wash_packages_hint => 'أنشئ كل باقة مرة واحدة وحدد سعرها لكل نوع مركبة، ثم اربطها بأنواع المركبات التي تخدمها.';
+  String get car_wash_packages_hint =>
+      'أنشئ كل باقة مرة واحدة وحدد سعرها لكل نوع مركبة، ثم اربطها بأنواع المركبات التي تخدمها.';
 
   @override
   String get car_wash_vehicle_pricing => 'أسعار أنواع المركبات';
 
   @override
-  String get car_wash_vehicle_pricing_hint => 'حدد سعر هذه الباقة بشكل مستقل لكل نوع مركبة.';
+  String get car_wash_vehicle_pricing_hint =>
+      'حدد سعر هذه الباقة بشكل مستقل لكل نوع مركبة.';
 
   @override
-  String get car_wash_vehicle_price_not_set => 'لم يتم تحديد سعر لهذا النوع من المركبات';
+  String get car_wash_vehicle_price_not_set =>
+      'لم يتم تحديد سعر لهذا النوع من المركبات';
 
   @override
   String get car_wash_vehicle_assignments => 'أنواع المركبات';
 
   @override
-  String get car_wash_vehicle_assignments_hint => 'اختر الباقات المتاحة لكل نوع من المركبات.';
+  String get car_wash_vehicle_assignments_hint =>
+      'اختر الباقات المتاحة لكل نوع من المركبات.';
 
   @override
   String get car_wash_area_fees => 'رسوم المناطق';
 
   @override
-  String get car_wash_area_fees_hint => 'حدد رسوم انتقال اختيارية لكل منطقة خدمة.';
+  String get car_wash_area_fees_hint =>
+      'حدد رسوم انتقال اختيارية لكل منطقة خدمة.';
 
   @override
   String get car_wash_working_hours => 'توفر خدمة غسيل السيارات';
@@ -1556,7 +1677,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get remove_package => 'حذف الباقة';
 
   @override
-  String get no_vehicle_packages => 'لا توجد باقات مضافة لهذا النوع من المركبات';
+  String get no_vehicle_packages =>
+      'لا توجد باقات مضافة لهذا النوع من المركبات';
 
   @override
   String get create_car_wash_package => 'إنشاء باقة';
@@ -1568,7 +1690,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get delete_car_wash_package => 'حذف الباقة';
 
   @override
-  String get delete_car_wash_package_message => 'هل تريد حذف هذه الباقة؟ لن تعود متاحة لأي نوع من المركبات.';
+  String get delete_car_wash_package_message =>
+      'هل تريد حذف هذه الباقة؟ لن تعود متاحة لأي نوع من المركبات.';
 
   @override
   String get package_created_successfully => 'تم إنشاء الباقة بنجاح';
@@ -1583,7 +1706,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get no_car_wash_packages => 'لم يتم إنشاء أي باقات بعد';
 
   @override
-  String get package_title_required => 'أدخل اسم الباقة باللغتين العربية والإنجليزية';
+  String get package_title_required =>
+      'أدخل اسم الباقة باللغتين العربية والإنجليزية';
 
   @override
   String get invalid_discount_percentage => 'يجب أن يكون الخصم بين 0 و100';
@@ -1592,13 +1716,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get car_wash_package_enabled => 'تفعيل الباقة';
 
   @override
-  String get car_wash_package_enabled_hint => 'تظهر الباقات المفعّلة للعملاء، بينما تُخفى الباقات المعطّلة.';
+  String get car_wash_package_enabled_hint =>
+      'تظهر الباقات المفعّلة للعملاء، بينما تُخفى الباقات المعطّلة.';
 
   @override
   String get package_working_hours => 'توفر الباقة';
 
   @override
-  String get package_working_hours_hint => 'يمكنك اختيارياً إضافة الأيام والفترات التي يمكن حجز هذه الباقة فيها.';
+  String get package_working_hours_hint =>
+      'يمكنك اختيارياً إضافة الأيام والفترات التي يمكن حجز هذه الباقة فيها.';
 
   @override
   String get package_availability_not_set => 'لم تتم إضافة فترات توفر';
@@ -1610,7 +1736,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get package_duration_minutes => 'مدة الباقة';
 
   @override
-  String get package_duration_minutes_hint => 'المدة اللازمة لتنفيذ حجز واحد بالدقائق';
+  String get package_duration_minutes_hint =>
+      'المدة اللازمة لتنفيذ حجز واحد بالدقائق';
 
   @override
   String get duration_must_be_positive => 'يجب أن تكون المدة أكبر من صفر';
@@ -1625,22 +1752,26 @@ class AppLocalizationsAr extends AppLocalizations {
   String get edit_time_slot => 'تعديل الفترة الزمنية';
 
   @override
-  String get overlapping_time_slot => 'تتداخل هذه الفترة مع فترة أخرى في اليوم نفسه';
+  String get overlapping_time_slot =>
+      'تتداخل هذه الفترة مع فترة أخرى في اليوم نفسه';
 
   @override
   String get save_package => 'حفظ الباقة';
 
   @override
-  String get create_package_first => 'أنشئ باقة واحدة على الأقل قبل ربط الباقات بالمركبات.';
+  String get create_package_first =>
+      'أنشئ باقة واحدة على الأقل قبل ربط الباقات بالمركبات.';
 
   @override
-  String get assign_packages_to_vehicle => 'اختر الباقات المتاحة لهذا النوع من المركبات';
+  String get assign_packages_to_vehicle =>
+      'اختر الباقات المتاحة لهذا النوع من المركبات';
 
   @override
   String get save_package_assignments => 'حفظ الربط';
 
   @override
-  String get package_assignments_saved_successfully => 'تم حفظ ربط الباقات بالمركبات بنجاح';
+  String get package_assignments_saved_successfully =>
+      'تم حفظ ربط الباقات بالمركبات بنجاح';
 
   @override
   String get delivery_fee => 'رسوم الانتقال';
@@ -1658,7 +1789,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get remove_delivery_fee => 'حذف رسوم الانتقال';
 
   @override
-  String get remove_delivery_fee_message => 'هل تريد حذف رسوم الانتقال لهذه المنطقة؟';
+  String get remove_delivery_fee_message =>
+      'هل تريد حذف رسوم الانتقال لهذه المنطقة؟';
 
   @override
   String get fee_cannot_be_negative => 'لا يمكن أن تكون الرسوم سالبة';
@@ -1671,6 +1803,17 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get refresh => 'تحديث';
+
+  @override
+  String get upholstery_availability => 'توفر تنظيف الأثاث';
+
+  @override
+  String get upholstery_availability_hint =>
+      'استقبل حجوزات جديدة لتنظيف الأثاث. عند إيقاف التوفر، تبقى الأسعار المحفوظة والطلبات الحالية كما هي.';
+
+  @override
+  String get upholstery_availability_failed =>
+      'تعذر تحديث التوفر. أعد المحاولة لتأكيد الحالة الحالية.';
 
   @override
   String get upholstery_configuration => 'إعدادات تنظيف الأثاث';
@@ -1691,10 +1834,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get no_upholstery_types => 'لا توجد أنواع أثاث متاحة';
 
   @override
-  String get no_upholstery_packages => 'لا توجد باقات مضافة لهذا النوع من الأثاث';
+  String get no_upholstery_packages =>
+      'لا توجد باقات مضافة لهذا النوع من الأثاث';
 
   @override
-  String get upholstery_size_pricing_hint => 'فعّل كل نوع أثاث تنظفه شركتك، ثم حدد السعر والخصم الاختياري لكل حجم.';
+  String get upholstery_size_pricing_hint =>
+      'فعّل كل نوع أثاث تنظفه شركتك، ثم حدد السعر والخصم الاختياري لكل حجم.';
 
   @override
   String get offer_upholstery_type => 'تقديم خدمة التنظيف لهذا النوع من الأثاث';
@@ -1712,7 +1857,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get car_wash_request_vehicles => 'المركبات والباقات';
 
   @override
-  String get no_car_wash_vehicle_details => 'لا تتوفر تفاصيل المركبات لهذا الطلب.';
+  String get no_car_wash_vehicle_details =>
+      'لا تتوفر تفاصيل المركبات لهذا الطلب.';
 
   @override
   String get original_order_total => 'إجمالي الطلب الأساسي';
@@ -1730,13 +1876,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get extra_invoice_reason => 'السبب';
 
   @override
-  String get extra_invoice_reason_hint => 'مثال: خدمة إضافية طلبها العميل في الموقع';
+  String get extra_invoice_reason_hint =>
+      'مثال: خدمة إضافية طلبها العميل في الموقع';
 
   @override
-  String get extra_invoice_customer_payment_hint => 'أدخل مبلغ الخدمة الإضافية وسببها. ستظهر للعميل فاتورة للدفع من شاشة تفاصيل الطلب.';
+  String get extra_invoice_customer_payment_hint =>
+      'أدخل مبلغ الخدمة الإضافية وسببها. ستظهر للعميل فاتورة للدفع من شاشة تفاصيل الطلب.';
 
   @override
-  String get extra_invoice_created_successfully => 'تم إنشاء الفاتورة الإضافية بنجاح';
+  String get extra_invoice_created_successfully =>
+      'تم إنشاء الفاتورة الإضافية بنجاح';
 
   @override
   String get extra_invoice_amount_required => 'أدخل مبلغًا أكبر من صفر';
@@ -1748,10 +1897,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get extra_invoice_payment_pending => 'بانتظار دفع الفاتورة الإضافية';
 
   @override
-  String get extra_invoice_payment_pending_hint => 'يجب على العميل دفع هذه الفاتورة من شاشة تفاصيل الطلب قبل إنشاء فاتورة أخرى.';
+  String get extra_invoice_payment_pending_hint =>
+      'يجب على العميل دفع هذه الفاتورة من شاشة تفاصيل الطلب قبل إنشاء فاتورة أخرى.';
 
   @override
-  String get extra_invoice_payments_successful => 'تم دفع الفواتير الإضافية بنجاح';
+  String get extra_invoice_payments_successful =>
+      'تم دفع الفواتير الإضافية بنجاح';
 
   @override
   String get extra_invoice_paid => 'مدفوعة';
@@ -1772,7 +1923,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get laundry_catalog => 'قائمة أسعار الغسيل';
 
   @override
-  String get laundry_setup_help => 'فعّل الأصناف واختر خدماتها وحدد أسعارها. تدير الإدارة أسماء الخدمات بشكل موحد. يمكنك أيضاً إضافة أصناف خاصة بك.';
+  String get laundry_setup_help =>
+      'فعّل الأصناف واختر خدماتها وحدد أسعارها. تدير الإدارة أسماء الخدمات بشكل موحد. يمكنك أيضاً إضافة أصناف خاصة بك.';
 
   @override
   String get laundry_add_item => 'إضافة قطعة';
@@ -1829,16 +1981,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get laundry_deactivate => 'إلغاء تفعيل القطعة';
 
   @override
-  String get laundry_deactivate_confirm => 'هل تريد إلغاء تفعيل هذه القطعة؟ لن تظهر في قائمة أسعار العملاء. تحتفظ الطلبات الحالية بأسعارها.';
+  String get laundry_deactivate_confirm =>
+      'هل تريد إلغاء تفعيل هذه القطعة؟ لن تظهر في قائمة أسعار العملاء. تحتفظ الطلبات الحالية بأسعارها.';
 
   @override
   String get laundry_required => 'هذا الحقل مطلوب';
 
   @override
-  String get laundry_valid_number => 'أدخل قيمة من ٠ إلى ١٠٬٠٠٠ بحد أقصى ٣ منازل عشرية';
+  String get laundry_valid_number =>
+      'أدخل قيمة من ٠ إلى ١٠٬٠٠٠ بحد أقصى ٣ منازل عشرية';
 
   @override
-  String get laundry_valid_quantity => 'أدخل كمية من ٠٫٠٠١ إلى ١٠٬٠٠٠ بحد أقصى ٣ منازل عشرية';
+  String get laundry_valid_quantity =>
+      'أدخل كمية من ٠٫٠٠١ إلى ١٠٬٠٠٠ بحد أقصى ٣ منازل عشرية';
 
   @override
   String get laundry_order => 'طلب الغسيل';
@@ -1898,7 +2053,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get laundry_complete => 'إكمال الطلب';
 
   @override
-  String get laundry_waiting_payment => 'بانتظار سداد العميل. حدّث الصفحة للتحقق من حالة الدفع.';
+  String get laundry_waiting_payment =>
+      'بانتظار سداد العميل. حدّث الصفحة للتحقق من حالة الدفع.';
 
   @override
   String get laundry_payment_pending => 'الدفع قيد الانتظار';
@@ -1949,7 +2105,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get laundry_send_invoice => 'إرسال الفاتورة';
 
   @override
-  String get laundry_invoice_help => 'اختر القطع من قائمة الأسعار النشطة. تُحسب الأسعار من قائمة شركتك عند الحفظ.';
+  String get laundry_invoice_help =>
+      'اختر القطع من قائمة الأسعار النشطة. تُحسب الأسعار من قائمة شركتك عند الحفظ.';
 
   @override
   String get laundry_pickup_fee => 'رسوم الاستلام (د.ك)';
@@ -1973,7 +2130,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get laundry_invoice_empty => 'أضف قطعة غسيل واحدة على الأقل';
 
   @override
-  String get laundry_invoice_unavailable_item => 'تحتوي الفاتورة على قطعة غير نشطة أو معدّلة. احذفها واختر قطعة نشطة من قائمة الأسعار.';
+  String get laundry_invoice_unavailable_item =>
+      'تحتوي الفاتورة على قطعة غير نشطة أو معدّلة. احذفها واختر قطعة نشطة من قائمة الأسعار.';
 
   @override
   String get laundry_cancel_order => 'إلغاء الطلب';
@@ -2000,7 +2158,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get laundry_estimated_total => 'الإجمالي التقديري قبل رسوم المنصة';
 
   @override
-  String get laundry_duplicate_items => 'اجمع كمية القطعة والمقاس نفسيهما في سطر واحد.';
+  String get laundry_duplicate_items =>
+      'اجمع كمية القطعة والمقاس نفسيهما في سطر واحد.';
 
   @override
   String get laundry_whole_quantity => 'أدخل عدداً صحيحاً من القطع.';
@@ -2009,16 +2168,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get laundry_enable_service => 'تقديم خدمة الغسيل';
 
   @override
-  String get laundry_enable_service_help => 'فعّل خدمة غسيل الملابس واختر مناطق الخدمة ثم احفظ هذا الملف. جهّز الأصناف والأسعار أدناه قبل استقبال الطلبات.';
+  String get laundry_enable_service_help =>
+      'فعّل خدمة غسيل الملابس واختر مناطق الخدمة ثم احفظ هذا الملف. جهّز الأصناف والأسعار أدناه قبل استقبال الطلبات.';
 
   @override
   String get laundry_revenue => 'إيرادات الغسيل';
 
   @override
-  String get laundry_service_disabled_title => 'خدمة غسيل الملابس غير مفعلة للعملاء';
+  String get laundry_service_disabled_title =>
+      'خدمة غسيل الملابس غير مفعلة للعملاء';
 
   @override
-  String get laundry_service_disabled_help => 'جهّز الأصناف والأسعار هنا، ثم فعّل خدمة غسيل الملابس في ملف الشركة واختر مناطق الخدمة واحفظ الملف لاستقبال الطلبات.';
+  String get laundry_service_disabled_help =>
+      'جهّز الأصناف والأسعار هنا، ثم فعّل خدمة غسيل الملابس في ملف الشركة واختر مناطق الخدمة واحفظ الملف لاستقبال الطلبات.';
 
   @override
   String get laundry_admin_products => 'منتجات الإدارة';
@@ -2033,7 +2195,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get laundry_edit_prices => 'تعديل الأسعار';
 
   @override
-  String get laundry_admin_product_help => 'تدير الإدارة الصنف وأسماء الخدمات. فعّل خدمات هذا الصنف وأدخل أسعارك. يجب أن يكون كل سعر أكبر من صفر.';
+  String get laundry_admin_product_help =>
+      'تدير الإدارة الصنف وأسماء الخدمات. فعّل خدمات هذا الصنف وأدخل أسعارك. يجب أن يكون كل سعر أكبر من صفر.';
 
   @override
   String get laundry_use_default_price => 'استخدام السعر الافتراضي للإدارة';
@@ -2048,10 +2211,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get laundry_reset_prices => 'إعادة جميع الأسعار إلى أسعار الإدارة';
 
   @override
-  String get laundry_send_invoice_confirm => 'هل تريد إرسال هذه الفاتورة للعميل؟ لا يمكن تعديل الأصناف والأسعار بعد الإرسال.';
+  String get laundry_send_invoice_confirm =>
+      'هل تريد إرسال هذه الفاتورة للعميل؟ لا يمكن تعديل الأصناف والأسعار بعد الإرسال.';
 
   @override
-  String get registrationGiftApplied => 'تم تطبيق هدية التسجيل • تتحمل شركتكم قيمة الخصم';
+  String get registrationGiftApplied =>
+      'تم تطبيق هدية التسجيل • تتحمل شركتكم قيمة الخصم';
 
   @override
   String registrationGiftAppliedAmount(String amount) {
@@ -2059,7 +2224,8 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get registrationGiftReserved => 'تم حجز هدية التسجيل • تتحمل شركتكم قيمة الخصم';
+  String get registrationGiftReserved =>
+      'تم حجز هدية التسجيل • تتحمل شركتكم قيمة الخصم';
 
   @override
   String registrationGiftReservedAmount(String amount) {
@@ -2090,7 +2256,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get laundry_same_day => 'نفس اليوم';
 
   @override
-  String get laundry_same_day_help => 'قدّم خدمة نفس اليوم للطلبات المحجوزة قبل الموعد النهائي. الطلبات المحجوزة عند الموعد النهائي أو بعده غير مؤهلة.';
+  String get laundry_same_day_help =>
+      'قدّم خدمة نفس اليوم للطلبات المحجوزة قبل الموعد النهائي. الطلبات المحجوزة عند الموعد النهائي أو بعده غير مؤهلة.';
 
   @override
   String get laundry_same_day_enable => 'تفعيل خدمة نفس اليوم';
@@ -2105,13 +2272,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get laundry_same_day_kuwait_time => 'بتوقيت الكويت (نظام 24 ساعة)';
 
   @override
-  String get laundry_same_day_cutoff_required => 'اختر الموعد النهائي للحجز قبل تفعيل خدمة نفس اليوم.';
+  String get laundry_same_day_cutoff_required =>
+      'اختر الموعد النهائي للحجز قبل تفعيل خدمة نفس اليوم.';
 
   @override
-  String get laundry_same_day_load_error => 'تعذر تحميل إعدادات خدمة نفس اليوم. حاول مرة أخرى.';
+  String get laundry_same_day_load_error =>
+      'تعذر تحميل إعدادات خدمة نفس اليوم. حاول مرة أخرى.';
 
   @override
-  String get laundry_same_day_save_error => 'لم يتم حفظ الإعدادات. حاول مرة أخرى.';
+  String get laundry_same_day_save_error =>
+      'لم يتم حفظ الإعدادات. حاول مرة أخرى.';
 
   @override
   String get laundry_same_day_saved => 'تم حفظ إعدادات خدمة نفس اليوم';
@@ -2123,16 +2293,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get laundry_item_service => 'الخدمة';
 
   @override
-  String get laundry_shared_services_help => 'فعّل الخدمات التي تقدمها لهذا الصنف وحدد سعر كل خدمة. أسماء الخدمات مشتركة وتديرها الإدارة.';
+  String get laundry_shared_services_help =>
+      'فعّل الخدمات التي تقدمها لهذا الصنف وحدد سعر كل خدمة. أسماء الخدمات مشتركة وتديرها الإدارة.';
 
   @override
   String get laundry_no_shared_services => 'لم تضف الإدارة أي خدمات بعد.';
 
   @override
-  String get laundry_item_needs_service => 'فعّل خدمة واحدة على الأقل وحدد سعرها ليظهر هذا الصنف للعملاء.';
+  String get laundry_item_needs_service =>
+      'فعّل خدمة واحدة على الأقل وحدد سعرها ليظهر هذا الصنف للعملاء.';
 
   @override
-  String get laundry_legacy_pricing_help => 'تبقى أسعار وخيارات الصنف الحالية متاحة للحجز عند إيقاف هذه الخدمات. أوقف الصنف لإيقاف جميع حجوزاته.';
+  String get laundry_legacy_pricing_help =>
+      'تبقى أسعار وخيارات الصنف الحالية متاحة للحجز عند إيقاف هذه الخدمات. أوقف الصنف لإيقاف جميع حجوزاته.';
 
   @override
   String get laundry_category => 'الفئة';
@@ -2147,22 +2320,28 @@ class AppLocalizationsAr extends AppLocalizations {
   String get laundry_search_items => 'ابحث عن صنف';
 
   @override
-  String get laundry_no_matching_items => 'لا توجد أصناف تطابق هذه الفئة أو البحث.';
+  String get laundry_no_matching_items =>
+      'لا توجد أصناف تطابق هذه الفئة أو البحث.';
 
   @override
-  String get laundry_catalog_setup_needed => 'فعّل الأصناف وحدد أسعارها في قائمة المغسلة قبل إنشاء الفاتورة.';
+  String get laundry_catalog_setup_needed =>
+      'فعّل الأصناف وحدد أسعارها في قائمة المغسلة قبل إنشاء الفاتورة.';
 
   @override
-  String get laundry_bag_items_help => 'استلام أكياس — افحص الملابس المستلمة، ثم أضف الأصناف والخدمات إلى الفاتورة.';
+  String get laundry_bag_items_help =>
+      'استلام أكياس — افحص الملابس المستلمة، ثم أضف الأصناف والخدمات إلى الفاتورة.';
 
   @override
-  String get laundry_invoice_category_help => 'اختر فئة للعثور على الأصناف بسهولة. تغييرها يعيد تعيين هذا السطر فقط.';
+  String get laundry_invoice_category_help =>
+      'اختر فئة للعثور على الأصناف بسهولة. تغييرها يعيد تعيين هذا السطر فقط.';
 
   @override
-  String get laundry_invoice_invalid_discount => 'لا يمكن أن يتجاوز الخصم مجموع الأصناف ورسوم الاستلام والتوصيل.';
+  String get laundry_invoice_invalid_discount =>
+      'لا يمكن أن يتجاوز الخصم مجموع الأصناف ورسوم الاستلام والتوصيل.';
 
   @override
-  String get laundry_invoice_estimate_help => 'يؤكد النظام الأسعار الحالية ورسوم المنصة عند الحفظ.';
+  String get laundry_invoice_estimate_help =>
+      'يؤكد النظام الأسعار الحالية ورسوم المنصة عند الحفظ.';
 
   @override
   String get laundry_company_price_required => 'أدخل سعر الشركة';
@@ -2171,7 +2350,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get laundry_reload_invoice => 'إعادة تحميل الفاتورة المحفوظة';
 
   @override
-  String get laundry_reload_invoice_confirm => 'هل تريد تجاهل تغييرات الفاتورة غير المحفوظة ومراجعة أحدث فاتورة محفوظة؟';
+  String get laundry_reload_invoice_confirm =>
+      'هل تريد تجاهل تغييرات الفاتورة غير المحفوظة ومراجعة أحدث فاتورة محفوظة؟';
 
   @override
   String get laundry_manage_catalog => 'إدارة قائمة أصناف المغسلة';
@@ -2186,28 +2366,34 @@ class AppLocalizationsAr extends AppLocalizations {
   String get laundry_pricing => 'الأسعار';
 
   @override
-  String get laundry_configuration_help => 'حدد ساعات العمل وتوفر الحجز وأسعار القطع.';
+  String get laundry_configuration_help =>
+      'حدد ساعات العمل وتوفر الحجز وأسعار القطع.';
 
   @override
-  String get laundry_working_hours_help => 'حدد الأوقات التي يمكن للعملاء حجز الاستلام فيها. تتكرر الساعات أسبوعياً بتوقيت الكويت.';
+  String get laundry_working_hours_help =>
+      'حدد الأوقات التي يمكن للعملاء حجز الاستلام فيها. تتكرر الساعات أسبوعياً بتوقيت الكويت.';
 
   @override
   String get laundry_available => 'متاح للحجز';
 
   @override
-  String get laundry_availability_help => 'عند إيقاف هذا الخيار، يظهر للعملاء أن الشركة محجوزة بالكامل ولا يمكنهم الحجز لديها.';
+  String get laundry_availability_help =>
+      'عند إيقاف هذا الخيار، يظهر للعملاء أن الشركة محجوزة بالكامل ولا يمكنهم الحجز لديها.';
 
   @override
   String get laundry_settings_saved => 'تم حفظ إعدادات الغسيل';
 
   @override
-  String get laundry_settings_load_error => 'تعذر تحميل إعدادات الغسيل. يرجى المحاولة مرة أخرى.';
+  String get laundry_settings_load_error =>
+      'تعذر تحميل إعدادات الغسيل. يرجى المحاولة مرة أخرى.';
 
   @override
-  String get laundry_hours_invalid => 'يجب أن ينتهي كل وقت بعد بدايته دون تداخل مع وقت آخر في اليوم نفسه. للساعات الليلية، أضف فترة منفصلة في اليوم التالي. استخدم 168 فترة زمنية أسبوعياً كحد أقصى.';
+  String get laundry_hours_invalid =>
+      'يجب أن ينتهي كل وقت بعد بدايته دون تداخل مع وقت آخر في اليوم نفسه. للساعات الليلية، أضف فترة منفصلة في اليوم التالي. استخدم 168 فترة زمنية أسبوعياً كحد أقصى.';
 
   @override
-  String get laundry_hours_unrestricted => 'لم يتم تحديد ساعات العمل بعد. الحجز متاح حالياً طوال الأسبوع. عدّل الأيام أدناه لتحديد أوقات الاستلام.';
+  String get laundry_hours_unrestricted =>
+      'لم يتم تحديد ساعات العمل بعد. الحجز متاح حالياً طوال الأسبوع. عدّل الأيام أدناه لتحديد أوقات الاستلام.';
 
   @override
   String get laundry_day_open => 'متاح للاستلام';
@@ -2219,13 +2405,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get laundry_minimum_charge => 'الحد الأدنى للطلب';
 
   @override
-  String get laundry_minimum_charge_help => 'يجب إضافة قطع بقيمة تصل إلى هذا الحد. لا تُحتسب رسوم الاستلام والتوصيل. يمكن حجز استلام الأكياس دون تحديد القطع، لكن يجب أن تبلغ قيمة قطع الفاتورة الحد الأدنى قبل إرسالها. أدخل 0 لإلغاء الحد الأدنى.';
+  String get laundry_minimum_charge_help =>
+      'يجب إضافة قطع بقيمة تصل إلى هذا الحد. لا تُحتسب رسوم الاستلام والتوصيل. يمكن حجز استلام الأكياس دون تحديد القطع، لكن يجب أن تبلغ قيمة قطع الفاتورة الحد الأدنى قبل إرسالها. أدخل 0 لإلغاء الحد الأدنى.';
 
   @override
-  String get laundry_minimum_charge_invalid => 'أدخل مبلغاً بين 0 و100000 د.ك وبحد أقصى 3 منازل عشرية.';
+  String get laundry_minimum_charge_invalid =>
+      'أدخل مبلغاً بين 0 و100000 د.ك وبحد أقصى 3 منازل عشرية.';
 
   @override
-  String get laundry_minimum_invoice_help => 'أضف قطعاً كافية للوصول إلى الحد الأدنى قبل الإرسال. لا تُحتسب الرسوم، ويمكنك حفظ مسودة.';
+  String get laundry_minimum_invoice_help =>
+      'أضف قطعاً كافية للوصول إلى الحد الأدنى قبل الإرسال. لا تُحتسب الرسوم، ويمكنك حفظ مسودة.';
 
   @override
   String get laundry_items_subtotal => 'مجموع أسعار القطع';
@@ -2234,29 +2423,581 @@ class AppLocalizationsAr extends AppLocalizations {
   String get laundry_catalog_loading => 'جارٍ تحميل قطع الفاتورة…';
 
   @override
-  String get laundry_catalog_load_timeout => 'استغرق تحميل القطع وقتاً طويلاً. تحقق من اتصالك وأعد المحاولة. تم الاحتفاظ بتعديلاتك.';
+  String get laundry_catalog_load_timeout =>
+      'استغرق تحميل القطع وقتاً طويلاً. تحقق من اتصالك وأعد المحاولة. تم الاحتفاظ بتعديلاتك.';
 
   @override
-  String get laundry_catalog_load_error => 'تعذر تحميل قائمة القطع. أعد المحاولة. تم الاحتفاظ بتعديلاتك.';
+  String get laundry_catalog_load_error =>
+      'تعذر تحميل قائمة القطع. أعد المحاولة. تم الاحتفاظ بتعديلاتك.';
 
   @override
   String get laundry_bulk_prices => 'تحديث أسعار متعددة';
 
   @override
-  String get laundry_bulk_prices_help => 'عدّل الأسعار وحالة تفعيل الأصناف ثم احفظ جميع التغييرات معًا. ستبقى حالة تفعيل الخدمات كما هي.';
+  String get laundry_bulk_prices_help =>
+      'عدّل الأسعار وحالة تفعيل الأصناف ثم احفظ جميع التغييرات معًا. ستبقى حالة تفعيل الخدمات كما هي.';
 
   @override
   String get laundry_bulk_prices_save => 'حفظ جميع التغييرات';
 
   @override
-  String get laundry_bulk_prices_error => 'تعذّر حفظ التغييرات. تم الاحتفاظ بتعديلاتك. يرجى المحاولة مرة أخرى.';
+  String get laundry_bulk_prices_error =>
+      'تعذّر حفظ التغييرات. تم الاحتفاظ بتعديلاتك. يرجى المحاولة مرة أخرى.';
 
   @override
-  String get laundry_bulk_prices_unsaved => 'لديك تغييرات غير محفوظة في الأسعار أو حالة تفعيل الأصناف.';
+  String get laundry_bulk_prices_unsaved =>
+      'لديك تغييرات غير محفوظة في الأسعار أو حالة تفعيل الأصناف.';
 
   @override
-  String get laundry_bulk_prices_limit => 'يمكن تحديث ٢٠٠ صنف في المرة الواحدة. احفظ هذه التغييرات قبل تعديل المزيد من الأصناف.';
+  String get laundry_bulk_prices_limit =>
+      'يمكن تحديث ٢٠٠ صنف في المرة الواحدة. احفظ هذه التغييرات قبل تعديل المزيد من الأصناف.';
 
   @override
-  String get laundry_bulk_prices_invalid => 'أدخل سعرًا من ٠٫٠٠١ إلى ١٠٬٠٠٠ د.ك، بحد أقصى ٣ منازل عشرية.';
+  String get laundry_bulk_prices_invalid =>
+      'أدخل سعرًا من ٠٫٠٠١ إلى ١٠٬٠٠٠ د.ك، بحد أقصى ٣ منازل عشرية.';
+
+  @override
+  String get canSeePrices => 'يمكنه الاطلاع على الأسعار';
+
+  @override
+  String get canSeePricesDescription =>
+      'عرض الأسعار والرسوم والفواتير والمعلومات المالية. يمكن للمالك أو المسؤول فقط تغيير هذا الخيار.';
+
+  @override
+  String get priceAccessUnavailable =>
+      'المعلومات المالية غير متاحة لهذا الحساب.';
+
+  @override
+  String get permissionOtherTitle => 'خيار صلاحية إضافي';
+
+  @override
+  String get permissionOtherDescription =>
+      'صلاحية موجودة مسبقًا. احتفظ بها حتى يتم التأكد من وظيفتها.';
+
+  @override
+  String get permissionRetainedDescription =>
+      'سيتم الاحتفاظ بالصلاحيات الأخرى الحالية عند الحفظ.';
+
+  @override
+  String get permissionRetainedTitle => 'الصلاحيات الأخرى الحالية';
+
+  @override
+  String get permissionOptionsLoading => 'جارٍ تحميل صلاحيات الموظفين…';
+
+  @override
+  String get permissionOptionsUnavailable =>
+      'تعذّر تحميل صلاحيات الموظفين. يُرجى المحاولة مرة أخرى.';
+
+  @override
+  String get permissionOptionsEmpty => 'لا توجد صلاحيات يمكنك منحها.';
+
+  @override
+  String get permissionServiceContextUnavailable =>
+      'تعذّر تحميل خدمات الشركة. لا تزال الصلاحيات العامة متاحة.';
+
+  @override
+  String get companyServicesUnavailable =>
+      'تعذّر تحديث خدمات الشركة. لا يزال بإمكانك الاطلاع على الطلبات الحالية.';
+
+  @override
+  String get homeDataUnavailable =>
+      'تعذّر تحميل معلومات الشركة. يُرجى المحاولة مرة أخرى.';
+
+  @override
+  String get staffEditTitle => 'تعديل حساب الموظف';
+
+  @override
+  String get staffUpdated => 'تم تحديث حساب الموظف.';
+
+  @override
+  String get staffPermissionsSaved => 'تم حفظ صلاحيات الموظف.';
+
+  @override
+  String get capabilityUsersCreateTitle => 'إضافة حسابات المستخدمين';
+
+  @override
+  String get capabilityUsersCreateDescription =>
+      'إنشاء حسابات المستخدمين جديدة.';
+
+  @override
+  String get capabilityUsersReadTitle => 'عرض حسابات الشركة';
+
+  @override
+  String get capabilityUsersReadDescription =>
+      'الاطلاع على حسابات هذه الشركة وأعضاء فريقها.';
+
+  @override
+  String get capabilityUsersUpdateTitle => 'تعديل حسابات المستخدمين';
+
+  @override
+  String get capabilityUsersUpdateDescription =>
+      'تعديل حسابات المستخدمين ضمن صلاحياتك.';
+
+  @override
+  String get capabilityUsersDeleteTitle => 'إزالة حسابات المستخدمين';
+
+  @override
+  String get capabilityUsersDeleteDescription =>
+      'إزالة حسابات المستخدمين عندما يكون ذلك مسموحًا.';
+
+  @override
+  String get capabilityBusinessCreateTitle => 'إضافة الشركات';
+
+  @override
+  String get capabilityBusinessCreateDescription => 'إنشاء الشركات جديدة.';
+
+  @override
+  String get capabilityBusinessReadTitle => 'عرض إعدادات الشركة';
+
+  @override
+  String get capabilityBusinessReadDescription =>
+      'الاطلاع على إعدادات الخدمات التي تقدمها هذه الشركة.';
+
+  @override
+  String get capabilityBusinessUpdateTitle => 'إدارة إعدادات الشركة';
+
+  @override
+  String get capabilityBusinessUpdateDescription =>
+      'إدارة إعدادات الخدمات التي تقدمها هذه الشركة.';
+
+  @override
+  String get capabilityBusinessDeleteTitle => 'إزالة الشركات';
+
+  @override
+  String get capabilityBusinessDeleteDescription =>
+      'إزالة الشركات عندما يكون ذلك مسموحًا.';
+
+  @override
+  String get capabilityCategoriesCreateTitle => 'إضافة فئات الخدمات';
+
+  @override
+  String get capabilityCategoriesCreateDescription =>
+      'إنشاء فئات الخدمات جديدة.';
+
+  @override
+  String get capabilityCategoriesReadTitle => 'عرض فئات الخدمات';
+
+  @override
+  String get capabilityCategoriesReadDescription =>
+      'الاطلاع على فئات الخدمات المتاحة لحسابك.';
+
+  @override
+  String get capabilityCategoriesUpdateTitle => 'تعديل فئات الخدمات';
+
+  @override
+  String get capabilityCategoriesUpdateDescription =>
+      'تعديل فئات الخدمات ضمن صلاحياتك.';
+
+  @override
+  String get capabilityCategoriesDeleteTitle => 'إزالة فئات الخدمات';
+
+  @override
+  String get capabilityCategoriesDeleteDescription =>
+      'إزالة فئات الخدمات عندما يكون ذلك مسموحًا.';
+
+  @override
+  String get capabilityRequestsCreateTitle => 'إرسال عروض الأسعار';
+
+  @override
+  String get capabilityRequestsCreateDescription =>
+      'إرسال عروض أسعار لطلبات العملاء الجديدة.';
+
+  @override
+  String get capabilityRequestsReadTitle => 'عرض طلبات العملاء';
+
+  @override
+  String get capabilityRequestsReadDescription =>
+      'الاطلاع على طلبات العملاء المتاحة لحسابك.';
+
+  @override
+  String get capabilityRequestsUpdateTitle => 'إدارة الطلبات';
+
+  @override
+  String get capabilityRequestsUpdateDescription =>
+      'بدء الطلبات أو إكمالها أو إلغاؤها ضمن صلاحيات حسابك.';
+
+  @override
+  String get capabilityRequestsDeleteTitle => 'إزالة طلبات العملاء';
+
+  @override
+  String get capabilityRequestsDeleteDescription =>
+      'إزالة طلبات العملاء عندما يكون ذلك مسموحًا.';
+
+  @override
+  String get capabilityTransactionsCreateTitle => 'إضافة المعاملات المالية';
+
+  @override
+  String get capabilityTransactionsCreateDescription =>
+      'إنشاء المعاملات المالية جديدة.';
+
+  @override
+  String get capabilityTransactionsReadTitle => 'عرض المعاملات المالية';
+
+  @override
+  String get capabilityTransactionsReadDescription =>
+      'الاطلاع على المعاملات المالية المتاحة لحسابك.';
+
+  @override
+  String get capabilityTransactionsUpdateTitle => 'تعديل المعاملات المالية';
+
+  @override
+  String get capabilityTransactionsUpdateDescription =>
+      'تعديل المعاملات المالية ضمن صلاحياتك.';
+
+  @override
+  String get capabilityTransactionsDeleteTitle => 'إزالة المعاملات المالية';
+
+  @override
+  String get capabilityTransactionsDeleteDescription =>
+      'إزالة المعاملات المالية عندما يكون ذلك مسموحًا.';
+
+  @override
+  String get capabilityAreasCreateTitle => 'إضافة مناطق الخدمة';
+
+  @override
+  String get capabilityAreasCreateDescription => 'إنشاء مناطق الخدمة جديدة.';
+
+  @override
+  String get capabilityAreasReadTitle => 'عرض مناطق الخدمة';
+
+  @override
+  String get capabilityAreasReadDescription =>
+      'الاطلاع على مناطق الخدمة المتاحة لحسابك.';
+
+  @override
+  String get capabilityAreasUpdateTitle => 'تعديل مناطق الخدمة';
+
+  @override
+  String get capabilityAreasUpdateDescription =>
+      'تعديل مناطق الخدمة ضمن صلاحياتك.';
+
+  @override
+  String get capabilityAreasDeleteTitle => 'إزالة مناطق الخدمة';
+
+  @override
+  String get capabilityAreasDeleteDescription =>
+      'إزالة مناطق الخدمة عندما يكون ذلك مسموحًا.';
+
+  @override
+  String get capabilityEmailCreateTitle => 'إرسال بريد إلكتروني';
+
+  @override
+  String get capabilityEmailCreateDescription =>
+      'إرسال رسائل بريد إلكتروني ضمن صلاحيات حسابك.';
+
+  @override
+  String get capabilityEmailReadTitle => 'عرض رسائل البريد الإلكتروني';
+
+  @override
+  String get capabilityEmailReadDescription =>
+      'الاطلاع على رسائل البريد الإلكتروني المتاحة لحسابك.';
+
+  @override
+  String get capabilityEmailUpdateTitle => 'تعديل رسائل البريد الإلكتروني';
+
+  @override
+  String get capabilityEmailUpdateDescription =>
+      'تعديل رسائل البريد الإلكتروني ضمن صلاحياتك.';
+
+  @override
+  String get capabilityEmailDeleteTitle => 'إزالة رسائل البريد الإلكتروني';
+
+  @override
+  String get capabilityEmailDeleteDescription =>
+      'إزالة رسائل البريد الإلكتروني عندما يكون ذلك مسموحًا.';
+
+  @override
+  String get capabilityChatCreateTitle => 'بدء محادثات';
+
+  @override
+  String get capabilityChatCreateDescription =>
+      'بدء محادثات للطلبات المتاحة لحسابك.';
+
+  @override
+  String get capabilityChatReadTitle => 'عرض المحادثات';
+
+  @override
+  String get capabilityChatReadDescription =>
+      'الاطلاع على المحادثات المتاحة لحسابك.';
+
+  @override
+  String get capabilityChatUpdateTitle => 'تعديل المحادثات';
+
+  @override
+  String get capabilityChatUpdateDescription => 'تعديل المحادثات ضمن صلاحياتك.';
+
+  @override
+  String get capabilityChatDeleteTitle => 'إزالة المحادثات';
+
+  @override
+  String get capabilityChatDeleteDescription =>
+      'إزالة المحادثات عندما يكون ذلك مسموحًا.';
+
+  @override
+  String get capabilityTeamsCreateTitle => 'إضافة فرق العمل';
+
+  @override
+  String get capabilityTeamsCreateDescription => 'إنشاء فرق العمل جديدة.';
+
+  @override
+  String get capabilityTeamsReadTitle => 'عرض فرق العمل';
+
+  @override
+  String get capabilityTeamsReadDescription =>
+      'الاطلاع على فرق العمل المتاحة لحسابك.';
+
+  @override
+  String get capabilityTeamsUpdateTitle => 'تعديل فرق العمل';
+
+  @override
+  String get capabilityTeamsUpdateDescription =>
+      'تعديل فرق العمل ضمن صلاحياتك.';
+
+  @override
+  String get capabilityTeamsDeleteTitle => 'إزالة فرق العمل';
+
+  @override
+  String get capabilityTeamsDeleteDescription =>
+      'إزالة فرق العمل عندما يكون ذلك مسموحًا.';
+
+  @override
+  String get capabilityPermissionsCreateTitle => 'إضافة خيارات الصلاحيات';
+
+  @override
+  String get capabilityPermissionsCreateDescription =>
+      'إنشاء خيارات الصلاحيات جديدة.';
+
+  @override
+  String get capabilityPermissionsReadTitle => 'عرض خيارات صلاحيات الموظفين';
+
+  @override
+  String get capabilityPermissionsReadDescription =>
+      'عرض خيارات الصلاحيات التي يمكن منحها للموظفين.';
+
+  @override
+  String get capabilityPermissionsUpdateTitle => 'إدارة صلاحيات الموظفين';
+
+  @override
+  String get capabilityPermissionsUpdateDescription =>
+      'اختيار الصلاحيات المسموح لك بمنحها لموظفي الشركة.';
+
+  @override
+  String get capabilityPermissionsDeleteTitle => 'إزالة خيارات الصلاحيات';
+
+  @override
+  String get capabilityPermissionsDeleteDescription =>
+      'إزالة خيارات الصلاحيات عندما يكون ذلك مسموحًا.';
+
+  @override
+  String get capabilityStaffCreateTitle => 'إضافة حسابات الموظفين';
+
+  @override
+  String get capabilityStaffCreateDescription => 'إنشاء حسابات الموظفين جديدة.';
+
+  @override
+  String get capabilityStaffReadTitle => 'عرض حسابات الموظفين';
+
+  @override
+  String get capabilityStaffReadDescription =>
+      'الاطلاع على حسابات الموظفين المتاحة لحسابك.';
+
+  @override
+  String get capabilityStaffUpdateTitle => 'تعديل حسابات الموظفين';
+
+  @override
+  String get capabilityStaffUpdateDescription =>
+      'تعديل حسابات الموظفين ضمن صلاحياتك.';
+
+  @override
+  String get capabilityStaffDeleteTitle => 'إزالة حسابات الموظفين';
+
+  @override
+  String get capabilityStaffDeleteDescription =>
+      'إزالة حسابات الموظفين عندما يكون ذلك مسموحًا.';
+
+  @override
+  String get capabilityHousekeepingPricingCreateTitle =>
+      'إضافة أسعار التنظيف المنزلي';
+
+  @override
+  String get capabilityHousekeepingPricingCreateDescription =>
+      'إنشاء أسعار التنظيف المنزلي جديدة.';
+
+  @override
+  String get capabilityHousekeepingPricingReadTitle =>
+      'عرض أسعار التنظيف المنزلي';
+
+  @override
+  String get capabilityHousekeepingPricingReadDescription =>
+      'الاطلاع على أسعار التنظيف المنزلي المتاحة لحسابك.';
+
+  @override
+  String get capabilityHousekeepingPricingUpdateTitle =>
+      'تعديل أسعار التنظيف المنزلي';
+
+  @override
+  String get capabilityHousekeepingPricingUpdateDescription =>
+      'تعديل أسعار التنظيف المنزلي ضمن صلاحياتك.';
+
+  @override
+  String get capabilityHousekeepingPricingDeleteTitle =>
+      'إزالة أسعار التنظيف المنزلي';
+
+  @override
+  String get capabilityHousekeepingPricingDeleteDescription =>
+      'إزالة أسعار التنظيف المنزلي عندما يكون ذلك مسموحًا.';
+
+  @override
+  String get capabilityCleanerAvailabilityCreateTitle =>
+      'إضافة التواريخ والساعات المتاحة';
+
+  @override
+  String get capabilityCleanerAvailabilityCreateDescription =>
+      'إنشاء التواريخ والساعات المتاحة جديدة.';
+
+  @override
+  String get capabilityCleanerAvailabilityReadTitle =>
+      'عرض التواريخ والساعات المتاحة';
+
+  @override
+  String get capabilityCleanerAvailabilityReadDescription =>
+      'الاطلاع على التواريخ والساعات المتاحة المتاحة لحسابك.';
+
+  @override
+  String get capabilityCleanerAvailabilityUpdateTitle =>
+      'تعديل التواريخ والساعات المتاحة';
+
+  @override
+  String get capabilityCleanerAvailabilityUpdateDescription =>
+      'تعديل التواريخ والساعات المتاحة ضمن صلاحياتك.';
+
+  @override
+  String get capabilityCleanerAvailabilityDeleteTitle =>
+      'إزالة التواريخ والساعات المتاحة';
+
+  @override
+  String get capabilityCleanerAvailabilityDeleteDescription =>
+      'إزالة التواريخ والساعات المتاحة عندما يكون ذلك مسموحًا.';
+
+  @override
+  String get capabilityAutoBidCreateTitle =>
+      'إضافة قواعد عروض الأسعار التلقائية';
+
+  @override
+  String get capabilityAutoBidCreateDescription =>
+      'إنشاء قواعد عروض الأسعار التلقائية جديدة.';
+
+  @override
+  String get capabilityAutoBidReadTitle => 'عرض قواعد عروض الأسعار التلقائية';
+
+  @override
+  String get capabilityAutoBidReadDescription =>
+      'الاطلاع على قواعد عروض الأسعار التلقائية المتاحة لحسابك.';
+
+  @override
+  String get capabilityAutoBidUpdateTitle =>
+      'تعديل قواعد عروض الأسعار التلقائية';
+
+  @override
+  String get capabilityAutoBidUpdateDescription =>
+      'تعديل قواعد عروض الأسعار التلقائية ضمن صلاحياتك.';
+
+  @override
+  String get capabilityAutoBidDeleteTitle =>
+      'إزالة قواعد عروض الأسعار التلقائية';
+
+  @override
+  String get capabilityAutoBidDeleteDescription =>
+      'إزالة قواعد عروض الأسعار التلقائية عندما يكون ذلك مسموحًا.';
+
+  @override
+  String get capabilityCompanyRequestsReadTitle => 'عرض طلبات الشركة';
+
+  @override
+  String get capabilityCompanyRequestsReadDescription =>
+      'الاطلاع على الطلبات المسندة وتقويم العمل.';
+
+  @override
+  String get capabilityCompanyRequestsUpdateTitle => 'تعيين العاملين والفرق';
+
+  @override
+  String get capabilityCompanyRequestsUpdateDescription =>
+      'اختيار العاملين أو الفرق المسؤولين عن طلبات الشركة.';
+
+  @override
+  String get capabilityAvailableRequestsReadTitle => 'العثور على طلبات جديدة';
+
+  @override
+  String get capabilityAvailableRequestsReadDescription =>
+      'استعراض الطلبات الجديدة المتاحة لشركتك.';
+
+  @override
+  String get capabilityUploadCreateTitle => 'رفع الملفات';
+
+  @override
+  String get capabilityUploadCreateDescription =>
+      'إرفاق الصور والمستندات بأعمال الشركة المسموح بها.';
+
+  @override
+  String get capabilityUploadDeleteTitle => 'إزالة الملفات المرفوعة';
+
+  @override
+  String get capabilityUploadDeleteDescription =>
+      'إزالة الملفات المرفوعة التي يُسمح لحسابك بإدارتها.';
+
+  @override
+  String get capabilityCompanyProfileReadTitle => 'عرض ملف الشركة';
+
+  @override
+  String get capabilityCompanyProfileReadDescription =>
+      'عرض تفاصيل الشركة وخدماتها ومناطق تغطيتها.';
+
+  @override
+  String get capabilityCompanyProfileUpdateTitle => 'تعديل ملف الشركة';
+
+  @override
+  String get capabilityCompanyProfileUpdateDescription =>
+      'تعديل تفاصيل الشركة وخدماتها ومناطق تغطيتها.';
+
+  @override
+  String get capabilityReportsReadTitle => 'عرض تقارير الشركة';
+
+  @override
+  String get capabilityReportsReadDescription =>
+      'عرض ملخصات الطلبات؛ ويتطلب عرض الأرقام المالية صلاحية الاطلاع على الأسعار.';
+
+  @override
+  String get capabilityCompanyRequestsCreateTitle => 'إضافة طلبات للشركة';
+
+  @override
+  String get capabilityCompanyRequestsCreateDescription =>
+      'إضافة طلبات للشركة عندما تكون هذه الصلاحية الحالية مدعومة.';
+
+  @override
+  String get capabilityCompanyRequestsDeleteTitle => 'إزالة طلبات الشركة';
+
+  @override
+  String get capabilityCompanyRequestsDeleteDescription =>
+      'إزالة طلبات الشركة عندما يكون ذلك مسموحًا.';
+
+  @override
+  String get capabilityCompanyRequestsStatisticsTitle => 'عرض تقارير الشركة';
+
+  @override
+  String get capabilityCompanyRequestsStatisticsDescription =>
+      'عرض ملخصات الطلبات؛ ويتطلب عرض الأرقام المالية صلاحية الاطلاع على الأسعار.';
+
+  @override
+  String get capabilityAvailableRequestsBrowseTitle => 'العثور على طلبات جديدة';
+
+  @override
+  String get capabilityAvailableRequestsBrowseDescription =>
+      'استعراض الطلبات الجديدة المتاحة لشركتك.';
+
+  @override
+  String get capabilityAvailableRequestsBrowsTitle => 'العثور على طلبات جديدة';
+
+  @override
+  String get capabilityAvailableRequestsBrowsDescription =>
+      'استعراض الطلبات الجديدة المتاحة لشركتك.';
 }

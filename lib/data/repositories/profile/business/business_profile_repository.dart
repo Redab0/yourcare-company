@@ -5,6 +5,7 @@ import 'package:cleaning_service_driver/core/models/response.dart';
 import 'package:cleaning_service_driver/core/models/response_payload.dart';
 import 'package:cleaning_service_driver/data/models/profile/area_response.dart';
 import 'package:cleaning_service_driver/data/models/profile/business_profile_model.dart';
+import 'package:cleaning_service_driver/data/models/profile/company_services.dart';
 import 'package:cleaning_service_driver/data/models/profile/covered_service_item_model.dart';
 import 'package:cleaning_service_driver/data/models/profile/custom_service_item_request.dart';
 import 'package:cleaning_service_driver/data/models/profile/media_upload_response.dart';
@@ -20,6 +21,31 @@ class BusinessProfileRepository {
   final BusinessProfileService _profileService;
 
   BusinessProfileRepository(this._profileService);
+
+  Future<CompanyServices> getCompanyServices() async {
+    try {
+      final response = await _profileService.getCompanyServices();
+      final context = response.data?.data;
+      if (!response.success || context == null) {
+        throw Exception(response.message);
+      }
+      return context;
+    } on DioException catch (error) {
+      final body = error.response?.data;
+      final unsupported = error.response?.statusCode == 404 ||
+          (error.response?.statusCode == 400 &&
+              body is Map &&
+              body['message'] == 'Invalid resource ID');
+      if (!unsupported) rethrow;
+      // Old backends match this literal as business/:id. The existing profile
+      // route still enforces its own authorization; never fall back on403.
+      final profile = await getBusinessProfile();
+      return CompanyServices.fromJson({
+        'businessId': profile.id,
+        'services': profile.services,
+      });
+    }
+  }
 
   Future<BusinessProfileModel> getBusinessProfile() async {
     try {

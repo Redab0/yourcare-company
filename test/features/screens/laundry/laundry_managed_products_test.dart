@@ -1,3 +1,4 @@
+import '../../../helpers/price_access_fixture.dart';
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cleaning_service_driver/data/models/profile/business_profile_model.dart';
@@ -87,6 +88,7 @@ Widget _app(Widget child, {String language = 'en'}) => MaterialApp(
     home: child);
 
 void main() {
+  setUp(grantPriceAccess);
   setUp(() => FlutterSecureStorage.setMockInitialValues({
         'auth_user': jsonEncode({
           'role': 'manager',
@@ -192,7 +194,7 @@ void main() {
     });
   }
 
-  testWidgets('quick enabling a managed item validates prices before saving',
+  testWidgets('quick enabling changes availability without replacing prices',
       (tester) async {
     final repo = _Repository([_item(configured: false)]);
     sl.registerSingleton<LaundryRepository>(repo);
@@ -201,21 +203,10 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byType(SwitchListTile).first);
     await tester.pumpAndSettle();
-    expect(repo.configs, isEmpty);
-    expect(find.byType(LaundryProductEditor), findsOneWidget);
-    final l10n = AppLocalizations.of(tester.element(find.byType(AlertDialog)))!;
-    await tester.enterText(find.byType(TextFormField).last, '0');
-    await tester.tap(find.text(l10n.save));
-    await tester.pumpAndSettle();
-    expect(repo.configs, isEmpty);
-    expect(find.text(l10n.price_must_be_greater_than_zero), findsOneWidget);
-    await tester.enterText(find.byType(TextFormField).last, '4.5');
-    await tester.tap(find.text(l10n.save));
-    await tester.pumpAndSettle();
-    expect(repo.configs.single.active, isTrue);
-    expect(repo.configs.single.sizes.map((size) => size.price), [2.5, 4.5]);
-    expect(find.text('Blanket'), findsOneWidget);
-    expect(find.byType(SwitchListTile), findsOneWidget);
+    expect(repo.configs.single.toJson(), {'active': true});
+    expect(repo.catalog.single.sizes.map((size) => size.price), [2.5, 4]);
+    expect(find.byType(LaundryProductEditor), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('disabling an item preserves prices without opening an editor',

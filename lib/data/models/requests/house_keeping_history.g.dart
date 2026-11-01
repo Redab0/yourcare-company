@@ -13,6 +13,10 @@ HouseKeepingHistory _$HouseKeepingHistoryFromJson(Map<String, dynamic> json) =>
       ($checkedConvert) {
         final val = HouseKeepingHistory(
           id: $checkedConvert('id', (v) => v as String?),
+          pricesHidden:
+              $checkedConvert('pricesHidden', (v) => v as bool? ?? false),
+          companyCampaignVisible: $checkedConvert(
+              'companyCampaignVisible', (v) => v as bool? ?? false),
           registrationGiftApplied: $checkedConvert(
               'registrationGiftApplied', (v) => v as bool? ?? false),
           campaign: $checkedConvert(
@@ -23,7 +27,7 @@ HouseKeepingHistory _$HouseKeepingHistoryFromJson(Map<String, dynamic> json) =>
           requestStatus: $checkedConvert(
               'requestStatus', (v) => $enumDecode(_$RequestStatusEnumMap, v)),
           totalPrice:
-              $checkedConvert('totalPrice', (v) => (v as num).toDouble()),
+              $checkedConvert('totalPrice', (v) => (v as num?)?.toDouble()),
           type: $checkedConvert('type', (v) => v as String?),
           cleanersIds: $checkedConvert('cleanersIds',
               (v) => (v as List<dynamic>?)?.map((e) => e as String).toList()),
@@ -44,10 +48,7 @@ HouseKeepingHistory _$HouseKeepingHistoryFromJson(Map<String, dynamic> json) =>
           customer: $checkedConvert(
               'customer', (v) => Customer.fromJson(v as Map<String, dynamic>)),
           companyInformation: $checkedConvert(
-              'businessId',
-              (v) => v == null
-                  ? null
-                  : CompanyInformation.fromJson(v as Map<String, dynamic>)),
+              'businessId', (v) => companyInformationFromJson(v)),
           subRequests: $checkedConvert(
               'frequencyDates',
               (v) => (v as List<dynamic>?)
@@ -87,6 +88,8 @@ Map<String, dynamic> _$HouseKeepingHistoryToJson(
       'id': instance.id,
       'type': instance.type,
       'totalPrice': instance.totalPrice,
+      'pricesHidden': instance.pricesHidden,
+      'companyCampaignVisible': instance.companyCampaignVisible,
       'registrationGiftApplied': instance.registrationGiftApplied,
       'campaign': instance.campaign,
       'createdAt': instance.createdAt.toIso8601String(),
@@ -190,6 +193,7 @@ FrequentRequestModel _$FrequentRequestModelFromJson(
       id: json['id'] as String?,
       date: _$JsonConverterFromJson<String, DateTime>(
           json['date'], const KuwaitScheduleConverter().fromJson),
+      durationHours: _validVisitDuration(json['durationHours']),
     );
 
 Map<String, dynamic> _$FrequentRequestModelToJson(
@@ -199,6 +203,7 @@ Map<String, dynamic> _$FrequentRequestModelToJson(
       'date': _$JsonConverterToJson<String, DateTime>(
           instance.date, const KuwaitScheduleConverter().toJson),
       'status': _$RequestStatusEnumMap[instance.status],
+      if (instance.durationHours case final value?) 'durationHours': value,
     };
 
 HouseKeepingOption _$HouseKeepingOptionFromJson(Map<String, dynamic> json) =>

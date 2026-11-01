@@ -1,13 +1,14 @@
-import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
-import 'package:cleaning_service_driver/components/registration_gift_badge.dart';
+import 'package:cleaning_service_driver/core/access/price_widgets.dart';
 import 'package:cleaning_service_driver/components/business_back_button.dart';
 import 'package:cleaning_service_driver/components/contact_actions.dart';
 import 'package:cleaning_service_driver/components/detail_row.dart';
 import 'package:cleaning_service_driver/components/extra_invoice.dart';
 import 'package:cleaning_service_driver/components/open_map_action.dart';
+import 'package:cleaning_service_driver/components/registration_gift_badge.dart';
 import 'package:cleaning_service_driver/components/request_details_refresh_button.dart';
-import 'package:cleaning_service_driver/core/storage/secure_storage_service.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
+import 'package:cleaning_service_driver/core/utils/housekeeping_visit_duration.dart';
+import 'package:cleaning_service_driver/core/utils/kuwait_schedule.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/core/utils/request_status_enum.dart';
 import 'package:cleaning_service_driver/core/utils/share_utils.dart';
@@ -24,6 +25,8 @@ import 'package:cleaning_service_driver/features/bloc/jobs/job_event.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_bloc.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_event.dart'
     as requests_events;
+import 'package:cleaning_service_driver/features/screens/jobs/housekeeping_visit_focus.dart';
+import 'package:cleaning_service_driver/features/screens/jobs/housekeeping_visit_order.dart';
 import 'package:cleaning_service_driver/features/chats/presentation/chat_open_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -44,7 +47,6 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
   bool _isFilteringWorkers = false;
   final Set<String> _selectedWorkerIds = {};
   late HouseKeepingHistory _currentRequest;
-  bool _hidePriceForWorker = false;
 
   @override
   void initState() {
@@ -53,16 +55,7 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
     _selectedWorkerIds.clear();
     _currentRequest.assignedWorker
         ?.forEach((w) => _selectedWorkerIds.add(w.id));
-    _loadRole();
     _loadAvailableWorkers();
-  }
-
-  Future<void> _loadRole() async {
-    final user = await SecureStorageService().getUser();
-    if (!mounted) return;
-    setState(() {
-      _hidePriceForWorker = user?.role?.toLowerCase() == 'worker';
-    });
   }
 
   void _loadAvailableWorkers() {
@@ -163,6 +156,8 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
     final specialNotes = req.customerSpecialNotes;
     final name = req.customer.username?.trim();
     final phone = req.customer.phone?.trim();
+    final durationSummary =
+        HousekeepingVisitDuration.summary(req, context.l10n);
     final lines = <String>[
       '==============================',
       'House Keeping / التنظيف المنزلي',
@@ -181,7 +176,7 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
       '',
       '--- Job Details / تفاصيل الطلب ---',
       'Cleaners / عدد العمال: ${detail.cleanersCount}',
-      'Duration / المدة: ${detail.durationHours} hour / ساعة',
+      if (durationSummary != null) 'Duration / المدة: $durationSummary',
     ];
     if (specialNotes != null) {
       lines.add('Special Notes / ملاحظات خاصة: $specialNotes');
@@ -196,18 +191,24 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
             ? DateFormat.yMMMd().add_jm().format(kuwaitWallTime(visit.date!))
             : '-';
         final statusText = visit.status?.displayText(context) ?? '-';
-        lines.add('${i + 1}. $dateStr - $statusText');
+        final hours = HousekeepingVisitDuration.hours(req, visit);
+        final duration = hours == null
+            ? ''
+            : ' - ${HousekeepingVisitDuration.format(hours, context.l10n)}';
+        lines.add('${i + 1}. $dateStr$duration - $statusText');
       }
     }
-    if (!_hidePriceForWorker) {
+    if (context.canSeePrices) {
       lines.add('Price / السعر: ${RequestFmt.price(req.totalPrice)}');
     }
-    if ((req.extraFees ?? 0) > 0) {
+    if (context.canSeePrices && !req.pricesHidden && (req.extraFees ?? 0) > 0) {
       lines.add(
         'Extra invoice / الفاتورة الإضافية: ${RequestFmt.price(req.extraFees)}',
       );
     }
-    if (req.extraFeesDescription?.isNotEmpty ?? false) {
+    if (context.canSeePrices &&
+        !req.pricesHidden &&
+        (req.extraFeesDescription?.isNotEmpty ?? false)) {
       lines.add(
         'Extra invoice reason / سبب الفاتورة الإضافية: ${req.extraFeesDescription}',
       );
@@ -225,9 +226,14 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
       address?.longitude,
     );
     final specialNotes = req.customerSpecialNotes;
+    final durationSummary =
+        HousekeepingVisitDuration.summary(req, context.l10n);
     final canChat = (req.requestStatus == RequestStatus.confirmed ||
             req.requestStatus == RequestStatus.inProgress) &&
         ((req.id ?? '').isNotEmpty);
+    final focusedVisitIndex = HousekeepingVisitFocus.index(req);
+    final visits = req.subRequests ?? const <FrequentRequestModel>[];
+    final visitOrder = HousekeepingVisitOrder.indices(visits);
 
     return BlocConsumer<JobActionsBloc, JobActionsState>(
       listener: (ctx, state) {
@@ -336,131 +342,19 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
+                        subtitle: durationSummary == null
+                            ? null
+                            : Text(durationSummary),
                         childrenPadding:
                             const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                        children: List.generate(
-                            _currentRequest.subRequests!.length, (i) {
-                          final sr = _currentRequest.subRequests![i];
-                          final dateStr = (sr.date != null)
-                              ? DateFormat.yMMMd()
-                                  .add_jm()
-                                  .format(kuwaitWallTime(sr.date!))
-                              : "N/A";
-                          final statusText =
-                              sr.status?.displayText(context) ?? "N/A";
-
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(dateStr,
-                                              style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w600)),
-                                          const SizedBox(height: 6),
-                                          if (sr.status ==
-                                                  RequestStatus.confirmed ||
-                                              sr.status ==
-                                                  RequestStatus.inProgress)
-                                            Row(
-                                              children: [
-                                                FilledButton(
-                                                  onPressed:
-                                                      (sr.id == null ||
-                                                              sr.id!.isEmpty)
-                                                          ? null
-                                                          : () => {
-                                                                if (sr.status ==
-                                                                    RequestStatus
-                                                                        .confirmed)
-                                                                  {
-                                                                    ctx
-                                                                        .read<
-                                                                            JobActionsBloc>()
-                                                                        .add(
-                                                                          UpdateFrequencyRequestEvent(
-                                                                            UpdateRequestFrequencyRequest(
-                                                                              frequencyDateId: sr.id,
-                                                                              status: RequestStatus.inProgress,
-                                                                            ),
-                                                                            _currentRequest.id ??
-                                                                                "",
-                                                                          ),
-                                                                        )
-                                                                  }
-                                                                else if (sr
-                                                                        .status ==
-                                                                    RequestStatus
-                                                                        .inProgress)
-                                                                  {
-                                                                    ctx
-                                                                        .read<
-                                                                            JobActionsBloc>()
-                                                                        .add(
-                                                                          UpdateFrequencyRequestEvent(
-                                                                            UpdateRequestFrequencyRequest(
-                                                                              frequencyDateId: sr.id,
-                                                                              status: RequestStatus.completed,
-                                                                            ),
-                                                                            _currentRequest.id ??
-                                                                                "",
-                                                                          ),
-                                                                        )
-                                                                  }
-                                                              },
-                                                  child: Text(
-                                                    sr.status ==
-                                                            RequestStatus
-                                                                .confirmed
-                                                        ? context.l10n.start_job
-                                                        : context
-                                                            .l10n.complete_job,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          if ((sr.status ==
-                                                      RequestStatus.confirmed ||
-                                                  sr.status ==
-                                                      RequestStatus
-                                                          .inProgress) &&
-                                              (sr.id?.isEmpty ?? true))
-                                            Text(
-                                              context.l10n
-                                                  .request_visit_id_missing,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodySmall,
-                                            ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Chip(
-                                      label: Text(statusText,
-                                          style: const TextStyle(
-                                              color: Colors.white)),
-                                      backgroundColor: statusColor(
-                                          sr.status ?? RequestStatus.unknown),
-                                      materialTapTargetSize:
-                                          MaterialTapTargetSize.shrinkWrap,
-                                      visualDensity: VisualDensity.compact,
-                                    ),
-                                  ],
-                                ),
-                                if (i < _currentRequest.subRequests!.length - 1)
-                                  const Divider(height: 24), // <- add this line
-                              ],
+                        children: [
+                          for (final index in visitOrder)
+                            _buildVisitRow(
+                              visits[index],
+                              index,
+                              focused: index == focusedVisitIndex,
                             ),
-                          );
-                        }),
+                        ],
                       ),
                     ),
                   _buildSection(
@@ -483,9 +377,10 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                     title: context.l10n.job_details,
                     child: Column(
                       children: [
-                        if (!_hidePriceForWorker) ...[
-                          DetailRow(context.l10n.request_price,
-                              RequestFmt.price(req.totalPrice)),
+                        if (context.canSeePrices) ...[
+                          PriceOnly(
+                              child: DetailRow(context.l10n.request_price,
+                                  RequestFmt.price(req.totalPrice))),
                           const Divider(),
                         ],
                         DetailRow(
@@ -493,9 +388,11 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
                             RequestFmt.plural(
                                 detail.cleanersCount, context.l10n.cleaner)),
                         const Divider(),
-                        DetailRow(context.l10n.request_card_duration,
-                            "${detail.durationHours} ${context.l10n.hour}"),
-                        const Divider(),
+                        if (durationSummary != null) ...[
+                          DetailRow(context.l10n.request_card_duration,
+                              durationSummary),
+                          const Divider(),
+                        ],
                         DetailRow(context.l10n.requests_cleaning_product_title,
                             RequestFmt.yesNo(detail.productsIncluded)),
                         // const Divider(),
@@ -807,6 +704,175 @@ class _HouseKeepingJobDetailsState extends State<HouseKeepingJobDetails> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildVisitRow(FrequentRequestModel visit, int index,
+      {required bool focused}) {
+    final colors = Theme.of(context).colorScheme;
+    final completed = visit.status == RequestStatus.completed;
+    final visitKey = visit.id ?? index;
+    final locale = context.l10n.localeName;
+    final dateLabel = visit.date == null
+        ? 'N/A'
+        : DateFormat.yMMMd(locale).add_jm().format(kuwaitWallTime(visit.date!));
+    final duration = HousekeepingVisitDuration.hours(_currentRequest, visit);
+    final actionable = visit.status == RequestStatus.confirmed ||
+        visit.status == RequestStatus.inProgress;
+    final hasId = visit.id?.isNotEmpty == true;
+    final statusChip = Chip(
+      avatar: completed
+          ? Icon(Icons.check_circle_outline, size: 18, color: colors.onSurface)
+          : null,
+      label: Text(visit.status?.displayText(context) ?? 'N/A',
+          style: TextStyle(color: completed ? colors.onSurface : Colors.white)),
+      backgroundColor: completed
+          ? Colors.transparent
+          : statusColor(visit.status ?? RequestStatus.unknown),
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      visualDensity: VisualDensity.compact,
+    );
+    final details = Column(
+      mainAxisSize: MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        SizedBox(
+          width: double.infinity,
+          child: OverflowBar(
+            alignment: MainAxisAlignment.spaceBetween,
+            overflowAlignment: OverflowBarAlignment.start,
+            spacing: 16,
+            overflowSpacing: 8,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.calendar_month_outlined),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(dateLabel,
+                        style: const TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w600)),
+                  ),
+                ],
+              ),
+              if (duration != null)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.watch_later_outlined),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        HousekeepingVisitDuration.format(
+                            duration, context.l10n),
+                        key: ValueKey('visit-duration-${visit.id ?? index}'),
+                        style: const TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        if (actionable)
+          FilledButton(
+            onPressed: !hasId
+                ? null
+                : () => context.read<JobActionsBloc>().add(
+                      UpdateFrequencyRequestEvent(
+                        UpdateRequestFrequencyRequest(
+                          frequencyDateId: visit.id,
+                          status: visit.status == RequestStatus.confirmed
+                              ? RequestStatus.inProgress
+                              : RequestStatus.completed,
+                        ),
+                        _currentRequest.id ?? '',
+                      ),
+                    ),
+            child: Text(visit.status == RequestStatus.confirmed
+                ? context.l10n.start_job
+                : context.l10n.complete_job),
+          ),
+        if (actionable && !hasId)
+          Text(context.l10n.request_visit_id_missing,
+              style: Theme.of(context).textTheme.bodySmall),
+      ],
+    );
+    final focusLabel = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: colors.primary,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+              visit.status == RequestStatus.inProgress
+                  ? Icons.play_circle_outline
+                  : Icons.upcoming_outlined,
+              size: 16,
+              color: colors.onPrimary),
+          const SizedBox(width: 5),
+          Flexible(
+            child: Text(
+              visit.status == RequestStatus.inProgress
+                  ? context.l10n.housekeeping_visit_current
+                  : context.l10n.housekeeping_visit_next,
+              style: TextStyle(
+                  color: colors.onPrimary, fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Semantics(
+        container: true,
+        selected: focused,
+        child: AnimatedOpacity(
+          key: ValueKey('visit-opacity-$visitKey'),
+          duration: const Duration(milliseconds: 180),
+          opacity: completed ? 0.6 : 1,
+          child: AnimatedContainer(
+            key: ValueKey('visit-card-$visitKey'),
+            duration: const Duration(milliseconds: 180),
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: focused
+                  ? colors.primary.withValues(alpha: 0.07)
+                  : completed
+                      ? colors.onSurface.withValues(alpha: 0.04)
+                      : colors.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: focused
+                    ? colors.primary
+                    : colors.outlineVariant.withValues(alpha: 0.65),
+                width: focused ? 2 : 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [if (focused) focusLabel, statusChip],
+                ),
+                details,
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
