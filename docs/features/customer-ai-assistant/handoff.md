@@ -19,7 +19,7 @@ The technical lead activated guided backend source `1c83af836628cd9d6643313ac210
 
 The lead's synthetic DEV order **HK149** passed assistant availability → server quote **4.000 KWD** → wallet payment → `confirmed` → provider visit `inProgress` → `completed`. The same order was visible through the customer, provider and admin APIs; the provider detail read used the Mongo request ID. Read/start retries did not duplicate financial records; a customer attempt to change provider status returned 403, and a skipped transition returned 400. Provider-managed availability and the existing visit lifecycle remained authoritative. This Mongo-ID API result does not prove the existing provider UI's readable-ID refresh is compatible with R1.
 
-Detailed shared evidence belongs in the backend's [canonical booking-flow verification](https://github.com/Redab0/you-care-backend/blob/codex/customer-ai-assistant/docs/features/customer-ai-assistant/booking-flow-dev-20261107.md). These are API-level results using the synthetic DEV order. Signed-in customer UI checkout remains **unverified**, pending emulator access; provider/admin UI checks were not run. No provider binary was built, installed, uploaded or deployed for this follow-up. Documentation paths/status and `git diff --check` were checked; Flutter builds/tests were not run because application code is unchanged.
+Detailed shared evidence belongs in the backend's [canonical booking-flow verification](https://github.com/Redab0/you-care-backend/blob/codex/customer-ai-assistant/docs/features/customer-ai-assistant/booking-flow-dev-20261107.md). These are API-level results using the synthetic DEV order. Signed-in customer UI checkout remains **unverified**, excluded by the 8 November API-only decision; provider/admin UI checks were not run. No provider binary was built, installed, uploaded or deployed for this follow-up. Documentation paths/status and `git diff --check` were checked; Flutter builds/tests were not run because application code is unchanged.
 
 ## Historical R1 incompatibility and R2 rollout decision
 
@@ -74,3 +74,12 @@ exact commands, hashes and 22:18–22:22 Kuwait results. Native screens, externa
 gateway and production remain unverified/unchanged as stated above. The isolated
 test emulator was shut down; its AVD/APK remain and the ephemeral login file was
 removed. This follow-up adds documentation only; no client build or test rerun.
+
+## 8 November 2026 — API-only scope
+
+The user selected “Continue with API testing only.” Native screen/ADB testing is
+excluded from this run; no UI permission request remains pending. The canonical
+backend booking-flow record retains HK149’s verified API journey and the fresh
+HTTP 200 public readiness check. No app/API/configuration/deployment change,
+fixture reactivation, new booking or test-suite rerun for this documentation-only
+follow-up. Gateway coverage and date/time picker alignment remain open.

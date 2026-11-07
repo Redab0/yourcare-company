@@ -111,7 +111,8 @@ returned 403 and a skipped transition returned 400. The shared
 [booking-flow evidence](https://github.com/Redab0/you-care-backend/blob/codex/customer-ai-assistant/docs/features/customer-ai-assistant/booking-flow-dev-20261107.md)
 records the detailed environment and results rather than another contract here.
 
-Signed-in customer UI checkout remains **unverified**, pending emulator access;
+Signed-in customer UI checkout remains **unverified** and is now excluded by
+the 8 November API-only decision;
 provider/admin UI testing was not run. No paid AI, external payment-gateway
 transaction, production change or mobile/store release. Original checkouts and
 unrelated work remain preserved. Documentation paths/status and `git diff --check`
@@ -156,3 +157,16 @@ test emulator is stopped with AVD/APK retained; temporary login file removed.
 records source/build/test/deployment references and exact results. Documentation
 links, final diffs/status and `git diff --check` were verified; earlier client
 tests were not rerun.
+
+## 8 November 2026 — API-only verification scope accepted
+
+The user chose “Continue with API testing only.” Native UI/ADB testing is
+excluded from this run and the earlier permission request is closed. Application
+code, API contracts, runtime settings and production: **no change**. Prior HK149
+wallet booking, role/identifier, lifecycle/retry and fixture-retirement evidence
+remains the test result; no new order or fixture reactivation. A fresh public DEV
+readiness probe returned HTTP 200 with valid TLS. Prior suites were not rerun.
+[Canonical verification evidence](https://github.com/Redab0/you-care-backend/blob/codex/customer-ai-assistant/docs/features/customer-ai-assistant/booking-flow-dev-20261107.md) records the scope and remaining
+gateway/picker limitations. Documentation links, diffs/status and
+`git diff --check` verified on `codex/customer-ai-assistant`; original unrelated
+work preserved. Prior feature evidence checkpoint: `453eab8`.
