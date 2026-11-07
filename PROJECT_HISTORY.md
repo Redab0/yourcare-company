@@ -66,3 +66,15 @@ Older worktree source was saved separately on GitHub without changing those work
 - [codex/preserved-workspace-tools-20261101](https://github.com/Redab0/yourcare-company/tree/codex/preserved-workspace-tools-20261101) — 93aa4b43.
 
 Private credential/account/receipt evidence, local exports, dependency/build products and caches remain local. The canonical [preservation manifest](https://github.com/Redab0/you-care-backend/blob/production-env/docs/features/repository-consolidation-20261101/preservation-manifest.json) records the backup refs and scope. No live deployment or app-store publishing occurred.
+
+
+## 7 November 2026 — Customer AI assistant DEV feature branch
+
+Created isolated `codex/customer-ai-assistant` branch for coordinated customer AI
+assistant work. Provider application/API behavior: **no change**; existing
+catalog, availability, booking and fulfillment/reporting contracts remain in use.
+See [repository handoff](docs/features/customer-ai-assistant/handoff.md) for the
+canonical backend brief/contract links, scope and validation limits. Original
+checkout and unrelated work preserved. Documentation paths/status and
+`git diff --check` verified; no Flutter build/test or deployment performed in this
+repository. Live DEV AI credentials and integrated journey are tracked centrally.
