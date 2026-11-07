@@ -78,3 +78,16 @@ canonical backend brief/contract links, scope and validation limits. Original
 checkout and unrelated work preserved. Documentation paths/status and
 `git diff --check` verified; no Flutter build/test or deployment performed in this
 repository. Live DEV AI credentials and integrated journey are tracked centrally.
+
+
+## 7 November 2026 — Smart Booking Assistant cost revision
+
+The user chose deterministic English/Arabic service guidance and explicit service
+choices instead of paid AI calls. Current product naming is Smart Booking Assistant;
+no external model or API key is required. The canonical backend brief/contract and
+[repository handoff](docs/features/customer-ai-assistant/handoff.md) track this
+revision on the existing `codex/customer-ai-assistant` feature branch. Application
+behavior/API: **no change** in this repository; existing catalog, availability and
+booking/fulfillment/reporting contracts remain authoritative. Documentation paths,
+status and `git diff --check` verified. No app build or deployment here; integrated
+DEV rollout is tracked by the backend evidence and remains separately verified.
