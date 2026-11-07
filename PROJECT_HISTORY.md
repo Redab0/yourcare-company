@@ -91,3 +91,68 @@ behavior/API: **no change** in this repository; existing catalog, availability a
 booking/fulfillment/reporting contracts remain authoritative. Documentation paths,
 status and `git diff --check` verified. No app build or deployment here; integrated
 DEV rollout is tracked by the backend evidence and remains separately verified.
+
+## 7 November 2026 — Smart Booking Assistant DEV activation and API journey
+
+On `codex/customer-ai-assistant`, recorded the lead's DEV activation of guided
+backend source `1c83af8` through normal Captain image-only Save. The active
+`yourcare:smart-booking-dev-20261107-api` image and digest are recorded in the
+[repository handoff](docs/features/customer-ai-assistant/handoff.md); all 33
+retained services were unchanged. Provider application code and API-client
+contracts: **no change**; no build, UI test or deployment in this repository.
+
+Synthetic DEV order **HK149** passed assistant availability, a **4.000 KWD** server
+quote, wallet payment, confirmation and provider visit start/completion, with the
+same order visible through customer/provider/admin APIs. The provider detail
+read used its Mongo ID; this result does not establish compatibility of the
+client's readable-ID refresh path. Read/start retries did
+not duplicate financial records; unauthorized customer provider-status access
+returned 403 and a skipped transition returned 400. The shared
+[booking-flow evidence](https://github.com/Redab0/you-care-backend/blob/codex/customer-ai-assistant/docs/features/customer-ai-assistant/booking-flow-dev-20261107.md)
+records the detailed environment and results rather than another contract here.
+
+Signed-in customer UI checkout remains **unverified**, pending emulator access;
+provider/admin UI testing was not run. No paid AI, external payment-gateway
+transaction, production change or mobile/store release. Original checkouts and
+unrelated work remain preserved. Documentation paths/status and `git diff --check`
+verified; Flutter builds/tests were not run for this documentation-only follow-up.
+
+## 7 November 2026 — Provider readable-ID compatibility finding; R2 planned
+
+Read-only review on `codex/customer-ai-assistant` found that provider
+`HouseKeepingHistory.id` preserves the backend's readable order ID. The jobs
+detail refresh sends that ID unchanged to `/company/requests/{id}`; no separate
+Mongo request ID is retained. Independent R1 probes returned customer
+`GET /requests/HK149` 200 and provider `GET /company/requests/HK149` 400. Initial
+details can render the passed list model, but the Mongo-ID API pass above is
+not proof of provider refresh/UI compatibility. Other status endpoints have
+separate validation and lookup paths and are not all declared broken.
+
+The existing backend `5514412` controller/`RequestIdDto` fix is in the feature
+branch but was absent from the older R1 deployment base. Planned R2 changes
+only two compiled backend files for compatible company request-ID validation;
+service/auth/payment/ownership behavior and provider application code remain
+unchanged. Live R2 activation and readable/Mongo GET results are still pending,
+owned by the canonical backend [contract](https://github.com/Redab0/you-care-backend/blob/codex/customer-ai-assistant/docs/features/customer-ai-assistant/api-contract.md)
+and [booking-flow evidence](https://github.com/Redab0/you-care-backend/blob/codex/customer-ai-assistant/docs/features/customer-ai-assistant/booking-flow-dev-20261107.md).
+The [provider handoff](docs/features/customer-ai-assistant/handoff.md) records the
+scope and current limits. Documentation-only correction: no provider source,
+binary, runtime or UI changes; prior tests were not rerun and no UI pass claimed.
+
+
+## 7 November 2026 — Verified DEV r2 compatibility and fixture retirement
+
+Documentation-only follow-up on `codex/customer-ai-assistant`. The backend r2
+image `eaaab9a8299e` now accepts provider readable and Mongo request IDs using
+existing fix `5514412`; public HK149 reads match across roles. The two-file
+runtime change preserves service/auth/payment code and 514 original JS files.
+Synthetic HK149 remains completed and paid 4.000 KWD with financial state unchanged.
+The test company is paused, three test users disabled/old tokens 401; audit records
+retained without hard deletion. All 33 retained services / 22 containers unchanged.
+Application code and client API declarations: **no change** in this follow-up.
+Native UI/gateway tests were not run and production was not changed. The owned
+test emulator is stopped with AVD/APK retained; temporary login file removed.
+[Canonical live DEV evidence](https://github.com/Redab0/you-care-backend/blob/codex/customer-ai-assistant/docs/features/customer-ai-assistant/booking-flow-dev-20261107.md)
+records source/build/test/deployment references and exact results. Documentation
+links, final diffs/status and `git diff --check` were verified; earlier client
+tests were not rerun.
