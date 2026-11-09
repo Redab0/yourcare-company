@@ -235,6 +235,8 @@ class _LaundryJobDetailsScreenState extends State<LaundryJobDetailsScreen> {
     final address = order.pickupAddress;
     final mapLink =
         OpenMapAction.googleMapsLink(address?.latitude, address?.longitude);
+    final delivery = laundryDeliveryOptionLabel(context, detail.deliveryOption);
+    final deliveryDate = laundryDeliveryDateLabel(context, detail.deliveryDate);
     await shareTextFrom(
         shareContext,
         [
@@ -243,7 +245,14 @@ class _LaundryJobDetailsScreenState extends State<LaundryJobDetailsScreen> {
           '${context.l10n.request_status}: ${laundryStatusLabel(context, detail.displayStatus)}',
           '${context.l10n.signup_name}: ${order.customer.username ?? '-'}',
           '${context.l10n.signup_phone}: ${order.customer.phone ?? '-'}',
-          '${context.l10n.request_date_time}: ${RequestFmt.date(scheduled)} ${RequestFmt.time(scheduled)}',
+          if (detail.isAsapPickup)
+            '${context.l10n.laundry_pickup}: ${context.l10n.laundry_pickup_asap}'
+          else
+            '${context.l10n.request_date_time}: ${RequestFmt.date(scheduled)} ${RequestFmt.time(scheduled)}',
+          if (delivery != null)
+            '${context.l10n.laundry_delivery_option}: $delivery',
+          if (deliveryDate != null)
+            '${context.l10n.laundry_delivery_date}: $deliveryDate',
           '${context.l10n.address}: ${_addressLabel(order)}',
           if (mapLink != null) 'Google Maps: $mapLink',
           '${context.l10n.laundry_payment_status}: ${laundryStatusLabel(context, detail.paymentStatus)}',
@@ -271,6 +280,10 @@ class _LaundryJobDetailsScreenState extends State<LaundryJobDetailsScreen> {
         final arabic = context.l10n.localeName.startsWith('ar');
         final invoice = detail.invoice;
         final scheduled = detail.scheduledTime ?? order.scheduledTime;
+        final delivery =
+            laundryDeliveryOptionLabel(context, detail.deliveryOption);
+        final deliveryDate =
+            laundryDeliveryDateLabel(context, detail.deliveryDate);
         final statusAccent =
             detail.status == 'cancelled' || detail.status == 'pickup_rejected'
                 ? Theme.of(context).colorScheme.error
@@ -318,7 +331,9 @@ class _LaundryJobDetailsScreenState extends State<LaundryJobDetailsScreen> {
                             backgroundColor: statusAccent,
                           ),
                         ),
-                        LaundrySameDayBadge(sameDay: detail.sameDay),
+                        LaundrySameDayBadge(
+                            sameDay: detail.sameDay,
+                            deliveryOption: detail.deliveryOption),
                         _section(context.l10n.laundry_customer, [
                           _row(context.l10n.signup_name,
                               order.customer.username ?? '-'),
@@ -328,12 +343,21 @@ class _LaundryJobDetailsScreenState extends State<LaundryJobDetailsScreen> {
                             ContactActions(phoneNumber: order.customer.phone!),
                         ]),
                         _section(context.l10n.job_details, [
-                          if (scheduled != null)
+                          if (detail.isAsapPickup)
+                            _row(context.l10n.laundry_pickup,
+                                context.l10n.laundry_pickup_asap)
+                          else if (scheduled != null)
                             _row(
                                 context.l10n.request_date_time,
                                 DateFormat.yMMMd(context.l10n.localeName)
                                     .add_jm()
                                     .format(kuwaitWallTime(scheduled))),
+                          if (delivery != null)
+                            _row(
+                                context.l10n.laundry_delivery_option, delivery),
+                          if (deliveryDate != null)
+                            _row(context.l10n.laundry_delivery_date,
+                                deliveryDate),
                           _row(context.l10n.address, _addressLabel(order)),
                           if (OpenMapAction.hasValidCoordinates(
                               address?.latitude, address?.longitude))

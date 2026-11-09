@@ -4269,6 +4269,36 @@ abstract class AppLocalizations {
   /// **'Same Day'**
   String get laundry_same_day;
 
+  /// No description provided for @laundry_next_day.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Day'**
+  String get laundry_next_day;
+
+  /// No description provided for @laundry_pickup.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup'**
+  String get laundry_pickup;
+
+  /// No description provided for @laundry_pickup_asap.
+  ///
+  /// In en, this message translates to:
+  /// **'ASAP'**
+  String get laundry_pickup_asap;
+
+  /// No description provided for @laundry_delivery_option.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get laundry_delivery_option;
+
+  /// No description provided for @laundry_delivery_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery date'**
+  String get laundry_delivery_date;
+
   /// No description provided for @laundry_same_day_help.
   ///
   /// In en, this message translates to:

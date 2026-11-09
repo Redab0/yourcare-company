@@ -16,6 +16,10 @@ LaundryDetails _$LaundryDetailsFromJson(Map<String, dynamic> json) =>
           status: $checkedConvert('status', (v) => v as String),
           paymentStatus: $checkedConvert('paymentStatus', (v) => v as String),
           sameDay: $checkedConvert('sameDay', (v) => v as bool? ?? false),
+          pickupMode: $checkedConvert('pickupMode', (v) => v as String?),
+          deliveryOption:
+              $checkedConvert('deliveryOption', (v) => v as String?),
+          deliveryDate: $checkedConvert('deliveryDate', (v) => v as String?),
           minimumCharge:
               $checkedConvert('minimumCharge', (v) => (v as num?)?.toDouble()),
           addressId: $checkedConvert('addressId', (v) => _referenceId(v)),
@@ -58,6 +62,9 @@ Map<String, dynamic> _$LaundryDetailsToJson(LaundryDetails instance) =>
       'status': instance.status,
       'paymentStatus': instance.paymentStatus,
       'sameDay': instance.sameDay,
+      if (instance.pickupMode case final value?) 'pickupMode': value,
+      if (instance.deliveryOption case final value?) 'deliveryOption': value,
+      if (instance.deliveryDate case final value?) 'deliveryDate': value,
       if (instance.minimumCharge case final value?) 'minimumCharge': value,
       if (instance.addressId case final value?) 'addressId': value,
       if (instance.areaId case final value?) 'areaId': value,

@@ -140,7 +140,10 @@ class JobTile extends StatelessWidget {
                 ),
                 if (request is LaundryHistory)
                   LaundrySameDayBadge(
-                      sameDay: (request as LaundryHistory).detail.sameDay),
+                    sameDay: (request as LaundryHistory).detail.sameDay,
+                    deliveryOption:
+                        (request as LaundryHistory).detail.deliveryOption,
+                  ),
                 RegistrationGiftBadge(request: request),
                 const SizedBox(height: 4),
                 Text(
@@ -159,7 +162,21 @@ class JobTile extends StatelessWidget {
                 if (request.showsScheduleInBusinessApp) ...[
                   const SizedBox(height: 4),
                   Text(
-                    _schedule ?? context.l10n.as_soon_as_possible,
+                    request is LaundryHistory &&
+                            (request as LaundryHistory).detail.isAsapPickup
+                        ? '${context.l10n.laundry_pickup}: ${context.l10n.laundry_pickup_asap}'
+                        : _schedule ?? context.l10n.as_soon_as_possible,
+                    style: theme.textTheme.bodySmall!
+                        .copyWith(color: Colors.blueGrey),
+                  ),
+                ],
+                if (request is LaundryHistory &&
+                    laundryDeliveryDateLabel(context,
+                            (request as LaundryHistory).detail.deliveryDate) !=
+                        null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    '${context.l10n.laundry_delivery_date}: ${laundryDeliveryDateLabel(context, (request as LaundryHistory).detail.deliveryDate)}',
                     style: theme.textTheme.bodySmall!
                         .copyWith(color: Colors.blueGrey),
                   ),

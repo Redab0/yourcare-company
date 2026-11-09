@@ -792,6 +792,11 @@
     }
   },
   "laundry_same_day": "نفس اليوم",
+  "laundry_next_day": "اليوم التالي",
+  "laundry_pickup": "الاستلام",
+  "laundry_pickup_asap": "في أقرب وقت",
+  "laundry_delivery_option": "التوصيل",
+  "laundry_delivery_date": "تاريخ التوصيل",
   "laundry_same_day_help": "قدّم خدمة نفس اليوم للطلبات المحجوزة قبل الموعد النهائي. الطلبات المحجوزة عند الموعد النهائي أو بعده غير مؤهلة.",
   "laundry_same_day_enable": "تفعيل خدمة نفس اليوم",
   "laundry_same_day_cutoff": "الموعد النهائي للحجز",

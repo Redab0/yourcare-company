@@ -792,6 +792,11 @@
     }
   },
   "laundry_same_day": "Same Day",
+  "laundry_next_day": "Next Day",
+  "laundry_pickup": "Pickup",
+  "laundry_pickup_asap": "ASAP",
+  "laundry_delivery_option": "Delivery",
+  "laundry_delivery_date": "Delivery date",
   "laundry_same_day_help": "Offer same-day service for orders booked before your cutoff time. Orders booked at or after the cutoff are not eligible.",
   "laundry_same_day_enable": "Enable same-day service",
   "laundry_same_day_cutoff": "Booking cutoff",

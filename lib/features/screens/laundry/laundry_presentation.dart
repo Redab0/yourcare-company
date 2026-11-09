@@ -1,6 +1,26 @@
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:cleaning_service_driver/data/models/laundry/laundry_models.dart';
+import 'package:intl/intl.dart';
+
+String? laundryDeliveryOptionLabel(BuildContext context, String? option) =>
+    switch (option) {
+      'same_day' => context.l10n.laundry_same_day,
+      'next_day' => context.l10n.laundry_next_day,
+      _ => null,
+    };
+
+/// Delivery dates are Kuwait calendar days, not instants to timezone-project.
+String? laundryDeliveryDateLabel(BuildContext context, String? value) {
+  if (value == null || !RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value)) {
+    return null;
+  }
+  final date = DateTime.tryParse(value);
+  if (date == null || date.toIso8601String().substring(0, 10) != value) {
+    return null;
+  }
+  return DateFormat.yMMMd(context.l10n.localeName).format(date);
+}
 
 String laundryStatusLabel(BuildContext context, String status) =>
     switch (status) {

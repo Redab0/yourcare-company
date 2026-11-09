@@ -13,6 +13,7 @@ import 'package:cleaning_service_driver/core/themes/app_theme.dart';
 import 'package:cleaning_service_driver/core/utils/context_extensions.dart';
 import 'package:cleaning_service_driver/core/utils/request_helpers.dart';
 import 'package:cleaning_service_driver/data/models/requests/cleaning_request.dart';
+import 'package:cleaning_service_driver/data/models/laundry/laundry_history.dart';
 import 'package:cleaning_service_driver/data/models/requests/car_wash_history.dart';
 import 'package:cleaning_service_driver/data/models/requests/deep_cleaning_history.dart';
 import 'package:cleaning_service_driver/data/models/requests/house_keeping_history.dart';
@@ -21,6 +22,7 @@ import 'package:cleaning_service_driver/features/bloc/requests/requests_bloc.dar
 import 'package:cleaning_service_driver/features/bloc/requests/requests_event.dart';
 import 'package:cleaning_service_driver/features/bloc/requests/requests_state.dart';
 import 'package:cleaning_service_driver/features/onboarding/business_showcase.dart';
+import 'package:cleaning_service_driver/features/screens/laundry/laundry_presentation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -181,18 +183,26 @@ class _RequestsScreenState extends State<RequestsScreen> {
               request: req,
               area: _areaForRequest(req),
               summaryLabel: _summaryLabel(req, context),
-              summaryDate: req.showsScheduleInBusinessApp
-                  ? req.scheduledTime == null
-                      ? context.l10n.as_soon_as_possible
-                      : req.type == 'houseCleaning'
-                          ? DateFormat.yMMMd(Localizations.localeOf(context)
-                                  .toLanguageTag())
-                              .add_jm()
-                              .format(kuwaitWallTime(req.scheduledTime!))
-                          : DateFormat.yMMMd(Localizations.localeOf(context)
-                                  .toLanguageTag())
-                              .format(kuwaitWallTime(req.scheduledTime!))
-                  : null,
+              summaryDate: req is LaundryHistory && req.detail.isAsapPickup
+                  ? [
+                      '${context.l10n.laundry_pickup}: ${context.l10n.laundry_pickup_asap}',
+                      laundryDeliveryOptionLabel(
+                          context, req.detail.deliveryOption),
+                      laundryDeliveryDateLabel(
+                          context, req.detail.deliveryDate),
+                    ].whereType<String>().join(' · ')
+                  : req.showsScheduleInBusinessApp
+                      ? req.scheduledTime == null
+                          ? context.l10n.as_soon_as_possible
+                          : req.type == 'houseCleaning'
+                              ? DateFormat.yMMMd(Localizations.localeOf(context)
+                                      .toLanguageTag())
+                                  .add_jm()
+                                  .format(kuwaitWallTime(req.scheduledTime!))
+                              : DateFormat.yMMMd(Localizations.localeOf(context)
+                                      .toLanguageTag())
+                                  .format(kuwaitWallTime(req.scheduledTime!))
+                      : null,
               summaryPrice: "",
               pillColor: _pillColorFor(req),
               child: AvailableRequestCard(
@@ -317,6 +327,7 @@ String _summaryLabel(CleaningRequest req, BuildContext context) {
   if (t == 'upholsterycleaning') return context.l10n.upholstery_cleaning;
   if (t == 'housecleaning') return context.l10n.houseKeeping;
   if (t == 'carwash') return context.l10n.car_wash_service;
+  if (t == 'laundry') return context.l10n.laundry_service;
   return req.type ?? '';
 }
 

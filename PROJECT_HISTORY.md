@@ -1,5 +1,31 @@
 # Provider project history
 
+## 9 November 2026 — Prepare Laundry ASAP deployment branch
+
+Prepared `codex/laundry-asap-booking-cutoffs` from `develop` at `3c57549` in an
+isolated worktree. Includes only the Laundry snapshot model/generated reads,
+ASAP pickup and saved Same Day/Next Day delivery/date presentation in lists,
+request summaries, details and share text, synchronized EN/AR outputs and focused
+ASAP/legacy tests. Original dirty worktree files are preserved byte-for-byte;
+demo banner suppression, private artifacts and unrelated history are excluded.
+Versions, native files, default API selection and partner cutoff editor remain
+at the base revision.
+
+Fresh checks: full unfiltered build_runner and `flutter gen-l10n --format` passed;
+all 13 feature files match the reviewed original source bytes. Full tests:
+613 passed; focused ASAP/badge tests: 21 passed; development isolation/banner
+checks: 9 passed. Full analyzer: the same 58 existing diagnostics as the reviewed
+baseline (22 warnings, 36 info), zero errors and zero added/resolved diagnostics.
+Sixteen font-backed EN/AR list/detail previews at 360/800 widths passed visual
+review. Formatting and `git diff --check` passed.
+
+This prepares source only: no push, merge, mobile/store publication, version
+allocation, live configuration/data change or deployment was performed. Fresh
+local tests do not establish a deployed end-to-end pass; backend compatibility
+and rollout remain the lead's responsibility. Canonical
+[release brief](/Users/bshaqra/IdeaProjects/you-care-backend/docs/features/asap-booking-cutoffs-release/brief.md)
+and its contract index record scope, dependencies and rollout order.
+
 ## 1 November 2026 — preserve the current development baseline
 
 The repository owner requested backing up current local work to GitHub and merging

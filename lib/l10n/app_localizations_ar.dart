@@ -2256,6 +2256,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get laundry_same_day => 'نفس اليوم';
 
   @override
+  String get laundry_next_day => 'اليوم التالي';
+
+  @override
+  String get laundry_pickup => 'الاستلام';
+
+  @override
+  String get laundry_pickup_asap => 'في أقرب وقت';
+
+  @override
+  String get laundry_delivery_option => 'التوصيل';
+
+  @override
+  String get laundry_delivery_date => 'تاريخ التوصيل';
+
+  @override
   String get laundry_same_day_help =>
       'قدّم خدمة نفس اليوم للطلبات المحجوزة قبل الموعد النهائي. الطلبات المحجوزة عند الموعد النهائي أو بعده غير مؤهلة.';
 

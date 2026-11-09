@@ -16,6 +16,9 @@ class LaundryDetails {
   final String status;
   final String paymentStatus;
   final bool sameDay;
+  final String? pickupMode;
+  final String? deliveryOption;
+  final String? deliveryDate;
   final double? minimumCharge;
   @JsonKey(fromJson: _referenceId)
   final String? addressId;
@@ -36,6 +39,9 @@ class LaundryDetails {
       required this.status,
       required this.paymentStatus,
       this.sameDay = false,
+      this.pickupMode,
+      this.deliveryOption,
+      this.deliveryDate,
       this.minimumCharge,
       this.addressId,
       this.areaId,
@@ -55,6 +61,9 @@ class LaundryDetails {
         status: status,
         paymentStatus: paymentStatus,
         sameDay: sameDay,
+        pickupMode: pickupMode,
+        deliveryOption: deliveryOption,
+        deliveryDate: deliveryDate,
         minimumCharge: minimumCharge,
         addressId: addressId,
         areaId: areaId,
@@ -68,6 +77,7 @@ class LaundryDetails {
       );
 
   bool get isPickupFirst => pricingMode == 'pickup_invoice_later';
+  bool get isAsapPickup => pickupMode == 'asap';
   bool get isPaid => paymentStatus == 'paid';
   bool get isSettled => isPaid && invoice?.status == 'paid';
   bool get isTerminal =>

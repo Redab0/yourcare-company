@@ -2262,6 +2262,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get laundry_same_day => 'Same Day';
 
   @override
+  String get laundry_next_day => 'Next Day';
+
+  @override
+  String get laundry_pickup => 'Pickup';
+
+  @override
+  String get laundry_pickup_asap => 'ASAP';
+
+  @override
+  String get laundry_delivery_option => 'Delivery';
+
+  @override
+  String get laundry_delivery_date => 'Delivery date';
+
+  @override
   String get laundry_same_day_help =>
       'Offer same-day service for orders booked before your cutoff time. Orders booked at or after the cutoff are not eligible.';
 
